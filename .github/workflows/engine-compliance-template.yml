@@ -1,0 +1,402 @@
+# Engine Compliance Template
+# 
+# This is a template workflow that engine developers can copy to their repositories
+# to automatically run Substrait compliance tests in their CI/CD pipeline.
+#
+# Instructions:
+# 1. Copy this file to your repository's .github/workflows/ directory
+# 2. Update the ENGINE_NAME and ENGINE_IMPLEMENTATION variables
+# 3. Modify the build and test steps for your engine
+# 4. Set up secrets if needed (e.g., for publishing results)
+# 5. Adjust the compliance threshold as needed
+
+name: Substrait Compliance
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  schedule:
+    # Run weekly on Monday at 00:00 UTC
+    - cron: '0 0 * * 1'
+  workflow_dispatch:
+
+env:
+  ENGINE_NAME: "YourEngine"  # CHANGE THIS: e.g., "DuckDB", "DataFusion", "Spark"
+  ENGINE_VERSION: "1.0.0"    # CHANGE THIS: Your engine version
+  COMPLIANCE_THRESHOLD: 80   # Minimum pass rate (%) to pass CI
+  COMPLIANCE_SDK_VERSION: "1.0.0"  # Substrait Compliance SDK version
+
+jobs:
+  setup:
+    name: Setup Compliance Environment
+    runs-on: ubuntu-latest
+    outputs:
+      sdk-version: ${{ steps.get-versions.outputs.sdk-version }}
+      test-suite-version: ${{ steps.get-versions.outputs.test-suite-version }}
+    
+    steps:
+      - name: Get latest versions
+        id: get-versions
+        run: |
+          # Get latest SDK version from GitHub releases
+          SDK_VERSION=$(curl -s https://api.github.com/repos/substrait-io/compliance/releases/latest | jq -r .tag_name | sed 's/v//')
+          echo "sdk-version=$SDK_VERSION" >> $GITHUB_OUTPUT
+          echo "test-suite-version=$SDK_VERSION" >> $GITHUB_OUTPUT
+          echo "📦 Using Compliance SDK version: $SDK_VERSION"
+
+  download-compliance-assets:
+    name: Download Compliance Assets
+    runs-on: ubuntu-latest
+    needs: setup
+    
+    steps:
+      - name: Download Java SDK
+        run: |
+          wget https://github.com/substrait-io/compliance/releases/download/v${{ needs.setup.outputs.sdk-version }}/substrait-compliance-java-${{ needs.setup.outputs.sdk-version }}.jar \
+            -O substrait-compliance.jar
+      
+      - name: Download TPC-H Test Suite
+        run: |
+          wget https://github.com/substrait-io/compliance/releases/download/v${{ needs.setup.outputs.test-suite-version }}/tpch-test-suite-${{ needs.setup.outputs.test-suite-version }}.zip \
+            -O tpch-test-suite.zip
+          unzip tpch-test-suite.zip -d tpch-test-suite
+      
+      - name: Download checksums
+        run: |
+          wget https://github.com/substrait-io/compliance/releases/download/v${{ needs.setup.outputs.test-suite-version }}/tpch-checksums-${{ needs.setup.outputs.test-suite-version }}.txt \
+            -O tpch-checksums.txt
+      
+      - name: Verify checksums
+        run: |
+          cd tpch-test-suite
+          sha256sum -c ../tpch-checksums.txt
+          echo "✅ Checksums verified"
+      
+      - name: Upload compliance assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-assets
+          path: |
+            substrait-compliance.jar
+            tpch-test-suite/
+            tpch-checksums.txt
+
+  build-engine:
+    name: Build Engine
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout engine code
+        uses: actions/checkout@v4
+      
+      # CUSTOMIZE THIS SECTION FOR YOUR ENGINE
+      - name: Set up build environment
+        run: |
+          # Example for Java-based engine
+          # sudo apt-get update
+          # sudo apt-get install -y openjdk-11-jdk
+          
+          # Example for Python-based engine
+          # python -m pip install --upgrade pip
+          # pip install -r requirements.txt
+          
+          # Example for Rust-based engine
+          # curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+          
+          echo "⚠️ CUSTOMIZE THIS: Set up your engine's build environment"
+      
+      - name: Build engine
+        run: |
+          # CUSTOMIZE THIS: Build your engine
+          # Examples:
+          # ./gradlew build
+          # cargo build --release
+          # python setup.py build
+          
+          echo "⚠️ CUSTOMIZE THIS: Build your engine"
+      
+      - name: Upload engine artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: engine-build
+          path: |
+            # CUSTOMIZE THIS: Path to your built engine
+            # build/libs/*.jar
+            # target/release/your-engine
+            # dist/
+            .
+
+  implement-compliance-engine:
+    name: Implement Compliance Engine
+    runs-on: ubuntu-latest
+    needs: [build-engine, download-compliance-assets]
+    
+    steps:
+      - name: Checkout engine code
+        uses: actions/checkout@v4
+      
+      - name: Download compliance assets
+        uses: actions/download-artifact@v4
+        with:
+          name: compliance-assets
+      
+      - name: Download engine build
+        uses: actions/download-artifact@v4
+        with:
+          name: engine-build
+      
+      # CUSTOMIZE THIS SECTION FOR YOUR ENGINE
+      - name: Implement ComplianceEngine interface
+        run: |
+          # This is where you implement the ComplianceEngine interface
+          # for your engine. See examples in the compliance repository:
+          # - Java: examples/duckdb-java/
+          # - Python: examples/datafusion-python/
+          
+          echo "⚠️ CUSTOMIZE THIS: Implement ComplianceEngine for your engine"
+          echo "See: https://github.com/substrait-io/compliance/tree/main/examples"
+      
+      - name: Build compliance implementation
+        run: |
+          # CUSTOMIZE THIS: Build your compliance implementation
+          # Examples:
+          # cd compliance && ./gradlew build
+          # cd compliance && cargo build --release
+          # cd compliance && pip install -e .
+          
+          echo "⚠️ CUSTOMIZE THIS: Build your compliance implementation"
+      
+      - name: Upload compliance implementation
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-implementation
+          path: |
+            # CUSTOMIZE THIS: Path to your compliance implementation
+            compliance/
+
+  run-compliance-tests:
+    name: Run Compliance Tests
+    runs-on: ubuntu-latest
+    needs: implement-compliance-engine
+    
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+      
+      - name: Set up test environment
+        run: |
+          # CUSTOMIZE THIS: Set up environment for running tests
+          echo "Setting up test environment..."
+      
+      - name: Run TPC-H compliance tests
+        id: run-tests
+        run: |
+          # CUSTOMIZE THIS: Run your compliance tests
+          # Example for Java:
+          # java -jar compliance-implementation/your-engine-compliance.jar \
+          #   --test-suite tpch-test-suite/metadata.yaml \
+          #   --output compliance-report.json
+          
+          # Example for Python:
+          # python compliance-implementation/run_compliance.py \
+          #   --test-suite tpch-test-suite/metadata.yaml \
+          #   --output compliance-report.json
+          
+          # Example for Rust:
+          # ./compliance-implementation/target/release/your-engine-compliance \
+          #   --test-suite tpch-test-suite/metadata.yaml \
+          #   --output compliance-report.json
+          
+          echo "⚠️ CUSTOMIZE THIS: Run your compliance tests"
+          
+          # For demonstration, create a mock report
+          cat > compliance-report.json << 'EOF'
+          {
+            "engineName": "${{ env.ENGINE_NAME }}",
+            "engineVersion": "${{ env.ENGINE_VERSION }}",
+            "testSuite": "tpch",
+            "testSuiteVersion": "1.0.0",
+            "timestamp": "2026-04-01T00:00:00Z",
+            "totalTests": 22,
+            "passed": 18,
+            "failed": 4,
+            "skipped": 0,
+            "passRate": 81.8,
+            "results": []
+          }
+          EOF
+      
+      - name: Parse compliance results
+        id: parse-results
+        run: |
+          PASS_RATE=$(jq -r '.passRate' compliance-report.json)
+          PASSED=$(jq -r '.passed' compliance-report.json)
+          TOTAL=$(jq -r '.totalTests' compliance-report.json)
+          
+          echo "pass-rate=$PASS_RATE" >> $GITHUB_OUTPUT
+          echo "passed=$PASSED" >> $GITHUB_OUTPUT
+          echo "total=$TOTAL" >> $GITHUB_OUTPUT
+          
+          echo "📊 Compliance Results:"
+          echo "  Pass Rate: $PASS_RATE%"
+          echo "  Passed: $PASSED/$TOTAL"
+      
+      - name: Upload compliance report
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-report
+          path: compliance-report.json
+      
+      - name: Check compliance threshold
+        run: |
+          PASS_RATE=${{ steps.parse-results.outputs.pass-rate }}
+          THRESHOLD=${{ env.COMPLIANCE_THRESHOLD }}
+          
+          if (( $(echo "$PASS_RATE < $THRESHOLD" | bc -l) )); then
+            echo "❌ Compliance rate $PASS_RATE% is below threshold $THRESHOLD%"
+            echo "::error::Compliance tests failed: $PASS_RATE% < $THRESHOLD%"
+            exit 1
+          else
+            echo "✅ Compliance rate $PASS_RATE% meets threshold $THRESHOLD%"
+          fi
+
+  generate-badge:
+    name: Generate Compliance Badge
+    runs-on: ubuntu-latest
+    needs: run-compliance-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Download compliance report
+        uses: actions/download-artifact@v4
+        with:
+          name: compliance-report
+      
+      - name: Generate badge
+        run: |
+          PASS_RATE=$(jq -r '.passRate' compliance-report.json)
+          
+          # Determine badge color
+          if (( $(echo "$PASS_RATE >= 90" | bc -l) )); then
+            COLOR="brightgreen"
+          elif (( $(echo "$PASS_RATE >= 75" | bc -l) )); then
+            COLOR="yellow"
+          elif (( $(echo "$PASS_RATE >= 50" | bc -l) )); then
+            COLOR="orange"
+          else
+            COLOR="red"
+          fi
+          
+          # Generate badge URL
+          BADGE_URL="https://img.shields.io/badge/Substrait_Compliance-${PASS_RATE}%25-${COLOR}"
+          
+          # Download badge
+          curl "$BADGE_URL" -o compliance-badge.svg
+          
+          echo "✅ Generated badge: $BADGE_URL"
+      
+      - name: Commit badge
+        run: |
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          
+          # Create badges directory if it doesn't exist
+          mkdir -p .github/badges
+          
+          # Copy badge
+          cp compliance-badge.svg .github/badges/
+          
+          # Commit and push
+          git add .github/badges/compliance-badge.svg
+          git diff --staged --quiet || git commit -m "Update compliance badge: ${PASS_RATE}%"
+          git push
+
+  publish-results:
+    name: Publish Compliance Results
+    runs-on: ubuntu-latest
+    needs: run-compliance-tests
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    
+    steps:
+      - name: Download compliance report
+        uses: actions/download-artifact@v4
+        with:
+          name: compliance-report
+      
+      - name: Publish to compliance registry (optional)
+        run: |
+          # OPTIONAL: Publish results to a central compliance registry
+          # This allows the Substrait community to track compliance across engines
+          
+          # Example:
+          # curl -X POST https://compliance.substrait.io/api/reports \
+          #   -H "Authorization: Bearer ${{ secrets.COMPLIANCE_REGISTRY_TOKEN }}" \
+          #   -H "Content-Type: application/json" \
+          #   -d @compliance-report.json
+          
+          echo "ℹ️ OPTIONAL: Publish results to compliance registry"
+
+  summary:
+    name: Compliance Summary
+    runs-on: ubuntu-latest
+    needs: [run-compliance-tests, generate-badge]
+    if: always()
+    
+    steps:
+      - name: Download compliance report
+        uses: actions/download-artifact@v4
+        with:
+          name: compliance-report
+        continue-on-error: true
+      
+      - name: Generate summary
+        run: |
+          if [ -f compliance-report.json ]; then
+            ENGINE_NAME=$(jq -r '.engineName' compliance-report.json)
+            ENGINE_VERSION=$(jq -r '.engineVersion' compliance-report.json)
+            PASS_RATE=$(jq -r '.passRate' compliance-report.json)
+            PASSED=$(jq -r '.passed' compliance-report.json)
+            TOTAL=$(jq -r '.totalTests' compliance-report.json)
+            FAILED=$(jq -r '.failed' compliance-report.json)
+            
+            echo "## 🎯 Substrait Compliance Report" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Engine:** $ENGINE_NAME v$ENGINE_VERSION" >> $GITHUB_STEP_SUMMARY
+            echo "**Test Suite:** TPC-H" >> $GITHUB_STEP_SUMMARY
+            echo "**Date:** $(date -u +"%Y-%m-%d %H:%M:%S UTC")" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Results" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "| Metric | Value |" >> $GITHUB_STEP_SUMMARY
+            echo "|--------|-------|" >> $GITHUB_STEP_SUMMARY
+            echo "| **Pass Rate** | **${PASS_RATE}%** |" >> $GITHUB_STEP_SUMMARY
+            echo "| Passed | $PASSED |" >> $GITHUB_STEP_SUMMARY
+            echo "| Failed | $FAILED |" >> $GITHUB_STEP_SUMMARY
+            echo "| Total | $TOTAL |" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            
+            if (( $(echo "$PASS_RATE >= ${{ env.COMPLIANCE_THRESHOLD }}" | bc -l) )); then
+              echo "✅ **Compliance threshold met!** ($PASS_RATE% >= ${{ env.COMPLIANCE_THRESHOLD }}%)" >> $GITHUB_STEP_SUMMARY
+            else
+              echo "❌ **Compliance threshold not met.** ($PASS_RATE% < ${{ env.COMPLIANCE_THRESHOLD }}%)" >> $GITHUB_STEP_SUMMARY
+            fi
+            
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "### Badge" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "Add this to your README.md:" >> $GITHUB_STEP_SUMMARY
+            echo '```markdown' >> $GITHUB_STEP_SUMMARY
+            echo "![Substrait Compliance](.github/badges/compliance-badge.svg)" >> $GITHUB_STEP_SUMMARY
+            echo '```' >> $GITHUB_STEP_SUMMARY
+          else
+            echo "## ❌ Compliance Report Not Available" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "The compliance tests did not complete successfully." >> $GITHUB_STEP_SUMMARY
+          fi
+
+# Made with Bob

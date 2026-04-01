@@ -1,0 +1,23 @@
+[package]
+name = "substrait-compliance"
+version = "1.0.0"
+edition = "2021"
+authors = ["Substrait Community"]
+description = "Decentralized compliance testing SDK for Substrait engines"
+license = "Apache-2.0"
+repository = "https://github.com/substrait-io/substrait-compliance"
+keywords = ["substrait", "compliance", "testing", "query"]
+categories = ["development-tools::testing"]
+
+[dependencies]
+serde = { version = "1.0", features = ["derive"] }
+serde_yaml = "0.9"
+thiserror = "1.0"
+chrono = "0.4"
+
+[dev-dependencies]
+tokio = { version = "1.0", features = ["full"] }
+
+[lib]
+name = "substrait_compliance"
+path = "src/lib.rs"
