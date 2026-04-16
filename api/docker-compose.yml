@@ -1,0 +1,110 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: substrait-compliance-db
+    environment:
+      POSTGRES_DB: substrait_compliance
+      POSTGRES_USER: substrait
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-changeme}
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --locale=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "${DB_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U substrait -d substrait_compliance"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    networks:
+      - substrait-network
+    restart: unless-stopped
+
+  # Substrait Compliance API
+  api:
+    build:
+      context: ..
+      dockerfile: api/Containerfile
+    container_name: substrait-compliance-api
+    environment:
+      # Database Configuration
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/substrait_compliance
+      SPRING_DATASOURCE_USERNAME: substrait
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-changeme}
+      
+      # Flyway Configuration
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      
+      # JWT Configuration
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET environment variable is required}
+      JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      
+      # Rate Limiting
+      RATE_LIMIT_ENABLED: "true"
+      RATE_LIMIT_DEFAULT_LIMIT: ${RATE_LIMIT:-1000}
+      RATE_LIMIT_REFILL_DURATION_MINUTES: ${RATE_LIMIT_REFILL:-60}
+      
+      # Caching
+      SPRING_CACHE_TYPE: caffeine
+      
+      # Logging
+      LOGGING_LEVEL_IO_SUBSTRAIT: ${LOG_LEVEL:-INFO}
+      
+      # Spring Profile
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILE:-prod}
+      
+      # JVM Options
+      JAVA_OPTS: "-Xms512m -Xmx1024m -XX:+UseG1GC"
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+    networks:
+      - substrait-network
+    restart: unless-stopped
+    labels:
+      - "com.substrait.service=compliance-api"
+      - "com.substrait.version=1.0.0"
+
+  # Optional: PgAdmin for database management
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: substrait-pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@substrait.io}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_CONFIG_SERVER_MODE: "False"
+    ports:
+      - "${PGADMIN_PORT:-5050}:80"
+    depends_on:
+      - postgres
+    networks:
+      - substrait-network
+    restart: unless-stopped
+    profiles:
+      - tools
+
+volumes:
+  postgres_data:
+    driver: local
+    name: substrait_compliance_data
+
+networks:
+  substrait-network:
+    driver: bridge
+    name: substrait_compliance_network
+
+# Made with Bob

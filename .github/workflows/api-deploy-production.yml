@@ -1,0 +1,130 @@
+name: Deploy API to Production
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to deploy (e.g., v1.0.0 or main)'
+        required: true
+        type: string
+        default: 'main'
+
+env:
+  DEPLOYMENT_NAME: substrait-api
+  NAMESPACE: substrait-production
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: production
+      url: https://api.substrait.io
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.version }}
+      
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'v1.28.0'
+      
+      - name: Configure kubectl
+        run: |
+          mkdir -p $HOME/.kube
+          echo "${{ secrets.KUBE_CONFIG_PROD }}" | base64 -d > $HOME/.kube/config
+          chmod 600 $HOME/.kube/config
+      
+      - name: Verify cluster connection
+        run: |
+          kubectl cluster-info
+          kubectl get nodes
+      
+      - name: Create backup
+        run: |
+          kubectl get deployment ${{ env.DEPLOYMENT_NAME }} \
+            -n ${{ env.NAMESPACE }} \
+            -o yaml > deployment-backup-$(date +%Y%m%d-%H%M%S).yaml
+      
+      - name: Update deployment image
+        run: |
+          IMAGE_TAG="${{ inputs.version }}"
+          if [ "$IMAGE_TAG" = "main" ]; then
+            IMAGE_TAG="latest"
+          fi
+          
+          kubectl set image deployment/${{ env.DEPLOYMENT_NAME }} \
+            api=ghcr.io/${{ github.repository }}/substrait-compliance-api:$IMAGE_TAG \
+            -n ${{ env.NAMESPACE }}
+      
+      - name: Wait for rollout
+        run: |
+          kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} \
+            -n ${{ env.NAMESPACE }} \
+            --timeout=10m
+      
+      - name: Get deployment status
+        run: |
+          kubectl get deployment ${{ env.DEPLOYMENT_NAME }} -n ${{ env.NAMESPACE }}
+          kubectl get pods -n ${{ env.NAMESPACE }} -l app=substrait-api
+      
+      - name: Run comprehensive smoke tests
+        run: |
+          ENDPOINT="https://api.substrait.io"
+          
+          echo "Testing health endpoint..."
+          curl -f $ENDPOINT/actuator/health || exit 1
+          
+          echo "Testing liveness probe..."
+          curl -f $ENDPOINT/actuator/health/liveness || exit 1
+          
+          echo "Testing readiness probe..."
+          curl -f $ENDPOINT/actuator/health/readiness || exit 1
+          
+          echo "Testing API documentation..."
+          curl -f $ENDPOINT/swagger-ui.html || exit 1
+          
+          echo "✅ All smoke tests passed"
+      
+      - name: Rollback on failure
+        if: failure()
+        run: |
+          echo "❌ Deployment failed, initiating rollback..."
+          kubectl rollout undo deployment/${{ env.DEPLOYMENT_NAME }} \
+            -n ${{ env.NAMESPACE }}
+          kubectl rollout status deployment/${{ env.DEPLOYMENT_NAME }} \
+            -n ${{ env.NAMESPACE }} \
+            --timeout=5m
+          echo "✅ Rollback completed"
+      
+      - name: Create deployment record
+        if: success()
+        run: |
+          echo "Deployment successful" >> deployment-log.txt
+          echo "Version: ${{ inputs.version }}" >> deployment-log.txt
+          echo "Timestamp: $(date -u +%Y-%m-%dT%H:%M:%SZ)" >> deployment-log.txt
+          echo "Commit: ${{ github.sha }}" >> deployment-log.txt
+      
+      - name: Upload deployment record
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: deployment-record-${{ github.run_number }}
+          path: deployment-log.txt
+          retention-days: 365
+      
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            echo "✅ Production deployment successful"
+            echo "Version: ${{ inputs.version }}"
+            echo "URL: https://api.substrait.io"
+          else
+            echo "❌ Production deployment failed"
+            echo "Rollback initiated"
+          fi
+
+# Made with Bob

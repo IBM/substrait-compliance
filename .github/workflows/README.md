@@ -1,297 +1,333 @@
 # GitHub Actions Workflows
 
-This directory contains GitHub Actions workflows for the Substrait Compliance Framework.
+This directory contains CI/CD workflows for the Substrait Compliance Framework.
 
-## Workflows Overview
+## Workflows
 
-### 1. SDK Build & Test (`sdk-build-test.yml`)
+### API Workflows
 
-**Trigger:** Push, Pull Request to `main` or `develop`
+#### 1. PR Validation (`api-pr-validation.yml`)
+**Trigger**: Pull requests to main/develop  
+**Purpose**: Validate code changes before merge
 
-**Purpose:** Automatically build and test all SDKs (Java, Python, Rust) on every commit.
+**Steps**:
+- Checkout code
+- Setup Java 11
+- Run tests
+- Generate coverage report
+- Upload to Codecov
+- Comment results on PR
 
-**Jobs:**
-- `java-sdk`: Build and test Java SDK with JDK 11
-- `python-sdk`: Build and test Python SDK with Python 3.8-3.11
-- `rust-sdk`: Build and test Rust SDK with stable toolchain
-- `summary`: Generate test summary report
+**Required Secrets**: None (uses GITHUB_TOKEN)
 
-**Artifacts:**
-- Test results for each SDK
-- Coverage reports (JaCoCo, pytest-cov, tarpaulin)
+#### 2. Build and Test (`api-build-test.yml`)
+**Trigger**: Push to any branch  
+**Purpose**: Continuous validation
 
-**Status Checks:**
-- ✅ All tests must pass
-- ✅ Code coverage reports generated
-- ✅ Build artifacts created
+**Steps**:
+- Build JAR file
+- Run all tests
+- Generate test reports
+- Archive artifacts
+- Publish test results
 
----
+**Required Secrets**: None
 
-### 2. Release & Publish (`release-publish.yml`)
+#### 3. Container Build (`api-container-build.yml`)
+**Trigger**: Push to main/develop, manual  
+**Purpose**: Build and publish container images
 
-**Trigger:** 
-- Push tags matching `v*.*.*` (e.g., `v1.0.0`)
-- Manual workflow dispatch with version input
+**Steps**:
+- Build multi-platform images (amd64, arm64)
+- Push to GitHub Container Registry
+- Run Trivy security scan
+- Generate SBOM
+- Upload security results
 
-**Purpose:** Automate the release process for SDKs and test suites.
+**Required Secrets**:
+- `GITHUB_TOKEN` (automatic)
 
-**Jobs:**
-- `validate-version`: Validate version format (X.Y.Z)
-- `build-java`: Build Java SDK JAR
-- `build-python`: Build Python wheel and sdist
-- `build-rust`: Build Rust crate
-- `package-test-suite`: Create TPC-H test suite archive with checksums
-- `create-release`: Create GitHub release with all artifacts
-- `publish-java`: Publish to Maven Central (requires secrets)
-- `publish-python`: Publish to PyPI (requires secrets)
-- `publish-rust`: Publish to crates.io (requires secrets)
-- `summary`: Generate release summary
+**Permissions**:
+- `contents: read`
+- `packages: write`
+- `security-events: write`
 
-**Required Secrets:**
-- `MAVEN_USERNAME`: Maven Central username
-- `MAVEN_PASSWORD`: Maven Central password
-- `SIGNING_KEY`: GPG signing key for Maven
-- `SIGNING_PASSWORD`: GPG signing password
-- `PYPI_API_TOKEN`: PyPI API token
-- `CARGO_REGISTRY_TOKEN`: crates.io API token
+#### 4. Deploy to Staging (`api-deploy-staging.yml`)
+**Trigger**: After successful container build on develop  
+**Purpose**: Auto-deploy to staging environment
 
-**Artifacts:**
-- `substrait-compliance-java-{version}.jar`
-- `substrait_compliance-{version}-py3-none-any.whl`
-- `substrait-compliance-{version}.crate`
-- `tpch-test-suite-{version}.zip`
-- `tpch-checksums-{version}.txt`
+**Steps**:
+- Configure kubectl
+- Update deployment
+- Wait for rollout
+- Run smoke tests
+- Notify on completion
 
----
+**Required Secrets**:
+- `KUBE_CONFIG_STAGING` - Base64-encoded kubeconfig
 
-### 3. Test Suite Validation (`test-suite-validation.yml`)
+**Environment**: staging
 
-**Trigger:** 
-- Push, Pull Request to `main` or `develop` (when `test-suites/**` changes)
-- Manual workflow dispatch
+#### 5. Deploy to Production (`api-deploy-production.yml`)
+**Trigger**: Manual with version input  
+**Purpose**: Deploy to production with approval
 
-**Purpose:** Validate integrity and correctness of test suites.
+**Steps**:
+- Create backup
+- Update deployment
+- Wait for rollout
+- Run comprehensive smoke tests
+- Rollback on failure
+- Create deployment record
 
-**Jobs:**
-- `validate-tpch-metadata`: Validate YAML syntax and schema
-- `validate-tpch-data`: Validate CSV files and structure
-- `validate-tpch-plans`: Validate Substrait plan files
-- `generate-checksums`: Generate SHA256 checksums
-- `summary`: Generate validation summary
+**Required Secrets**:
+- `KUBE_CONFIG_PROD` - Base64-encoded kubeconfig
 
-**Validations:**
-- ✅ YAML metadata is valid
-- ✅ All required fields present
-- ✅ Test case IDs are unique
-- ✅ All CSV files exist and are not empty
-- ✅ CSV structure matches expected columns
-- ✅ All plan files referenced in metadata exist
-- ✅ JSON plans have valid syntax
-- ✅ Checksums generated for verification
+**Environment**: production (requires approval)
 
----
+#### 6. Release (`api-release.yml`)
+**Trigger**: Tag push (v*.*.*), manual  
+**Purpose**: Create GitHub releases
 
-### 4. Engine Compliance Template (`engine-compliance-template.yml`)
+**Steps**:
+- Build release artifacts
+- Generate changelog
+- Create GitHub release
+- Build and push release container
+- Upload JAR to release
 
-**Purpose:** Template workflow that engine developers can copy to their repositories.
-
-**Usage:**
-1. Copy this file to your engine repository's `.github/workflows/` directory
-2. Update `ENGINE_NAME` and `ENGINE_VERSION` variables
-3. Customize build and test steps for your engine
-4. Implement the `ComplianceEngine` interface
-5. Run compliance tests in your CI/CD
-
-**Customization Points:**
-- Build environment setup
-- Engine build commands
-- ComplianceEngine implementation
-- Test execution commands
-
-**Features:**
-- Downloads latest compliance SDK and test suite
-- Verifies checksums
-- Runs compliance tests
-- Generates compliance report
-- Creates compliance badge
-- Enforces compliance threshold (default: 80%)
-
-**Example Engines:**
-- DuckDB (Java)
-- DataFusion (Python)
-- Spark (Java/Scala)
-- Presto (Java)
-
----
-
-### 5. Compliance Leaderboard (`compliance-leaderboard.yml`)
-
-**Trigger:**
-- Weekly schedule (Sunday at 00:00 UTC)
-- Manual workflow dispatch
-- Repository dispatch event `compliance-report-submitted`
-
-**Purpose:** Aggregate compliance reports from all engines and generate public leaderboard.
-
-**Jobs:**
-- `collect-reports`: Fetch compliance reports from engine repositories
-- `generate-leaderboard`: Generate leaderboard in Markdown and JSON
-- `publish-leaderboard`: Commit leaderboard to repository
-- `deploy-to-pages`: Deploy interactive leaderboard to GitHub Pages
-- `notify`: Send notifications about leaderboard updates
-- `summary`: Generate workflow summary
-
-**Outputs:**
-- `docs/leaderboard.md`: Markdown leaderboard
-- `docs/leaderboard.json`: JSON leaderboard data
-- GitHub Pages site: Interactive HTML leaderboard
-
-**Leaderboard Features:**
-- Rankings by pass rate
-- Color-coded status indicators
-- Detailed results per engine
-- Statistics (average, highest, lowest)
-- Automatic updates
-
----
+**Required Secrets**: None (uses GITHUB_TOKEN)
 
 ## Setup Instructions
 
-### For Framework Maintainers
+### 1. Configure Secrets
 
-1. **Enable GitHub Actions:**
-   - Go to repository Settings → Actions → General
-   - Enable "Allow all actions and reusable workflows"
+Navigate to: `Settings > Secrets and variables > Actions`
 
-2. **Configure Secrets:**
-   ```
-   Settings → Secrets and variables → Actions → New repository secret
-   ```
-   Add the following secrets:
-   - `MAVEN_USERNAME`
-   - `MAVEN_PASSWORD`
-   - `SIGNING_KEY`
-   - `SIGNING_PASSWORD`
-   - `PYPI_API_TOKEN`
-   - `CARGO_REGISTRY_TOKEN`
+**Repository Secrets**:
+```bash
+# Kubernetes configs (base64-encoded)
+KUBE_CONFIG_STAGING=<base64-encoded-kubeconfig>
+KUBE_CONFIG_PROD=<base64-encoded-kubeconfig>
 
-3. **Enable GitHub Pages:**
-   - Go to Settings → Pages
-   - Source: GitHub Actions
-   - This enables the leaderboard website
+# Optional: For enhanced features
+CODECOV_TOKEN=<codecov-token>
+SLACK_WEBHOOK_URL=<slack-webhook-url>
+```
 
-4. **Create Release:**
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
-   This triggers the release workflow.
+**Encoding kubeconfig**:
+```bash
+cat ~/.kube/config | base64 -w 0
+```
 
-### For Engine Developers
+### 2. Configure Environments
 
-1. **Copy Template:**
-   ```bash
-   cp .github/workflows/engine-compliance-template.yml \
-      your-engine/.github/workflows/substrait-compliance.yml
-   ```
+Navigate to: `Settings > Environments`
 
-2. **Customize Variables:**
-   ```yaml
-   env:
-     ENGINE_NAME: "YourEngine"
-     ENGINE_VERSION: "1.0.0"
-     COMPLIANCE_THRESHOLD: 80
-   ```
+**Staging Environment**:
+- Name: `staging`
+- URL: `https://api-staging.substrait.io`
+- Protection rules: None (auto-deploy)
 
-3. **Implement ComplianceEngine:**
-   - See examples in `/examples/` directory
-   - Implement the interface for your engine
-   - Build compliance implementation
+**Production Environment**:
+- Name: `production`
+- URL: `https://api.substrait.io`
+- Protection rules:
+  - Required reviewers: 2
+  - Wait timer: 0 minutes
+  - Deployment branches: main only
 
-4. **Run Tests:**
-   - Push to your repository
-   - Workflow runs automatically
-   - View results in Actions tab
+### 3. Enable GitHub Container Registry
 
----
+Navigate to: `Settings > Packages`
+
+- Enable "Inherit access from source repository"
+- Set visibility to Public or Private
+
+### 4. Configure Branch Protection
+
+Navigate to: `Settings > Branches`
+
+**Main Branch**:
+- Require pull request reviews (2 approvals)
+- Require status checks to pass:
+  - `validate` (from api-pr-validation)
+  - `build` (from api-build-test)
+- Require branches to be up to date
+- Require conversation resolution
+- Do not allow bypassing
+
+**Develop Branch**:
+- Require pull request reviews (1 approval)
+- Require status checks to pass
+- Allow force pushes (for rebasing)
+
+## Usage Examples
+
+### Running Workflows Manually
+
+#### Deploy to Staging
+```bash
+gh workflow run api-deploy-staging.yml
+```
+
+#### Deploy to Production
+```bash
+gh workflow run api-deploy-production.yml -f version=v1.0.0
+```
+
+#### Create Release
+```bash
+# Tag and push
+git tag v1.0.0
+git push origin v1.0.0
+
+# Or trigger manually
+gh workflow run api-release.yml -f version=v1.0.0
+```
+
+### Monitoring Workflows
+
+```bash
+# List workflow runs
+gh run list --workflow=api-build-test.yml
+
+# View specific run
+gh run view <run-id>
+
+# Watch run in real-time
+gh run watch <run-id>
+
+# Download artifacts
+gh run download <run-id>
+```
 
 ## Workflow Dependencies
 
 ```
-sdk-build-test.yml
+PR Validation
     ↓
-release-publish.yml
+Build & Test
     ↓
-[Engines use template]
+Container Build
     ↓
-compliance-leaderboard.yml
+Deploy Staging (auto on develop)
     ↓
-GitHub Pages
+Deploy Production (manual approval)
 ```
 
----
+## Troubleshooting
 
-## Monitoring and Debugging
+### Workflow Fails on Test Step
 
-### View Workflow Runs
-- Go to Actions tab in GitHub
-- Click on workflow name
-- View individual job logs
+**Check**:
+1. Test logs in Actions tab
+2. Local test execution: `cd api && ./gradlew test`
+3. TestContainers Docker access
 
-### Common Issues
+**Fix**:
+- Ensure tests pass locally
+- Check for flaky tests
+- Verify TestContainers configuration
 
-**Build Failures:**
-- Check dependency versions
-- Verify secrets are configured
-- Review error logs in failed job
+### Container Build Fails
 
-**Test Failures:**
-- Review test output in artifacts
-- Check coverage reports
-- Verify test data integrity
+**Check**:
+1. Containerfile syntax
+2. Build context includes all files
+3. Multi-platform build support
 
-**Release Failures:**
-- Verify version format (X.Y.Z)
-- Check secrets are valid
-- Ensure tag exists
+**Fix**:
+```bash
+# Test locally
+podman build -t test -f api/Containerfile .
 
-**Leaderboard Issues:**
-- Verify report JSON format
-- Check GitHub Pages is enabled
-- Review script output
+# Check buildx
+docker buildx ls
+```
 
----
+### Deployment Fails
+
+**Check**:
+1. Kubernetes cluster connectivity
+2. Deployment manifests
+3. Image pull permissions
+
+**Fix**:
+```bash
+# Test kubectl access
+kubectl cluster-info
+kubectl get pods -n substrait-staging
+
+# Verify image exists
+podman pull ghcr.io/org/repo/substrait-compliance-api:develop
+```
+
+### Secrets Not Working
+
+**Check**:
+1. Secret names match exactly
+2. Secrets are set in correct scope (repo/environment)
+3. Base64 encoding is correct
+
+**Fix**:
+```bash
+# Re-encode kubeconfig
+cat ~/.kube/config | base64 -w 0 > kubeconfig.b64
+
+# Set secret
+gh secret set KUBE_CONFIG_STAGING < kubeconfig.b64
+```
 
 ## Best Practices
 
-1. **Always run tests locally before pushing**
-2. **Use semantic versioning for releases**
-3. **Keep secrets secure and rotated**
-4. **Monitor workflow execution times**
-5. **Review artifacts before publishing**
-6. **Test template customizations locally**
-7. **Keep compliance threshold realistic**
+### 1. Keep Workflows DRY
+- Use reusable workflows for common tasks
+- Extract repeated steps into composite actions
+- Use workflow templates
+
+### 2. Secure Secrets
+- Never commit secrets to repository
+- Use environment-specific secrets
+- Rotate secrets regularly
+- Use least-privilege access
+
+### 3. Optimize Performance
+- Cache dependencies (Gradle, Docker layers)
+- Run jobs in parallel when possible
+- Use conditional execution
+- Limit artifact retention
+
+### 4. Monitor and Alert
+- Set up status badges
+- Configure Slack/email notifications
+- Monitor workflow execution times
+- Track failure rates
+
+### 5. Document Changes
+- Update this README when adding workflows
+- Document required secrets
+- Explain workflow triggers
+- Provide troubleshooting steps
+
+## Status Badges
+
+Add to your README.md:
+
+```markdown
+![API Build](https://github.com/org/repo/actions/workflows/api-build-test.yml/badge.svg)
+![Container Build](https://github.com/org/repo/actions/workflows/api-container-build.yml/badge.svg)
+![Staging](https://github.com/org/repo/actions/workflows/api-deploy-staging.yml/badge.svg)
+```
+
+## Resources
+
+- [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- [Workflow Syntax](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)
+- [GitHub CLI](https://cli.github.com/manual/gh_workflow)
+- [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
 
 ---
 
-## Support
-
-For issues or questions:
-- Open an issue in the repository
-- Check workflow logs for errors
-- Review documentation in `/docs/`
-- See examples in `/examples/`
-
----
-
-## Contributing
-
-To add new workflows:
-1. Create workflow file in `.github/workflows/`
-2. Test with workflow dispatch
-3. Document in this README
-4. Submit pull request
-
----
-
-Last Updated: 2026-04-01
+**Last Updated**: 2026-04-16  
+**Maintained By**: DevOps Team

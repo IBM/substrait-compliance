@@ -1,0 +1,40 @@
+spring:
+  datasource:
+    # Will be overridden by TestContainers
+    url: jdbc:h2:mem:testdb
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.H2Dialect
+    show-sql: false
+  
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+  
+  cache:
+    type: caffeine
+    caffeine:
+      spec: maximumSize=100,expireAfterWrite=1m
+
+jwt:
+  secret: test-secret-key-for-testing-purposes-only-min-256-bits
+  expiration: 3600000
+
+rate-limit:
+  enabled: true
+  default-limit: 100
+  refill-duration-minutes: 1
+
+logging:
+  level:
+    io.substrait: DEBUG
+    org.springframework.security: DEBUG
+
+# Made with Bob

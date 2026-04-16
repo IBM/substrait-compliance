@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Substrait Compliance Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🎯 Substrait Compliance Dashboard</h1>
+                <p class="subtitle">Real-time compliance monitoring for database engines</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalEngines">-</div>
+                    <div class="stat-label">Engines</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgPassRate">-</div>
+                    <div class="stat-label">Avg Pass Rate</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="lastUpdated">-</div>
+                    <div class="stat-label">Last Updated</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Leaderboard Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>🏆 Compliance Leaderboard</h2>
+                    <div class="header-controls">
+                        <select id="complexityFilter" class="filter-dropdown" onchange="filterByComplexity(this.value)">
+                            <option value="all">All Queries</option>
+                            <option value="SIMPLE">Simple (3 queries)</option>
+                            <option value="MEDIUM">Medium (7 queries)</option>
+                            <option value="COMPLEX">Complex (8 queries)</option>
+                            <option value="VERY_COMPLEX">Very Complex (4 queries)</option>
+                        </select>
+                        <button class="refresh-btn" onclick="loadData()">🔄 Refresh</button>
+                    </div>
+                </div>
+                <div class="leaderboard-table" id="leaderboardTable">
+                    <div class="loading">Loading leaderboard data...</div>
+                </div>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>📊 Visual Analytics</h2>
+                </div>
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>Pass Rate Comparison</h3>
+                        <canvas id="passRateChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Test Results Distribution</h3>
+                        <canvas id="distributionChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Detailed Results Section -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>📋 Detailed Results</h2>
+                </div>
+                <div class="details-grid" id="detailsGrid">
+                    <div class="loading">Loading detailed results...</div>
+                </div>
+            </section>
+
+            <!-- Legend Section -->
+            <section class="section legend-section">
+                <h3>📖 Status Legend</h3>
+                <div class="legend-grid">
+                    <div class="legend-item">
+                        <span class="status-badge excellent">🟢</span>
+                        <span>Excellent (≥95%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="status-badge good">🟡</span>
+                        <span>Good (85-94%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="status-badge fair">🟠</span>
+                        <span>Fair (70-84%)</span>
+                    </div>
+                    <div class="legend-item">
+                        <span class="status-badge poor">🔴</span>
+                        <span>Needs Improvement (<70%)</span>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="footer">
+            <p>Substrait Compliance Framework | Demo Dashboard</p>
+            <p>Auto-refresh: <span id="autoRefreshStatus">Enabled</span></p>
+        </footer>
+    </div>
+
+    <!-- Query Details Modal -->
+    <div id="queryModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Engine Query Details</h2>
+                <span class="modal-close" onclick="closeQueryModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="modal-stats">
+                    <div class="modal-stat">
+                        <span class="modal-stat-label">Pass Rate:</span>
+                        <span class="modal-stat-value" id="modalPassRate">-</span>
+                    </div>
+                    <div class="modal-stat">
+                        <span class="modal-stat-label">Passed:</span>
+                        <span class="modal-stat-value text-success" id="modalPassed">-</span>
+                    </div>
+                    <div class="modal-stat">
+                        <span class="modal-stat-label">Failed:</span>
+                        <span class="modal-stat-value text-danger" id="modalFailed">-</span>
+                    </div>
+                    <div class="modal-stat">
+                        <span class="modal-stat-label">Avg Time:</span>
+                        <span class="modal-stat-value" id="modalAvgTime">-</span>
+                    </div>
+                </div>
+                <div class="query-grid" id="queryGrid">
+                    <!-- Query cards will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

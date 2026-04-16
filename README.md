@@ -440,12 +440,46 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ---
 
+## 🌐 REST API
+
+A comprehensive REST API is available for programmatic access to compliance results:
+
+- **[REST API Overview](docs/REST_API_SUMMARY.md)** - Project summary and getting started
+- **[API Specification](docs/REST_API_PLAN.md)** - Complete API endpoints and specifications
+- **[Architecture](docs/REST_API_ARCHITECTURE.md)** - System architecture and diagrams
+- **[Implementation Guide](docs/REST_API_IMPLEMENTATION_GUIDE.md)** - Step-by-step implementation
+- **[Contributing to API](docs/API_CONTRIBUTING.md)** - Contribution guidelines
+
+### Key Features
+
+- 🔐 **JWT Authentication** - Secure API access with token-based auth
+- 📊 **Report Submission** - Submit compliance reports programmatically
+- 🔍 **Data Querying** - Query compliance data with filtering and pagination
+- 🔔 **Webhooks** - Real-time notifications for compliance events
+- ⚡ **Rate Limiting** - Fair usage with configurable limits
+- 💾 **Caching** - Optimized performance for frequently accessed data
+
+### Quick Start
+
+```bash
+# Run with Podman
+cd api
+podman-compose up -d
+
+# Access API
+curl http://localhost:8080/api/v1/leaderboard
+```
+
+See [REST API documentation](docs/REST_API_SUMMARY.md) for details.
+
+---
+
 ## 🗺️ Roadmap
 
+- [x] REST API for results (In Progress)
 - [ ] Additional test suites (TPC-DS, SSB)
 - [ ] Performance benchmarking
 - [ ] Compliance badges
-- [ ] REST API for results
 - [ ] Historical trend analysis
 - [ ] Multi-version testing
 

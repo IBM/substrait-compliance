@@ -1,0 +1,147 @@
+{
+  "formatVersion": "1.1",
+  "component": {
+    "group": "io.substrait",
+    "module": "substrait-compliance",
+    "version": "1.0.0-SNAPSHOT",
+    "attributes": {
+      "org.gradle.status": "integration"
+    }
+  },
+  "createdBy": {
+    "gradle": {
+      "version": "8.5"
+    }
+  },
+  "variants": [
+    {
+      "name": "apiElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-api"
+      },
+      "dependencies": [
+        {
+          "group": "io.substrait",
+          "module": "core",
+          "version": {
+            "requires": "0.80.0"
+          }
+        },
+        {
+          "group": "io.substrait",
+          "module": "isthmus",
+          "version": {
+            "requires": "0.80.0"
+          }
+        },
+        {
+          "group": "com.google.protobuf",
+          "module": "protobuf-java",
+          "version": {
+            "requires": "3.24.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "substrait-compliance-1.0.0-SNAPSHOT.jar",
+          "url": "substrait-compliance-1.0.0-SNAPSHOT.jar",
+          "size": 60199,
+          "sha512": "98aaabf3840b63a97d25de274b2a924a3c7268da51a6da3a766b99b7991118d48ca46b559704254cf183b4f4548bacf2ef8fd4417db64e8e3f3f30d331def87c",
+          "sha256": "964001f6fcef62a28bd8289d0f2be9ba175a0f7b0372cc6c0de4ff00755a6bd5",
+          "sha1": "422a1fb92b5b3f02b192b9faad6f1ef58ff88345",
+          "md5": "fc1fc457efec96ac17dc344fb4c226f3"
+        }
+      ]
+    },
+    {
+      "name": "runtimeElements",
+      "attributes": {
+        "org.gradle.category": "library",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.jvm.version": 11,
+        "org.gradle.libraryelements": "jar",
+        "org.gradle.usage": "java-runtime"
+      },
+      "dependencies": [
+        {
+          "group": "com.fasterxml.jackson.core",
+          "module": "jackson-databind",
+          "version": {
+            "requires": "2.15.2"
+          }
+        },
+        {
+          "group": "com.fasterxml.jackson.dataformat",
+          "module": "jackson-dataformat-yaml",
+          "version": {
+            "requires": "2.15.2"
+          }
+        },
+        {
+          "group": "org.slf4j",
+          "module": "slf4j-api",
+          "version": {
+            "requires": "2.0.9"
+          }
+        },
+        {
+          "group": "io.substrait",
+          "module": "core",
+          "version": {
+            "requires": "0.80.0"
+          }
+        },
+        {
+          "group": "io.substrait",
+          "module": "isthmus",
+          "version": {
+            "requires": "0.80.0"
+          }
+        },
+        {
+          "group": "com.google.protobuf",
+          "module": "protobuf-java",
+          "version": {
+            "requires": "3.24.0"
+          }
+        }
+      ],
+      "files": [
+        {
+          "name": "substrait-compliance-1.0.0-SNAPSHOT.jar",
+          "url": "substrait-compliance-1.0.0-SNAPSHOT.jar",
+          "size": 60199,
+          "sha512": "98aaabf3840b63a97d25de274b2a924a3c7268da51a6da3a766b99b7991118d48ca46b559704254cf183b4f4548bacf2ef8fd4417db64e8e3f3f30d331def87c",
+          "sha256": "964001f6fcef62a28bd8289d0f2be9ba175a0f7b0372cc6c0de4ff00755a6bd5",
+          "sha1": "422a1fb92b5b3f02b192b9faad6f1ef58ff88345",
+          "md5": "fc1fc457efec96ac17dc344fb4c226f3"
+        }
+      ]
+    },
+    {
+      "name": "sourcesElements",
+      "attributes": {
+        "org.gradle.category": "documentation",
+        "org.gradle.dependency.bundling": "external",
+        "org.gradle.docstype": "sources",
+        "org.gradle.usage": "java-runtime"
+      },
+      "files": [
+        {
+          "name": "substrait-compliance-1.0.0-SNAPSHOT-sources.jar",
+          "url": "substrait-compliance-1.0.0-SNAPSHOT-sources.jar",
+          "size": 36938,
+          "sha512": "123c1d5bc65f2361f2009fe460db6b314383e02f193405587a41b92ffb7ae70602839f64781d6c647fd0208c0d32e8e9105d860c3b0afe66b89fb0c3c3cb1ccf",
+          "sha256": "ed498d6192827dacf800b045f968f9d093b082531c90a0f59c493176fcd5acc9",
+          "sha1": "25aaac2fe085ffea64c8c15ac6010f15bab5e3ca",
+          "md5": "ae15e8e4ff4f86e7146dc90b41814c3a"
+        }
+      ]
+    }
+  ]
+}

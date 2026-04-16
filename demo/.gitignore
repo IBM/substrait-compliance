@@ -1,0 +1,20 @@
+# Demo build artifacts
+build/
+*.class
+
+# Generated reports
+output/*.json
+!output/.gitkeep
+
+# Dashboard data
+dashboard/data/*.json
+!dashboard/data/.gitkeep
+
+# IDE files
+.idea/
+.vscode/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db

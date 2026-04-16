@@ -1,0 +1,6 @@
+rootProject.name = 'substrait-compliance'
+
+include 'sdk:java'
+include 'api'
+
+// Made with Bob
