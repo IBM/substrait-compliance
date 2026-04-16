@@ -166,12 +166,22 @@ substrait-compliance/
 ├── examples/                      # Example implementations
 │   ├── duckdb-java/              # DuckDB compliance engine (Java)
 │   └── datafusion-python/        # DataFusion compliance engine (Python)
+├── api/                           # REST API (Spring Boot)
+│   ├── src/                       # API source code
+│   ├── docker-compose.yml         # Container orchestration
+│   └── build.gradle               # Gradle build
+├── demo/                          # Interactive demo system
+│   ├── engines/                   # Mock database engines
+│   ├── runner/                    # Demo runners
+│   └── dashboard/                 # Visualization dashboard
 ├── .github/workflows/             # CI/CD automation
-│   ├── sdk-build-test.yml        # Test all SDKs
-│   ├── release-publish.yml       # Automated releases
-│   ├── test-suite-validation.yml # Validate test suites
-│   ├── engine-compliance-template.yml  # Template for engines
-│   └── compliance-leaderboard.yml      # Public leaderboard
+│   ├── api-build-test.yml        # API build and test
+│   ├── api-container-build.yml   # Container image builds
+│   ├── api-deploy-staging.yml    # Staging deployment
+│   ├── api-deploy-production.yml # Production deployment
+│   ├── api-pr-validation.yml     # PR validation
+│   ├── api-release.yml           # API releases
+│   └── dependabot.yml            # Dependency updates
 ├── scripts/                       # Helper scripts
 │   └── generate_leaderboard.py   # Leaderboard generator
 └── docs/                          # Documentation
@@ -293,14 +303,41 @@ Complete TPC-H benchmark at scale factor 0.01:
 
 ---
 
+## 🎮 Interactive Demo
+
+Try the compliance framework with our interactive demo system:
+
+```bash
+cd demo
+./runner/run-demo.sh
+```
+
+**Features:**
+- 🎯 **Mock Engines** - Three pre-configured database engines (MockDB, FastDB, CloudDB)
+- 📊 **Live Dashboard** - Real-time visualization of test results
+- 🚀 **Quick Start** - Run compliance tests in under 2 minutes
+- 📈 **Visual Reports** - Interactive charts and statistics
+
+See [demo/START_HERE.md](demo/START_HERE.md) for detailed instructions.
+
+---
+
 ## 🤖 CI/CD Integration
 
 ### Automated Workflows
 
+**API Workflows:**
+1. **PR Validation** - Validate code changes before merge
+2. **Build & Test** - Continuous validation on every push
+3. **Container Build** - Multi-platform Docker images
+4. **Deploy Staging** - Automatic staging deployments
+5. **Deploy Production** - Production releases with approval
+6. **Release** - Automated versioning and publishing
+
+**SDK Workflows:**
 1. **SDK Build & Test** - Tests all SDKs on every commit
 2. **Release & Publish** - Automated releases to package registries
 3. **Test Suite Validation** - Validates test suite integrity
-4. **Compliance Leaderboard** - Aggregates and publishes results
 
 ### For Engine Developers
 
@@ -342,11 +379,21 @@ Public leaderboard showing compliance status across all engines:
 
 ## 📖 Documentation
 
-- **[IMPLEMENTATION_SUMMARY.md](IMPLEMENTATION_SUMMARY.md)** - Complete framework overview
-- **[CI_CD_IMPLEMENTATION.md](CI_CD_IMPLEMENTATION.md)** - CI/CD architecture and workflows
-- **[DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md)** - Deployment instructions
-- **[.github/workflows/README.md](.github/workflows/README.md)** - Workflow documentation
+### Core Documentation
+- **[.github/workflows/README.md](.github/workflows/README.md)** - CI/CD workflow documentation
 - **[examples/README.md](examples/README.md)** - Example implementations
+- **[demo/START_HERE.md](demo/START_HERE.md)** - Interactive demo guide
+
+### API Documentation
+- **[docs/REST_API_SUMMARY.md](docs/REST_API_SUMMARY.md)** - REST API overview
+- **[docs/REST_API_PLAN.md](docs/REST_API_PLAN.md)** - API specifications
+- **[docs/REST_API_ARCHITECTURE.md](docs/REST_API_ARCHITECTURE.md)** - System architecture
+- **[docs/API_CONTRIBUTING.md](docs/API_CONTRIBUTING.md)** - API contribution guide
+
+### Implementation Guides
+- **[docs/IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Framework overview
+- **[docs/CI_CD_IMPLEMENTATION.md](docs/CI_CD_IMPLEMENTATION.md)** - CI/CD implementation
+- **[docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)** - Deployment instructions
 
 ---
 
@@ -476,7 +523,10 @@ See [REST API documentation](docs/REST_API_SUMMARY.md) for details.
 
 ## 🗺️ Roadmap
 
-- [x] REST API for results (In Progress)
+- [x] REST API infrastructure with Spring Boot
+- [x] Comprehensive CI/CD workflows
+- [x] Interactive demo system with dashboard
+- [x] Multi-platform container builds
 - [ ] Additional test suites (TPC-DS, SSB)
 - [ ] Performance benchmarking
 - [ ] Compliance badges
