@@ -7,3 +7,35 @@ not(false::bool) = true::bool
 
 # null_input: Examples with null as input
 not(null::bool) = null::bool
+
+# double_negation: Examples with double negation
+not(not(true::bool)) = true::bool
+not(not(false::bool)) = false::bool
+not(not(null::bool)) = null::bool
+
+# with_comparisons: Examples combining NOT with comparisons
+not(equal(5::i32, 5::i32)) = false::bool
+not(equal(5::i32, 10::i32)) = true::bool
+not(gt(10::i32, 5::i32)) = false::bool
+not(lt(10::i32, 5::i32)) = true::bool
+
+# with_null_checks: Examples combining NOT with null checks
+not(is_null(null::i32)) = false::bool
+not(is_null(5::i32)) = true::bool
+not(is_not_null(null::i32)) = true::bool
+not(is_not_null(5::i32)) = false::bool
+
+# complex_expressions: Examples with complex boolean expressions
+not(and(true::bool, false::bool)) = true::bool
+not(and(true::bool, true::bool)) = false::bool
+not(or(false::bool, false::bool)) = true::bool
+not(or(true::bool, false::bool)) = false::bool
+
+# de_morgan_laws: Examples demonstrating De Morgan's laws
+not(and(true::bool, false::bool)) = or(not(true::bool), not(false::bool))
+not(or(true::bool, false::bool)) = and(not(true::bool), not(false::bool))
+not(and(false::bool, false::bool)) = or(not(false::bool), not(false::bool))
+
+# chained_operations: Examples with chained NOT operations
+not(or(and(true::bool, false::bool), and(false::bool, true::bool))) = true::bool
+not(and(or(true::bool, false::bool), or(false::bool, false::bool))) = true::bool

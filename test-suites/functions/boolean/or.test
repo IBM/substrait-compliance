@@ -5,6 +5,7 @@
 or(true::bool, true::bool) = true::bool
 or(true::bool, false::bool) = true::bool
 or(false::bool, false::bool) = false::bool
+or(false::bool, true::bool) = true::bool
 
 # null_input: Examples with null as input
 or(true::bool, null::bool) = true::bool
@@ -12,3 +13,35 @@ or(null::bool, true::bool) = true::bool
 or(false::bool, null::bool) = null::bool
 or(null::bool, false::bool) = null::bool
 or(null::bool, null::bool) = null::bool
+
+# multiple_operands: Examples with multiple OR operations
+or(or(false::bool, false::bool), false::bool) = false::bool
+or(or(false::bool, false::bool), true::bool) = true::bool
+or(or(true::bool, false::bool), false::bool) = true::bool
+or(or(true::bool, true::bool), true::bool) = true::bool
+
+# chained_with_comparisons: Examples combining OR with comparisons
+or(equal(5::i32, 5::i32), equal(10::i32, 20::i32)) = true::bool
+or(equal(5::i32, 10::i32), equal(10::i32, 20::i32)) = false::bool
+or(gt(10::i32, 5::i32), lt(10::i32, 5::i32)) = true::bool
+or(gt(5::i32, 10::i32), lt(10::i32, 5::i32)) = false::bool
+
+# short_circuit: Examples demonstrating short-circuit evaluation
+or(true::bool, is_null(null::i32)) = true::bool
+or(true::bool, equal(1::i32, 2::i32)) = true::bool
+
+# complex_expressions: Examples with complex boolean expressions
+or(and(true::bool, false::bool), and(true::bool, true::bool)) = true::bool
+or(and(false::bool, false::bool), and(false::bool, true::bool)) = false::bool
+or(not(true::bool), not(false::bool)) = true::bool
+or(not(true::bool), not(true::bool)) = false::bool
+
+# with_null_comparisons: Examples combining OR with null checks
+or(is_not_null(5::i32), is_null(null::i32)) = true::bool
+or(is_null(5::i32), is_null(null::i32)) = true::bool
+or(is_null(5::i32), is_null(10::i32)) = false::bool
+
+# mixed_and_or: Examples mixing AND and OR operations
+or(and(true::bool, true::bool), and(false::bool, false::bool)) = true::bool
+or(and(true::bool, false::bool), and(false::bool, true::bool)) = false::bool
+and(or(true::bool, false::bool), or(false::bool, true::bool)) = true::bool

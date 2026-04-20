@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Function Tests - Substrait Compliance Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 10px;
+        }
+        .nav-tab {
+            padding: 10px 20px;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 5px 5px 0 0;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+        .nav-tab:hover {
+            background: #e0e0e0;
+        }
+        .nav-tab.active {
+            background: #4CAF50;
+            color: white;
+        }
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+        .category-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .category-card h3 {
+            margin-top: 0;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .category-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .stat-box {
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 5px;
+            text-align: center;
+        }
+        .stat-box .label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+        .stat-box .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+        }
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e0e0e0;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 15px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            transition: width 0.5s ease;
+        }
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .comparison-table th,
+        .comparison-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        .comparison-table th {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #333;
+        }
+        .comparison-table tr:hover {
+            background: #f9f9f9;
+        }
+        .pass-rate-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .pass-rate-excellent { background: #4CAF50; color: white; }
+        .pass-rate-good { background: #8BC34A; color: white; }
+        .pass-rate-fair { background: #FFC107; color: white; }
+        .pass-rate-poor { background: #FF5722; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>🔬 Function-Level Compliance Testing</h1>
+                <p class="subtitle">Granular testing of individual Substrait functions</p>
+            </div>
+            <div class="header-stats">
+                <div class="stat-card">
+                    <div class="stat-value" id="totalEngines">-</div>
+                    <div class="stat-label">Engines Tested</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalTests">-</div>
+                    <div class="stat-label">Total Tests</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="avgPassRate">-</div>
+                    <div class="stat-label">Avg Pass Rate</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab" onclick="window.location.href='index.html'">TPC-H Tests</button>
+            <button class="nav-tab active">Function Tests</button>
+        </div>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Engine Comparison -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>🏆 Engine Comparison</h2>
+                </div>
+                <table class="comparison-table" id="comparisonTable">
+                    <thead>
+                        <tr>
+                            <th>Engine</th>
+                            <th>Total Tests</th>
+                            <th>Passed</th>
+                            <th>Failed</th>
+                            <th>Pass Rate</th>
+                        </tr>
+                    </thead>
+                    <tbody id="comparisonBody">
+                        <tr><td colspan="5" class="loading">Loading data...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Category Breakdown -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>📊 Category Breakdown</h2>
+                    <select id="engineSelect" class="filter-dropdown" onchange="updateCategoryView()">
+                        <option value="">Select Engine...</option>
+                    </select>
+                </div>
+                <div class="category-grid" id="categoryGrid">
+                    <div class="loading">Select an engine to view category breakdown...</div>
+                </div>
+            </section>
+
+            <!-- Charts -->
+            <section class="section">
+                <div class="section-header">
+                    <h2>📈 Visual Analytics</h2>
+                </div>
+                <div class="charts-grid">
+                    <div class="chart-container">
+                        <h3>Pass Rate by Category</h3>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <h3>Engine Comparison</h3>
+                        <canvas id="engineChart"></canvas>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script>
+        let functionTestData = null;
+
+        // Load data on page load
+        window.addEventListener('DOMContentLoaded', loadData);
+
+        async function loadData() {
+            try {
+                const response = await fetch('../output/function_tests_summary.json');
+                functionTestData = await response.json();
+                
+                updateHeaderStats();
+                updateComparisonTable();
+                populateEngineSelect();
+                updateCharts();
+            } catch (error) {
+                console.error('Error loading data:', error);
+                document.getElementById('comparisonBody').innerHTML = 
+                    '<tr><td colspan="5" style="color: red;">Error loading data. Please run the function tests demo first.</td></tr>';
+            }
+        }
+
+        function updateHeaderStats() {
+            const engines = functionTestData.engines;
+            document.getElementById('totalEngines').textContent = engines.length;
+            document.getElementById('totalTests').textContent = engines[0]?.totalTests || 0;
+            
+            const avgPassRate = engines.reduce((sum, e) => sum + e.overallPassRate, 0) / engines.length;
+            document.getElementById('avgPassRate').textContent = avgPassRate.toFixed(1) + '%';
+        }
+
+        function updateComparisonTable() {
+            const tbody = document.getElementById('comparisonBody');
+            tbody.innerHTML = '';
+            
+            functionTestData.engines.forEach(engine => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><strong>${engine.engine}</strong></td>
+                    <td>${engine.totalTests}</td>
+                    <td style="color: #4CAF50;">${engine.totalPassed}</td>
+                    <td style="color: #FF5722;">${engine.totalTests - engine.totalPassed}</td>
+                    <td>${getPassRateBadge(engine.overallPassRate)}</td>
+                `;
+                tbody.appendChild(row);
+            });
+        }
+
+        function getPassRateBadge(rate) {
+            let className = 'pass-rate-poor';
+            if (rate >= 95) className = 'pass-rate-excellent';
+            else if (rate >= 85) className = 'pass-rate-good';
+            else if (rate >= 70) className = 'pass-rate-fair';
+            
+            return `<span class="pass-rate-badge ${className}">${rate.toFixed(1)}%</span>`;
+        }
+
+        function populateEngineSelect() {
+            const select = document.getElementById('engineSelect');
+            functionTestData.engines.forEach(engine => {
+                const option = document.createElement('option');
+                option.value = engine.engine;
+                option.textContent = engine.engine;
+                select.appendChild(option);
+            });
+            
+            // Select first engine by default
+            if (functionTestData.engines.length > 0) {
+                select.value = functionTestData.engines[0].engine;
+                updateCategoryView();
+            }
+        }
+
+        function updateCategoryView() {
+            const engineName = document.getElementById('engineSelect').value;
+            if (!engineName) return;
+            
+            const engine = functionTestData.engines.find(e => e.engine === engineName);
+            if (!engine) return;
+            
+            const grid = document.getElementById('categoryGrid');
+            grid.innerHTML = '';
+            
+            const categoryIcons = {
+                'aggregate': '📊',
+                'window': '🪟',
+                'cast': '🔄',
+                'boolean': '✓',
+                'datetime': '📅'
+            };
+            
+            Object.entries(engine.categories).forEach(([category, stats]) => {
+                const card = document.createElement('div');
+                card.className = 'category-card';
+                card.innerHTML = `
+                    <h3>${categoryIcons[category] || '📦'} ${category.charAt(0).toUpperCase() + category.slice(1)}</h3>
+                    <div class="category-stats">
+                        <div class="stat-box">
+                            <div class="label">Total</div>
+                            <div class="value">${stats.total}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="label">Passed</div>
+                            <div class="value" style="color: #4CAF50;">${stats.passed}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="label">Failed</div>
+                            <div class="value" style="color: #FF5722;">${stats.failed}</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="label">Pass Rate</div>
+                            <div class="value">${stats.passRate}%</div>
+                        </div>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${stats.passRate}%">
+                            ${stats.passRate}%
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateCharts() {
+            // Category chart
+            const firstEngine = functionTestData.engines[0];
+            const categories = Object.keys(firstEngine.categories);
+            const categoryData = categories.map(cat => firstEngine.categories[cat].passRate);
+            
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: categories.map(c => c.charAt(0).toUpperCase() + c.slice(1)),
+                    datasets: [{
+                        label: 'Pass Rate (%)',
+                        data: categoryData,
+                        backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                        borderColor: 'rgba(76, 175, 80, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+            
+            // Engine comparison chart
+            const engineNames = functionTestData.engines.map(e => e.engine);
+            const engineRates = functionTestData.engines.map(e => e.overallPassRate);
+            
+            new Chart(document.getElementById('engineChart'), {
+                type: 'bar',
+                data: {
+                    labels: engineNames,
+                    datasets: [{
+                        label: 'Overall Pass Rate (%)',
+                        data: engineRates,
+                        backgroundColor: [
+                            'rgba(255, 87, 34, 0.6)',
+                            'rgba(76, 175, 80, 0.6)',
+                            'rgba(33, 150, 243, 0.6)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 87, 34, 1)',
+                            'rgba(76, 175, 80, 1)',
+                            'rgba(33, 150, 243, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+    </script>
+</body>
+</html>

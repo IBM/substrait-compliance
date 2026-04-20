@@ -1,0 +1,31 @@
+### SUBSTRAIT_AGGREGATE_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_string.yaml'
+
+# basic: Basic examples without any special cases
+string_agg(('a', 'b', 'c')::str, ','::str) = 'a,b,c'::str
+string_agg(('hello', 'world')::str, ' '::str) = 'hello world'::str
+string_agg(('one', 'two', 'three')::str, '-'::str) = 'one-two-three'::str
+
+# empty_separator: Examples with empty separator
+string_agg(('a', 'b', 'c')::str, ''::str) = 'abc'::str
+string_agg(('hello', 'world')::str, ''::str) = 'helloworld'::str
+
+# single_value: Examples with single value
+string_agg(('only')::str, ','::str) = 'only'::str
+string_agg(('single')::str, '-'::str) = 'single'::str
+
+# null_handling: Examples with null as input or output
+string_agg(('a', Null, 'c')::str, ','::str) = 'a,c'::str
+string_agg((Null, 'b', 'c')::str, ','::str) = 'b,c'::str
+string_agg(('a', 'b', Null)::str, ','::str) = 'a,b'::str
+string_agg((Null, Null, Null)::str, ','::str) = Null::str
+string_agg(()::str, ','::str) = Null::str
+
+# special_chars: Examples with special characters
+string_agg(('a', 'b', 'c')::str, '|'::str) = 'a|b|c'::str
+string_agg(('x', 'y', 'z')::str, '::'::str) = 'x::y::z'::str
+string_agg(('1', '2', '3')::str, ' -> '::str) = '1 -> 2 -> 3'::str
+
+# empty_strings: Examples with empty strings
+string_agg(('', 'b', '')::str, ','::str) = ',b,'::str
+string_agg(('a', '', 'c')::str, ','::str) = 'a,,c'::str

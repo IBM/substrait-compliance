@@ -1,0 +1,42 @@
+name: "aggregate_functions"
+version: "1.0.0"
+description: "Aggregate function compliance tests"
+category: "aggregate"
+total_tests: 166
+
+testFiles:
+  - name: "count"
+    file: "count.test"
+    description: "COUNT aggregate function tests"
+    estimated_tests: 21
+  
+  - name: "count_distinct"
+    file: "count_distinct.test"
+    description: "COUNT DISTINCT aggregate function tests"
+    estimated_tests: 23
+  
+  - name: "avg"
+    file: "avg.test"
+    description: "AVG (average) aggregate function tests"
+    estimated_tests: 33
+  
+  - name: "stddev"
+    file: "stddev.test"
+    description: "STDDEV (standard deviation) aggregate function tests"
+    estimated_tests: 29
+  
+  - name: "variance"
+    file: "variance.test"
+    description: "VARIANCE aggregate function tests"
+    estimated_tests: 29
+  
+  - name: "string_agg"
+    file: "string_agg.test"
+    description: "STRING_AGG aggregate function tests"
+    estimated_tests: 31
+
+notes: |
+  These tests cover the core aggregate functions required for SQL compliance.
+  Additional aggregate functions (min, max, sum) are in the arithmetic category.
+
+# Made with Bob

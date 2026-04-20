@@ -1,0 +1,67 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_cast.yaml'
+
+# basic: Basic examples that succeed
+try_cast('42'::str, i32) = 42::i32
+try_cast('1000'::str, i64) = 1000::i64
+try_cast('3.14'::str, fp64) = 3.14::fp64
+try_cast('true'::str, bool) = true::bool
+
+# invalid_format: Examples with invalid format (returns null instead of error)
+try_cast('abc'::str, i32) = null::i32
+try_cast('12.34'::str, i32) = null::i32
+try_cast('not_a_number'::str, fp64) = null::fp64
+try_cast('maybe'::str, bool) = null::bool
+
+# overflow: Examples with overflow (returns null instead of error)
+try_cast('128'::str, i8) = null::i8
+try_cast('-129'::str, i8) = null::i8
+try_cast('32768'::str, i16) = null::i16
+try_cast('2147483648'::str, i32) = null::i32
+
+# empty_string: Examples with empty string
+try_cast(''::str, i32) = null::i32
+try_cast(''::str, fp64) = null::fp64
+try_cast(''::str, bool) = null::bool
+
+# whitespace: Examples with whitespace
+try_cast('  42  '::str, i32) = 42::i32
+try_cast(' 3.14 '::str, fp64) = 3.14::fp64
+try_cast('  true  '::str, bool) = true::bool
+
+# null_handling: Examples with null input
+try_cast(null::str, i32) = null::i32
+try_cast(null::str, fp64) = null::fp64
+try_cast(null::str, bool) = null::bool
+
+# partial_valid: Examples with partially valid strings
+try_cast('42abc'::str, i32) = null::i32
+try_cast('3.14.15'::str, fp64) = null::fp64
+try_cast('true1'::str, bool) = null::bool
+
+# special_values: Examples with special floating point values
+try_cast('inf'::str, fp64) = inf::fp64
+try_cast('-inf'::str, fp64) = -inf::fp64
+try_cast('nan'::str, fp64) = nan::fp64
+try_cast('infinity'::str, fp64) = inf::fp64
+
+# case_sensitivity: Examples with different cases
+try_cast('TRUE'::str, bool) = true::bool
+try_cast('False'::str, bool) = false::bool
+try_cast('INF'::str, fp64) = inf::fp64
+try_cast('NaN'::str, fp64) = nan::fp64
+
+# numeric_edge_cases: Examples with edge case numbers
+try_cast('0'::str, i32) = 0::i32
+try_cast('-0'::str, i32) = 0::i32
+try_cast('0.0'::str, fp64) = 0.0::fp64
+try_cast('-0.0'::str, fp64) = -0.0::fp64
+
+# scientific_notation: Examples with scientific notation
+try_cast('1e10'::str, fp64) = 10000000000.0::fp64
+try_cast('1.5e-5'::str, fp64) = 0.000015::fp64
+try_cast('-2.5e3'::str, fp64) = -2500.0::fp64
+
+# comparison_with_cast: Demonstrating difference from cast
+try_cast('invalid'::str, i32) = null::i32
+try_cast('999999999999'::str, i32) = null::i32

@@ -1,0 +1,47 @@
+name: "window_functions"
+version: "1.0.0"
+description: "Window function compliance tests"
+category: "window"
+total_tests: 229
+
+testFiles:
+  - name: "row_number"
+    file: "row_number.test"
+    description: "ROW_NUMBER window function tests"
+    estimated_tests: 24
+  
+  - name: "rank"
+    file: "rank.test"
+    description: "RANK window function tests (with gaps)"
+    estimated_tests: 29
+  
+  - name: "dense_rank"
+    file: "dense_rank.test"
+    description: "DENSE_RANK window function tests (no gaps)"
+    estimated_tests: 31
+  
+  - name: "lag"
+    file: "lag.test"
+    description: "LAG window function tests (access previous rows)"
+    estimated_tests: 37
+  
+  - name: "lead"
+    file: "lead.test"
+    description: "LEAD window function tests (access following rows)"
+    estimated_tests: 39
+  
+  - name: "first_value"
+    file: "first_value.test"
+    description: "FIRST_VALUE window function tests"
+    estimated_tests: 33
+  
+  - name: "last_value"
+    file: "last_value.test"
+    description: "LAST_VALUE window function tests"
+    estimated_tests: 36
+
+notes: |
+  Window functions are critical for analytics workloads.
+  Tests cover partitioning, ordering, and frame specifications.
+
+# Made with Bob

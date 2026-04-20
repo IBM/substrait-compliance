@@ -1,0 +1,33 @@
+### SUBSTRAIT_WINDOW_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_window.yaml'
+
+# basic: Basic examples without any special cases
+lag(value::i32, 1) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, 30), (4, 40)) = (Null, 10, 20, 30)::i32
+lag(value::i32, 2) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, 30), (4, 40)) = (Null, Null, 10, 20)::i32
+
+# default_value: Examples with default value
+lag(value::i32, 1, 0) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, 30)) = (0, 10, 20)::i32
+lag(value::i32, 2, -1) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, 30)) = (-1, -1, 10)::i32
+
+# partition: Examples with partitioning
+lag(value::i32, 1) OVER (PARTITION BY category::str ORDER BY id::i32) WITH (('A', 1, 10), ('A', 2, 20), ('B', 3, 30), ('B', 4, 40)) = (Null, 10, Null, 30)::i32
+lag(salary::i32, 1, 0) OVER (PARTITION BY dept::str ORDER BY id::i32) WITH (('Sales', 1, 5000), ('Sales', 2, 6000), ('IT', 3, 7000)) = (0, 5000, 0)::i32
+
+# offset_zero: Examples with offset 0 (returns same value)
+lag(value::i32, 0) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, 30)) = (10, 20, 30)::i32
+
+# null_values: Examples with null values in data
+lag(value::i32, 1) OVER (ORDER BY id::i32) WITH ((1, 10), (2, Null), (3, 30)) = (Null, 10, Null)::i32
+lag(value::i32, 1, 0) OVER (ORDER BY id::i32) WITH ((1, Null), (2, 20), (3, Null)) = (0, Null, 20)::i32
+
+# string_type: Examples with string data type
+lag(name::str, 1) OVER (ORDER BY id::i32) WITH ((1, 'Alice'), (2, 'Bob'), (3, 'Charlie')) = (Null, 'Alice', 'Bob')::str
+lag(name::str, 1, 'Unknown') OVER (ORDER BY id::i32) WITH ((1, 'Alice'), (2, 'Bob')) = ('Unknown', 'Alice')::str
+
+# floating_point: Examples with floating point values
+lag(value::fp64, 1) OVER (ORDER BY id::i32) WITH ((1, 1.5), (2, 2.5), (3, 3.5)) = (Null, 1.5, 2.5)::fp64
+lag(value::fp64, 1, 0.0) OVER (ORDER BY id::i32) WITH ((1, 1.5), (2, 2.5)) = (0.0, 1.5)::fp64
+
+# large_offset: Examples with large offset
+lag(value::i32, 5) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, 30)) = (Null, Null, Null)::i32
+lag(value::i32, 10, -1) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20)) = (-1, -1)::i32

@@ -1,0 +1,28 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_arithmetic.yaml'
+
+# basic: Basic natural logarithm examples
+ln(2.718281828459045::fp64) = 1::fp64
+ln(7.389056098930650::fp64) = 2::fp64
+ln(20.085536923187668::fp64) = 3::fp64
+ln(1.0::fp64) = 0::fp64
+
+# null_handling: Examples with null as input
+ln(null::fp64) = null::fp64
+
+# types: Examples with different numeric types
+ln(2.718281828459045::fp32) = 1::fp32
+ln(7.389056098930650::fp32) = 2::fp32
+
+# edge_cases: Special cases and errors
+ln(0.0::fp64) = -inf::fp64
+ln(-1.0::fp64) = nan::fp64
+ln(inf::fp64) = inf::fp64
+ln(nan::fp64) = nan::fp64
+
+# precision: Various values
+ln(2.0::fp64) = 0.6931471805599453::fp64
+ln(10.0::fp64) = 2.302585092994046::fp64
+ln(0.5::fp64) = -0.6931471805599453::fp64
+ln(0.1::fp64) = -2.302585092994046::fp64
+ln(100.0::fp64) = 4.605170185988092::fp64
