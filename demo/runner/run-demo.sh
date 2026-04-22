@@ -50,65 +50,49 @@ mkdir -p dashboard/data
 echo -e "${GREEN}✅ Directories created${NC}"
 echo ""
 
-# Step 3: Compile demo engines
-echo -e "${BLUE}🔧 Step 3: Compiling demo engines...${NC}"
-mkdir -p build/classes
-
-# Find all JAR files in SDK
-SDK_LIBS="../sdk/java/build/libs"
-CLASSPATH="$SDK_LIBS/*"
-
-# Compile engines
-javac -cp "$CLASSPATH" \
-    -d build/classes \
-    engines/*.java \
-    runner/DemoRunner.java
-
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ Demo code compiled successfully${NC}"
-else
-    echo -e "${RED}❌ Compilation failed${NC}"
-    exit 1
-fi
+# Step 3: Run standalone TPC-H demo
+echo -e "${BLUE}🚀 Step 3: Running TPC-H compliance demo...${NC}"
 echo ""
 
-# Step 4: Run the demo
-echo -e "${BLUE}🚀 Step 4: Running compliance tests...${NC}"
-echo ""
-
-java -cp "build/classes:$SDK_LIBS/*" \
-    io.substrait.demo.runner.DemoRunner
+mkdir -p build
+javac -d build runner/SimpleDemoRunner.java
 
 if [ $? -eq 0 ]; then
+    java -cp build SimpleDemoRunner
     echo ""
-    echo -e "${GREEN}✅ Demo completed successfully!${NC}"
+    echo -e "${GREEN}✅ TPC-H demo completed successfully!${NC}"
 else
-    echo -e "${RED}❌ Demo execution failed${NC}"
+    echo -e "${RED}❌ TPC-H demo compilation failed${NC}"
     exit 1
 fi
 echo ""
 
-# Step 5: Generate Python leaderboard (optional)
-echo -e "${BLUE}📊 Step 5: Generating enhanced leaderboard...${NC}"
+# Step 4: Run standalone function demo
+echo -e "${BLUE}🔬 Step 4: Running function compliance demo...${NC}"
+echo ""
+
 if command -v python3 &> /dev/null; then
-    python3 ../scripts/generate_leaderboard.py \
-        --input output \
-        --output output/leaderboard.md \
-        --format both
-    
-    if [ $? -eq 0 ]; then
-        echo -e "${GREEN}✅ Leaderboard generated${NC}"
-        # Copy to dashboard
-        cp output/leaderboard.json dashboard/data/
-    else
-        echo -e "${YELLOW}⚠️  Leaderboard generation failed (non-critical)${NC}"
-    fi
+    chmod +x runner/function_test_demo.py
+    python3 runner/function_test_demo.py
+    echo ""
+    echo -e "${GREEN}✅ Function demo completed successfully!${NC}"
 else
-    echo -e "${YELLOW}⚠️  Python3 not found, skipping enhanced leaderboard${NC}"
+    echo -e "${RED}❌ Python3 not found for function demo${NC}"
+    exit 1
 fi
 echo ""
 
-# Step 6: Display results
+# Step 5: Create symlink for dashboard to access output files
+echo -e "${BLUE}🔗 Step 5: Setting up dashboard access...${NC}"
+if [ ! -L "dashboard/output" ]; then
+    ln -s ../output dashboard/output
+    echo -e "${GREEN}✅ Created symlink: dashboard/output -> ../output${NC}"
+else
+    echo -e "${GREEN}✅ Symlink already exists${NC}"
+fi
+echo ""
+
+# Step 7: Display results
 echo "================================================================================"
 echo -e "${GREEN}🎉 Demo Complete!${NC}"
 echo "================================================================================"
@@ -117,8 +101,17 @@ echo "📁 Generated Files:"
 echo "   • output/mockdb-report.json"
 echo "   • output/fastdb-report.json"
 echo "   • output/clouddb-report.json"
+echo "   • output/duckdb-report.json"
+echo "   • output/postgresql-report.json"
+echo "   • output/MockDB_function_tests.json"
+echo "   • output/FastDB_function_tests.json"
+echo "   • output/CloudDB_function_tests.json"
+echo "   • output/DuckDB_function_tests.json"
+echo "   • output/PostgreSQL_function_tests.json"
 echo "   • output/leaderboard.json"
+echo "   • output/function_tests_summary.json"
 echo "   • dashboard/data/leaderboard.json"
+echo "   • dashboard/data/summary.json"
 echo ""
 echo "🌐 View Dashboard:"
 echo "   Option 1: Open file directly"
@@ -130,6 +123,8 @@ echo "      Then open: http://localhost:8000"
 echo ""
 echo "📊 View Reports:"
 echo "   cat output/leaderboard.json | jq"
+echo "   cat output/function_tests_summary.json | jq"
+echo "   cat dashboard/data/summary.json | jq"
 echo "   cat output/mockdb-report.json | jq"
 echo ""
 echo "🔄 Run Again:"

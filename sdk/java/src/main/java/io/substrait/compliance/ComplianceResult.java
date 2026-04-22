@@ -11,9 +11,9 @@ public class ComplianceResult {
     private final String errorMessage;
     private final Throwable exception;
     
-    private ComplianceResult(boolean success, TableData outputData, 
-                            long executionTimeMs, String errorMessage, 
-                            Throwable exception) {
+    protected ComplianceResult(boolean success, TableData outputData,
+                              long executionTimeMs, String errorMessage,
+                              Throwable exception) {
         this.success = success;
         this.outputData = outputData;
         this.executionTimeMs = executionTimeMs;

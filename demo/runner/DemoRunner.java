@@ -39,7 +39,9 @@ public class DemoRunner {
             List<ComplianceEngine> engines = Arrays.asList(
                 new MockDBEngine(),
                 new FastDBEngine(),
-                new CloudDBEngine()
+                new CloudDBEngine(),
+                new DuckDBEngine(),
+                new PostgreSQLEngine()
             );
             
             // Load test suite
@@ -231,6 +233,74 @@ public class DemoRunner {
         dashboardData.getParentFile().mkdirs();
         JSON_MAPPER.writeValue(dashboardData, leaderboard);
         System.out.println("   💾 Dashboard data updated: " + dashboardData.getPath());
+        
+        generateSharedSummary(reports);
+    }
+    
+    private static void generateSharedSummary(List<Map<String, Object>> tpchReports) throws Exception {
+        File functionSummaryFile = new File(OUTPUT_DIR, "function_tests_summary.json");
+        if (!functionSummaryFile.exists()) {
+            System.out.println("   ℹ️  Shared dashboard summary skipped - function test summary not found yet");
+            return;
+        }
+        
+        Map<String, Object> functionSummary = JSON_MAPPER.readValue(functionSummaryFile, Map.class);
+        List<Map<String, Object>> functionEngines =
+            (List<Map<String, Object>>) functionSummary.getOrDefault("engines", Collections.emptyList());
+        
+        Map<String, Map<String, Object>> functionByEngine = new HashMap<>();
+        for (Map<String, Object> engine : functionEngines) {
+            Object engineName = engine.get("engine");
+            if (engineName != null) {
+                functionByEngine.put(engineName.toString(), engine);
+            }
+        }
+        
+        List<Map<String, Object>> engines = new ArrayList<>();
+        for (Map<String, Object> tpchReport : tpchReports) {
+            String engineName = tpchReport.get("engineName").toString();
+            Map<String, Object> functionEngine = functionByEngine.get(engineName);
+            
+            Map<String, Object> engineSummary = new LinkedHashMap<>();
+            engineSummary.put("engineName", engineName);
+            engineSummary.put("engineVersion", tpchReport.get("engineVersion"));
+            
+            Map<String, Object> tpch = new LinkedHashMap<>();
+            tpch.put("passRate", tpchReport.get("passRate"));
+            tpch.put("totalTests", tpchReport.get("totalTests"));
+            tpch.put("passed", tpchReport.get("passed"));
+            tpch.put("failed", tpchReport.get("failed"));
+            tpch.put("skipped", tpchReport.get("skipped"));
+            engineSummary.put("tpch", tpch);
+            
+            Map<String, Object> functions = new LinkedHashMap<>();
+            if (functionEngine != null) {
+                functions.put("passRate", functionEngine.get("overallPassRate"));
+                functions.put("totalTests", functionEngine.get("totalTests"));
+                functions.put("passed", functionEngine.get("totalPassed"));
+                Number totalTests = (Number) functionEngine.getOrDefault("totalTests", 0);
+                Number totalPassed = (Number) functionEngine.getOrDefault("totalPassed", 0);
+                functions.put("failed", totalTests.intValue() - totalPassed.intValue());
+            } else {
+                functions.put("passRate", 0.0);
+                functions.put("totalTests", 0);
+                functions.put("passed", 0);
+                functions.put("failed", 0);
+            }
+            engineSummary.put("functions", functions);
+            
+            engines.add(engineSummary);
+        }
+        
+        Map<String, Object> sharedSummary = new LinkedHashMap<>();
+        sharedSummary.put("lastUpdated", new Date().toInstant().toString());
+        sharedSummary.put("totalEngines", engines.size());
+        sharedSummary.put("engines", engines);
+        
+        File sharedSummaryFile = new File("dashboard/data/summary.json");
+        sharedSummaryFile.getParentFile().mkdirs();
+        JSON_MAPPER.writeValue(sharedSummaryFile, sharedSummary);
+        System.out.println("   💾 Shared dashboard summary updated: " + sharedSummaryFile.getPath());
     }
 }
 

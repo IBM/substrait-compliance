@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.substrait.compliance.comparison.FloatingPointComparatorTest" tests="15" skipped="0" failures="0" errors="0" timestamp="2026-04-22T23:17:52" hostname="Ranjans-MacBook-Pro.local" time="0.006">
+  <properties/>
+  <testcase name="testSupportsFloatingPointTypes()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <testcase name="testInfinityMismatch()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.001"/>
+  <testcase name="testZero()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <testcase name="testNaNVsNumber()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.001"/>
+  <testcase name="testNaNStringComparison()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <testcase name="testInfinityStringComparison()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <testcase name="testMismatchBeyondEpsilon()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <testcase name="testNegativeInfinity()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <testcase name="testVerySmallDifference()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.001"/>
+  <testcase name="testExactMatch()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <testcase name="testNegativeInfinityStringComparison()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.001"/>
+  <testcase name="testPositiveInfinity()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <testcase name="testNegativeNumbers()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <testcase name="testNaNComparison()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.001"/>
+  <testcase name="testEpsilonMatch()" classname="io.substrait.compliance.comparison.FloatingPointComparatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

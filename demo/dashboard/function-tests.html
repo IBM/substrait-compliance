@@ -157,6 +157,15 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <section class="section">
+                <div class="section-header">
+                    <h2>🔀 Cross-Suite Summary</h2>
+                </div>
+                <div class="summary-grid" id="suiteSummaryGrid">
+                    <div class="loading">Loading combined TPC-H and function summary...</div>
+                </div>
+            </section>
+
             <!-- Engine Comparison -->
             <section class="section">
                 <div class="section-header">
@@ -212,22 +221,28 @@
 
     <script>
         let functionTestData = null;
+        let sharedSummaryData = null;
 
         // Load data on page load
         window.addEventListener('DOMContentLoaded', loadData);
 
         async function loadData() {
             try {
-                const response = await fetch('../output/function_tests_summary.json');
-                functionTestData = await response.json();
+                const [functionResponse, summaryResponse] = await Promise.all([
+                    fetch('../output/function_tests_summary.json'),
+                    fetch('data/summary.json')
+                ]);
+                functionTestData = await functionResponse.json();
+                sharedSummaryData = await summaryResponse.json();
                 
                 updateHeaderStats();
+                updateSuiteSummary();
                 updateComparisonTable();
                 populateEngineSelect();
                 updateCharts();
             } catch (error) {
                 console.error('Error loading data:', error);
-                document.getElementById('comparisonBody').innerHTML = 
+                document.getElementById('comparisonBody').innerHTML =
                     '<tr><td colspan="5" style="color: red;">Error loading data. Please run the function tests demo first.</td></tr>';
             }
         }
@@ -235,10 +250,41 @@
         function updateHeaderStats() {
             const engines = functionTestData.engines;
             document.getElementById('totalEngines').textContent = engines.length;
-            document.getElementById('totalTests').textContent = engines[0]?.totalTests || 0;
+            const totalTests = engines.reduce((sum, engine) => sum + (engine.totalTests || 0), 0);
+            document.getElementById('totalTests').textContent = totalTests;
             
             const avgPassRate = engines.reduce((sum, e) => sum + e.overallPassRate, 0) / engines.length;
             document.getElementById('avgPassRate').textContent = avgPassRate.toFixed(1) + '%';
+        }
+
+        function updateSuiteSummary() {
+            const container = document.getElementById('suiteSummaryGrid');
+            if (!sharedSummaryData || !sharedSummaryData.engines) {
+                container.innerHTML = '<div class="error">No shared summary available</div>';
+                return;
+            }
+
+            container.innerHTML = sharedSummaryData.engines.map(engine => `
+                <div class="detail-card">
+                    <h3>${engine.engineName}</h3>
+                    <div class="detail-row">
+                        <span class="detail-label">TPC-H Pass Rate:</span>
+                        <span class="detail-value">${Number(engine.tpch?.passRate || 0).toFixed(1)}%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Function Pass Rate:</span>
+                        <span class="detail-value">${Number(engine.functions?.passRate || 0).toFixed(1)}%</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">TPC-H Tests:</span>
+                        <span class="detail-value">${engine.tpch?.passed || 0}/${engine.tpch?.totalTests || 0}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">Function Tests:</span>
+                        <span class="detail-value">${engine.functions?.passed || 0}/${engine.functions?.totalTests || 0}</span>
+                    </div>
+                </div>
+            `).join('');
         }
 
         function updateComparisonTable() {
@@ -246,6 +292,7 @@
             tbody.innerHTML = '';
             
             functionTestData.engines.forEach(engine => {
+                const tpchMetrics = getTpchMetrics(engine.engine);
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${engine.engine}</strong></td>
@@ -254,6 +301,7 @@
                     <td style="color: #FF5722;">${engine.totalTests - engine.totalPassed}</td>
                     <td>${getPassRateBadge(engine.overallPassRate)}</td>
                 `;
+                row.title = `TPC-H: ${tpchMetrics.passed}/${tpchMetrics.totalTests} (${tpchMetrics.passRate.toFixed(1)}%) | Functions: ${engine.totalPassed}/${engine.totalTests} (${engine.overallPassRate.toFixed(1)}%)`;
                 tbody.appendChild(row);
             });
         }
@@ -336,16 +384,17 @@
 
         function updateCharts() {
             // Category chart
-            const firstEngine = functionTestData.engines[0];
-            const categories = Object.keys(firstEngine.categories);
-            const categoryData = categories.map(cat => firstEngine.categories[cat].passRate);
+            const selectedEngineName = document.getElementById('engineSelect').value || functionTestData.engines[0]?.engine;
+            const selectedEngine = functionTestData.engines.find(engine => engine.engine === selectedEngineName) || functionTestData.engines[0];
+            const categories = Object.keys(selectedEngine.categories);
+            const categoryData = categories.map(cat => selectedEngine.categories[cat].passRate);
             
             new Chart(document.getElementById('categoryChart'), {
                 type: 'bar',
                 data: {
                     labels: categories.map(c => c.charAt(0).toUpperCase() + c.slice(1)),
                     datasets: [{
-                        label: 'Pass Rate (%)',
+                        label: `${selectedEngine.engine} Function Pass Rate (%)`,
                         data: categoryData,
                         backgroundColor: 'rgba(76, 175, 80, 0.6)',
                         borderColor: 'rgba(76, 175, 80, 1)',
@@ -366,27 +415,29 @@
             
             // Engine comparison chart
             const engineNames = functionTestData.engines.map(e => e.engine);
-            const engineRates = functionTestData.engines.map(e => e.overallPassRate);
+            const functionRates = functionTestData.engines.map(e => e.overallPassRate);
+            const tpchRates = functionTestData.engines.map(e => getTpchMetrics(e.engine).passRate);
             
             new Chart(document.getElementById('engineChart'), {
                 type: 'bar',
                 data: {
                     labels: engineNames,
-                    datasets: [{
-                        label: 'Overall Pass Rate (%)',
-                        data: engineRates,
-                        backgroundColor: [
-                            'rgba(255, 87, 34, 0.6)',
-                            'rgba(76, 175, 80, 0.6)',
-                            'rgba(33, 150, 243, 0.6)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 87, 34, 1)',
-                            'rgba(76, 175, 80, 1)',
-                            'rgba(33, 150, 243, 1)'
-                        ],
-                        borderWidth: 1
-                    }]
+                    datasets: [
+                        {
+                            label: 'Function Pass Rate (%)',
+                            data: functionRates,
+                            backgroundColor: 'rgba(76, 175, 80, 0.6)',
+                            borderColor: 'rgba(76, 175, 80, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'TPC-H Pass Rate (%)',
+                            data: tpchRates,
+                            backgroundColor: 'rgba(33, 150, 243, 0.6)',
+                            borderColor: 'rgba(33, 150, 243, 1)',
+                            borderWidth: 1
+                        }
+                    ]
                 },
                 options: {
                     responsive: true,
@@ -399,6 +450,24 @@
                     }
                 }
             });
+        }
+
+        function getTpchMetrics(engineName) {
+            if (!sharedSummaryData || !Array.isArray(sharedSummaryData.engines)) {
+                return { passRate: 0, totalTests: 0, passed: 0, failed: 0 };
+            }
+
+            const engineSummary = sharedSummaryData.engines.find(engine => engine.engineName === engineName);
+            if (!engineSummary || !engineSummary.tpch) {
+                return { passRate: 0, totalTests: 0, passed: 0, failed: 0 };
+            }
+
+            return {
+                passRate: Number(engineSummary.tpch.passRate || 0),
+                totalTests: Number(engineSummary.tpch.totalTests || 0),
+                passed: Number(engineSummary.tpch.passed || 0),
+                failed: Number(engineSummary.tpch.failed || 0)
+            };
         }
     </script>
 </body>

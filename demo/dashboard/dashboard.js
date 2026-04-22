@@ -3,6 +3,7 @@
 let leaderboardData = null;
 let passRateChart = null;
 let distributionChart = null;
+let sharedSummaryData = null;
 let currentComplexityFilter = 'all';
 const AUTO_REFRESH_INTERVAL = 30000; // 30 seconds
 
@@ -20,13 +21,17 @@ async function loadData() {
     console.log('Loading leaderboard data...');
     
     try {
-        const response = await fetch('data/leaderboard.json');
+        const [leaderboardResponse, summaryResponse] = await Promise.all([
+            fetch('data/leaderboard.json'),
+            fetch('data/summary.json')
+        ]);
         
-        if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
+        if (!leaderboardResponse.ok) {
+            throw new Error(`HTTP error! status: ${leaderboardResponse.status}`);
         }
         
-        leaderboardData = await response.json();
+        leaderboardData = await leaderboardResponse.json();
+        sharedSummaryData = summaryResponse.ok ? await summaryResponse.json() : null;
         console.log('Data loaded:', leaderboardData);
         
         updateDashboard();
@@ -41,6 +46,7 @@ function updateDashboard() {
     if (!leaderboardData) return;
     
     updateHeaderStats();
+    updateSuiteSummary();
     updateLeaderboardTable();
     updateCharts();
     updateDetailedResults();
@@ -49,12 +55,45 @@ function updateDashboard() {
 // Update header statistics
 function updateHeaderStats() {
     document.getElementById('totalEngines').textContent = leaderboardData.totalEngines || 0;
-    document.getElementById('avgPassRate').textContent = 
+    document.getElementById('avgPassRate').textContent =
         (leaderboardData.averagePassRate || 0).toFixed(1) + '%';
     
-    const lastUpdated = new Date(leaderboardData.lastUpdated);
-    document.getElementById('lastUpdated').textContent = 
-        lastUpdated.toLocaleTimeString();
+    const lastUpdatedValue = (sharedSummaryData && sharedSummaryData.lastUpdated) || leaderboardData.lastUpdated;
+    const lastUpdated = new Date(lastUpdatedValue);
+    document.getElementById('lastUpdated').textContent =
+        isNaN(lastUpdated.getTime()) ? '-' : lastUpdated.toLocaleTimeString();
+}
+
+function updateSuiteSummary() {
+    const container = document.getElementById('suiteSummaryGrid');
+    if (!container) return;
+    
+    if (!sharedSummaryData || !sharedSummaryData.engines || sharedSummaryData.engines.length === 0) {
+        container.innerHTML = '<div class="error">No cross-suite summary available</div>';
+        return;
+    }
+    
+    container.innerHTML = sharedSummaryData.engines.map(engine => `
+        <div class="detail-card">
+            <h3>${engine.engineName}</h3>
+            <div class="detail-row">
+                <span class="detail-label">TPC-H Pass Rate:</span>
+                <span class="detail-value">${Number(engine.tpch?.passRate || 0).toFixed(1)}%</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Function Pass Rate:</span>
+                <span class="detail-value">${Number(engine.functions?.passRate || 0).toFixed(1)}%</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">TPC-H Tests:</span>
+                <span class="detail-value">${engine.tpch?.passed || 0}/${engine.tpch?.totalTests || 0}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Function Tests:</span>
+                <span class="detail-value">${engine.functions?.passed || 0}/${engine.functions?.totalTests || 0}</span>
+            </div>
+        </div>
+    `).join('');
 }
 
 // Update leaderboard table
@@ -141,6 +180,7 @@ function updatePassRateChart() {
     const engines = leaderboardData.engines;
     const labels = engines.map(e => e.engineName);
     const data = engines.map(e => e.passRate);
+    const functionData = engines.map(e => getFunctionMetrics(e.engineName).passRate);
     const colors = engines.map(e => getChartColor(e.passRate));
     
     if (passRateChart) {
@@ -151,25 +191,34 @@ function updatePassRateChart() {
         type: 'bar',
         data: {
             labels: labels,
-            datasets: [{
-                label: 'Pass Rate (%)',
-                data: data,
-                backgroundColor: colors,
-                borderColor: colors.map(c => c.replace('0.7', '1')),
-                borderWidth: 2
-            }]
+            datasets: [
+                {
+                    label: 'TPC-H Pass Rate (%)',
+                    data: data,
+                    backgroundColor: colors,
+                    borderColor: colors.map(c => c.replace('0.7', '1')),
+                    borderWidth: 2
+                },
+                {
+                    label: 'Function Pass Rate (%)',
+                    data: functionData,
+                    backgroundColor: 'rgba(33, 150, 243, 0.55)',
+                    borderColor: 'rgba(33, 150, 243, 1)',
+                    borderWidth: 2
+                }
+            ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: true,
             plugins: {
                 legend: {
-                    display: false
+                    display: true
                 },
                 tooltip: {
                     callbacks: {
                         label: function(context) {
-                            return `Pass Rate: ${context.parsed.y.toFixed(1)}%`;
+                            return `${context.dataset.label}: ${context.parsed.y.toFixed(1)}%`;
                         }
                     }
                 }
@@ -211,12 +260,16 @@ function updateDistributionChart() {
                 backgroundColor: [
                     'rgba(76, 175, 80, 0.7)',
                     'rgba(33, 150, 243, 0.7)',
-                    'rgba(255, 193, 7, 0.7)'
+                    'rgba(255, 193, 7, 0.7)',
+                    'rgba(156, 39, 176, 0.7)',
+                    'rgba(255, 87, 34, 0.7)'
                 ],
                 borderColor: [
                     'rgba(76, 175, 80, 1)',
                     'rgba(33, 150, 243, 1)',
-                    'rgba(255, 193, 7, 1)'
+                    'rgba(255, 193, 7, 1)',
+                    'rgba(156, 39, 176, 1)',
+                    'rgba(255, 87, 34, 1)'
                 ],
                 borderWidth: 2
             }]
@@ -232,7 +285,12 @@ function updateDistributionChart() {
                     callbacks: {
                         label: function(context) {
                             const engine = engines[context.dataIndex];
-                            return `${context.label}: ${engine.passed}/${engine.totalTests} (${engine.passRate.toFixed(1)}%)`;
+                            const functionMetrics = getFunctionMetrics(engine.engineName);
+                            return [
+                                `${context.label}:`,
+                                `TPC-H Passed: ${engine.passed}/${engine.totalTests} (${engine.passRate.toFixed(1)}%)`,
+                                `Function Passed: ${functionMetrics.passed}/${functionMetrics.totalTests} (${functionMetrics.passRate.toFixed(1)}%)`
+                            ];
                         }
                     }
                 }
@@ -255,29 +313,43 @@ function updateDetailedResults() {
     leaderboardData.engines.forEach(engine => {
         const statusBadge = getStatusBadge(engine.passRate);
         const timestamp = new Date(engine.timestamp).toLocaleString();
+        const functionMetrics = getFunctionMetrics(engine.engineName);
+        const combinedPassRate = getCombinedPassRate(engine.engineName, engine.passRate);
         
         html += `
             <div class="detail-card">
                 <h3>${engine.engineName} v${engine.engineVersion}</h3>
                 <div class="detail-row">
-                    <span class="detail-label">Status:</span>
+                    <span class="detail-label">TPC-H Status:</span>
                     <span class="detail-value">${statusBadge}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Pass Rate:</span>
+                    <span class="detail-label">TPC-H Pass Rate:</span>
                     <span class="detail-value pass-rate">${engine.passRate.toFixed(1)}%</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Tests Passed:</span>
+                    <span class="detail-label">TPC-H Tests:</span>
                     <span class="detail-value text-success">${engine.passed}/${engine.totalTests}</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Tests Failed:</span>
-                    <span class="detail-value text-danger">${engine.failed}</span>
+                    <span class="detail-label">Function Pass Rate:</span>
+                    <span class="detail-value pass-rate">${functionMetrics.passRate.toFixed(1)}%</span>
                 </div>
                 <div class="detail-row">
-                    <span class="detail-label">Tests Skipped:</span>
-                    <span class="detail-value text-warning">${engine.skipped}</span>
+                    <span class="detail-label">Function Tests:</span>
+                    <span class="detail-value text-success">${functionMetrics.passed}/${functionMetrics.totalTests}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Combined Avg Pass Rate:</span>
+                    <span class="detail-value">${combinedPassRate.toFixed(1)}%</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">TPC-H Failures / Skips:</span>
+                    <span class="detail-value"><span class="text-danger">${engine.failed}</span> / <span class="text-warning">${engine.skipped}</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Function Failures:</span>
+                    <span class="detail-value text-danger">${functionMetrics.failed}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Last Updated:</span>
@@ -331,6 +403,33 @@ function getChartColor(passRate) {
     if (passRate >= 85) return 'rgba(255, 193, 7, 0.7)';
     if (passRate >= 70) return 'rgba(255, 152, 0, 0.7)';
     return 'rgba(244, 67, 54, 0.7)';
+}
+
+function getFunctionMetrics(engineName) {
+    if (!sharedSummaryData || !Array.isArray(sharedSummaryData.engines)) {
+        return { passRate: 0, totalTests: 0, passed: 0, failed: 0 };
+    }
+    
+    const engineSummary = sharedSummaryData.engines.find(engine => engine.engineName === engineName);
+    if (!engineSummary || !engineSummary.functions) {
+        return { passRate: 0, totalTests: 0, passed: 0, failed: 0 };
+    }
+    
+    return {
+        passRate: Number(engineSummary.functions.passRate || 0),
+        totalTests: Number(engineSummary.functions.totalTests || 0),
+        passed: Number(engineSummary.functions.passed || 0),
+        failed: Number(engineSummary.functions.failed || 0)
+    };
+}
+
+function getCombinedPassRate(engineName, tpchPassRate) {
+    const functionMetrics = getFunctionMetrics(engineName);
+    if (functionMetrics.totalTests === 0) {
+        return Number(tpchPassRate || 0);
+    }
+    
+    return (Number(tpchPassRate || 0) + functionMetrics.passRate) / 2;
 }
 
 // Show error message

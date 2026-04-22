@@ -40,7 +40,7 @@ class FunctionTestDemo:
         print()
         
         # Test each engine
-        engines = ["MockDBEngine", "FastDBEngine", "CloudDBEngine"]
+        engines = ["MockDB", "FastDB", "CloudDB", "DuckDB", "PostgreSQL"]
         all_results = []
         
         for engine_name in engines:
@@ -170,23 +170,35 @@ class FunctionTestDemo:
     def get_pass_rate(self, engine_name, category):
         """Get simulated pass rate for engine/category."""
         rates = {
-            "MockDBEngine": {
+            "MockDB": {
                 "aggregate": 0.75, "window": 0.65, "cast": 0.80, "boolean": 0.90, "datetime": 0.70,
                 "arithmetic": 0.85, "string": 0.88, "comparison": 0.92,
                 "array": 0.60, "struct": 0.55, "map": 0.58, "json": 0.50,
                 "conditional": 0.82, "set": 0.65, "geospatial": 0.45
             },
-            "FastDBEngine": {
+            "FastDB": {
                 "aggregate": 0.92, "window": 0.88, "cast": 0.95, "boolean": 0.98, "datetime": 0.85,
                 "arithmetic": 0.96, "string": 0.94, "comparison": 0.98,
                 "array": 0.85, "struct": 0.80, "map": 0.82, "json": 0.78,
                 "conditional": 0.93, "set": 0.88, "geospatial": 0.72
             },
-            "CloudDBEngine": {
+            "CloudDB": {
                 "aggregate": 0.96, "window": 0.94, "cast": 0.98, "boolean": 1.00, "datetime": 0.92,
                 "arithmetic": 0.99, "string": 0.97, "comparison": 1.00,
                 "array": 0.92, "struct": 0.90, "map": 0.91, "json": 0.88,
                 "conditional": 0.97, "set": 0.94, "geospatial": 0.85
+            },
+            "DuckDB": {
+                "aggregate": 0.94, "window": 0.91, "cast": 0.96, "boolean": 0.99, "datetime": 0.89,
+                "arithmetic": 0.97, "string": 0.95, "comparison": 0.99,
+                "array": 0.88, "struct": 0.84, "map": 0.86, "json": 0.82,
+                "conditional": 0.95, "set": 0.91, "geospatial": 0.78
+            },
+            "PostgreSQL": {
+                "aggregate": 0.90, "window": 0.86, "cast": 0.92, "boolean": 0.96, "datetime": 0.85,
+                "arithmetic": 0.94, "string": 0.91, "comparison": 0.97,
+                "array": 0.82, "struct": 0.78, "map": 0.80, "json": 0.75,
+                "conditional": 0.91, "set": 0.87, "geospatial": 0.70
             }
         }
         return rates.get(engine_name, {}).get(category, 0.80)
@@ -232,6 +244,71 @@ class FunctionTestDemo:
         print("└─────────────────┴────────┴─────────┴─────────┴───────────┘")
         
         print(f"\n💾 Saved: {filename}")
+        self.generate_shared_summary(all_results)
+    
+    def generate_shared_summary(self, all_results):
+        """Generate shared dashboard summary with function and TPC-H data."""
+        demo_root = Path(__file__).parent.parent
+        summary_path = demo_root / "dashboard" / "data" / "summary.json"
+        leaderboard_path = demo_root / "output" / "leaderboard.json"
+        
+        existing_summary = {"engines": []}
+        if summary_path.exists():
+            with open(summary_path, 'r') as f:
+                existing_summary = json.load(f)
+        
+        existing_by_engine = {
+            engine["engineName"]: engine
+            for engine in existing_summary.get("engines", [])
+        }
+        
+        tpch_by_engine = {}
+        if leaderboard_path.exists():
+            with open(leaderboard_path, 'r') as f:
+                leaderboard = json.load(f)
+            for engine in leaderboard.get("engines", []):
+                engine_name = engine.get("engineName")
+                if engine_name:
+                    tpch_by_engine[engine_name] = {
+                        "passRate": engine.get("passRate", 0.0),
+                        "totalTests": engine.get("totalTests", 0),
+                        "passed": engine.get("passed", 0),
+                        "failed": engine.get("failed", 0),
+                        "skipped": engine.get("skipped", 0)
+                    }
+        
+        merged_engines = []
+        for result in all_results:
+            engine_name = result["engine"]
+            engine_summary = existing_by_engine.get(engine_name, {
+                "engineName": engine_name,
+                "engineVersion": "demo"
+            })
+            
+            engine_summary["functions"] = {
+                "passRate": result["overallPassRate"],
+                "totalTests": result["totalTests"],
+                "passed": result["totalPassed"],
+                "failed": result["totalTests"] - result["totalPassed"]
+            }
+            
+            engine_summary["tpch"] = tpch_by_engine.get(engine_name, engine_summary.get("tpch", {
+                "passRate": 0.0,
+                "totalTests": 0,
+                "passed": 0,
+                "failed": 0,
+                "skipped": 0
+            }))
+            merged_engines.append(engine_summary)
+        
+        shared_summary = {
+            "lastUpdated": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "totalEngines": len(merged_engines),
+            "engines": merged_engines
+        }
+        
+        with open(summary_path, 'w') as f:
+            json.dump(shared_summary, f, indent=2)
 
 
 def main():

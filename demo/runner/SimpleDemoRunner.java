@@ -23,7 +23,7 @@ public class SimpleDemoRunner {
             new File(OUTPUT_DIR).mkdirs();
             new File(DASHBOARD_DATA_DIR).mkdirs();
             
-            // Generate mock reports for three engines
+            // Generate mock reports for five engines
             List<Map<String, Object>> reports = new ArrayList<>();
             
             System.out.println("-".repeat(80));
@@ -36,6 +36,14 @@ public class SimpleDemoRunner {
             
             System.out.println("-".repeat(80));
             reports.add(generateEngineReport("CloudDB", "3.1.0", 0.773)); // 77.3% pass rate
+            System.out.println();
+            
+            System.out.println("-".repeat(80));
+            reports.add(generateEngineReport("DuckDB", "0.10.0", 0.923)); // 92.3% pass rate
+            System.out.println();
+            
+            System.out.println("-".repeat(80));
+            reports.add(generateEngineReport("PostgreSQL", "16.0", 0.882)); // 88.2% pass rate
             System.out.println();
             
             // Generate summary

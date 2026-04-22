@@ -4,7 +4,7 @@ This demo showcases the complete workflow of testing database engines for Substr
 
 ## Demo Overview
 
-The demo simulates three database engines (MockDB, FastDB, and CloudDB) running compliance tests against the TPC-H benchmark and publishing results to a web dashboard.
+The demo simulates five database engines (MockDB, FastDB, CloudDB, DuckDB, and PostgreSQL) running compliance tests against both the TPC-H benchmark and the functional test suite, then publishing integrated results to a web dashboard.
 
 ## Demo Components
 
@@ -14,10 +14,16 @@ demo/
 ├── engines/                     # Mock database engines
 │   ├── MockDBEngine.java       # Mock database implementation
 │   ├── FastDBEngine.java       # Fast database implementation
-│   └── CloudDBEngine.java      # Cloud database implementation
+│   ├── CloudDBEngine.java      # Cloud database implementation
+│   ├── DuckDBEngine.java       # DuckDB demo implementation
+│   └── PostgreSQLEngine.java   # PostgreSQL demo implementation
 ├── runner/                      # Demo execution scripts
 │   ├── DemoRunner.java         # Main demo runner
-│   └── run-demo.sh             # Shell script to run demo
+│   ├── EnhancedDemoRunner.java # Integrated end-to-end demo runner
+│   ├── FunctionTestDemo.java   # Functional test demo runner
+│   ├── run-demo.sh             # Basic demo runner script
+│   ├── run-enhanced-demo.sh    # Integrated TPC-H + function dashboard demo
+│   └── run-function-tests.sh   # Functional test runner
 ├── dashboard/                   # Web dashboard
 │   ├── index.html              # Dashboard UI
 │   ├── styles.css              # Dashboard styles
@@ -43,25 +49,26 @@ demo/
 cd demo
 
 # Run the complete demo
-./runner/run-demo.sh
+./runner/run-enhanced-demo.sh
 ```
 
 This will:
-1. ✅ Compile mock database engines
-2. ✅ Run compliance tests for 3 engines
-3. ✅ Generate compliance reports (JSON)
-4. ✅ Create leaderboard
-5. ✅ Launch dashboard in browser
+1. ✅ Run the integrated TPC-H end-to-end demo for 5 engines
+2. ✅ Include DuckDB and PostgreSQL in dashboard outputs
+3. ✅ Reuse functional test results when available
+4. ✅ Generate cross-suite dashboard data for TPC-H and functional tests
+5. ✅ Publish integrated results for both dashboard views
 
 ## Demo Workflow
 
 ### Step 1: Mock Engines Execute Tests
 
-Each mock engine:
+Each demo engine:
 - Loads TPC-H test data (simulated)
 - Executes 22 Substrait query plans
 - Generates pass/fail results with realistic patterns
 - Produces compliance report JSON
+- Contributes to cross-suite dashboard summaries with functional test results
 
 ### Step 2: Reports Aggregation
 
@@ -73,10 +80,11 @@ The `generate_leaderboard.py` script:
 ### Step 3: Dashboard Display
 
 The web dashboard shows:
-- **Rankings Table**: Engines sorted by pass rate
-- **Pass Rate Chart**: Visual comparison
-- **Detailed Results**: Per-engine breakdown
-- **Query Analysis**: Which queries passed/failed
+- **TPC-H Rankings Table**: Engines sorted by TPC-H pass rate
+- **Cross-Suite Summary**: TPC-H and functional results side-by-side
+- **Pass Rate Charts**: Visual comparison across both suites
+- **Detailed Results**: Per-engine TPC-H + functional breakdown
+- **Query Analysis**: Which TPC-H queries passed/failed
 
 ## Mock Engine Characteristics
 
@@ -148,24 +156,28 @@ TestSuite suite = loader.load("path/to/your/suite.yaml");
 
 ## Output Files
 
-After running the demo:
+After running the integrated demo:
 
 ```
 demo/output/
-├── mockdb-report.json          # MockDB compliance report
-├── fastdb-report.json          # FastDB compliance report
-├── clouddb-report.json         # CloudDB compliance report
-├── leaderboard.md              # Markdown leaderboard
-└── leaderboard.json            # JSON leaderboard
+├── analytics/analytics-report.json         # Analytics summary
+├── storage/                                # Private/public report storage
+├── mockdb-report.json                      # MockDB TPC-H report
+├── fastdb-report.json                      # FastDB TPC-H report
+├── clouddb-report.json                     # CloudDB TPC-H report
+├── duckdb-report.json                      # DuckDB TPC-H report
+├── postgresql-report.json                  # PostgreSQL TPC-H report
+└── function_tests_summary.json             # Functional test summary
 
 demo/dashboard/data/
-└── leaderboard.json            # Copy for dashboard
+├── leaderboard.json                        # TPC-H dashboard leaderboard
+└── summary.json                            # Cross-suite dashboard summary
 ```
 
 ## Demo Scenarios
 
-### Scenario 1: Initial Compliance Check
-Run all engines and see baseline compliance.
+### Scenario 1: Initial Cross-Suite Compliance Check
+Run all engines and see baseline TPC-H and function compliance together.
 
 ### Scenario 2: Engine Improvement
 Modify an engine's pass rate and re-run to show improvement.
@@ -174,7 +186,7 @@ Modify an engine's pass rate and re-run to show improvement.
 Add a new engine and see how it ranks.
 
 ### Scenario 4: Dashboard Monitoring
-Keep dashboard open and run demo multiple times to see updates.
+Keep dashboard open and run the integrated and function demos multiple times to see updates across both views.
 
 ## Technical Details
 

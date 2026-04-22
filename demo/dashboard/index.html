@@ -13,7 +13,7 @@
         <header class="header">
             <div class="header-content">
                 <h1>🎯 Substrait Compliance Dashboard</h1>
-                <p class="subtitle">Real-time compliance monitoring for database engines</p>
+                <p class="subtitle">Cross-suite compliance monitoring for TPC-H and functional database engine tests</p>
             </div>
             <div class="header-stats">
                 <div class="stat-card">
@@ -22,7 +22,7 @@
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="avgPassRate">-</div>
-                    <div class="stat-label">Avg Pass Rate</div>
+                    <div class="stat-label">Avg TPC-H Pass Rate</div>
                 </div>
                 <div class="stat-card">
                     <div class="stat-value" id="lastUpdated">-</div>
@@ -38,10 +38,19 @@
 
         <!-- Main Content -->
         <main class="main-content">
+            <section class="section">
+                <div class="section-header">
+                    <h2>🔀 Cross-Suite Summary</h2>
+                </div>
+                <div class="summary-grid" id="suiteSummaryGrid">
+                    <div class="loading">Loading combined TPC-H and function summary...</div>
+                </div>
+            </section>
+
             <!-- Leaderboard Section -->
             <section class="section">
                 <div class="section-header">
-                    <h2>🏆 Compliance Leaderboard</h2>
+                    <h2>🏆 TPC-H Compliance Leaderboard</h2>
                     <div class="header-controls">
                         <select id="complexityFilter" class="filter-dropdown" onchange="filterByComplexity(this.value)">
                             <option value="all">All Queries</option>
@@ -61,7 +70,7 @@
             <!-- Charts Section -->
             <section class="section">
                 <div class="section-header">
-                    <h2>📊 Visual Analytics</h2>
+                    <h2>📊 TPC-H Visual Analytics</h2>
                 </div>
                 <div class="charts-grid">
                     <div class="chart-container">
@@ -78,7 +87,7 @@
             <!-- Detailed Results Section -->
             <section class="section">
                 <div class="section-header">
-                    <h2>📋 Detailed Results</h2>
+                    <h2>📋 Engine Suite Details</h2>
                 </div>
                 <div class="details-grid" id="detailsGrid">
                     <div class="loading">Loading detailed results...</div>

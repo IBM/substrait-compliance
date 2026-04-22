@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuite name="io.substrait.compliance.comparison.IntegerComparatorTest" tests="8" skipped="0" failures="0" errors="0" timestamp="2026-04-22T23:17:52" hostname="Ranjans-MacBook-Pro.local" time="0.002">
+  <properties/>
+  <testcase name="testZero()" classname="io.substrait.compliance.comparison.IntegerComparatorTest" time="0.0"/>
+  <testcase name="testStringToInteger()" classname="io.substrait.compliance.comparison.IntegerComparatorTest" time="0.0"/>
+  <testcase name="testMismatch()" classname="io.substrait.compliance.comparison.IntegerComparatorTest" time="0.001"/>
+  <testcase name="testSupportsIntegerTypes()" classname="io.substrait.compliance.comparison.IntegerComparatorTest" time="0.0"/>
+  <testcase name="testNumberObjects()" classname="io.substrait.compliance.comparison.IntegerComparatorTest" time="0.0"/>
+  <testcase name="testLargeNumbers()" classname="io.substrait.compliance.comparison.IntegerComparatorTest" time="0.001"/>
+  <testcase name="testExactMatch()" classname="io.substrait.compliance.comparison.IntegerComparatorTest" time="0.0"/>
+  <testcase name="testNegativeNumbers()" classname="io.substrait.compliance.comparison.IntegerComparatorTest" time="0.0"/>
+  <system-out><![CDATA[]]></system-out>
+  <system-err><![CDATA[]]></system-err>
+</testsuite>

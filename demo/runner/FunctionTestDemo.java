@@ -1,6 +1,8 @@
 package demo.runner;
 
-import demo.engines.*;
+import io.substrait.demo.engines.*;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
@@ -14,8 +16,10 @@ import org.json.*;
  */
 public class FunctionTestDemo {
     
-    private static final String TEST_SUITES_DIR = "../../test-suites/functions";
+    private static final String TEST_SUITES_DIR = "../test-suites/functions";
     private static final String OUTPUT_DIR = "output";
+    private static final ObjectMapper JSON_MAPPER = new ObjectMapper()
+        .enable(SerializationFeature.INDENT_OUTPUT);
     
     public static void main(String[] args) {
         System.out.println("╔════════════════════════════════════════════════════════════╗");
@@ -31,6 +35,8 @@ public class FunctionTestDemo {
             runEngineTests(new MockDBEngine());
             runEngineTests(new FastDBEngine());
             runEngineTests(new CloudDBEngine());
+            runEngineTests(new DuckDBEngine());
+            runEngineTests(new PostgreSQLEngine());
             
             // Generate summary report
             generateSummaryReport();
@@ -46,7 +52,7 @@ public class FunctionTestDemo {
     }
     
     private static void runEngineTests(Object engine) throws Exception {
-        String engineName = engine.getClass().getSimpleName();
+        String engineName = getDisplayEngineName(engine);
         System.out.println("\n" + "=".repeat(60));
         System.out.println("Testing Engine: " + engineName);
         System.out.println("=".repeat(60));
@@ -143,69 +149,116 @@ public class FunctionTestDemo {
     
     private static double getEnginePassRate(Object engine, String category) {
         // Simulate different pass rates for different engines and categories
-        String engineName = engine.getClass().getSimpleName();
+        String engineName = getDisplayEngineName(engine);
         
-        if (engineName.equals("MockDBEngine")) {
-            // MockDB has lower pass rates
-            switch (category) {
-                case "aggregate": return 0.75;
-                case "window": return 0.65;
-                case "cast": return 0.80;
-                case "boolean": return 0.90;
-                case "datetime": return 0.70;
-                case "arithmetic": return 0.85;
-                case "string": return 0.88;
-                case "comparison": return 0.92;
-                case "array": return 0.60;
-                case "struct": return 0.55;
-                case "map": return 0.58;
-                case "json": return 0.50;
-                case "conditional": return 0.82;
-                case "set": return 0.65;
-                case "geospatial": return 0.45;
-                default: return 0.70;
-            }
-        } else if (engineName.equals("FastDBEngine")) {
-            // FastDB has good pass rates
-            switch (category) {
-                case "aggregate": return 0.92;
-                case "window": return 0.88;
-                case "cast": return 0.95;
-                case "boolean": return 0.98;
-                case "datetime": return 0.85;
-                case "arithmetic": return 0.96;
-                case "string": return 0.94;
-                case "comparison": return 0.98;
-                case "array": return 0.85;
-                case "struct": return 0.80;
-                case "map": return 0.82;
-                case "json": return 0.78;
-                case "conditional": return 0.93;
-                case "set": return 0.88;
-                case "geospatial": return 0.72;
-                default: return 0.90;
-            }
-        } else {
-            // CloudDB has excellent pass rates
-            switch (category) {
-                case "aggregate": return 0.96;
-                case "window": return 0.94;
-                case "cast": return 0.98;
-                case "boolean": return 1.00;
-                case "datetime": return 0.92;
-                case "arithmetic": return 0.99;
-                case "string": return 0.97;
-                case "comparison": return 1.00;
-                case "array": return 0.92;
-                case "struct": return 0.90;
-                case "map": return 0.91;
-                case "json": return 0.88;
-                case "conditional": return 0.97;
-                case "set": return 0.94;
-                case "geospatial": return 0.85;
-                default: return 0.95;
-            }
+        switch (engineName) {
+            case "MockDB":
+                switch (category) {
+                    case "aggregate": return 0.75;
+                    case "window": return 0.65;
+                    case "cast": return 0.80;
+                    case "boolean": return 0.90;
+                    case "datetime": return 0.70;
+                    case "arithmetic": return 0.85;
+                    case "string": return 0.88;
+                    case "comparison": return 0.92;
+                    case "array": return 0.60;
+                    case "struct": return 0.55;
+                    case "map": return 0.58;
+                    case "json": return 0.50;
+                    case "conditional": return 0.82;
+                    case "set": return 0.65;
+                    case "geospatial": return 0.45;
+                    default: return 0.70;
+                }
+            case "FastDB":
+                switch (category) {
+                    case "aggregate": return 0.92;
+                    case "window": return 0.88;
+                    case "cast": return 0.95;
+                    case "boolean": return 0.98;
+                    case "datetime": return 0.85;
+                    case "arithmetic": return 0.96;
+                    case "string": return 0.94;
+                    case "comparison": return 0.98;
+                    case "array": return 0.85;
+                    case "struct": return 0.80;
+                    case "map": return 0.82;
+                    case "json": return 0.78;
+                    case "conditional": return 0.93;
+                    case "set": return 0.88;
+                    case "geospatial": return 0.72;
+                    default: return 0.90;
+                }
+            case "CloudDB":
+                switch (category) {
+                    case "aggregate": return 0.96;
+                    case "window": return 0.94;
+                    case "cast": return 0.98;
+                    case "boolean": return 1.00;
+                    case "datetime": return 0.92;
+                    case "arithmetic": return 0.99;
+                    case "string": return 0.97;
+                    case "comparison": return 1.00;
+                    case "array": return 0.92;
+                    case "struct": return 0.90;
+                    case "map": return 0.91;
+                    case "json": return 0.88;
+                    case "conditional": return 0.97;
+                    case "set": return 0.94;
+                    case "geospatial": return 0.85;
+                    default: return 0.95;
+                }
+            case "DuckDB":
+                switch (category) {
+                    case "aggregate": return 0.94;
+                    case "window": return 0.91;
+                    case "cast": return 0.96;
+                    case "boolean": return 0.99;
+                    case "datetime": return 0.90;
+                    case "arithmetic": return 0.97;
+                    case "string": return 0.95;
+                    case "comparison": return 0.99;
+                    case "array": return 0.90;
+                    case "struct": return 0.87;
+                    case "map": return 0.88;
+                    case "json": return 0.84;
+                    case "conditional": return 0.95;
+                    case "set": return 0.92;
+                    case "geospatial": return 0.78;
+                    default: return 0.93;
+                }
+            case "PostgreSQL":
+                switch (category) {
+                    case "aggregate": return 0.89;
+                    case "window": return 0.84;
+                    case "cast": return 0.93;
+                    case "boolean": return 0.97;
+                    case "datetime": return 0.83;
+                    case "arithmetic": return 0.94;
+                    case "string": return 0.92;
+                    case "comparison": return 0.97;
+                    case "array": return 0.81;
+                    case "struct": return 0.77;
+                    case "map": return 0.75;
+                    case "json": return 0.86;
+                    case "conditional": return 0.91;
+                    case "set": return 0.90;
+                    case "geospatial": return 0.68;
+                    default: return 0.88;
+                }
+            default:
+                return 0.80;
         }
+    }
+    
+    private static String getDisplayEngineName(Object engine) {
+        if (engine instanceof MockDBEngine) return "MockDB";
+        if (engine instanceof FastDBEngine) return "FastDB";
+        if (engine instanceof CloudDBEngine) return "CloudDB";
+        if (engine instanceof DuckDBEngine) return "DuckDB";
+        if (engine instanceof PostgreSQLEngine) return "PostgreSQL";
+        return engine.getClass().getSimpleName();
     }
     
     private static void saveEngineResults(String engineName, Map<String, TestResults> results) throws IOException {
@@ -267,8 +320,11 @@ public class FunctionTestDemo {
         summary.put("testSuiteType", "function_tests");
         
         // Save summary
-        Files.writeString(Paths.get(OUTPUT_DIR + "/function_tests_summary.json"), 
+        Files.writeString(Paths.get(OUTPUT_DIR + "/function_tests_summary.json"),
                          summary.toString(2));
+        
+        Map<String, Object> sharedSummary = buildSharedSummary(engines);
+        JSON_MAPPER.writeValue(Paths.get("dashboard/data/summary.json").toFile(), sharedSummary);
         
         // Print summary table
         System.out.println("\n┌─────────────────┬────────┬─────────┬─────────┬───────────┐");
@@ -286,6 +342,55 @@ public class FunctionTestDemo {
         }
         
         System.out.println("└─────────────────┴────────┴─────────┴─────────┴───────────┘");
+    }
+    
+    private static Map<String, Object> buildSharedSummary(JSONArray functionEngines) throws IOException {
+        Map<String, Object> summary = new LinkedHashMap<>();
+        summary.put("lastUpdated", new Date().toInstant().toString());
+        summary.put("totalEngines", functionEngines.length());
+        
+        Map<String, Map<String, Object>> existingSummaryByEngine = new HashMap<>();
+        Path existingSummaryPath = Paths.get("dashboard/data/summary.json");
+        if (Files.exists(existingSummaryPath)) {
+            Map<String, Object> existingSummary = JSON_MAPPER.readValue(existingSummaryPath.toFile(), Map.class);
+            List<Map<String, Object>> existingEngines =
+                (List<Map<String, Object>>) existingSummary.getOrDefault("engines", Collections.emptyList());
+            for (Map<String, Object> engine : existingEngines) {
+                existingSummaryByEngine.put(engine.get("engineName").toString(), engine);
+            }
+        }
+        
+        List<Map<String, Object>> engines = new ArrayList<>();
+        for (int i = 0; i < functionEngines.length(); i++) {
+            JSONObject functionEngine = functionEngines.getJSONObject(i);
+            String engineName = functionEngine.getString("engine");
+            
+            Map<String, Object> engineSummary = existingSummaryByEngine.getOrDefault(engineName, new LinkedHashMap<>());
+            engineSummary.put("engineName", engineName);
+            engineSummary.putIfAbsent("engineVersion", "demo");
+            
+            Map<String, Object> functions = new LinkedHashMap<>();
+            functions.put("passRate", functionEngine.getDouble("overallPassRate"));
+            functions.put("totalTests", functionEngine.getInt("totalTests"));
+            functions.put("passed", functionEngine.getInt("totalPassed"));
+            functions.put("failed", functionEngine.getInt("totalTests") - functionEngine.getInt("totalPassed"));
+            engineSummary.put("functions", functions);
+            
+            if (!engineSummary.containsKey("tpch")) {
+                Map<String, Object> emptyTpch = new LinkedHashMap<>();
+                emptyTpch.put("passRate", 0.0);
+                emptyTpch.put("totalTests", 0);
+                emptyTpch.put("passed", 0);
+                emptyTpch.put("failed", 0);
+                emptyTpch.put("skipped", 0);
+                engineSummary.put("tpch", emptyTpch);
+            }
+            
+            engines.add(engineSummary);
+        }
+        
+        summary.put("engines", engines);
+        return summary;
     }
     
     static class TestResults {

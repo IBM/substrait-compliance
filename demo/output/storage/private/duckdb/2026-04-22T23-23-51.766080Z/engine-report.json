@@ -1,0 +1,12 @@
+{
+  "engineName": "DuckDB",
+  "engineVersion": "0.10.2",
+  "timestamp": "2026-04-22T23-23-51.766080Z",
+  "totalTests": 22,
+  "passed": 21,
+  "failed": 1,
+  "passRate": 93.2,
+  "fullDiagnostics": "Available",
+  "stackTraces": "Available",
+  "reproductionPackages": "Generated"
+}

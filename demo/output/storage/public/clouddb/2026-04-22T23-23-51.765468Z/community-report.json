@@ -1,0 +1,12 @@
+{
+  "engineName": "CloudDB",
+  "engineVersion": "3.1.0",
+  "timestamp": "2026-04-22T23-23-51.765468Z",
+  "summary": {
+    "failed": 5,
+    "totalTests": 22,
+    "passed": 17
+  },
+  "complianceScore": 77.3,
+  "note": "Anonymized - no sensitive data"
+}

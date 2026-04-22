@@ -1,0 +1,12 @@
+{
+  "engineName": "FastDB",
+  "engineVersion": "2.5.0",
+  "timestamp": "2026-04-22T23-23-51.764875Z",
+  "summary": {
+    "failed": 1,
+    "totalTests": 22,
+    "passed": 21
+  },
+  "complianceScore": 95.5,
+  "note": "Anonymized - no sensitive data"
+}

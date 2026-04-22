@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package io.substrait.validator;
+package io.substrait.compliance.validator;
 
 import io.substrait.proto.Plan;
 import io.substrait.proto.PlanRel;
@@ -340,73 +340,6 @@ public class SubstraitPlanValidator {
     }
   }
 
-  /**
-   * Result of plan validation containing errors, warnings, and informational messages.
-   */
-  public static class ValidationResult {
-    private final List<String> errors = new ArrayList<>();
-    private final List<String> warnings = new ArrayList<>();
-    private final List<String> info = new ArrayList<>();
-
-    public void addError(String message) {
-      errors.add(message);
-    }
-
-    public void addWarning(String message) {
-      warnings.add(message);
-    }
-
-    public void addInfo(String message) {
-      info.add(message);
-    }
-
-    public boolean isValid() {
-      return errors.isEmpty();
-    }
-
-    public boolean hasWarnings() {
-      return !warnings.isEmpty();
-    }
-
-    public List<String> getErrors() {
-      return new ArrayList<>(errors);
-    }
-
-    public List<String> getWarnings() {
-      return new ArrayList<>(warnings);
-    }
-
-    public List<String> getInfo() {
-      return new ArrayList<>(info);
-    }
-
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("Validation Result:\n");
-      sb.append("  Valid: ").append(isValid()).append("\n");
-      sb.append("  Errors: ").append(errors.size()).append("\n");
-      sb.append("  Warnings: ").append(warnings.size()).append("\n");
-      sb.append("  Info: ").append(info.size()).append("\n");
-
-      if (!errors.isEmpty()) {
-        sb.append("\nErrors:\n");
-        errors.forEach(e -> sb.append("  - ").append(e).append("\n"));
-      }
-
-      if (!warnings.isEmpty()) {
-        sb.append("\nWarnings:\n");
-        warnings.forEach(w -> sb.append("  - ").append(w).append("\n"));
-      }
-
-      if (!info.isEmpty()) {
-        sb.append("\nInfo:\n");
-        info.forEach(i -> sb.append("  - ").append(i).append("\n"));
-      }
-
-      return sb.toString();
-    }
-  }
 }
 
 // Made with Bob
