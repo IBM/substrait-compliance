@@ -455,13 +455,15 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 
 | Metric | Value |
 |--------|-------|
-| **Total Lines of Code** | ~5,000 |
+| **Total Lines of Code** | ~33,000 |
 | **SDKs** | 3 (Java, Python, Rust) |
-| **Tests** | 26 (100% passing) |
+| **Test Suites** | 2 (TPC-H, Functions) |
+| **Function Categories** | 16 (Arithmetic, String, Boolean, etc.) |
+| **Test Cases** | 143 |
 | **Test Data Rows** | 86,805 |
-| **Workflows** | 5 |
-| **Documentation Files** | 5 |
-| **Example Implementations** | 2 |
+| **CI/CD Workflows** | 11 |
+| **Documentation Files** | 13 |
+| **Example Implementations** | 5 |
 
 ---
 
