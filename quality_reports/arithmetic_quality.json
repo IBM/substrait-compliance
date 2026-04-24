@@ -1,0 +1,266 @@
+[
+  {
+    "suite_name": "abs",
+    "test_count": 10,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.360135"
+  },
+  {
+    "suite_name": "acos",
+    "test_count": 4,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.363674"
+  },
+  {
+    "suite_name": "acosh",
+    "test_count": 6,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.367677"
+  },
+  {
+    "suite_name": "add",
+    "test_count": 15,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.371553"
+  },
+  {
+    "suite_name": "asin",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.376004"
+  },
+  {
+    "suite_name": "asinh",
+    "test_count": 4,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.379863"
+  },
+  {
+    "suite_name": "atan",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.384027"
+  },
+  {
+    "suite_name": "atan2",
+    "test_count": 4,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.389609"
+  },
+  {
+    "suite_name": "atanh",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.394182"
+  },
+  {
+    "suite_name": "bitwise_and",
+    "test_count": 11,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.399005"
+  },
+  {
+    "suite_name": "bitwise_not",
+    "test_count": 10,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.406834"
+  },
+  {
+    "suite_name": "bitwise_or",
+    "test_count": 10,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.416407"
+  },
+  {
+    "suite_name": "bitwise_xor",
+    "test_count": 11,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.421817"
+  },
+  {
+    "suite_name": "ceil",
+    "test_count": 17,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.426603"
+  },
+  {
+    "suite_name": "cos",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.435368"
+  },
+  {
+    "suite_name": "cosh",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.445820"
+  },
+  {
+    "suite_name": "degrees",
+    "test_count": 18,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.452457"
+  },
+  {
+    "suite_name": "divide",
+    "test_count": 10,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.457496"
+  },
+  {
+    "suite_name": "exp",
+    "test_count": 7,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.461947"
+  },
+  {
+    "suite_name": "factorial",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.466894"
+  },
+  {
+    "suite_name": "floor",
+    "test_count": 17,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.472460"
+  },
+  {
+    "suite_name": "ln",
+    "test_count": 16,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.479145"
+  },
+  {
+    "suite_name": "log",
+    "test_count": 20,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.487101"
+  },
+  {
+    "suite_name": "log10",
+    "test_count": 17,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.491070"
+  },
+  {
+    "suite_name": "max",
+    "test_count": 12,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.495911"
+  },
+  {
+    "suite_name": "min",
+    "test_count": 12,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.501871"
+  },
+  {
+    "suite_name": "mod",
+    "test_count": 23,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.510329"
+  },
+  {
+    "suite_name": "multiply",
+    "test_count": 14,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.514779"
+  },
+  {
+    "suite_name": "negate",
+    "test_count": 11,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.522059"
+  },
+  {
+    "suite_name": "power",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.525364"
+  },
+  {
+    "suite_name": "radians",
+    "test_count": 18,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.531281"
+  },
+  {
+    "suite_name": "round",
+    "test_count": 21,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.537712"
+  },
+  {
+    "suite_name": "shift_left",
+    "test_count": 10,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.543369"
+  },
+  {
+    "suite_name": "shift_right",
+    "test_count": 10,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.550168"
+  },
+  {
+    "suite_name": "shift_right_unsigned",
+    "test_count": 10,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.554751"
+  },
+  {
+    "suite_name": "sign",
+    "test_count": 22,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.561617"
+  },
+  {
+    "suite_name": "sin",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.566715"
+  },
+  {
+    "suite_name": "sinh",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.571444"
+  },
+  {
+    "suite_name": "sqrt",
+    "test_count": 8,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.577495"
+  },
+  {
+    "suite_name": "subtract",
+    "test_count": 13,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.582873"
+  },
+  {
+    "suite_name": "sum",
+    "test_count": 12,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.588656"
+  },
+  {
+    "suite_name": "tan",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.593088"
+  },
+  {
+    "suite_name": "tanh",
+    "test_count": 5,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.599129"
+  },
+  {
+    "suite_name": "trunc",
+    "test_count": 17,
+    "error": "LLM Provider NOT provided. Pass in the LLM provider you are trying to call. You passed model=aws/claude-sonnet-4-5\n Pass model as E.g. For 'Huggingface' inference endpoints pass in `completion(model='huggingface/starcoder',..)` Learn more: https://docs.litellm.ai/docs/providers",
+    "timestamp": "2026-04-24T10:56:55.603178"
+  }
+]

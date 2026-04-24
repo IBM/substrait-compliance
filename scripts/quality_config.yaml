@@ -1,0 +1,159 @@
+# Configuration for Substrait Function Test Quality Checker
+# Using LiteLLM proxy with Claude
+
+# LiteLLM Configuration
+litellm:
+  base_url: "https://ete-litellm.bx.cloud9.ibm.com"
+  api_key: "sk-VMZ3xKwap-cYmizbN_qrsw"
+  model: "aws/claude-sonnet-4-5"
+  
+  # Alternative models available for your team:
+  # model: "aws/claude-opus-4-6"      # Most capable
+  # model: "aws/claude-opus-4-1"      # High capability
+  # model: "aws/claude-haiku-4-5"     # Fast and efficient
+  # model: "aws/claude-3-5-haiku"     # Balanced
+  # model: "gemini-2.5-pro"           # Google's model
+  # model: "gemini-2.5-flash"         # Fast Google model
+  # model: "Azure/gpt-5-2025-08-07"   # Azure GPT-5
+  
+  # Request parameters
+  temperature: 0.3  # Lower for more consistent analysis
+  max_tokens: 4000
+  timeout: 120  # seconds
+
+# Quality Check Configuration
+quality_checks:
+  enabled:
+    - correctness        # Mathematical/logical correctness
+    - coverage          # Edge case coverage
+    - completeness      # Missing test cases
+    - organization      # Test structure and categorization
+    - best_practices    # Testing best practices
+  
+  # Specific aspects to evaluate
+  aspects:
+    null_handling: true
+    overflow_handling: true
+    type_boundaries: true
+    error_conditions: true
+    special_values: true  # infinity, NaN, etc.
+    negative_numbers: true
+    zero_values: true
+    boundary_values: true
+
+# Test Categories to Check
+categories:
+  # Core arithmetic operations
+  - arithmetic
+  
+  # Logical operations
+  - boolean
+  
+  # Comparison operations
+  - comparison
+  
+  # String operations
+  - string
+  
+  # Date/time operations
+  - datetime
+  
+  # Aggregate functions
+  - aggregate
+  
+  # Window functions
+  - window
+  
+  # Type casting
+  - cast
+  
+  # Array operations
+  - array
+  
+  # Conditional operations
+  - conditional
+  
+  # Geospatial operations
+  - geospatial
+  
+  # JSON operations
+  - json
+  
+  # Map operations
+  - map
+  
+  # Set operations
+  - set
+  
+  # Struct operations
+  - struct
+
+# Output Configuration
+output:
+  directory: "quality_reports"
+  format: "json"
+  
+  # Generate additional reports
+  generate_markdown: true
+  generate_summary: true
+  
+  # Include in reports
+  include_raw_analysis: true
+  include_recommendations: true
+  include_token_usage: true
+  include_timestamps: true
+
+# Scoring Thresholds
+scoring:
+  excellent: 9.0    # Score >= 9.0
+  good: 7.0         # Score >= 7.0
+  acceptable: 5.0   # Score >= 5.0
+  needs_work: 3.0   # Score >= 3.0
+  # Below 3.0 = poor
+
+# Batch Processing
+batch:
+  # Maximum concurrent requests (to avoid rate limits)
+  max_concurrent: 3
+  
+  # Delay between requests (seconds)
+  delay_between_requests: 1
+  
+  # Retry configuration
+  max_retries: 3
+  retry_delay: 5  # seconds
+
+# Reporting
+reporting:
+  # Verbosity level: quiet, normal, verbose
+  verbosity: "normal"
+  
+  # Show progress bar
+  show_progress: true
+  
+  # Log file
+  log_file: "quality_reports/quality_check.log"
+  
+  # Email notifications (optional)
+  email_notifications:
+    enabled: false
+    recipients: []
+    smtp_server: ""
+    smtp_port: 587
+
+# Advanced Options
+advanced:
+  # Cache responses to avoid re-analyzing unchanged tests
+  enable_cache: false
+  cache_directory: ".quality_cache"
+  
+  # Parallel processing
+  enable_parallel: false
+  max_workers: 4
+  
+  # Custom prompts (override defaults)
+  custom_prompts:
+    enabled: false
+    prompt_file: "custom_prompts.yaml"
+
+# Made with Bob
