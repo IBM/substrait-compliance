@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import List, Dict, Any
 import json
 from datetime import datetime
+import time
 
 # Add parent directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
@@ -73,29 +74,63 @@ class TestQualityChecker:
         # Create prompt for Claude
         prompt = self._create_quality_prompt(suite, test_summary)
         
-        try:
-            # Call Claude via LiteLLM
-            # For custom proxy, use custom_llm_provider="openai" to treat as OpenAI-compatible
-            response = completion(
-                model=self.model,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": "You are an expert in database testing and Substrait compliance. "
-                                   "Analyze test cases for correctness, completeness, and quality. "
-                                   "Provide specific, actionable feedback."
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
+        # Retry logic with exponential backoff
+        max_retries = 3
+        retry_delay = 2
+        response = None
+        
+        for attempt in range(max_retries):
+            try:
+                # Call Claude via LiteLLM
+                # For custom proxy, use custom_llm_provider="openai" to treat as OpenAI-compatible
+                response = completion(
+                    model=self.model,
+                    messages=[
+                        {
+                            "role": "system",
+                            "content": "You are an expert in database testing and Substrait compliance. "
+                                       "Analyze test cases for correctness, completeness, and quality. "
+                                       "Provide specific, actionable feedback."
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    api_key=self.api_key,
+                    api_base=self.base_url,
+                    custom_llm_provider="openai",
+                    temperature=0.3,  # Lower temperature for more consistent analysis
+                    max_tokens=4000,
+                    timeout=60,  # Add timeout to prevent hanging
+                    force_timeout=60  # Force timeout for litellm
+                )
+                break  # Success, exit retry loop
+                
+            except Exception as e:
+                if attempt < max_retries - 1:
+                    if verbose:
+                        print(f"  ⚠ Connection error (attempt {attempt + 1}/{max_retries}), retrying in {retry_delay}s...")
+                    time.sleep(retry_delay)
+                    retry_delay *= 2  # Exponential backoff
+                else:
+                    # Final attempt failed
+                    return {
+                        "suite_name": suite.name,
+                        "test_count": len(suite.test_cases),
+                        "error": f"Connection error after {max_retries} attempts: {str(e)}",
+                        "timestamp": datetime.now().isoformat()
                     }
-                ],
-                api_key=self.api_key,
-                api_base=self.base_url,
-                custom_llm_provider="openai",
-                temperature=0.3,  # Lower temperature for more consistent analysis
-                max_tokens=4000
-            )
+        
+        if response is None:
+            return {
+                "suite_name": suite.name,
+                "test_count": len(suite.test_cases),
+                "error": "No response received from API",
+                "timestamp": datetime.now().isoformat()
+            }
+        
+        try:
             
             # Parse response
             analysis = response.choices[0].message.content
@@ -362,7 +397,7 @@ def main():
     total_tests = 0
     total_tokens = 0
     
-    for test_file in test_files:
+    for i, test_file in enumerate(test_files):
         print(f"Analyzing {test_file.name}...")
         
         try:
@@ -381,9 +416,16 @@ def main():
                 print(f"  ✓ {quality_report['test_count']} tests analyzed ({tokens} tokens)\n")
             else:
                 print(f"  ✗ Error: {quality_report['error']}\n")
+            
+            # Add delay between API calls to avoid connection issues
+            # Skip delay after the last file
+            if i < len(test_files) - 1:
+                time.sleep(1)
                 
         except Exception as e:
             print(f"  ✗ Failed to process: {e}\n")
+            # Continue with next file even if one fails
+            continue
     
     # Save results
     output_dir = Path(args.output)
