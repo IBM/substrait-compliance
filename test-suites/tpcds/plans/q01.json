@@ -1,0 +1,103 @@
+{
+  "version": {
+    "minorNumber": 42,
+    "producer": "substrait-compliance-framework"
+  },
+  "extensionUris": [],
+  "extensions": [],
+  "relations": [
+    {
+      "root": {
+        "input": {
+          "aggregate": {
+            "input": {
+              "filter": {
+                "input": {
+                  "read": {
+                    "baseSchema": {
+                      "names": ["sr_returned_date_sk", "sr_customer_sk", "sr_store_sk", "sr_return_amt"],
+                      "struct": {
+                        "types": [
+                          {"i32": {}},
+                          {"i32": {}},
+                          {"i32": {}},
+                          {"fp64": {}}
+                        ]
+                      }
+                    },
+                    "namedTable": {
+                      "names": ["store_returns"]
+                    }
+                  }
+                },
+                "condition": {
+                  "scalarFunction": {
+                    "functionReference": 0,
+                    "arguments": [
+                      {
+                        "value": {
+                          "selection": {
+                            "directReference": {
+                              "structField": {
+                                "field": 0
+                              }
+                            }
+                          }
+                        }
+                      },
+                      {
+                        "value": {
+                          "literal": {
+                            "i32": 1
+                          }
+                        }
+                      }
+                    ],
+                    "outputType": {"bool": {}}
+                  }
+                }
+              }
+            },
+            "groupings": [
+              {
+                "groupingExpressions": [
+                  {
+                    "selection": {
+                      "directReference": {
+                        "structField": {
+                          "field": 1
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            ],
+            "measures": [
+              {
+                "measure": {
+                  "functionReference": 1,
+                  "arguments": [
+                    {
+                      "value": {
+                        "selection": {
+                          "directReference": {
+                            "structField": {
+                              "field": 3
+                            }
+                          }
+                        }
+                      }
+                    }
+                  ],
+                  "outputType": {"fp64": {}}
+                }
+              }
+            ]
+          }
+        },
+        "names": ["customer_sk", "total_returns"]
+      }
+    }
+  ]
+}
