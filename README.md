@@ -9,7 +9,26 @@ Enable database engines to self-certify their Substrait compliance through stand
 
 ---
 
-## 📋 Prerequisites
+## 📑 Table of Contents
+
+- [Prerequisites](#-prerequisites)
+- [Overview](#-overview)
+- [5-Minute Quick Start](#-5-minute-quick-start)
+- [Test Suites](#-test-suites)
+  - [TPC-H Benchmark](#tpc-h-benchmark-22-queries)
+  - [Function Tests](#function-tests-143-files-2230-test-cases)
+- [Integration Guide](#-integration-guide)
+- [Repository Structure](#-repository-structure)
+- [CI/CD Integration](#-cicd-integration)
+- [REST API](#-rest-api)
+- [Troubleshooting](#-troubleshooting)
+- [Roadmap](#-roadmap)
+- [Contributing](#-contributing)
+- [Key Documentation](#-key-documentation)
+
+---
+
+## � Prerequisites
 
 Before you begin, ensure you have:
 
@@ -315,7 +334,10 @@ Customize the workflow for your engine's build process.
 **See [examples/](examples/) for complete implementations.**
 
 ---
-## 🧪 Running Test Suites
+
+## 🧪 Test Suites
+
+> **📚 Detailed Documentation**: See [test-suites/functions/README.md](test-suites/functions/README.md) for function tests and [test-suites/tpch/README.md](test-suites/tpch/README.md) for TPC-H benchmark.
 
 ### TPC-H Benchmark (22 Queries)
 
@@ -1085,23 +1107,44 @@ Public leaderboard showing compliance status across all engines:
 
 ---
 
-## 📖 Documentation
+## 📖 Key Documentation
 
-### Core Documentation
-- **[.github/workflows/README.md](.github/workflows/README.md)** - CI/CD workflow documentation
-- **[examples/README.md](examples/README.md)** - Example implementations
+### 🎯 Getting Started
+- **[README.md](README.md)** - This file - comprehensive overview and quick start
 - **[demo/START_HERE.md](demo/START_HERE.md)** - Interactive demo guide
+- **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)** - Complete integration guide for engines
+- **[examples/README.md](examples/README.md)** - Example implementations (DuckDB, DataFusion)
 
-### API Documentation
+### 🧪 Test Suites
+- **[test-suites/functions/README.md](test-suites/functions/README.md)** - Function tests (143 files, ~2,230 test cases)
+- **[test-suites/tpch/README.md](test-suites/tpch/README.md)** - TPC-H benchmark (22 queries)
+- **[docs/FUNCTION_TESTS_IMPLEMENTATION.md](docs/FUNCTION_TESTS_IMPLEMENTATION.md)** - Function testing implementation guide
+
+### 📚 SDK Documentation
+- **[sdk/java/README.md](sdk/java/README.md)** - Java SDK (JDK 11+)
+- **[sdk/python/README.md](sdk/python/README.md)** - Python SDK (3.8+)
+- **[sdk/rust/README.md](sdk/rust/README.md)** - Rust SDK (2021 edition)
+
+### 🌐 REST API
 - **[docs/REST_API_SUMMARY.md](docs/REST_API_SUMMARY.md)** - REST API overview
 - **[docs/REST_API_PLAN.md](docs/REST_API_PLAN.md)** - API specifications
 - **[docs/REST_API_ARCHITECTURE.md](docs/REST_API_ARCHITECTURE.md)** - System architecture
-- **[docs/API_CONTRIBUTING.md](docs/API_CONTRIBUTING.md)** - API contribution guide
+- **[api/DEPLOYMENT.md](api/DEPLOYMENT.md)** - API deployment guide
 
-### Implementation Guides
-- **[docs/IMPLEMENTATION_SUMMARY.md](docs/IMPLEMENTATION_SUMMARY.md)** - Framework overview
+### 🔧 Implementation & CI/CD
+- **[docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md)** - Comprehensive technical report
 - **[docs/CI_CD_IMPLEMENTATION.md](docs/CI_CD_IMPLEMENTATION.md)** - CI/CD implementation
 - **[docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)** - Deployment instructions
+- **[.github/workflows/README.md](.github/workflows/README.md)** - CI/CD workflow documentation
+
+### 🎨 Quality & Enhancement
+- **[scripts/QUALITY_CHECKER_README.md](scripts/QUALITY_CHECKER_README.md)** - AI-powered quality checking
+- **[scripts/TEST_ENHANCEMENT_GUIDE.md](scripts/TEST_ENHANCEMENT_GUIDE.md)** - Test enhancement workflow
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
+
+### 🤝 Contributing
+- **[docs/API_CONTRIBUTING.md](docs/API_CONTRIBUTING.md)** - API contribution guide
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - General contribution guidelines (if exists)
 
 ---
 
