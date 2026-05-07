@@ -16,6 +16,7 @@ Enable database engines to self-certify their Substrait compliance through stand
 - [5-Minute Quick Start](#-5-minute-quick-start)
 - [Test Suites](#-test-suites)
   - [TPC-H Benchmark](#tpc-h-benchmark-22-queries)
+  - [TPC-DS Benchmark](#tpc-ds-benchmark-5-queries)
   - [Function Tests](#function-tests-143-files-2230-test-cases)
 - [Integration Guide](#-integration-guide)
 - [Repository Structure](#-repository-structure)
@@ -56,14 +57,16 @@ The Substrait Compliance Framework transforms how query engines validate their S
 3. **Generating compliance reports** - JSON format with pass/fail results
 4. **Publishing results** - Public leaderboard for ecosystem visibility
 
-### Key Benefits
+### Key Features
 
-- ✅ **Decentralized** - Engines test themselves, no central bottleneck
-- ✅ **Multi-Language** - SDKs for Java, Python, and Rust
-- ✅ **Automated** - CI/CD integration with GitHub Actions
-- ✅ **Transparent** - Public compliance leaderboard
-- ✅ **Comprehensive** - TPC-H benchmark (22 queries) + 2,230+ function tests across 15 categories
-- ✅ **Quality Assured** - AI-enhanced test coverage with 95%+ quality score
+- 🔄 **Decentralized Testing** - Engines test themselves, no central bottleneck
+- 🌐 **Multi-Language SDKs** - Java, Python, and Rust implementations
+- 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (5 queries), Function Tests (143 files, ~2,230 test cases)
+- 🤖 **Automated CI/CD** - GitHub Actions workflows for continuous compliance
+- 🌐 **REST API** - Programmatic access with JWT auth, webhooks, and rate limiting
+- 📊 **Interactive Demo** - Live dashboard with mock engines for quick evaluation
+- 🏆 **Public Leaderboard** - Transparent compliance rankings across engines
+- ✨ **AI-Enhanced Quality** - 95%+ quality score with Claude-powered test validation
 
 ---
 
@@ -337,7 +340,10 @@ Customize the workflow for your engine's build process.
 
 ## 🧪 Test Suites
 
-> **📚 Detailed Documentation**: See [test-suites/functions/README.md](test-suites/functions/README.md) for function tests and [test-suites/tpch/README.md](test-suites/tpch/README.md) for TPC-H benchmark.
+> **📚 Detailed Documentation**:
+> - [test-suites/functions/README.md](test-suites/functions/README.md) - Function tests (143 files, ~2,230 test cases)
+> - [test-suites/tpch/README.md](test-suites/tpch/README.md) - TPC-H benchmark (22 queries)
+> - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) - TPC-DS benchmark (5 queries)
 
 ### TPC-H Benchmark (22 Queries)
 
@@ -381,6 +387,33 @@ System.out.println("  Total Queries: " + report.getTotalCount());
 System.out.println("  Passed: " + report.getPassedCount());
 System.out.println("  Pass Rate: " + report.getPassRate() + "%");
 ```
+
+### TPC-DS Benchmark (5 Queries)
+
+The framework includes TPC-DS (Decision Support) benchmark queries for complex analytical workloads:
+
+```bash
+# Navigate to TPC-DS test suite
+cd test-suites/tpcds
+
+# View test suite metadata
+cat metadata.yaml
+
+# Inspect test data
+ls -la data/
+# Output: Multi-channel retail data (store, catalog, web sales and returns)
+```
+
+**Query Coverage:**
+- **Q01**: Customer Returns Analysis (MEDIUM)
+- **Q02**: Web Sales Analysis (COMPLEX)
+- **Q03**: Item Sales by Brand (MEDIUM)
+- **Q04**: Customer Profitability (VERY_COMPLEX)
+- **Q05**: Sales Channel Comparison (COMPLEX)
+
+**Roadmap**: Expanding to full 99-query TPC-DS benchmark in phases.
+
+> **📚 See [test-suites/tpcds/README.md](test-suites/tpcds/README.md) for complete TPC-DS documentation**
 
 ### Function Tests (143 Files, ~2,230 Test Cases)
 
@@ -512,6 +545,10 @@ substrait-compliance/
 │   │   ├── metadata.yaml          # Test suite definition
 │   │   ├── data/                  # 8 CSV files (86,805 rows)
 │   │   └── plans/                 # 44 Substrait plans (bin + json)
+│   ├── tpcds/                     # ⭐ TPC-DS benchmark (5 queries, expanding to 99)
+│   │   ├── metadata.yaml          # Test suite definition
+│   │   ├── data/                  # Multi-channel retail data
+│   │   └── plans/                 # Substrait plans for decision support queries
 │   └── functions/                 # ⭐ Function tests (143 files, ~2,230 test cases, 95%+ quality)
 │       ├── aggregate/             # 6 files - COUNT, AVG, SUM, etc.
 │       ├── arithmetic/            # 44 files - ADD, MULTIPLY, SQRT, etc.
@@ -1118,6 +1155,7 @@ Public leaderboard showing compliance status across all engines:
 ### 🧪 Test Suites
 - **[test-suites/functions/README.md](test-suites/functions/README.md)** - Function tests (143 files, ~2,230 test cases)
 - **[test-suites/tpch/README.md](test-suites/tpch/README.md)** - TPC-H benchmark (22 queries)
+- **[test-suites/tpcds/README.md](test-suites/tpcds/README.md)** - TPC-DS benchmark (5 queries, expanding to 99)
 - **[docs/FUNCTION_TESTS_IMPLEMENTATION.md](docs/FUNCTION_TESTS_IMPLEMENTATION.md)** - Function testing implementation guide
 
 ### 📚 SDK Documentation
