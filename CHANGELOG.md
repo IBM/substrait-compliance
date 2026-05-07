@@ -122,6 +122,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Set operations (union, intersect, except)
   - Struct operations (construct, extract)
   - Window functions (rank, dense_rank, first_value)
+- **AI-enhanced function test quality checks** using Claude via LiteLLM
+  - Added semantic quality analysis for correctness, coverage, completeness, organization, and best practices
+  - Improved qualitative review of expected results, null handling, overflow scenarios, and edge-case coverage
+  - Introduced a three-step workflow for quality check, enhancement generation, and before/after comparison
+  - Strengthened function-test quality across arithmetic, boolean, string, and other core function categories
+  - Documented 95%+ AI-enhanced quality score for function test suites
 - **TPC-H benchmark suite**
   - 22 queries with complexity classification
   - 8 CSV data files (86,805 rows)
