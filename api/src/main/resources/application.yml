@@ -78,6 +78,11 @@ webhook:
   retry-attempts: ${WEBHOOK_RETRY_ATTEMPTS:3}
   timeout-seconds: ${WEBHOOK_TIMEOUT_SECONDS:30}
   async-pool-size: ${WEBHOOK_ASYNC_POOL_SIZE:10}
+  delivery:
+    enabled: ${WEBHOOK_DELIVERY_ENABLED:true}
+    timeout: ${WEBHOOK_DELIVERY_TIMEOUT:5000}
+    max-retry-attempts: ${WEBHOOK_MAX_RETRY_ATTEMPTS:5}
+    initial-retry-delay-minutes: ${WEBHOOK_INITIAL_RETRY_DELAY:1}
 
 logging:
   level:
