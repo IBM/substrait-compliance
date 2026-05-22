@@ -61,12 +61,13 @@ The Substrait Compliance Framework transforms how query engines validate their S
 
 - 🔄 **Decentralized Testing** - Engines test themselves, no central bottleneck
 - 🌐 **Multi-Language SDKs** - Java, Python, and Rust implementations
-- 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (5 queries), Function Tests (143 files, ~2,230 test cases)
-- 🤖 **Automated CI/CD** - GitHub Actions workflows for continuous compliance
+- 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (5 queries), Function Tests (279 files across standard and enhanced suites)
+- 🤖 **Automated CI/CD** - 12 GitHub Actions workflows for continuous compliance
 - 🌐 **REST API** - Programmatic access with JWT auth, webhooks, and rate limiting
-- 📊 **Interactive Demo** - Live dashboard with mock engines for quick evaluation
+- 📊 **Interactive Demo** - Live dashboard with mock engines, query drill-down, and complexity filtering
 - 🏆 **Public Leaderboard** - Transparent compliance rankings across engines
 - ✨ **AI-Enhanced Quality** - 95%+ quality score with Claude-powered test validation
+- 🔟 **10-Phase Framework** - Comprehensive validation, analysis, storage, and reproducibility
 
 ---
 
@@ -84,6 +85,9 @@ cd substrait-compliance-private
 # 2. Run the demo (generates mock compliance reports)
 cd demo
 ./runner/run-simple-demo.sh
+
+# Or run the enhanced demo with 10-phase framework
+./runner/run-enhanced-demo.sh
 
 # 3. View the interactive dashboard
 cd dashboard
@@ -122,6 +126,9 @@ Substrait Compliance Framework - Demo
 - 📊 **Visual Charts** - Bar chart and doughnut chart showing pass rates
 - 📈 **Detailed Statistics** - Per-engine breakdowns and test case results
 - 🎯 **Test Distribution** - Passed, failed, and skipped test counts
+- 🔍 **Query Drill-Down** - Click any engine to see detailed query-level results
+- 🏷️ **Complexity Filtering** - Filter tests by SIMPLE, MEDIUM, COMPLEX, VERY_COMPLEX
+- 📋 **10-Phase Framework** - Validation, analysis, storage, analytics, and reproducibility (enhanced demo)
 
 **Troubleshooting:**
 - If port 8080 is in use: `python3 -m http.server 8081`
@@ -415,17 +422,19 @@ ls -la data/
 
 > **📚 See [test-suites/tpcds/README.md](test-suites/tpcds/README.md) for complete TPC-DS documentation**
 
-### Function Tests (143 Files, ~2,230 Test Cases)
+### Function Tests (279 Files Total)
 
-Comprehensive function testing across 15 categories with AI-enhanced quality:
+The framework includes **two comprehensive test suite collections**:
+
+#### Standard Test Suite (`test-suites/functions/` - 143 files)
+Core function coverage across 15 categories:
 
 ```bash
-# Navigate to function tests
+# Navigate to standard function tests
 cd test-suites/functions
 
-# View available categories
+# View available categories (15 total)
 ls -la
-# Output (15 categories):
 # - aggregate/     (6 files: count, avg, stddev, variance, etc.)
 # - arithmetic/    (44 files: add, multiply, sqrt, trigonometry, etc.)
 # - array/         (6 files: array operations)
@@ -441,20 +450,38 @@ ls -la
 # - string/        (27 files: concat, substring, regexp, etc.)
 # - struct/        (2 files: struct operations)
 # - window/        (7 files: row_number, rank, lag, lead, etc.)
-
-# Example: View arithmetic tests
-ls -la arithmetic/
-# Output: abs.test, add.test, acos.test, asin.test, ceil.test, cos.test, etc.
-
-# Inspect a specific test file
-cat arithmetic/add.test
 ```
 
-**Quality Assurance:** All function tests have been enhanced with AI-powered quality checking (95%+ quality score) to ensure comprehensive edge case coverage and accurate expected results.
+#### Enhanced Test Suite (`test-suites-enhanced/functions/` - 136 files)
+Extended coverage with **AI-enhanced quality (95%+ score)** across 14 categories:
+
+```bash
+# Navigate to enhanced function tests
+cd test-suites-enhanced/functions
+
+# View available categories (14 total)
+ls -la
+# - aggregate/     (6 files: count, count_distinct, avg, sum, stddev, variance, string_agg)
+# - arithmetic/    (44 files: comprehensive math operations)
+# - array/         (4 files: array_construct, array_element, array_concat, array_contains)
+# - cast/          (1 file: try_cast with error handling)
+# - comparison/    (19 files: complete comparison operations)
+# - conditional/   (2 files: case_when, if_then_else)
+# - datetime/      (12 files: extensive date/time operations)
+# - geospatial/    (4 files: spatial operations)
+# - json/          (2 files: json_extract, json_parse)
+# - map/           (3 files: map_construct, map_extract, map_keys)
+# - set/           (3 files: union, intersect, except)
+# - string/        (27 files: comprehensive string manipulation)
+# - struct/        (2 files: struct_construct, struct_extract)
+# - window/        (7 files: ranking and navigation functions)
+```
+
+**Quality Assurance:** All function tests have been enhanced with AI-powered quality checking to ensure comprehensive edge case coverage, accurate expected results, and proper null handling.
 
 **Running Function Tests:**
 ```python
-# Python example
+# Python example - Standard suite
 from substrait_compliance import YamlTestSuiteLoader, ComplianceRunner
 
 # Load arithmetic function tests
@@ -466,6 +493,10 @@ runner = ComplianceRunner(my_engine)
 report = runner.run_test_suite(suite)
 
 print(f"Arithmetic Functions: {report.passed_count}/{report.total_count} passed")
+
+# Or use enhanced suite
+enhanced_suite = loader.load("test-suites-enhanced/functions/arithmetic/metadata.yaml")
+enhanced_report = runner.run_test_suite(enhanced_suite)
 ```
 
 ### Running Specific Tests
@@ -549,7 +580,7 @@ substrait-compliance/
 │   │   ├── metadata.yaml          # Test suite definition
 │   │   ├── data/                  # Multi-channel retail data
 │   │   └── plans/                 # Substrait plans for decision support queries
-│   └── functions/                 # ⭐ Function tests (143 files, ~2,230 test cases, 95%+ quality)
+│   └── functions/                 # ⭐ Function tests (143 files, standard suite)
 │       ├── aggregate/             # 6 files - COUNT, AVG, SUM, etc.
 │       ├── arithmetic/            # 44 files - ADD, MULTIPLY, SQRT, etc.
 │       ├── array/                 # 6 files - Array operations
@@ -565,6 +596,22 @@ substrait-compliance/
 │       ├── string/                # 27 files - String manipulation
 │       ├── struct/                # 2 files - Struct operations
 │       └── window/                # 7 files - ROW_NUMBER, RANK, LAG, etc.
+├── 🧪 test-suites-enhanced/       # ⭐ Enhanced test suites (AI-quality checked, 95%+ score)
+│   └── functions/                 # 136 files with comprehensive coverage
+│       ├── aggregate/             # 6 files - Enhanced aggregate functions
+│       ├── arithmetic/            # 44 files - Enhanced math operations
+│       ├── array/                 # 4 files - Enhanced array operations
+│       ├── cast/                  # 1 file - TRY_CAST with error handling
+│       ├── comparison/            # 19 files - Enhanced comparisons
+│       ├── conditional/           # 2 files - CASE_WHEN, IF_THEN_ELSE
+│       ├── datetime/              # 12 files - Enhanced date/time ops
+│       ├── geospatial/            # 4 files - Enhanced spatial functions
+│       ├── json/                  # 2 files - Enhanced JSON operations
+│       ├── map/                   # 3 files - Enhanced map operations
+│       ├── set/                   # 3 files - Enhanced set operations
+│       ├── string/                # 27 files - Enhanced string functions
+│       ├── struct/                # 2 files - Enhanced struct operations
+│       └── window/                # 7 files - Enhanced window functions
 ├── 💡 examples/                   # ⭐ Copy these as starting points
 │   ├── duckdb-java/              # DuckDB integration (Java)
 │   └── datafusion-python/        # DataFusion integration (Python)
@@ -1246,13 +1293,16 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 |--------|-------|
 | **Total Lines of Code** | ~33,000 |
 | **SDKs** | 3 (Java, Python, Rust) |
-| **Test Suites** | 2 (TPC-H, Functions) |
-| **Function Categories** | 16 (Arithmetic, String, Boolean, etc.) |
-| **Test Cases** | 143 |
-| **Test Data Rows** | 86,805 |
-| **CI/CD Workflows** | 11 |
-| **Documentation Files** | 13 |
-| **Example Implementations** | 5 |
+| **Test Suites** | 3 (TPC-H, TPC-DS, Functions) |
+| **Function Test Files** | 279 (143 standard + 136 enhanced) |
+| **Function Categories** | 15 (Aggregate, Arithmetic, Array, Boolean, Cast, Comparison, Conditional, DateTime, Geospatial, JSON, Map, Set, String, Struct, Window) |
+| **TPC-H Queries** | 22 queries |
+| **TPC-DS Queries** | 5 queries (expanding to 99) |
+| **Test Data Rows** | 86,805 (TPC-H scale factor 0.01) |
+| **CI/CD Workflows** | 12 |
+| **Documentation Files** | 15+ |
+| **Example Implementations** | 5 (Mock engines + integration examples) |
+| **REST API Endpoints** | 10+ (Reports, leaderboard, webhooks) |
 
 ---
 
