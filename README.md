@@ -395,9 +395,9 @@ System.out.println("  Passed: " + report.getPassedCount());
 System.out.println("  Pass Rate: " + report.getPassRate() + "%");
 ```
 
-### TPC-DS Benchmark (5 Queries)
+### TPC-DS Benchmark (99 Queries)
 
-The framework includes TPC-DS (Decision Support) benchmark queries for complex analytical workloads:
+The framework includes the complete TPC-DS (Decision Support) benchmark for complex analytical workloads:
 
 ```bash
 # Navigate to TPC-DS test suite
@@ -406,19 +406,27 @@ cd test-suites/tpcds
 # View test suite metadata
 cat metadata.yaml
 
-# Inspect test data
+# Inspect test data (24 CSV files)
 ls -la data/
 # Output: Multi-channel retail data (store, catalog, web sales and returns)
+
+# View available plans (194 files: 97 JSON + 97 binary)
+ls -la plans/
 ```
 
-**Query Coverage:**
-- **Q01**: Customer Returns Analysis (MEDIUM)
-- **Q02**: Web Sales Analysis (COMPLEX)
-- **Q03**: Item Sales by Brand (MEDIUM)
-- **Q04**: Customer Profitability (VERY_COMPLEX)
-- **Q05**: Sales Channel Comparison (COMPLEX)
+**Complete Coverage:**
+- **99 SQL Queries**: All TPC-DS benchmark queries (query01.sql - query99.sql)
+- **194 Substrait Plans**: 97 queries with both JSON and binary formats
+- **24 Data Tables**: Complete TPC-DS schema at scale factor 0.01
+- **Multi-channel Analytics**: Store, catalog, and web sales channels
 
-**Roadmap**: Expanding to full 99-query TPC-DS benchmark in phases.
+**Key Query Categories:**
+- Customer behavior and profitability analysis
+- Multi-channel retail analytics
+- Sales and returns analysis
+- Inventory management
+- Marketing effectiveness
+- Complex business intelligence scenarios
 
 > **📚 See [test-suites/tpcds/README.md](test-suites/tpcds/README.md) for complete TPC-DS documentation**
 

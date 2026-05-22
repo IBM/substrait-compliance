@@ -18,23 +18,33 @@ The TPC-DS (Transaction Processing Performance Council - Decision Support) bench
 
 ## Current Implementation
 
-This initial release includes **5 representative queries** (Q1-Q5) that cover key TPC-DS patterns:
+This release includes **99 TPC-DS queries** with comprehensive data and plan files:
+
+### Available Resources
+
+- **Queries**: 99 SQL query files (query01.sql - query99.sql)
+- **Plans**: 194 Substrait plan files (97 JSON + 97 binary format)
+- **Data**: 24 CSV data files covering all TPC-DS tables
+
+### Query Coverage
+
+All 99 TPC-DS queries are available, covering:
+- Customer behavior analysis
+- Multi-channel retail analytics (store, catalog, web)
+- Sales and returns analysis
+- Inventory management
+- Marketing effectiveness
+- Complex business intelligence scenarios
+
+### Sample Queries
 
 | Query | Description | Complexity | Key Features |
 |-------|-------------|------------|--------------|
 | Q01 | Customer Returns Analysis | MEDIUM | Aggregation, Joins, Filtering |
-| Q02 | Web Sales Analysis | COMPLEX | Subqueries, Correlation, Date Operations |
-| Q03 | Item Sales by Brand | MEDIUM | Joins, Aggregation, Grouping |
-| Q04 | Customer Profitability | VERY_COMPLEX | Multi-channel, Window Functions, Ranking |
-| Q05 | Sales Channel Comparison | COMPLEX | Union Operations, Channel Analysis |
-
-### Roadmap
-
-- **Phase 1** (Current): Queries 1-5 with core infrastructure
-- **Phase 2**: Queries 6-25 (additional analytical patterns)
-- **Phase 3**: Queries 26-50 (advanced analytics)
-- **Phase 4**: Queries 51-75 (complex business logic)
-- **Phase 5**: Queries 76-99 (complete benchmark)
+| Q06 | Item Sales Analysis | COMPLEX | Subqueries, Date Operations |
+| Q07 | Promotional Sales | COMPLEX | Multi-table Joins, Aggregation |
+| Q20 | Channel Comparison | VERY_COMPLEX | Multi-channel, Window Functions |
+| Q99 | Shipping Analysis | COMPLEX | Date Operations, Grouping |
 
 ## Data Schema
 
@@ -62,85 +72,105 @@ This initial release includes **5 representative queries** (Q1-Q5) that cover ke
 test-suites/tpcds/
 ├── README.md              # This file
 ├── metadata.yaml          # Test suite metadata and configuration
-├── data/                  # CSV data files (to be generated)
-│   ├── store_sales.csv
-│   ├── store_returns.csv
-│   ├── catalog_sales.csv
+├── queries/               # SQL query files (99 queries)
+│   ├── query01.sql
+│   ├── query02.sql
+│   └── ... (query99.sql)
+├── data/                  # CSV data files (24 tables)
+│   ├── call_center.csv
+│   ├── catalog_page.csv
 │   ├── catalog_returns.csv
-│   ├── web_sales.csv
-│   ├── web_returns.csv
-│   ├── date_dim.csv
+│   ├── catalog_sales.csv
 │   ├── customer.csv
+│   ├── customer_address.csv
+│   ├── customer_demographics.csv
+│   ├── date_dim.csv
+│   ├── household_demographics.csv
+│   ├── income_band.csv
+│   ├── inventory.csv
 │   ├── item.csv
-│   └── store.csv
-├── plans/                 # Substrait query plans
+│   ├── promotion.csv
+│   ├── reason.csv
+│   ├── ship_mode.csv
+│   ├── store.csv
+│   ├── store_returns.csv
+│   ├── store_sales.csv
+│   ├── time_dim.csv
+│   ├── warehouse.csv
+│   ├── web_page.csv
+│   ├── web_returns.csv
+│   ├── web_sales.csv
+│   └── web_site.csv
+├── plans/                 # Substrait query plans (194 files)
 │   ├── q01.bin           # Binary format
 │   ├── q01.json          # JSON format
-│   ├── q02.bin
-│   ├── q02.json
-│   └── ...
-└── expected/              # Expected query results
-    ├── q01.csv
-    ├── q02.csv
-    └── ...
+│   ├── q03.bin
+│   ├── q03.json
+│   └── ... (through q99.bin/json)
+└── expected/              # Expected query results (to be added)
+    └── .gitkeep
 ```
 
-## Data Generation
+## Data Files
 
-TPC-DS data must be generated using the official TPC-DS tools:
+The TPC-DS data files are included in this repository at scale factor 0.01:
 
-### Prerequisites
+### Available Tables (24 CSV files)
 
-1. Download TPC-DS tools from [tpc.org](http://www.tpc.org/tpcds/)
-2. Build the data generator (`dsdgen`)
-3. Generate data at scale factor 0.01
+**Fact Tables:**
+- `store_sales.csv` - Physical store transactions
+- `store_returns.csv` - Store returns
+- `catalog_sales.csv` - Catalog transactions
+- `catalog_returns.csv` - Catalog returns
+- `web_sales.csv` - Web transactions
+- `web_returns.csv` - Web returns
 
-### Generation Commands
-
-```bash
-# Generate all tables at SF 0.01
-./dsdgen -SCALE 0.01 -DIR ./data -FORCE Y
-
-# Generate specific tables
-./dsdgen -SCALE 0.01 -TABLE store_sales -DIR ./data
-./dsdgen -SCALE 0.01 -TABLE date_dim -DIR ./data
-./dsdgen -SCALE 0.01 -TABLE customer -DIR ./data
-```
+**Dimension Tables:**
+- `call_center.csv` - Call center information
+- `catalog_page.csv` - Catalog page details
+- `customer.csv` - Customer information
+- `customer_address.csv` - Customer addresses
+- `customer_demographics.csv` - Customer demographics
+- `date_dim.csv` - Date dimension
+- `household_demographics.csv` - Household demographics
+- `income_band.csv` - Income bands
+- `inventory.csv` - Inventory data
+- `item.csv` - Product catalog
+- `promotion.csv` - Promotional information
+- `reason.csv` - Return reasons
+- `ship_mode.csv` - Shipping modes
+- `store.csv` - Store locations
+- `time_dim.csv` - Time dimension
+- `warehouse.csv` - Warehouse information
+- `web_page.csv` - Web page details
+- `web_site.csv` - Web site information
 
 ### Data Format
 
-- **Format**: CSV (pipe-delimited by default)
+- **Format**: CSV (comma-delimited)
 - **Encoding**: UTF-8
-- **Line Endings**: Unix (LF)
-- **Null Values**: Empty strings or NULL keyword
+- **Scale Factor**: 0.01 (suitable for testing and development)
+- **Source**: Generated using official TPC-DS tools v3.2.0
 
 ## Query Plans
 
-Substrait query plans are provided in two formats:
+Substrait query plans are provided in two formats for 97 queries:
 
-1. **Binary (.bin)**: Compact protobuf format for execution
-2. **JSON (.json)**: Human-readable format for inspection
+1. **Binary (.bin)**: Compact protobuf format for execution (97 files)
+2. **JSON (.json)**: Human-readable format for inspection (97 files)
 
-### Plan Generation
+### Available Plans
 
-Plans should be generated from SQL using a Substrait-compatible producer:
+Plans are available for queries: Q01, Q03, Q04, Q06-Q99 (97 total queries)
 
-```python
-# Example using a Substrait producer
-from substrait_producer import SubstraitProducer
+**Note**: Some queries (Q02, Q05) may not have plans yet as they are being validated.
 
-producer = SubstraitProducer()
-sql = "SELECT ... FROM store_sales ..."
-plan = producer.sql_to_substrait(sql)
+### Plan Format
 
-# Save binary format
-with open('plans/q01.bin', 'wb') as f:
-    f.write(plan.SerializeToString())
-
-# Save JSON format
-with open('plans/q01.json', 'w') as f:
-    f.write(plan.to_json())
-```
+- **Binary Format**: Substrait protobuf serialization
+- **JSON Format**: Human-readable JSON representation
+- **Compatibility**: Generated for Substrait specification compliance
+- **Source**: Converted from TPC-DS SQL queries using Substrait producers
 
 ## Running Tests
 
@@ -283,6 +313,6 @@ For questions or issues:
 
 ---
 
-**Status**: Initial Release (5 queries)  
-**Version**: 1.0.0  
-**Last Updated**: 2026-04-30
+**Status**: Complete Release (99 queries, 24 data tables, 194 plan files)
+**Version**: 2.0.0
+**Last Updated**: 2026-05-22
