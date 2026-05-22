@@ -1,0 +1,4 @@
+p_promo_sk,p_promo_id,p_start_date_sk,p_end_date_sk,p_item_sk,p_cost,p_response_target,p_promo_name,p_channel_dmail,p_channel_email,p_channel_catalog,p_channel_tv,p_channel_radio,p_channel_press,p_channel_event,p_channel_demo,p_channel_details,p_purpose,p_discount_active
+1,AAAAAAAABAAAAAAA,2450164,2450185,122,1000.00,1,ought,Y,N,N,N,N,N,N,N,"Men will not say merely. Old, available ",Unknown,N
+2,AAAAAAAACAAAAAAA,2450118,2450150,70,1000.00,1,able,Y,N,N,N,N,N,N,N,Keen ways speak measurements. Futur,Unknown,N
+3,AAAAAAAADAAAAAAA,2450675,2450712,43,1000.00,1,pri,Y,N,N,N,N,N,N,N,"At all rich attempts achieve possible, certain mat",Unknown,N

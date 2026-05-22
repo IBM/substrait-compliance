@@ -1,0 +1,501 @@
+ca_address_sk,ca_address_id,ca_street_number,ca_street_name,ca_street_type,ca_suite_number,ca_city,ca_county,ca_state,ca_zip,ca_country,ca_gmt_offset,ca_location_type
+1,AAAAAAAABAAAAAAA,18,Jackson ,Parkway,Suite 280,Fairfield,Maricopa County,AZ,86192,United States,-7.00,condo
+2,AAAAAAAACAAAAAAA,362,Washington 6th,RD,Suite 80,Fairview,Taos County,NM,85709,United States,-7.00,condo
+3,AAAAAAAADAAAAAAA,585,Dogwood Washington,Circle,Suite Q,Pleasant Valley,York County,PA,12477,United States,-5.00,single family
+4,AAAAAAAAEAAAAAAA,111,Smith ,Wy,Suite A,Oak Ridge,Kit Carson County,CO,88371,United States,-7.00,condo
+5,AAAAAAAAFAAAAAAA,31,College ,Blvd,Suite 180,Glendale,Barry County,MO,63951,United States,-6.00,single family
+6,AAAAAAAAGAAAAAAA,59,Williams Sixth,Parkway,Suite 100,Lakeview,Chelan County,WA,98579,United States,-8.00,single family
+7,AAAAAAAAHAAAAAAA,,Hill 7th,Road,Suite U,Farmington,,,39145,United States,,
+8,AAAAAAAAIAAAAAAA,875,Lincoln ,Ct.,Suite Y,Union,Bledsoe County,TN,38721,United States,-5.00,apartment
+9,AAAAAAAAJAAAAAAA,819,1st Laurel,Ave,Suite 70,New Hope,Perry County,AL,39431,United States,-6.00,condo
+10,AAAAAAAAKAAAAAAA,851,Woodland Poplar,ST,Suite Y,Martinsville,Haines Borough,AK,90419,United States,-9.00,condo
+11,AAAAAAAALAAAAAAA,189,13th 2nd,Street,Suite 470,Maple Grove,Madison County,MT,68252,United States,-7.00,single family
+12,AAAAAAAAMAAAAAAA,76,Ash 8th,Ct.,Suite O,Edgewood,Mifflin County,PA,10069,United States,-5.00,apartment
+13,AAAAAAAANAAAAAAA,424,Main Second,Ln,Suite 130,Greenville,Noxubee County,MS,51387,United States,-6.00,single family
+14,AAAAAAAAOAAAAAAA,923,Pine Oak,Dr.,Suite 100,,Lipscomb County,TX,77752,,-6.00,
+15,AAAAAAAAPAAAAAAA,314,Spring ,Ct.,Suite B,Oakland,Washington County,OH,49843,United States,-5.00,apartment
+16,AAAAAAAAABAAAAAA,576,Adams Center,Street,Suite J,Valley View,Oldham County,TX,75124,United States,-6.00,condo
+17,AAAAAAAABBAAAAAA,801,Green ,Dr.,Suite 0,Montpelier,Richland County,OH,48930,United States,-5.00,single family
+18,AAAAAAAACBAAAAAA,460,Maple Spruce,Court,Suite 480,Somerville,Potter County,SD,57783,United States,-7.00,condo
+19,AAAAAAAADBAAAAAA,611,Wilson ,Way,Suite O,Oakdale,Tangipahoa Parish,LA,79584,United States,-6.00,apartment
+20,AAAAAAAAEBAAAAAA,675,Elm Wilson,Street,Suite I,Hopewell,Williams County,OH,40587,United States,-5.00,condo
+21,AAAAAAAAFBAAAAAA,294,Jefferson Smith,Ave,Suite 390,Springfield,Marshall County,SD,59303,United States,-7.00,condo
+22,AAAAAAAAGBAAAAAA,874,Park Second,Avenue,Suite N,Green Acres,Perkins County,NE,67683,United States,-7.00,single family
+23,AAAAAAAAHBAAAAAA,230,6th Spring,Drive,Suite U,Newtown,Jewell County,KS,61749,United States,-6.00,single family
+24,AAAAAAAAIBAAAAAA,837,4th ,Street,Suite 200,Fairfield,Marin County,CA,96192,United States,-8.00,single family
+25,AAAAAAAAJBAAAAAA,986,West East,Blvd,Suite F,Pleasant Grove,Coweta County,GA,34136,United States,-5.00,apartment
+26,AAAAAAAAKBAAAAAA,809,Central ,,,Springdale,Forsyth County,,28883,,-5.00,
+27,AAAAAAAALBAAAAAA,649,Williams ,Ct.,Suite 400,Cedar,Utah County,UT,81229,United States,-7.00,condo
+28,AAAAAAAAMBAAAAAA,992,Birch ,Avenue,Suite N,Oak Hill,Montrose County,CO,87838,United States,-7.00,condo
+29,AAAAAAAANBAAAAAA,572,First Elevnth,Pkwy,Suite 160,Newport,Richland County,IL,61521,United States,-6.00,single family
+30,AAAAAAAAOBAAAAAA,748,Oak ,Avenue,Suite M,Wildwood,Clark County,MO,66871,United States,-6.00,apartment
+31,AAAAAAAAPBAAAAAA,291,East ,Lane,Suite A,Forestville,Walworth County,SD,53027,United States,-7.00,condo
+32,AAAAAAAAACAAAAAA,243,8th Lake,Wy,Suite G,Oakland,Madison County,NC,29843,United States,-5.00,condo
+33,AAAAAAAABCAAAAAA,711,3rd 4th,Ave,Suite 10,Pine Grove,Sumter County,GA,34593,United States,-5.00,apartment
+34,AAAAAAAACCAAAAAA,785,1st Cedar,Ave,Suite 40,Greenville,Russell County,VA,21387,United States,-5.00,condo
+35,AAAAAAAADCAAAAAA,814,Washington Main,Drive,Suite C,Waterloo,Henry County,VA,21675,United States,-5.00,single family
+36,AAAAAAAAECAAAAAA,648,South 15th,Court,Suite 410,Lakeview,Lewis County,TN,38579,United States,-6.00,condo
+37,AAAAAAAAFCAAAAAA,999,4th ,Ct.,Suite 250,Sumner,Greenville County,SC,20519,United States,-5.00,single family
+38,AAAAAAAAGCAAAAAA,912,Second Hickory,Drive,Suite 190,Plainview,Baca County,CO,83683,United States,-7.00,condo
+39,AAAAAAAAHCAAAAAA,13,10th ,Ct.,Suite 280,Hamilton,Lee County,IA,52808,United States,-6.00,apartment
+40,AAAAAAAAICAAAAAA,369,2nd Maple,Pkwy,Suite H,Bridgeport,Ferry County,WA,95817,United States,-8.00,single family
+41,AAAAAAAAJCAAAAAA,198,Washington ,RD,Suite S,Oakland,Ouray County,CO,89843,United States,-7.00,apartment
+42,AAAAAAAAKCAAAAAA,884,Oak ,Court,Suite F,Riverside,Scott County,MS,59231,United States,-6.00,single family
+43,AAAAAAAALCAAAAAA,762,Spring ,Dr.,Suite F,Sulphur Springs,Jefferson County,IL,68354,United States,-6.00,condo
+44,AAAAAAAAMCAAAAAA,,,,Suite 490,,O-Brien County,,58721,United States,-6.00,
+45,AAAAAAAANCAAAAAA,206,4th ,Street,Suite 120,Union,Washington County,ME,09321,United States,-5.00,apartment
+46,AAAAAAAAOCAAAAAA,995,Oak ,Boulevard,Suite 120,Union Hill,Forrest County,MS,57746,United States,-6.00,single family
+47,AAAAAAAAPCAAAAAA,776,Washington View,Wy,Suite 60,Pleasant Grove,Mercer County,KY,44136,United States,-5.00,apartment
+48,AAAAAAAAADAAAAAA,895,Valley ,Lane,Suite 480,Salem,James City County,VA,28048,United States,-5.00,condo
+49,AAAAAAAABDAAAAAA,583,Highland 2nd,Street,Suite 90,Fairfield,York County,ME,06792,United States,-5.00,apartment
+50,AAAAAAAACDAAAAAA,190,7th ,Wy,Suite D,Enterprise,Gray County,KS,61757,United States,-6.00,single family
+51,AAAAAAAADDAAAAAA,845,5th ,Pkwy,Suite F,Green Acres,Hamblen County,TN,37683,United States,-5.00,single family
+52,AAAAAAAAEDAAAAAA,472,Ridge Park,ST,Suite 60,Oakdale,Muskingum County,OH,49584,United States,-5.00,single family
+53,AAAAAAAAFDAAAAAA,884,College Franklin,Boulevard,Suite 440,Riverview,McPherson County,SD,59003,United States,-7.00,single family
+54,AAAAAAAAGDAAAAAA,857,10th 10th,Boulevard,Suite V,Oak Hill,Martin County,NC,27838,United States,-5.00,single family
+55,AAAAAAAAHDAAAAAA,177,Lee Adams,Way,Suite S,Ashland,Macomb County,MI,44244,United States,-5.00,condo
+56,AAAAAAAAIDAAAAAA,49,Valley 14th,Wy,Suite V,Woodland,Goodhue County,MN,54854,United States,-6.00,condo
+57,AAAAAAAAJDAAAAAA,625,10th Oak,RD,Suite J,Enterprise,Bottineau County,ND,51757,United States,-6.00,single family
+58,AAAAAAAAKDAAAAAA,917,Miller 15th,Parkway,Suite 230,Union Hill,Canyon County,ID,87746,United States,-7.00,single family
+59,AAAAAAAALDAAAAAA,,,Court,,Newtown,Valley County,MT,,United States,-7.00,condo
+60,AAAAAAAAMDAAAAAA,,Lee ,,,Forest Hills,Green County,KY,49237,,,apartment
+61,AAAAAAAANDAAAAAA,159,Ridge ,Boulevard,Suite 20,Sulphur Springs,Laurel County,KY,48354,United States,-5.00,single family
+62,AAAAAAAAODAAAAAA,925,Lincoln ,Lane,Suite 90,Riverdale,Lewis County,WV,29391,United States,-5.00,condo
+63,AAAAAAAAPDAAAAAA,416,Elevnth Green,Drive,Suite A,Midway,Jewell County,KS,61904,United States,-6.00,single family
+64,AAAAAAAAAEAAAAAA,546,Meadow ,Circle,Suite 90,Macedonia,Trousdale County,TN,31087,United States,-6.00,apartment
+65,AAAAAAAABEAAAAAA,147,Fourth Lake,RD,Suite 460,Bethel,Iowa County,IA,55281,United States,-6.00,single family
+66,AAAAAAAACEAAAAAA,238,Pine ,Road,Suite 470,Crossroads,Sioux County,NE,60534,United States,-7.00,single family
+67,AAAAAAAADEAAAAAA,896,11th ,Street,Suite B,Flint,Van Buren County,IA,58909,United States,-6.00,single family
+68,AAAAAAAAEEAAAAAA,240,Laurel Forest,Street,Suite H,Summit,Bledsoe County,TN,30499,United States,-5.00,single family
+69,AAAAAAAAFEAAAAAA,37,Pine ,Drive,Suite H,Glendale,Scott County,KY,43951,United States,-5.00,single family
+70,AAAAAAAAGEAAAAAA,511,14th Sycamore,Parkway,Suite 210,White Oak,Union County,OH,46668,United States,-5.00,condo
+71,AAAAAAAAHEAAAAAA,38,Ridge ,Cir.,Suite 370,Lakeview,Nottoway County,VA,28579,United States,-5.00,apartment
+72,AAAAAAAAIEAAAAAA,982,Willow ,Blvd,Suite 20,Richville,Cascade County,MT,65945,United States,-7.00,single family
+73,AAAAAAAAJEAAAAAA,158,Green Broadway,Road,Suite B,Cedar Grove,Kingman County,KS,60411,United States,-6.00,apartment
+74,AAAAAAAAKEAAAAAA,723,Sycamore ,Boulevard,Suite C,Spring Hill,Wapello County,IA,56787,United States,-6.00,condo
+75,AAAAAAAALEAAAAAA,32,Pine ,Wy,Suite 480,Valley View,Cleburne County,AL,35124,United States,-6.00,single family
+76,AAAAAAAAMEAAAAAA,257,Walnut South,Drive,Suite 420,Shiloh,Menominee County,MI,49275,United States,-5.00,single family
+77,AAAAAAAANEAAAAAA,151,Hill ,Wy,Suite U,Oak Grove,Thomas County,GA,38370,United States,-5.00,single family
+78,AAAAAAAAOEAAAAAA,857,Railroad ,Boulevard,Suite 140,Green Acres,Potter County,SD,57683,United States,-7.00,single family
+79,AAAAAAAAPEAAAAAA,409,Park 7th,Cir.,Suite U,Farmington,Wayne County,TN,39145,United States,-6.00,condo
+80,AAAAAAAAAFAAAAAA,298,12th ,Way,Suite J,Oakland,Grant County,KY,49843,United States,-6.00,condo
+81,AAAAAAAABFAAAAAA,953,River Spruce,Pkwy,Suite 0,Union Hill,Brown County,TX,77746,United States,-6.00,condo
+82,AAAAAAAACFAAAAAA,97,River Main,Ln,Suite L,Buena Vista,Santa Clara County,CA,95752,United States,-8.00,single family
+83,AAAAAAAADFAAAAAA,410,Spring Poplar,Drive,Suite 20,Bethel,Nueces County,TX,75281,United States,-6.00,condo
+84,AAAAAAAAEFAAAAAA,886,Sunset ,Circle,Suite T,Warwick,Itawamba County,MS,51398,United States,-6.00,apartment
+85,AAAAAAAAFFAAAAAA,476,Willow ,Avenue,Suite R,Five Points,Crawford County,PA,16098,United States,-5.00,single family
+86,AAAAAAAAGFAAAAAA,699,11th 14th,ST,Suite O,Five Points,Pike County,KY,46098,United States,-5.00,single family
+87,AAAAAAAAHFAAAAAA,,6th ,Lane,,Maple Grove,Claiborne County,,58252,,,apartment
+88,AAAAAAAAIFAAAAAA,104,9th ,RD,Suite W,Frogtown,Bay County,MI,48784,United States,-5.00,single family
+89,AAAAAAAAJFAAAAAA,440,Church 7th,Ave,Suite 200,Lakeside,Solano County,CA,99532,United States,-8.00,apartment
+90,AAAAAAAAKFAAAAAA,892,North East,Drive,Suite U,Centerville,Hettinger County,ND,50059,United States,-6.00,condo
+91,AAAAAAAALFAAAAAA,936,,Wy,,Riverside,Murray County,,,United States,,
+92,AAAAAAAAMFAAAAAA,734,Ash Wilson,Boulevard,Suite V,Newtown,Boise County,ID,81749,United States,-7.00,condo
+93,AAAAAAAANFAAAAAA,755,Washington Sunset,RD,Suite Q,Walnut Grove,Greenup County,KY,47752,United States,-6.00,apartment
+94,AAAAAAAAOFAAAAAA,,,,,Lakeside,Washington County,GA,,,,
+95,AAAAAAAAPFAAAAAA,571,Hickory River,Ln,Suite M,Woodland,Thayer County,NE,64854,United States,-7.00,condo
+96,AAAAAAAAAGAAAAAA,246,Cedar Franklin,RD,Suite A,Oakdale,Fulton County,KY,49584,United States,-6.00,condo
+97,AAAAAAAABGAAAAAA,858,Sunset Main,Way,Suite 320,Enterprise,Hardin County,TX,71757,United States,-6.00,single family
+98,AAAAAAAACGAAAAAA,346,Walnut ,Road,Suite 370,Spring Hill,Labette County,KS,66787,United States,-6.00,condo
+99,AAAAAAAADGAAAAAA,222,Park View,Drive,Suite U,Wilson,Dickinson County,MI,46971,United States,-5.00,apartment
+100,AAAAAAAAEGAAAAAA,127,Railroad ,Court,Suite 170,Oakland,Perry County,TN,39843,United States,-6.00,apartment
+101,AAAAAAAAFGAAAAAA,922,Wilson 1st,Ave,Suite C,Bunker Hill,Vernon Parish,LA,70150,United States,-6.00,condo
+102,AAAAAAAAGGAAAAAA,270,North Fourth,Ct.,Suite 460,Newtown,Bay County,FL,31749,United States,-5.00,condo
+103,AAAAAAAAHGAAAAAA,467,Maple Chestnut,Ln,Suite 60,Forest Hills,Brown County,WI,59237,United States,-6.00,condo
+104,AAAAAAAAIGAAAAAA,786,Locust ,Drive,Suite V,Jamestown,Madison County,IA,56867,United States,-6.00,single family
+105,AAAAAAAAJGAAAAAA,960,Franklin ,Lane,Suite P,Lebanon,Dallas County,AL,32898,United States,-6.00,condo
+106,AAAAAAAAKGAAAAAA,992,View Ash,Parkway,Suite J,Forest Hills,Hall County,TX,79237,United States,-6.00,single family
+107,AAAAAAAALGAAAAAA,128,Laurel Church,Boulevard,Suite 210,Bethel,Grant County,IN,45281,United States,-5.00,apartment
+108,AAAAAAAAMGAAAAAA,156,West Maple,Street,Suite R,Belmont,Jackson County,OR,90191,United States,-8.00,single family
+109,AAAAAAAANGAAAAAA,453,Madison 8th,Avenue,Suite 310,Harmony,Aurora County,SD,55804,United States,-6.00,apartment
+110,AAAAAAAAOGAAAAAA,834,Hill Jackson,ST,Suite N,Hillcrest,Houston County,AL,33003,United States,-6.00,condo
+111,AAAAAAAAPGAAAAAA,306,Pine Lincoln,Drive,Suite 470,Bethel,Davidson County,NC,25281,United States,-5.00,condo
+112,AAAAAAAAAHAAAAAA,232,Dogwood ,Street,Suite K,Rankin,Harrison County,IA,52621,United States,-6.00,apartment
+113,AAAAAAAABHAAAAAA,138,Main ,Ave,Suite 390,Highland,Page County,IA,59454,United States,-6.00,apartment
+114,AAAAAAAACHAAAAAA,576,Willow ,Road,Suite E,Pleasant Valley,Mohave County,AZ,82477,United States,-7.00,condo
+115,AAAAAAAADHAAAAAA,543,12th 9th,Ave,,Wildwood,Rolette County,,,,-6.00,
+116,AAAAAAAAEHAAAAAA,581,Oak ,Road,Suite 310,Deerfield,Harvey County,KS,69840,United States,-6.00,single family
+117,AAAAAAAAFHAAAAAA,593,2nd 5th,Ln,Suite 400,Providence,Curry County,OR,96614,United States,-8.00,condo
+118,AAAAAAAAGHAAAAAA,185,Wilson ,Circle,Suite 270,Union Hill,Washington County,MS,57746,United States,-6.00,condo
+119,AAAAAAAAHHAAAAAA,525,Cedar ,RD,Suite 210,Lakeview,Stark County,OH,48579,United States,-5.00,apartment
+120,AAAAAAAAIHAAAAAA,741,First ,Ave,Suite O,Valley View,Benton County,IN,45124,United States,-5.00,apartment
+121,AAAAAAAAJHAAAAAA,644,Sixth ,Ln,Suite 470,Lakewood,Putnam County,WV,28877,United States,-5.00,single family
+122,AAAAAAAAKHAAAAAA,,,Ave,,Woodlawn,,MN,,,-6.00,
+123,AAAAAAAALHAAAAAA,319,West View,Blvd,Suite X,Concord,Lagrange County,IN,44107,United States,-5.00,condo
+124,AAAAAAAAMHAAAAAA,688,Woodland 2nd,Cir.,Suite J,Hopewell,Okanogan County,WA,90587,United States,-8.00,condo
+125,AAAAAAAANHAAAAAA,74,7th ,Lane,Suite 180,New Hope,Santa Clara County,CA,99431,United States,-8.00,apartment
+126,AAAAAAAAOHAAAAAA,196,Maple Railroad,Road,Suite 120,Arlington,Mahoning County,OH,46557,United States,-5.00,apartment
+127,AAAAAAAAPHAAAAAA,896,Sunset ,Ln,Suite Y,Kingston,Stanton County,KS,64975,United States,-6.00,single family
+128,AAAAAAAAAIAAAAAA,127,Ridge 9th,Boulevard,Suite B,Sutton,Lorain County,OH,45413,United States,-5.00,apartment
+129,AAAAAAAABIAAAAAA,,Sunset Pine,,,,Dickson County,TN,,,-5.00,apartment
+130,AAAAAAAACIAAAAAA,194,Pine ,ST,Suite J,Salem,Potter County,PA,18048,United States,-5.00,condo
+131,AAAAAAAADIAAAAAA,884,Woodland Seventh,Road,Suite 200,Green Acres,Cherokee County,OK,77683,United States,-6.00,condo
+132,AAAAAAAAEIAAAAAA,797,2nd ,Ct.,Suite M,Ellisville,Darlington County,SC,26820,United States,-5.00,condo
+133,AAAAAAAAFIAAAAAA,953,Oak 5th,Boulevard,Suite J,Oakland,Fannin County,TX,79843,United States,-6.00,single family
+134,AAAAAAAAGIAAAAAA,504,West Hickory,Lane,Suite E,Greenwood,Crawford County,IN,48828,United States,-5.00,condo
+135,AAAAAAAAHIAAAAAA,279,Oak ,Ave,Suite W,Clearview,Thayer County,NE,65495,United States,-7.00,apartment
+136,AAAAAAAAIIAAAAAA,610,Elm ,Wy,Suite 30,Fowler,McLean County,IL,61083,United States,-6.00,apartment
+137,AAAAAAAAJIAAAAAA,467,Second ,RD,Suite 220,Greenwood,Madison County,NE,68828,United States,-7.00,condo
+138,AAAAAAAAKIAAAAAA,99,Hillcrest 13th,Lane,Suite Q,Belmont,Greenwood County,KS,60191,United States,-6.00,apartment
+139,AAAAAAAALIAAAAAA,14,Pine Fourth,Ave,Suite 290,Pine Grove,Letcher County,KY,44593,United States,-5.00,single family
+140,AAAAAAAAMIAAAAAA,837,Madison Washington,Cir.,Suite Q,Union,Ottawa County,OK,78721,United States,-6.00,single family
+141,AAAAAAAANIAAAAAA,727,Elm Center,Cir.,Suite D,Hartland,Edmunds County,SD,56594,United States,-6.00,condo
+142,AAAAAAAAOIAAAAAA,268,Maple ,Road,Suite 210,Belmont,Bergen County,NJ,00791,United States,-5.00,single family
+143,AAAAAAAAPIAAAAAA,141,9th ,Ct.,Suite R,Edgewood,Burke County,GA,30069,United States,-5.00,apartment
+144,AAAAAAAAAJAAAAAA,686,Cedar ,Cir.,Suite 90,Green Acres,Alpena County,MI,47683,United States,-5.00,condo
+145,AAAAAAAABJAAAAAA,454,Maple ,Street,Suite 190,Wilson,Highland County,VA,26971,United States,-5.00,single family
+146,AAAAAAAACJAAAAAA,976,Sixth Dogwood,Ct.,Suite L,Highland,Litchfield County,CT,09454,United States,-5.00,single family
+147,AAAAAAAADJAAAAAA,596,Lake Maple,Blvd,Suite 160,Mount Olive,Hawaii County,HI,98059,United States,-10.00,apartment
+148,AAAAAAAAEJAAAAAA,731,14th ,Boulevard,Suite D,Cedar Grove,Morton County,ND,50411,United States,-6.00,apartment
+149,AAAAAAAAFJAAAAAA,8,Woodland ,Boulevard,Suite 270,Glenwood,Haralson County,GA,33511,United States,-5.00,apartment
+150,AAAAAAAAGJAAAAAA,121,Fifteenth ,Blvd,Suite C,Sunnyside,Lafayette County,AR,71952,United States,-6.00,apartment
+151,AAAAAAAAHJAAAAAA,125,Fifth ,Cir.,Suite 140,Shiloh,Deuel County,NE,69275,United States,-6.00,apartment
+152,AAAAAAAAIJAAAAAA,448,Sunset ,RD,Suite J,Red Hill,Sharkey County,MS,54338,United States,-6.00,apartment
+153,AAAAAAAAJJAAAAAA,171,River Elm,Parkway,Suite 130,Deerfield,Fulton County,OH,49840,United States,-5.00,condo
+154,AAAAAAAAKJAAAAAA,264,Hillcrest Lincoln,Boulevard,Suite W,Lakewood,Eureka County,NV,88877,United States,-8.00,condo
+155,AAAAAAAALJAAAAAA,902,10th ,Avenue,Suite 30,Glendale,Jackson County,MI,43951,United States,-5.00,condo
+156,AAAAAAAAMJAAAAAA,595,,,,,,TX,,,-6.00,single family
+157,AAAAAAAANJAAAAAA,904,Locust Seventh,Court,Suite 340,Shiloh,Clermont County,OH,49275,United States,-5.00,condo
+158,AAAAAAAAOJAAAAAA,293,Lincoln Willow,Court,Suite 370,Shady Grove,Davidson County,NC,22812,United States,-5.00,condo
+159,AAAAAAAAPJAAAAAA,544,Spruce ,Cir.,Suite J,New Hope,Bradford County,FL,39431,United States,-5.00,condo
+160,AAAAAAAAAKAAAAAA,676,Jefferson ,Lane,Suite 170,Woodland,Fresno County,CA,94854,United States,-8.00,single family
+161,AAAAAAAABKAAAAAA,518,Center Spruce,Boulevard,Suite 100,Clifton,McDonough County,IL,68014,United States,-6.00,apartment
+162,AAAAAAAACKAAAAAA,68,Oak Sycamore,Way,Suite 480,Waterloo,Pottawatomie County,KS,61675,United States,-6.00,condo
+163,AAAAAAAADKAAAAAA,484,Spring ,Dr.,Suite 90,Hamilton,Vernon County,WI,52808,United States,-6.00,single family
+164,AAAAAAAAEKAAAAAA,435,2nd ,Boulevard,Suite Q,Enterprise,Sussex County,DE,11757,United States,-5.00,condo
+165,AAAAAAAAFKAAAAAA,144,Sunset 2nd,Way,Suite A,Woodland,Banner County,NE,64854,United States,-6.00,condo
+166,AAAAAAAAGKAAAAAA,335,7th ,Blvd,Suite 230,Plainview,Taylor County,GA,33683,United States,-5.00,apartment
+167,AAAAAAAAHKAAAAAA,288,Oak 3rd,Dr.,Suite B,Woodland,Grant County,NE,64854,United States,-6.00,apartment
+168,AAAAAAAAIKAAAAAA,373,Maple ,Court,Suite 450,Providence,Hickory County,MO,66614,United States,-6.00,condo
+169,AAAAAAAAJKAAAAAA,12,,,Suite 50,,,,,,-6.00,apartment
+170,AAAAAAAAKKAAAAAA,237,Walnut ,Way,Suite W,Colonial Heights,Monroe County,MO,63425,United States,-6.00,single family
+171,AAAAAAAALKAAAAAA,871,Smith Seventh,Way,Suite A,Calhoun,Cook County,MN,56909,United States,-6.00,condo
+172,AAAAAAAAMKAAAAAA,,5th ,,Suite 280,,Madison County,MO,68054,United States,,single family
+173,AAAAAAAANKAAAAAA,715,1st ,Dr.,Suite H,Forest Hills,Grayson County,KY,49237,United States,-6.00,apartment
+174,AAAAAAAAOKAAAAAA,986,Adams ,Pkwy,Suite M,Holiday Hills,Garden County,NE,63109,United States,-6.00,single family
+175,AAAAAAAAPKAAAAAA,557,4th Forest,Cir.,Suite 10,Antioch,Leon County,TX,78605,United States,-6.00,condo
+176,AAAAAAAAALAAAAAA,302,Jefferson ,RD,Suite 140,Midway,Madison County,GA,31904,United States,-5.00,single family
+177,AAAAAAAABLAAAAAA,853,Dogwood View,Lane,Suite 440,Woodland,Grand County,CO,84854,United States,-7.00,single family
+178,AAAAAAAACLAAAAAA,592,Davis 14th,Circle,Suite L,Friendship,Winneshiek County,IA,54536,United States,-6.00,single family
+179,AAAAAAAADLAAAAAA,795,Davis Walnut,Avenue,Suite T,Jackson,Nye County,NV,89583,United States,-8.00,single family
+180,AAAAAAAAELAAAAAA,264,Railroad 11th,Ct.,Suite R,Midway,Carroll County,IL,61904,United States,-6.00,single family
+181,AAAAAAAAFLAAAAAA,469,8th ,Drive,Suite 250,Greenwood,Osborne County,KS,68828,United States,-6.00,condo
+182,AAAAAAAAGLAAAAAA,772,Elm ,Court,Suite 290,Bayside,Rice County,KS,69550,United States,-6.00,single family
+183,AAAAAAAAHLAAAAAA,47,Washington ,Ave,Suite 310,Lakeside,Moniteau County,MO,69532,United States,-6.00,apartment
+184,AAAAAAAAILAAAAAA,704,Lincoln ,Ln,Suite 340,Flatwoods,Williamson County,TX,74212,United States,-6.00,condo
+185,AAAAAAAAJLAAAAAA,441,Willow Washington,Cir.,Suite 490,Hillcrest,Pueblo County,CO,83003,United States,-7.00,condo
+186,AAAAAAAAKLAAAAAA,309,8th ,Lane,Suite T,Riverside,Mesa County,CO,89231,United States,-7.00,apartment
+187,AAAAAAAALLAAAAAA,54,Ash 3rd,Boulevard,Suite 470,Centerville,Mills County,TX,70059,United States,-6.00,condo
+188,AAAAAAAAMLAAAAAA,798,West Sunset,Pkwy,Suite 160,Harmony,New Haven County,CT,06404,United States,-5.00,condo
+189,AAAAAAAANLAAAAAA,719,Hillcrest ,Parkway,Suite 270,Five Forks,Sanders County,MT,62293,United States,-7.00,condo
+190,AAAAAAAAOLAAAAAA,928,Lake Lincoln,Pkwy,Suite T,Fremont,Greene County,NC,21851,United States,-5.00,single family
+191,AAAAAAAAPLAAAAAA,115,12th First,Boulevard,Suite J,Oakwood,Hamilton County,NE,60169,United States,-6.00,condo
+192,AAAAAAAAAMAAAAAA,639,Maple East,Circle,Suite 340,Walnut Grove,Stokes County,NC,27752,United States,-5.00,condo
+193,AAAAAAAABMAAAAAA,239,1st ,Road,Suite G,Greenville,Hickman County,KY,41387,United States,-6.00,condo
+194,AAAAAAAACMAAAAAA,990,9th First,Ln,Suite 230,Oak Hill,Union County,AR,77838,United States,-6.00,single family
+195,AAAAAAAADMAAAAAA,939,Cedar ,Court,Suite A,Mount Pleasant,Marion County,GA,32739,United States,-5.00,single family
+196,AAAAAAAAEMAAAAAA,860,,,Suite 270,,,,,,-5.00,condo
+197,AAAAAAAAFMAAAAAA,200,Park North,Blvd,Suite F,Highland Park,Creek County,OK,76534,United States,-6.00,condo
+198,AAAAAAAAGMAAAAAA,842,3rd ,RD,Suite 280,Pleasant Valley,Pawnee County,KS,62477,United States,-6.00,condo
+199,AAAAAAAAHMAAAAAA,790,Pine ,Street,Suite 400,Lakeview,Somerset County,ME,09179,United States,-5.00,condo
+200,AAAAAAAAIMAAAAAA,516,6th Spring,Boulevard,Suite K,Marion,McIntosh County,OK,70399,United States,-6.00,condo
+201,AAAAAAAAJMAAAAAA,517,8th ,Parkway,Suite J,Salem,McIntosh County,OK,78048,United States,-6.00,single family
+202,AAAAAAAAKMAAAAAA,944,Willow ,Parkway,Suite L,Unionville,Collin County,TX,71711,United States,-6.00,apartment
+203,AAAAAAAALMAAAAAA,997,Cedar ,Boulevard,Suite T,Mount Zion,Wabash County,IL,68054,United States,-6.00,apartment
+204,AAAAAAAAMMAAAAAA,901,Locust Main,Blvd,Suite 440,Friendship,Isabella County,MI,44536,United States,-5.00,condo
+205,AAAAAAAANMAAAAAA,525,North Franklin,Pkwy,Suite 490,Shore Acres,Benewah County,ID,82724,United States,-7.00,single family
+206,AAAAAAAAOMAAAAAA,381,Third ,Blvd,Suite 10,Waterloo,Panola County,MS,51675,United States,-6.00,single family
+207,AAAAAAAAPMAAAAAA,833,Miller ,Pkwy,Suite 450,Blue Springs,Vernon County,WI,54686,United States,-6.00,single family
+208,AAAAAAAAANAAAAAA,772,Second ,Court,Suite S,Lincoln,Albany County,WY,81289,United States,-7.00,apartment
+209,AAAAAAAABNAAAAAA,335,River ,Drive,Suite 210,Sulphur Springs,Mitchell County,NC,28354,United States,-5.00,condo
+210,AAAAAAAACNAAAAAA,617,Park Hill,Road,Suite W,Shiloh,Jefferson County,KY,49275,United States,-6.00,apartment
+211,AAAAAAAADNAAAAAA,747,Willow Cedar,Lane,Suite 130,Bridgeport,Lamar County,MS,55817,United States,-6.00,apartment
+212,AAAAAAAAENAAAAAA,691,9th Mill,,Suite 190,,Pontotoc County,MS,59431,,,
+213,AAAAAAAAFNAAAAAA,351,1st ,Blvd,Suite I,Superior,Hidalgo County,NM,82562,United States,-7.00,condo
+214,AAAAAAAAGNAAAAAA,375,Walnut Second,Lane,Suite 480,Oakland,Halifax County,NC,29843,United States,-5.00,apartment
+215,AAAAAAAAHNAAAAAA,874,3rd ,Street,Suite M,Sunnyside,Palo Alto County,IA,51952,United States,-6.00,apartment
+216,AAAAAAAAINAAAAAA,469,Maple Laurel,Pkwy,Suite F,Greenwood,Hampton city,VA,28828,United States,-5.00,condo
+217,AAAAAAAAJNAAAAAA,297,7th ,Way,Suite E,White Oak,Tioga County,NY,16668,United States,-5.00,condo
+218,AAAAAAAAKNAAAAAA,998,Center Dogwood,Lane,Suite I,Oakland,Pine County,MN,59843,United States,-6.00,single family
+219,AAAAAAAALNAAAAAA,933,Franklin Highland,ST,Suite 380,Woodbury,Stevens County,KS,64489,United States,-6.00,condo
+220,AAAAAAAAMNAAAAAA,695,1st Oak,Circle,Suite 40,Liberty,Wabaunsee County,KS,63451,United States,-6.00,single family
+221,AAAAAAAANNAAAAAA,940,5th ,Ln,Suite 300,Forest Hills,Kit Carson County,CO,89237,United States,-7.00,apartment
+222,AAAAAAAAONAAAAAA,393,South ,Wy,Suite X,Ashley,Falls County,TX,74324,United States,-6.00,condo
+223,AAAAAAAAPNAAAAAA,455,First ,Ln,Suite 210,Friendship,Cleburne County,AL,34536,United States,-6.00,apartment
+224,AAAAAAAAAOAAAAAA,94,Lincoln Walnut,Court,Suite 130,Edgewood,Calhoun County,MS,50069,United States,-6.00,single family
+225,AAAAAAAABOAAAAAA,673,Lincoln Washington,Dr.,Suite K,Altamont,Lake County,IN,49387,United States,-5.00,condo
+226,AAAAAAAACOAAAAAA,247,Hickory Adams,Way,Suite R,Union,Oldham County,TX,78721,United States,-6.00,condo
+227,AAAAAAAADOAAAAAA,82,Seventh Fifth,Ln,Suite R,Midway,Fairbanks North Star Borough,AK,91904,United States,-9.00,apartment
+228,AAAAAAAAEOAAAAAA,776,Madison ,ST,Suite A,Woodland,Franklin County,IA,54854,United States,-6.00,condo
+229,AAAAAAAAFOAAAAAA,376,Ash ,Dr.,Suite M,Crossroads,Franklin city,VA,20534,United States,-5.00,single family
+230,AAAAAAAAGOAAAAAA,313,2nd Eigth,Avenue,Suite 40,Marion,Glascock County,GA,30399,United States,-5.00,condo
+231,AAAAAAAAHOAAAAAA,560,Lakeview ,Way,Suite 130,Deerfield,Union County,KY,49840,United States,-5.00,condo
+232,AAAAAAAAIOAAAAAA,239,Elm ,RD,Suite D,Shady Grove,Harrison County,IN,42812,United States,-5.00,single family
+233,AAAAAAAAJOAAAAAA,957,Cherry Johnson,Ct.,Suite E,Clinton,Jackson County,NC,28222,United States,-5.00,condo
+234,AAAAAAAAKOAAAAAA,986,6th Main,Ln,Suite 20,Crossroads,Benton County,IN,40534,United States,-5.00,condo
+235,AAAAAAAALOAAAAAA,213,Madison ,Pkwy,Suite H,Lincoln,Orange County,FL,31289,United States,-5.00,apartment
+236,AAAAAAAAMOAAAAAA,944,West Center,Cir.,Suite J,Lewisburg,Flagler County,FL,37538,United States,-5.00,single family
+237,AAAAAAAANOAAAAAA,169,Broadway Oak,Boulevard,Suite V,Marion,Fayette County,AL,30399,United States,-6.00,apartment
+238,AAAAAAAAOOAAAAAA,566,Williams Lee,Way,Suite 100,Pleasant Hill,Campbell County,TN,33604,United States,-5.00,single family
+239,AAAAAAAAPOAAAAAA,633,Elm 9th,Dr.,Suite 50,Franklin,Jefferson County,IN,49101,United States,-5.00,single family
+240,AAAAAAAAAPAAAAAA,8,Valley ,Blvd,Suite 470,Concord,Castro County,TX,74107,United States,-6.00,apartment
+241,AAAAAAAABPAAAAAA,323,Laurel ,Way,Suite 50,Wilson,Sioux County,IA,56971,United States,-6.00,condo
+242,AAAAAAAACPAAAAAA,706,Oak Woodland,Court,Suite C,Sunnyside,Stephenson County,IL,61952,United States,-6.00,single family
+243,AAAAAAAADPAAAAAA,600,View ,Ave,Suite 150,Crossroads,Bennington County,VT,01134,United States,-5.00,condo
+244,AAAAAAAAEPAAAAAA,501,Dogwood Woodland,Parkway,Suite 180,Ashland,Iredell County,NC,24244,United States,-5.00,single family
+245,AAAAAAAAFPAAAAAA,187,Park North,Street,Suite 470,Crossroads,Bee County,TX,70534,United States,-6.00,apartment
+246,AAAAAAAAGPAAAAAA,154,1st ,Road,Suite V,Union Hill,Camden County,NJ,08346,United States,-5.00,apartment
+247,AAAAAAAAHPAAAAAA,310,Sunset ,Circle,Suite A,Lakewood,Newport News city,VA,28877,United States,-5.00,apartment
+248,AAAAAAAAIPAAAAAA,587,Williams Dogwood,Avenue,Suite R,Concord,Paulding County,OH,44107,United States,-5.00,condo
+249,AAAAAAAAJPAAAAAA,378,First Oak,ST,Suite 390,Five Points,Kauai County,HI,96098,United States,-10.00,condo
+250,AAAAAAAAKPAAAAAA,882,Ridge Meadow,Parkway,Suite Q,Harmony,Macon County,TN,35804,United States,-6.00,apartment
+251,AAAAAAAALPAAAAAA,913,First Johnson,Ct.,Suite V,Sugar Hill,Crawford County,IL,65114,United States,-6.00,apartment
+252,AAAAAAAAMPAAAAAA,753,Center ,Cir.,Suite 250,Bunker Hill,Halifax County,VA,20150,United States,-5.00,apartment
+253,AAAAAAAANPAAAAAA,446,Jefferson Adams,Avenue,Suite O,Liberty,Dinwiddie County,VA,23451,United States,-5.00,condo
+254,AAAAAAAAOPAAAAAA,271,Highland ,Lane,Suite W,Greenfield,Red River Parish,LA,75038,United States,-6.00,apartment
+255,AAAAAAAAPPAAAAAA,681,,Cir.,,Concord,,MD,,,-5.00,condo
+256,AAAAAAAAAABAAAAA,973,Forest ,Dr.,Suite V,Cordova,Union Parish,LA,76938,United States,-6.00,condo
+257,AAAAAAAABABAAAAA,960,4th ,Wy,Suite 200,Ellsworth,Bourbon County,KS,65079,United States,-6.00,condo
+258,AAAAAAAACABAAAAA,241,Birch ,RD,Suite X,Walnut Grove,Pasco County,FL,37752,United States,-5.00,apartment
+259,AAAAAAAADABAAAAA,888,Sunset ,Circle,Suite I,Elkton,Sumter County,FL,33481,United States,-5.00,condo
+260,AAAAAAAAEABAAAAA,629,13th Cherry,Court,Suite 450,Plainview,Anson County,NC,23683,United States,-5.00,condo
+261,AAAAAAAAFABAAAAA,911,Second ,RD,Suite A,Harmony,Lee County,GA,35804,United States,-5.00,apartment
+262,AAAAAAAAGABAAAAA,718,Willow ,RD,Suite Q,Martinsville,Amherst County,VA,20419,United States,-5.00,condo
+263,AAAAAAAAHABAAAAA,75,Park Oak,ST,Suite 80,Marion,Nantucket County,MA,00999,United States,-5.00,apartment
+264,AAAAAAAAIABAAAAA,17,11th ,RD,Suite M,Riverdale,Pendleton County,KY,49391,United States,-5.00,condo
+265,AAAAAAAAJABAAAAA,447,Walnut Fourth,Lane,Suite R,Union,Lincoln County,MO,68721,United States,-6.00,single family
+266,AAAAAAAAKABAAAAA,940,Second Ridge,Parkway,Suite C,Red Hill,Marshall County,SD,54338,United States,-7.00,condo
+267,AAAAAAAALABAAAAA,671,Broadway ,Circle,Suite 170,Bridgeport,Park County,WY,85817,United States,-7.00,single family
+268,AAAAAAAAMABAAAAA,938,Cherry ,Street,Suite 30,Stringtown,Emmet County,IA,50162,United States,-6.00,apartment
+269,AAAAAAAANABAAAAA,643,Park Main,Court,Suite Y,Oak Hill,Nuckolls County,NE,67838,United States,-7.00,single family
+270,AAAAAAAAOABAAAAA,935,Ridge Hill,Blvd,Suite 180,Lakeside,Carroll County,AR,79532,United States,-6.00,single family
+271,AAAAAAAAPABAAAAA,5,Chestnut Highland,Ct.,Suite 290,Salem,Bedford County,VA,28048,United States,-5.00,single family
+272,AAAAAAAAABBAAAAA,,Hickory ,,,,Sioux County,,69127,United States,-7.00,
+273,AAAAAAAABBBAAAAA,133,Church ,Avenue,Suite F,Providence,Kane County,IL,66614,United States,-6.00,apartment
+274,AAAAAAAACBBAAAAA,789,Locust ,RD,Suite J,Oak Ridge,Sac County,IA,58371,United States,-6.00,condo
+275,AAAAAAAADBBAAAAA,454,Church ,Boulevard,Suite 370,Harmony,Parmer County,TX,75804,United States,-6.00,apartment
+276,AAAAAAAAEBBAAAAA,767,6th ,Road,Suite 430,Franklin,Rockdale County,GA,39101,United States,-5.00,condo
+277,AAAAAAAAFBBAAAAA,129,Valley ,Circle,Suite 410,Ashland,Decatur County,GA,34244,United States,-5.00,single family
+278,AAAAAAAAGBBAAAAA,877,14th ,Wy,Suite 490,Ashland,New Kent County,VA,24244,United States,-5.00,apartment
+279,AAAAAAAAHBBAAAAA,276,Smith 5th,Street,Suite 270,Jamestown,Martin County,KY,46867,United States,-5.00,single family
+280,AAAAAAAAIBBAAAAA,288,Walnut 1st,Ln,Suite M,Antioch,Cleveland County,NC,28605,United States,-5.00,single family
+281,AAAAAAAAJBBAAAAA,716,Oak ,Wy,Suite 330,Mount Olive,Windham County,CT,08659,United States,-5.00,apartment
+282,AAAAAAAAKBBAAAAA,4,Cherry ,Ln,Suite L,Buena Vista,Halifax County,VA,25752,United States,-5.00,apartment
+283,AAAAAAAALBBAAAAA,49,View ,Ave,Suite W,Florence,Sevier County,UT,83394,United States,-7.00,single family
+284,AAAAAAAAMBBAAAAA,766,13th ,Ave,Suite 350,Franklin,Ohio County,KY,49101,United States,-5.00,condo
+285,AAAAAAAANBBAAAAA,764,Adams Main,Pkwy,Suite X,Lincoln,Phelps County,MO,61289,United States,-6.00,single family
+286,AAAAAAAAOBBAAAAA,103,4th Davis,Way,Suite 390,Jamestown,Douglas County,WI,56867,United States,-6.00,apartment
+287,AAAAAAAAPBBAAAAA,117,,,Suite 30,Mountain View,,VA,24466,United States,-5.00,
+288,AAAAAAAAACBAAAAA,898,15th ,RD,Suite 460,Mountain View,Humboldt County,IA,54466,United States,-6.00,apartment
+289,AAAAAAAABCBAAAAA,612,Davis Birch,Way,Suite W,Webb,Osceola County,MI,40899,United States,-5.00,single family
+290,AAAAAAAACCBAAAAA,71,Spring West,Lane,Suite 50,Woodland,Grant County,NE,64854,United States,-6.00,apartment
+291,AAAAAAAADCBAAAAA,638,Main Lakeview,Avenue,Suite P,Oakdale,Storey County,NV,89584,United States,-8.00,single family
+292,AAAAAAAAECBAAAAA,151,2nd ,Drive,Suite C,Unionville,Gray County,KS,61711,United States,-6.00,single family
+293,AAAAAAAAFCBAAAAA,678,Smith Franklin,Lane,Suite 80,Edgewood,Weber County,UT,80069,United States,-7.00,condo
+294,AAAAAAAAGCBAAAAA,640,4th Laurel,Boulevard,Suite 340,Enterprise,Peach County,GA,31757,United States,-5.00,apartment
+295,AAAAAAAAHCBAAAAA,195,West Cherry,Boulevard,Suite S,Enterprise,Whitley County,IN,41757,United States,-5.00,condo
+296,AAAAAAAAICBAAAAA,999,2nd Main,Drive,Suite W,Greenwood,Ohio County,KY,48828,United States,-5.00,condo
+297,AAAAAAAAJCBAAAAA,571,Oak Miller,Ln,Suite 290,Newport,Rabun County,GA,31521,United States,-5.00,single family
+298,AAAAAAAAKCBAAAAA,177,Church Church,Pkwy,Suite X,Macon,Waldo County,ME,00969,United States,-5.00,condo
+299,AAAAAAAALCBAAAAA,10,Ash 4th,Ave,Suite X,White Oak,Finney County,KS,66668,United States,-6.00,single family
+300,AAAAAAAAMCBAAAAA,799,10th ,Road,Suite 490,Macedonia,Switzerland County,IN,41087,United States,-5.00,apartment
+301,AAAAAAAANCBAAAAA,660,Lake ,ST,Suite 460,Hamilton,Palo Pinto County,TX,72808,United States,-6.00,apartment
+302,AAAAAAAAOCBAAAAA,401,6th ,Wy,Suite 340,Shiloh,Jefferson Davis County,MS,59275,United States,-6.00,condo
+303,AAAAAAAAPCBAAAAA,49,Adams ,Lane,Suite M,Arlington,Jefferson County,WV,26557,United States,-5.00,single family
+304,AAAAAAAAADBAAAAA,971,View West,Drive,Suite A,Woodland,Green County,WI,54854,United States,-6.00,apartment
+305,AAAAAAAABDBAAAAA,689,Fourth Ash,Drive,Suite 410,Springdale,La Salle County,IL,68883,United States,-6.00,single family
+306,AAAAAAAACDBAAAAA,81,Lee 4th,RD,Suite 140,Centerville,Coffee County,GA,30059,United States,-5.00,single family
+307,AAAAAAAADDBAAAAA,406,Sunset Spring,Street,Suite R,Harmony,Stanton County,NE,65804,United States,-7.00,single family
+308,AAAAAAAAEDBAAAAA,393,Poplar Lakeview,Boulevard,Suite Q,Bridgeport,York County,NE,65817,United States,-6.00,single family
+309,AAAAAAAAFDBAAAAA,925,9th ,Boulevard,Suite 460,Five Points,Cumberland County,PA,16098,United States,-5.00,single family
+310,AAAAAAAAGDBAAAAA,349,Cedar Oak,Pkwy,Suite 30,Wilson,Clinton County,IA,56971,United States,-6.00,condo
+311,AAAAAAAAHDBAAAAA,434,9th Forest,Blvd,Suite W,Marion,Clay County,AL,30399,United States,-6.00,condo
+312,AAAAAAAAIDBAAAAA,475,Smith ,Lane,Suite F,Union Hill,Lake County,TN,37746,United States,-6.00,apartment
+313,AAAAAAAAJDBAAAAA,660,3rd Poplar,Cir.,Suite L,Lakeside,Teller County,CO,89532,United States,-7.00,condo
+314,AAAAAAAAKDBAAAAA,256,,Ct.,Suite 20,Highland Park,,,86534,United States,,
+315,AAAAAAAALDBAAAAA,557,Ridge ,Circle,Suite 280,Red Hill,Adair County,IA,54338,United States,-6.00,single family
+316,AAAAAAAAMDBAAAAA,380,West ,Parkway,Suite 20,Warwick,Howard County,MO,61398,United States,-6.00,condo
+317,AAAAAAAANDBAAAAA,603,Main Valley,Street,Suite 90,Valley View,Pontotoc County,OK,75124,United States,-6.00,single family
+318,AAAAAAAAODBAAAAA,72,Main Hickory,Cir.,Suite H,Greenwood,Muskogee County,OK,78828,United States,-6.00,apartment
+319,AAAAAAAAPDBAAAAA,682,6th Elevnth,ST,Suite 120,Spring Valley,Columbia County,OR,96060,United States,-8.00,condo
+320,AAAAAAAAAEBAAAAA,842,Sunset ,Ct.,Suite R,Valley View,Walton County,GA,35124,United States,-5.00,single family
+321,AAAAAAAABEBAAAAA,219,6th ,ST,Suite D,Union,Washington County,CO,88721,United States,-7.00,condo
+322,AAAAAAAACEBAAAAA,132,West ,Cir.,Suite R,Pleasant Grove,Guernsey County,OH,44136,United States,-5.00,condo
+323,AAAAAAAADEBAAAAA,350,Spruce ,Avenue,Suite 70,Greenville,Oliver County,ND,51387,United States,-6.00,condo
+324,AAAAAAAAEEBAAAAA,508,3rd ,Dr.,Suite 170,Mountain View,Matanuska-Susitna Borough,AK,94466,United States,-9.00,condo
+325,AAAAAAAAFEBAAAAA,590,Jackson North,Ln,Suite 20,Maple Grove,Meeker County,MN,58252,United States,-6.00,condo
+326,AAAAAAAAGEBAAAAA,334,Broadway ,RD,Suite 270,Springfield,Platte County,MO,69303,United States,-6.00,condo
+327,AAAAAAAAHEBAAAAA,636,4th ,Way,Suite O,Five Points,Carroll County,MO,66098,United States,-6.00,apartment
+328,AAAAAAAAIEBAAAAA,561,Jefferson ,Lane,Suite 330,Glenwood,Reno County,KS,63511,United States,-6.00,apartment
+329,AAAAAAAAJEBAAAAA,11,2nd Maple,Ln,Suite S,Riverview,Barren County,KY,49003,United States,-6.00,apartment
+330,AAAAAAAAKEBAAAAA,627,Madison ,RD,Suite 400,Oak Ridge,Suffolk County,MA,08971,United States,-5.00,single family
+331,AAAAAAAALEBAAAAA,274,Main ,Wy,Suite W,Union,Washburn County,WI,58721,United States,-6.00,apartment
+332,AAAAAAAAMEBAAAAA,622,Spring Church,Street,Suite 450,Woodville,Bingham County,ID,84289,United States,-7.00,apartment
+333,AAAAAAAANEBAAAAA,629,Cedar ,Pkwy,Suite A,Pleasant Valley,Chippewa County,WI,52477,United States,-6.00,apartment
+334,AAAAAAAAOEBAAAAA,368,Lincoln ,Dr.,Suite N,Pomona,Jones County,TX,74153,United States,-6.00,single family
+335,AAAAAAAAPEBAAAAA,751,8th ,Lane,Suite R,Oak Ridge,Perry County,MO,68371,United States,-6.00,single family
+336,AAAAAAAAAFBAAAAA,878,Oak ,Boulevard,Suite 50,Hopewell,Hillsdale County,MI,40587,United States,-5.00,condo
+337,AAAAAAAABFBAAAAA,262,Sixth ,Blvd,Suite 360,Providence,Martin County,TX,76614,United States,-6.00,apartment
+338,AAAAAAAACFBAAAAA,799,Lake ,Way,Suite U,Highland,Surry County,VA,29454,United States,-5.00,single family
+339,AAAAAAAADFBAAAAA,821,First Cedar,Ave,Suite O,Woodland,Campbell County,VA,24854,United States,-5.00,condo
+340,AAAAAAAAEFBAAAAA,498,Lake ,Way,Suite 490,Spring Valley,Habersham County,GA,36060,United States,-5.00,single family
+341,AAAAAAAAFFBAAAAA,851,Third ,Road,Suite 390,Pine Grove,Vernon County,MO,64593,United States,-6.00,condo
+342,AAAAAAAAGFBAAAAA,587,Spring ,Ave,Suite N,Mountain View,Quitman County,MS,54466,United States,-6.00,single family
+343,AAAAAAAAHFBAAAAA,195,Second Oak,Avenue,Suite 140,Riverside,Henry County,IA,59231,United States,-6.00,single family
+344,AAAAAAAAIFBAAAAA,322,,,Suite 260,,,ND,,United States,,condo
+345,AAAAAAAAJFBAAAAA,862,Sunset 6th,Dr.,Suite 490,Mount Vernon,Noble County,OK,79127,United States,-6.00,condo
+346,AAAAAAAAKFBAAAAA,984,East ,Drive,Suite V,Elm Grove,Herkimer County,NY,13298,United States,-5.00,condo
+347,AAAAAAAALFBAAAAA,661,15th Broadway,Ln,Suite 90,Oakdale,Stafford County,VA,29584,United States,-5.00,apartment
+348,AAAAAAAAMFBAAAAA,49,Sunset ,Boulevard,Suite 330,Mount Olive,Etowah County,AL,38059,United States,-6.00,single family
+349,AAAAAAAANFBAAAAA,191,Second Elm,Ave,Suite 230,Enterprise,Ada County,ID,81757,United States,-7.00,condo
+350,AAAAAAAAOFBAAAAA,145,West Pine,Blvd,Suite 290,Florence,Lewis County,NY,13394,United States,-5.00,condo
+351,AAAAAAAAPFBAAAAA,962,1st ,Avenue,Suite 130,Five Forks,Mercer County,MO,62293,United States,-6.00,single family
+352,AAAAAAAAAGBAAAAA,259,Maple ,Parkway,Suite 440,Silver Springs,Grant County,WV,24843,United States,-5.00,single family
+353,AAAAAAAABGBAAAAA,275,Oak ,Ct.,Suite K,Union,Nacogdoches County,TX,78721,United States,-6.00,condo
+354,AAAAAAAACGBAAAAA,245,3rd ,Ln,Suite 120,Franklin,Bulloch County,GA,39101,United States,-5.00,condo
+355,AAAAAAAADGBAAAAA,348,5th ,Parkway,Suite 390,Salem,Turner County,GA,38048,United States,-5.00,condo
+356,AAAAAAAAEGBAAAAA,190,Main ,Parkway,Suite 40,Fairview,Greer County,OK,75709,United States,-6.00,single family
+357,AAAAAAAAFGBAAAAA,801,Hillcrest ,RD,Suite R,Wildwood,Crawford County,MO,66871,United States,-6.00,single family
+358,AAAAAAAAGGBAAAAA,294,6th Williams,RD,Suite T,Deerfield,Franklin County,IN,49840,United States,-5.00,apartment
+359,AAAAAAAAHGBAAAAA,147,Hickory ,Dr.,Suite R,Fairview,Pemiscot County,MO,65709,United States,-6.00,single family
+360,AAAAAAAAIGBAAAAA,683,9th ,Ave,Suite 90,Springfield,Perry County,MO,69303,United States,-6.00,condo
+361,AAAAAAAAJGBAAAAA,966,West ,Blvd,Suite E,Mount Zion,Warren County,NJ,08654,United States,-5.00,apartment
+362,AAAAAAAAKGBAAAAA,380,View Lincoln,Ct.,Suite S,Valley View,Rutland County,VT,05724,United States,-5.00,apartment
+363,AAAAAAAALGBAAAAA,341,North ,Parkway,Suite 150,Harmony,Clayton County,GA,35804,United States,-5.00,single family
+364,AAAAAAAAMGBAAAAA,54,Elevnth ,Street,Suite B,Woodville,Floyd County,GA,34289,United States,-5.00,apartment
+365,AAAAAAAANGBAAAAA,315,Fifth Jefferson,Road,Suite 20,Providence,Knox County,KY,46614,United States,-5.00,condo
+366,AAAAAAAAOGBAAAAA,745,3rd Spruce,Drive,Suite 490,Riverside,Fleming County,KY,49231,United States,-6.00,condo
+367,AAAAAAAAPGBAAAAA,594,Cherry Main,Road,Suite R,Newport,Montgomery County,TX,71521,United States,-6.00,single family
+368,AAAAAAAAAHBAAAAA,552,3rd ,Road,Suite 50,Clifton,Emmons County,ND,58014,United States,-6.00,condo
+369,AAAAAAAABHBAAAAA,652,Spring ,Circle,Suite E,Pleasant Valley,Charlotte County,VA,22477,United States,-5.00,apartment
+370,AAAAAAAACHBAAAAA,143,Center ,Avenue,Suite A,Arlington,Johnson County,NE,66557,United States,-7.00,single family
+371,AAAAAAAADHBAAAAA,84,West ,Way,Suite 40,Spring Valley,Hubbard County,MN,56060,United States,-6.00,condo
+372,AAAAAAAAEHBAAAAA,56,Fifth Wilson,Dr.,Suite 90,Pine Grove,Suffolk County,NY,14593,United States,-5.00,single family
+373,AAAAAAAAFHBAAAAA,273,4th ,Circle,Suite E,Red Hill,Trumbull County,OH,44338,United States,-5.00,single family
+374,AAAAAAAAGHBAAAAA,855,Willow ,Street,Suite C,Springfield,Dallas County,IA,59303,United States,-6.00,condo
+375,AAAAAAAAHHBAAAAA,676,Mill ,Way,Suite 100,Spring Grove,Lincoln Parish,LA,76719,United States,-6.00,condo
+376,AAAAAAAAIHBAAAAA,754,Adams Highland,Pkwy,Suite E,Jackson,Clay County,AR,79583,United States,-6.00,single family
+377,AAAAAAAAJHBAAAAA,353,Sixth ,Ln,Suite 410,Oak Ridge,Charlton County,GA,38371,United States,-5.00,condo
+378,AAAAAAAAKHBAAAAA,482,Davis ,ST,Suite N,Shady Grove,Cheyenne County,KS,62812,United States,-6.00,apartment
+379,AAAAAAAALHBAAAAA,973,Park Jefferson,Street,Suite J,Georgetown,Scott County,MS,57057,United States,-6.00,condo
+380,AAAAAAAAMHBAAAAA,407,Cedar ,Drive,Suite S,Mount Olive,Oliver County,ND,58059,United States,-6.00,single family
+381,AAAAAAAANHBAAAAA,954,Lee ,RD,Suite 270,Riverdale,Howard County,NE,69391,United States,-7.00,apartment
+382,AAAAAAAAOHBAAAAA,524,3rd ,Ave,Suite 450,Lakewood,Butte County,ID,88877,United States,-7.00,single family
+383,AAAAAAAAPHBAAAAA,393,Lake Adams,Court,Suite X,Waterloo,Murray County,OK,71675,United States,-6.00,apartment
+384,AAAAAAAAAIBAAAAA,854,Cedar Mill,Ln,Suite A,Royal,Coffey County,KS,65819,United States,-6.00,condo
+385,AAAAAAAABIBAAAAA,769,3rd First,RD,Suite N,Ashland,Giles County,VA,24244,United States,-5.00,single family
+386,AAAAAAAACIBAAAAA,27,6th ,Ct.,Suite F,Argyle,Richmond city,VA,28722,United States,-5.00,apartment
+387,AAAAAAAADIBAAAAA,292,Oak ,Boulevard,Suite U,Pleasant Grove,Warren County,GA,34136,United States,-5.00,condo
+388,AAAAAAAAEIBAAAAA,401,Fourth Valley,Circle,Suite Q,Unionville,Hancock County,IL,61711,United States,-6.00,apartment
+389,AAAAAAAAFIBAAAAA,516,West ,Blvd,Suite 210,Bay View,Bartow County,GA,36457,United States,-5.00,apartment
+390,AAAAAAAAGIBAAAAA,367,Lee ,RD,Suite 170,Concord,Stewart County,TN,34107,United States,-6.00,single family
+391,AAAAAAAAHIBAAAAA,623,Park ,Road,Suite 310,Wilson,Palo Pinto County,TX,76971,United States,-6.00,single family
+392,AAAAAAAAIIBAAAAA,964,Walnut Hill,ST,Suite 240,Liberty,McDonald County,MO,63451,United States,-6.00,apartment
+393,AAAAAAAAJIBAAAAA,254,Hill Cedar,Drive,Suite G,Sulphur Springs,DeSoto County,FL,38354,United States,-5.00,apartment
+394,AAAAAAAAKIBAAAAA,904,Hill ,Dr.,Suite K,Riverview,Shiawassee County,MI,49003,United States,-5.00,condo
+395,AAAAAAAALIBAAAAA,841,Third Main,Lane,Suite A,Brownsville,Bowie County,TX,79310,United States,-6.00,apartment
+396,AAAAAAAAMIBAAAAA,841,Spruce ,Court,Suite 330,Woodlawn,Larimer County,CO,84098,United States,-7.00,apartment
+397,AAAAAAAANIBAAAAA,114,4th ,Lane,Suite 260,Ashland,Mason County,KY,44244,United States,-5.00,single family
+398,AAAAAAAAOIBAAAAA,49,Lincoln Mill,Wy,Suite 250,Marion,Hunterdon County,NJ,00999,United States,-5.00,apartment
+399,AAAAAAAAPIBAAAAA,899,Lake Birch,Street,Suite 0,Unionville,Lorain County,OH,41711,United States,-5.00,single family
+400,AAAAAAAAAJBAAAAA,26,Madison ,Ct.,Suite 390,Saratoga,Jackson County,IA,52123,United States,-6.00,apartment
+401,AAAAAAAABJBAAAAA,352,2nd ,Wy,Suite L,Lincoln,Park County,CO,81289,United States,-7.00,apartment
+402,AAAAAAAACJBAAAAA,521,Church Johnson,Pkwy,Suite 300,Mountain View,O-Brien County,IA,54466,United States,-6.00,single family
+403,AAAAAAAADJBAAAAA,470,Jefferson ,Parkway,Suite 180,Riverside,Hutchinson County,TX,79231,United States,-6.00,condo
+404,AAAAAAAAEJBAAAAA,185,Sunset ,,,Fairfield,,SD,56192,United States,-7.00,condo
+405,AAAAAAAAFJBAAAAA,494,2nd Madison,Ave,Suite 150,Belmont,Phelps County,MO,60191,United States,-6.00,apartment
+406,AAAAAAAAGJBAAAAA,577,11th ,Ct.,Suite 380,Pleasant Hill,DeSoto County,FL,33604,United States,-5.00,single family
+407,AAAAAAAAHJBAAAAA,135,Miller ,Avenue,Suite V,Woodland,Scott County,MS,54854,United States,-6.00,condo
+408,AAAAAAAAIJBAAAAA,62,Maple Hickory,ST,Suite J,Five Points,Hardee County,FL,36098,United States,-5.00,condo
+409,AAAAAAAAJJBAAAAA,874,Laurel ,Road,Suite A,Valley View,Darlington County,SC,25124,United States,-5.00,single family
+410,AAAAAAAAKJBAAAAA,366,Eigth ,Wy,Suite P,Valley View,Nobles County,MN,55124,United States,-6.00,condo
+411,AAAAAAAALJBAAAAA,488,Locust Walnut,Wy,Suite E,Newport,Valencia County,NM,81521,United States,-7.00,condo
+412,AAAAAAAAMJBAAAAA,741,Maple ,ST,Suite U,White Oak,Cortland County,NY,16668,United States,-5.00,apartment
+413,AAAAAAAANJBAAAAA,507,Railroad ,Ct.,Suite 340,Greenwood,Finney County,KS,68828,United States,-6.00,single family
+414,AAAAAAAAOJBAAAAA,131,Miller 14th,Dr.,Suite X,Fairview,Laramie County,WY,85709,United States,-7.00,single family
+415,AAAAAAAAPJBAAAAA,527,Green ,Street,Suite F,Sulphur Springs,Luna County,NM,88354,United States,-7.00,apartment
+416,AAAAAAAAAKBAAAAA,686,2nd ,Parkway,Suite 80,Red Hill,Morgan County,KY,44338,United States,-5.00,condo
+417,AAAAAAAABKBAAAAA,275,Poplar ,Boulevard,Suite 140,Oak Grove,Choctaw County,OK,78370,United States,-6.00,condo
+418,AAAAAAAACKBAAAAA,121,13th ,Avenue,Suite T,Montezuma,Jefferson Parish,LA,72150,United States,-6.00,condo
+419,AAAAAAAADKBAAAAA,817,6th Willow,Cir.,Suite 310,Spring Hill,Davie County,NC,26787,United States,-5.00,single family
+420,AAAAAAAAEKBAAAAA,234,Sunset ,RD,Suite W,Union Hill,El Paso County,TX,77746,United States,-6.00,apartment
+421,AAAAAAAAFKBAAAAA,996,14th Washington,Dr.,Suite S,Hopewell,Waldo County,ME,01187,United States,-5.00,apartment
+422,AAAAAAAAGKBAAAAA,4,Jefferson ,Cir.,Suite L,Lebanon,Miner County,SD,52898,United States,-7.00,apartment
+423,AAAAAAAAHKBAAAAA,585,10th Wilson,Parkway,Suite 110,Franklin,Eddy County,NM,89101,United States,-7.00,single family
+424,AAAAAAAAIKBAAAAA,261,Washington Center,Circle,Suite T,Oak Ridge,Gillespie County,TX,78371,United States,-6.00,single family
+425,AAAAAAAAJKBAAAAA,441,,,Suite U,,Dakota County,MN,,,,apartment
+426,AAAAAAAAKKBAAAAA,536,Main 3rd,Way,Suite G,Wildwood,Clark County,SD,56871,United States,-6.00,single family
+427,AAAAAAAALKBAAAAA,853,Cherry Smith,Wy,Suite X,Highland,Frontier County,NE,69454,United States,-6.00,condo
+428,AAAAAAAAMKBAAAAA,369,14th ,Blvd,Suite 290,Guilford,Belknap County,NH,05008,United States,-5.00,apartment
+429,AAAAAAAANKBAAAAA,344,Oak ,Circle,Suite S,Five Forks,Montgomery County,GA,32293,United States,-5.00,single family
+430,AAAAAAAAOKBAAAAA,864,Park South,Circle,Suite 150,Five Points,Nemaha County,KS,66098,United States,-6.00,condo
+431,AAAAAAAAPKBAAAAA,137,Ninth ,Wy,Suite 0,Franklin,Morehouse Parish,LA,79101,United States,-6.00,single family
+432,AAAAAAAAALBAAAAA,902,Lake ,Boulevard,Suite M,Spring Hill,Jo Daviess County,IL,66787,United States,-6.00,condo
+433,AAAAAAAABLBAAAAA,92,Ash North,Road,Suite D,Union Hill,New London County,CT,08346,United States,-5.00,condo
+434,AAAAAAAACLBAAAAA,547,11th ,Parkway,Suite 70,Lakewood,Pamlico County,NC,28877,United States,-5.00,condo
+435,AAAAAAAADLBAAAAA,598,3rd ,Drive,Suite T,Stringtown,Roosevelt County,NM,80162,United States,-7.00,single family
+436,AAAAAAAAELBAAAAA,129,Elm 4th,Avenue,Suite 230,Lakewood,Pecos County,TX,78877,United States,-6.00,apartment
+437,AAAAAAAAFLBAAAAA,218,Davis Spring,Dr.,Suite F,Red Hill,Logan County,OH,44338,United States,-5.00,single family
+438,AAAAAAAAGLBAAAAA,665,Wilson ,Parkway,Suite M,Newtown,Columbia County,WA,91749,United States,-8.00,single family
+439,AAAAAAAAHLBAAAAA,828,2nd Miller,ST,Suite S,Mechanicsburg,Wheeler County,GA,32219,United States,-5.00,apartment
+440,AAAAAAAAILBAAAAA,551,Willow ,Way,Suite O,Wright,Beauregard Parish,LA,72814,United States,-6.00,condo
+441,AAAAAAAAJLBAAAAA,919,4th Mill,Blvd,Suite A,Pleasant Grove,Hawaii County,HI,94136,United States,-10.00,apartment
+442,AAAAAAAAKLBAAAAA,659,Elevnth ,Ln,Suite D,New Hope,Walker County,GA,39431,United States,-5.00,condo
+443,AAAAAAAALLBAAAAA,346,Laurel 7th,Ln,Suite 320,Walnut Grove,Burke County,NC,27752,United States,-5.00,condo
+444,AAAAAAAAMLBAAAAA,909,15th Elm,Dr.,Suite C,Clinton,Independence County,AR,78222,United States,-6.00,apartment
+445,AAAAAAAANLBAAAAA,52,Second Highland,Cir.,Suite B,Mount Vernon,Emporia city,VA,29127,United States,-5.00,apartment
+446,AAAAAAAAOLBAAAAA,598,Madison Davis,Circle,Suite M,Spring Valley,Campbell County,TN,36060,United States,-5.00,apartment
+447,AAAAAAAAPLBAAAAA,949,Meadow ,Blvd,Suite A,Unionville,Rush County,IN,41711,United States,-5.00,condo
+448,AAAAAAAAAMBAAAAA,189,Highland ,Road,Suite M,Guilford,Sampson County,NC,24408,United States,-5.00,condo
+449,AAAAAAAABMBAAAAA,,Highland ,Parkway,,,,,48222,,,apartment
+450,AAAAAAAACMBAAAAA,282,,,Suite K,,Wyoming County,PA,,United States,-5.00,
+451,AAAAAAAADMBAAAAA,828,Lakeview Oak,Parkway,Suite B,Plainview,Pasco County,FL,33683,United States,-5.00,single family
+452,AAAAAAAAEMBAAAAA,46,Sycamore ,Court,Suite 110,Crossroads,Chickasaw County,IA,50534,United States,-6.00,apartment
+453,AAAAAAAAFMBAAAAA,339,5th ,Lane,Suite L,Lone Oak,Watonwan County,MN,56893,United States,-6.00,condo
+454,AAAAAAAAGMBAAAAA,203,Smith 4th,Lane,Suite S,Shiloh,Okanogan County,WA,99275,United States,-8.00,condo
+455,AAAAAAAAHMBAAAAA,333,Maple ,Parkway,Suite 250,Bunker Hill,Bayfield County,WI,50150,United States,-6.00,condo
+456,AAAAAAAAIMBAAAAA,36,Smith ,Dr.,Suite 370,Buena Vista,Gilmer County,WV,25752,United States,-5.00,condo
+457,AAAAAAAAJMBAAAAA,136,Poplar ,Street,Suite Q,Clinton,Palo Pinto County,TX,78222,United States,-6.00,apartment
+458,AAAAAAAAKMBAAAAA,,Fourth ,Street,Suite T,Pine Grove,,,,,,single family
+459,AAAAAAAALMBAAAAA,629,Jackson ,Ave,Suite 170,Pleasant Valley,Daniels County,MT,62477,United States,-7.00,single family
+460,AAAAAAAAMMBAAAAA,730,4th Church,Ln,Suite B,Stringtown,Montgomery County,TX,70162,United States,-6.00,single family
+461,AAAAAAAANMBAAAAA,719,College ,Road,Suite L,Salem,Clark County,NV,88048,United States,-8.00,single family
+462,AAAAAAAAOMBAAAAA,945,Mill 5th,Ln,Suite 230,Oak Ridge,Jersey County,IL,68371,United States,-6.00,apartment
+463,AAAAAAAAPMBAAAAA,228,Ridge Fifth,Road,Suite 60,Midway,Ochiltree County,TX,71904,United States,-6.00,single family
+464,AAAAAAAAANBAAAAA,52,6th Park,Drive,Suite E,Farmington,Johnson County,GA,39145,United States,-5.00,condo
+465,AAAAAAAABNBAAAAA,102,Mill ,Wy,Suite 310,Highland,Canadian County,OK,79454,United States,-6.00,single family
+466,AAAAAAAACNBAAAAA,702,College ,Wy,Suite I,Allentown,Issaquena County,MS,51838,United States,-6.00,condo
+467,AAAAAAAADNBAAAAA,175,College ,Way,Suite H,Centerville,Reynolds County,MO,60059,United States,-6.00,condo
+468,AAAAAAAAENBAAAAA,662,12th 6th,Lane,Suite 450,Glenwood,Corson County,SD,53511,United States,-6.00,single family
+469,AAAAAAAAFNBAAAAA,533,Willow ,Road,Suite 290,Summit,Catahoula Parish,LA,70499,United States,-6.00,apartment
+470,AAAAAAAAGNBAAAAA,504,Main ,Boulevard,Suite 260,Pleasant Grove,Columbus County,NC,24136,United States,-5.00,apartment
+471,AAAAAAAAHNBAAAAA,876,12th Ridge,Wy,Suite H,Lakewood,Crawford County,MI,48877,United States,-5.00,condo
+472,AAAAAAAAINBAAAAA,265,Third ,Ave,Suite M,Sunnyside,McCracken County,KY,41952,United States,-5.00,single family
+473,AAAAAAAAJNBAAAAA,149,Laurel Hill,RD,Suite 110,Oakwood,Juab County,UT,80169,United States,-7.00,single family
+474,AAAAAAAAKNBAAAAA,,,,Suite 470,Johnsonville,,VT,,United States,-5.00,
+475,AAAAAAAALNBAAAAA,937,Fifth 3rd,Avenue,Suite 240,Hamilton,Stafford County,KS,62808,United States,-6.00,apartment
+476,AAAAAAAAMNBAAAAA,38,Church ,Ct.,Suite X,Marion,Montmorency County,MI,40399,United States,-5.00,single family
+477,AAAAAAAANNBAAAAA,170,Central ,ST,Suite M,Marion,Posey County,IN,40399,United States,-5.00,apartment
+478,AAAAAAAAONBAAAAA,273,Oak ,Cir.,Suite 120,Oak Hill,Blaine County,OK,77838,United States,-6.00,single family
+479,AAAAAAAAPNBAAAAA,336,Lincoln ,Circle,Suite L,Clinton,Shenandoah County,VA,28222,United States,-5.00,condo
+480,AAAAAAAAAOBAAAAA,709,Franklin ,Ave,Suite L,Crossroads,Payne County,OK,70534,United States,-6.00,single family
+481,AAAAAAAABOBAAAAA,923,8th Maple,Ave,Suite D,Marion,Lawrence County,TN,30399,United States,-6.00,apartment
+482,AAAAAAAACOBAAAAA,526,Lakeview ,Pkwy,Suite 110,Green Acres,Bedford County,PA,17683,United States,-5.00,condo
+483,AAAAAAAADOBAAAAA,,,Ln,,,,IL,,United States,,
+484,AAAAAAAAEOBAAAAA,567,9th ,Ln,Suite 260,Valley View,Creek County,OK,75124,United States,-6.00,single family
+485,AAAAAAAAFOBAAAAA,911,Hickory ,Ln,Suite F,Blair,Hamilton County,NE,65465,United States,-6.00,condo
+486,AAAAAAAAGOBAAAAA,128,Wilson Seventh,Lane,Suite B,Summit,Knott County,KY,40499,United States,-5.00,condo
+487,AAAAAAAAHOBAAAAA,692,View ,Circle,Suite R,White Oak,Hubbard County,MN,56668,United States,-6.00,apartment
+488,AAAAAAAAIOBAAAAA,24,Central ,Blvd,Suite 490,Crossroads,Brooks County,GA,30534,United States,-5.00,single family
+489,AAAAAAAAJOBAAAAA,570,12th Ridge,Circle,Suite 60,Pleasant Grove,Volusia County,FL,34136,United States,-5.00,apartment
+490,AAAAAAAAKOBAAAAA,3,Main ,Ave,Suite O,Bethel,Aroostook County,ME,05881,United States,-5.00,apartment
+491,AAAAAAAALOBAAAAA,562,5th Smith,Ct.,Suite G,Concord,Marion County,GA,34107,United States,-5.00,single family
+492,AAAAAAAAMOBAAAAA,283,Willow Davis,Avenue,Suite 480,Mount Vernon,Placer County,CA,99127,United States,-8.00,apartment
+493,AAAAAAAANOBAAAAA,774,9th ,Ave,Suite P,Mountain View,DeKalb County,IL,64466,United States,-6.00,condo
+494,AAAAAAAAOOBAAAAA,64,Main ,Ln,Suite 20,Antioch,Los Alamos County,NM,88605,United States,-7.00,apartment
+495,AAAAAAAAPOBAAAAA,27,Adams ,RD,Suite L,Shiloh,Apache County,AZ,89275,United States,-7.00,apartment
+496,AAAAAAAAAPBAAAAA,240,Willow Walnut,Avenue,Suite 60,New Hope,Wayne County,UT,89431,United States,-7.00,single family
+497,AAAAAAAABPBAAAAA,429,5th ,Ln,Suite 90,Deerfield,Choctaw County,AL,39840,United States,-6.00,single family
+498,AAAAAAAACPBAAAAA,682,Ridge ,Parkway,Suite I,Waterloo,Sheridan County,ND,51675,United States,-6.00,condo
+499,AAAAAAAADPBAAAAA,498,Lake ,Cir.,Suite 460,Five Points,Cumberland County,IL,66098,United States,-6.00,single family
+500,AAAAAAAAEPBAAAAA,740,14th Meadow,Street,Suite 10,Clifton,Columbia County,OR,98014,United States,-8.00,condo
