@@ -61,7 +61,7 @@ The Substrait Compliance Framework transforms how query engines validate their S
 
 - 🔄 **Decentralized Testing** - Engines test themselves, no central bottleneck
 - 🌐 **Multi-Language SDKs** - Java, Python, and Rust implementations
-- 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (5 queries), Function Tests (279 files across standard and enhanced suites)
+- 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (99 queries), Function Tests (279 files across standard and enhanced suites)
 - 🤖 **Automated CI/CD** - 12 GitHub Actions workflows for continuous compliance
 - 🌐 **REST API** - Programmatic access with JWT auth, webhooks, and rate limiting
 - 📊 **Interactive Demo** - Live dashboard with mock engines, query drill-down, and complexity filtering
