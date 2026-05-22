@@ -1,12 +1,13 @@
 package io.substrait.example;
 
 import io.substrait.compliance.*;
+import io.substrait.proto.Plan;
 import java.sql.*;
 import java.util.*;
 
 /**
  * Example DuckDB engine implementation for Substrait compliance testing.
- * 
+ *
  * This demonstrates how to integrate DuckDB with the compliance framework.
  */
 public class DuckDBComplianceEngine implements ComplianceEngine {
@@ -19,41 +20,40 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
     }
     
     @Override
-    public EngineInfo getInfo() {
+    public EngineInfo getEngineInfo() {
         return new EngineInfo(
             "DuckDB",
             "0.10.0",
-            "DuckDB Labs",
-            "Fast in-process analytical database with Substrait support"
+            "0.80.0"  // Substrait version
         );
     }
     
     @Override
     public EngineCapabilities getCapabilities() {
         return EngineCapabilities.builder()
-            .addSupportedRelation("read")
-            .addSupportedRelation("filter")
-            .addSupportedRelation("project")
-            .addSupportedRelation("aggregate")
-            .addSupportedRelation("join")
-            .addSupportedRelation("sort")
-            .addSupportedFunction("add")
-            .addSupportedFunction("subtract")
-            .addSupportedFunction("multiply")
-            .addSupportedFunction("divide")
-            .addSupportedFunction("sum")
-            .addSupportedFunction("count")
-            .addSupportedFunction("avg")
-            .maxPlanDepth(50)
+            .addRelation("read")
+            .addRelation("filter")
+            .addRelation("project")
+            .addRelation("aggregate")
+            .addRelation("join")
+            .addRelation("sort")
+            .addFunction("add")
+            .addFunction("subtract")
+            .addFunction("multiply")
+            .addFunction("divide")
+            .addFunction("sum")
+            .addFunction("count")
+            .addFunction("avg")
             .supportsExtensions(true)
             .build();
     }
     
     @Override
     public ComplianceResult executePlan(
-        byte[] planBytes,
+        Plan plan,
         Map<String, TableData> inputData
-    ) {
+    ) throws ComplianceException {
+        long startTime = System.currentTimeMillis();
         try {
             // 1. Load input data into DuckDB
             loadInputData(inputData);
@@ -61,49 +61,35 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
             // 2. Execute Substrait plan
             // Note: DuckDB's Substrait support would be used here
             // For this example, we'll simulate execution
-            TableData output = executeSubstraitPlan(planBytes);
+            TableData output = executeSubstraitPlan(plan);
             
-            return new ComplianceResult(
-                "execution",
-                TestStatus.PASSED,
-                output,
-                null,
-                0
-            );
+            long executionTime = System.currentTimeMillis() - startTime;
+            return ComplianceResult.success(output, executionTime);
             
         } catch (Exception e) {
-            return new ComplianceResult(
-                "execution",
-                TestStatus.ERROR,
-                null,
-                e.getMessage(),
-                0
-            );
+            long executionTime = System.currentTimeMillis() - startTime;
+            return ComplianceResult.failure(e.getMessage(), e, executionTime);
         }
     }
     
     @Override
-    public ComplianceResult validatePlan(byte[] planBytes) {
+    public PlanValidationResult validatePlan(Plan plan) {
         try {
             // Validate Substrait plan structure
             // In real implementation, would use DuckDB's plan validator
-            boolean isValid = validateSubstraitPlan(planBytes);
+            boolean isValid = plan != null && plan.getRelationsCount() > 0;
             
-            return new ComplianceResult(
-                "validation",
-                isValid ? TestStatus.PASSED : TestStatus.FAILED,
-                null,
-                isValid ? null : "Plan validation failed",
-                0
-            );
+            if (isValid) {
+                return PlanValidationResult.supported();
+            } else {
+                return PlanValidationResult.unsupported(
+                    Collections.singletonList("Plan is empty or invalid")
+                );
+            }
             
         } catch (Exception e) {
-            return new ComplianceResult(
-                "validation",
-                TestStatus.ERROR,
-                null,
-                e.getMessage(),
-                0
+            return PlanValidationResult.unsupported(
+                Collections.singletonList("Validation error: " + e.getMessage())
             );
         }
     }
@@ -125,11 +111,13 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
         StringBuilder sql = new StringBuilder("CREATE TABLE ");
         sql.append(tableName).append(" (");
         
-        for (int i = 0; i < data.getColumns().size(); i++) {
-            Column col = data.getColumns().get(i);
+        List<String> columnNames = data.getColumnNames();
+        List<String> columnTypes = data.getColumnTypes();
+        
+        for (int i = 0; i < columnNames.size(); i++) {
             if (i > 0) sql.append(", ");
-            sql.append(col.getName()).append(" ");
-            sql.append(mapDataType(col.getDataType()));
+            sql.append(columnNames.get(i)).append(" ");
+            sql.append(mapDataType(columnTypes.get(i)));
         }
         
         sql.append(")");
@@ -147,7 +135,14 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
             
             for (int i = 0; i < row.size(); i++) {
                 if (i > 0) sql.append(", ");
-                sql.append("'").append(row.get(i)).append("'");
+                Object value = row.get(i);
+                if (value == null) {
+                    sql.append("NULL");
+                } else if (value instanceof String) {
+                    sql.append("'").append(value.toString().replace("'", "''")).append("'");
+                } else {
+                    sql.append(value);
+                }
             }
             
             sql.append(")");
@@ -158,27 +153,35 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
         }
     }
     
-    private TableData executeSubstraitPlan(byte[] planBytes) throws SQLException {
+    private TableData executeSubstraitPlan(Plan plan) throws SQLException {
         // In real implementation, would use DuckDB's Substrait execution
         // For this example, return empty result
-        return new TableData(new ArrayList<>(), new ArrayList<>());
+        return new TableData(
+            Collections.emptyList(),
+            Collections.emptyList(),
+            Collections.emptyList()
+        );
     }
     
-    private boolean validateSubstraitPlan(byte[] planBytes) {
-        // In real implementation, would validate plan structure
-        return planBytes != null && planBytes.length > 0;
-    }
-    
-    private String mapDataType(DataType dataType) {
-        switch (dataType) {
-            case INTEGER: return "INTEGER";
-            case BIGINT: return "BIGINT";
-            case DOUBLE: return "DOUBLE";
-            case VARCHAR: return "VARCHAR";
-            case DATE: return "DATE";
-            case BOOLEAN: return "BOOLEAN";
-            case DECIMAL: return "DECIMAL(18,2)";
-            default: return "VARCHAR";
+    private String mapDataType(String typeName) {
+        // Map Substrait type names to DuckDB types
+        String lowerType = typeName.toLowerCase();
+        if (lowerType.contains("int32") || lowerType.contains("integer")) {
+            return "INTEGER";
+        } else if (lowerType.contains("int64") || lowerType.contains("bigint")) {
+            return "BIGINT";
+        } else if (lowerType.contains("fp64") || lowerType.contains("double")) {
+            return "DOUBLE";
+        } else if (lowerType.contains("string") || lowerType.contains("varchar")) {
+            return "VARCHAR";
+        } else if (lowerType.contains("date")) {
+            return "DATE";
+        } else if (lowerType.contains("bool")) {
+            return "BOOLEAN";
+        } else if (lowerType.contains("decimal")) {
+            return "DECIMAL(18,2)";
+        } else {
+            return "VARCHAR";
         }
     }
     

@@ -18,13 +18,13 @@ public class DuckDBComplianceExample {
         DuckDBComplianceEngine engine = new DuckDBComplianceEngine();
         
         // 2. Print engine info
-        EngineInfo info = engine.getInfo();
+        EngineInfo info = engine.getEngineInfo();
         System.out.println("Engine: " + info);
         System.out.println();
         
-        // 3. Load TPC-H test suite
+        // 3. Load test suite
         YamlTestSuiteLoader loader = new YamlTestSuiteLoader();
-        String suitePath = "../../test-suites/tpch/metadata.yaml";
+        String suitePath = "../../test-suites/functions/arithmetic/add.test";
         TestSuite suite = loader.load(Paths.get(suitePath));
         
         System.out.println("Loaded test suite: " + suite.getName());
@@ -38,21 +38,21 @@ public class DuckDBComplianceExample {
         // 5. Print results
         System.out.println("Results:");
         System.out.println("--------");
-        System.out.println("Total:   " + report.getTotalCount());
+        System.out.println("Total:   " + report.getTotalTests());
         System.out.println("Passed:  " + report.getPassedCount());
         System.out.println("Failed:  " + report.getFailedCount());
-        System.out.println("Errors:  " + report.getErrorCount());
-        System.out.println("Pass Rate: " + String.format("%.1f%%", report.getPassRate()));
+        System.out.println("Skipped: " + report.getSkippedCount());
+        System.out.println("Compliance Score: " + String.format("%.1f%%", report.getComplianceScore()));
         System.out.println();
         
         // 6. Show failed tests
-        if (report.getFailedCount() > 0 || report.getErrorCount() > 0) {
-            System.out.println("Failed/Error Tests:");
-            for (ComplianceResult result : report.getResults()) {
-                if (result.getStatus() != TestStatus.PASSED) {
-                    System.out.println("  " + result.getTestId() + ": " + 
-                                     result.getStatus() + " - " + 
-                                     result.getErrorMessage());
+        if (report.getFailedCount() > 0) {
+            System.out.println("Failed Tests:");
+            for (TestResult result : report.getTestResults()) {
+                if (result.isFailed()) {
+                    System.out.println("  " + result.getTestId() + ": " +
+                                     result.getStatus() + " - " +
+                                     result.getMessage());
                 }
             }
         }
