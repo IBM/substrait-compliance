@@ -1,0 +1,116 @@
+# Gradle build artifacts
+.gradle/
+**/build/
+!gradle-wrapper.jar
+*.gradle.kts.compiled
+.gradle-cache/
+
+# Gradle file hashes and locks
+.gradle/**/fileHashes/
+.gradle/**/fileHashes/fileHashes.bin
+.gradle/**/fileHashes/fileHashes.lock
+.gradle/**/buildOutputCleanup/buildOutputCleanup.lock
+.gradle/**/buildOutputCleanup/cache.properties
+
+# Java compiled classes
+*.class
+*.jar
+*.war
+*.ear
+bin/
+**/bin/
+api/bin/
+
+# IDE files
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/settings.json
+.vscode/launch.json
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+*.egg-info/
+dist/
+*.egg
+
+# Rust
+target/
+Cargo.lock
+**/*.rs.bk
+
+# Test outputs
+test-output/
+*.log
+
+# Build outputs
+out/
+output/
+!demo/output/.gitkeep
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.swp
+*.swo
+
+# Node modules (if any)
+node_modules/
+
+# Coverage reports
+coverage/
+*.coverage
+htmlcov/
+
+# Documentation builds
+docs/_build/
+site/
+
+# Local configuration
+local.properties
+*.local
+
+# Secrets and credentials
+*.key
+*.pem
+*.p12
+secrets/
+credentials/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Cache directories
+.cache/
+*.cache
+
+# Generated files
+generated/
+gen/
+
+# Made with Bob
+
+# Deployment and validation scripts (not for version control)
+INTEGRATION_GUIDE.md
+deploy-to-github.sh
+verify-implementation.sh
+VALIDATION_AND_COMPARISON_IMPLEMENTATION_PLAN.md
