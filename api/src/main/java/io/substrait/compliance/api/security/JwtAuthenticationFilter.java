@@ -64,7 +64,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 log.debug("Set authentication for user: {}", username);
             }
         } catch (Exception ex) {
+            SecurityContextHolder.clearContext();
             log.error("Could not set user authentication in security context", ex);
+            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid authentication token");
+            return;
         }
         
         filterChain.doFilter(request, response);

@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.math.BigDecimal;
@@ -66,8 +65,9 @@ public class ReportEntity {
     @Column(name = "execution_time_ms")
     private Long executionTimeMs;
     
-    @Type(type = "jsonb")
-    @Column(columnDefinition = "jsonb")
+    @Convert(converter = JsonMapConverter.class)
+    @Column(name = "metadata", columnDefinition = "jsonb")
+    @org.hibernate.annotations.ColumnTransformer(write = "?::jsonb")
     @Builder.Default
     private Map<String, Object> metadata = new HashMap<>();
     

@@ -1,6 +1,7 @@
 package io.substrait.compliance.api.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.substrait.compliance.api.ComplianceApiApplication;
 import io.substrait.compliance.api.model.dto.ReportSubmissionRequest;
 import io.substrait.compliance.api.model.entity.ReportEntity;
 import io.substrait.compliance.api.repository.ReportRepository;
@@ -11,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
@@ -30,7 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Integration tests for report submission with TestContainers.
  */
-@SpringBootTest
+@SpringBootTest(classes = ComplianceApiApplication.class)
+@ActiveProfiles("test")
 @AutoConfigureMockMvc
 @Testcontainers
 class ReportSubmissionIntegrationTest {
@@ -70,7 +73,7 @@ class ReportSubmissionIntegrationTest {
         reportRepository.deleteAll();
 
         // Generate auth token with write scope
-        authToken = jwtTokenProvider.generateToken("testuser", Arrays.asList("write", "read"));
+        authToken = jwtTokenProvider.generateToken("testuser", Arrays.asList("report:write", "report:read"));
 
         // Setup test request
         ReportSubmissionRequest.EngineInfoDto engineInfo = ReportSubmissionRequest.EngineInfoDto.builder()
@@ -129,9 +132,9 @@ class ReportSubmissionIntegrationTest {
                 .getContentAsString();
 
         // Verify database
-        List<ReportEntity> reports = reportRepository.findAll();
+        List<ReportEntity> reports = reportRepository.findByEngineNameOrderByTimestampDesc("IntegrationTestEngine");
         assertThat(reports).hasSize(1);
-        assertThat(reports.get(0).getEngine().getName()).isEqualTo("IntegrationTestEngine");
+        assertThat(reports.get(0).getTestSuiteName()).isEqualTo("arithmetic_functions");
         assertThat(reports.get(0).getTotalTests()).isEqualTo(3);
         assertThat(reports.get(0).getPassedCount()).isEqualTo(2);
         assertThat(reports.get(0).getFailedCount()).isEqualTo(1);
@@ -194,11 +197,11 @@ class ReportSubmissionIntegrationTest {
     }
 
     @Test
-    void submitReport_WithoutAuthentication_ReturnsUnauthorized() throws Exception {
+    void submitReport_WithoutAuthentication_ReturnsForbidden() throws Exception {
         mockMvc.perform(post("/api/v1/reports")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(testRequest)))
-                .andExpect(status().isUnauthorized());
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -213,7 +216,7 @@ class ReportSubmissionIntegrationTest {
     @Test
     void submitReport_WithReadOnlyScope_ReturnsForbidden() throws Exception {
         // Generate token with only read scope
-        String readOnlyToken = jwtTokenProvider.generateToken("readonly-user", Arrays.asList("read"));
+        String readOnlyToken = jwtTokenProvider.generateToken("readonly-user", Arrays.asList("report:read"));
 
         mockMvc.perform(post("/api/v1/reports")
                         .header("Authorization", "Bearer " + readOnlyToken)

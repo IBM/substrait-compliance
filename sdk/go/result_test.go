@@ -66,8 +66,8 @@ func TestComplianceReport(t *testing.T) {
 	}
 
 	expectedRate := 66.66666666666667
-	if report.PassRate() != expectedRate {
-		t.Errorf("Expected pass rate %.2f%%, got %.2f%%", expectedRate, report.PassRate())
+	if diff := report.PassRate() - expectedRate; diff > 0.000001 || diff < -0.000001 {
+		t.Errorf("Expected pass rate %.6f%%, got %.6f%%", expectedRate, report.PassRate())
 	}
 
 	if report.AllPassed() {

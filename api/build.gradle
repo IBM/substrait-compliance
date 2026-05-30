@@ -6,7 +6,11 @@ plugins {
 
 group = 'io.substrait'
 version = '1.0.0-SNAPSHOT'
-sourceCompatibility = '11'
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 repositories {
     mavenCentral()
@@ -45,6 +49,7 @@ dependencies {
     
     // Flyway for migrations
     implementation 'org.flywaydb:flyway-core:9.22.3'
+
     
     // Lombok (optional, for reducing boilerplate)
     compileOnly 'org.projectlombok:lombok:1.18.30'

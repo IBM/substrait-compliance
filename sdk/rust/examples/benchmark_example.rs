@@ -1,7 +1,10 @@
-use substrait_compliance::{
-    BenchmarkConfig, BenchmarkRunner, ComplianceEngine, EngineCapabilities, EngineInfo,
-};
+use std::collections::HashMap;
 use std::error::Error;
+
+use substrait_compliance::{
+    BenchmarkConfig, BenchmarkRunner, Column, ComplianceEngine, ComplianceResult, DataType,
+    EngineCapabilities, EngineInfo, TableData, TestStatus,
+};
 
 /// Mock engine for demonstration
 struct MockEngine {
@@ -16,42 +19,63 @@ impl MockEngine {
     }
 }
 
-#[async_trait::async_trait]
 impl ComplianceEngine for MockEngine {
     fn get_info(&self) -> EngineInfo {
-        EngineInfo {
-            name: self.name.clone(),
-            version: "1.0.0".to_string(),
-            substrait_version: "0.20.0".to_string(),
-        }
+        EngineInfo::new(self.name.clone(), "1.0.0", "Substrait")
+            .with_description("Mock engine used for benchmark examples")
     }
 
     fn get_capabilities(&self) -> EngineCapabilities {
-        EngineCapabilities {
-            supports_json: true,
-            supports_binary: true,
-            max_plan_size: 1024 * 1024,
-        }
+        let mut capabilities = EngineCapabilities::new();
+        capabilities.supported_relations = vec!["read".to_string(), "project".to_string()];
+        capabilities.supported_functions = vec!["add".to_string(), "concat".to_string()];
+        capabilities.supported_types = vec!["INTEGER".to_string(), "VARCHAR".to_string()];
+        capabilities
     }
 
-    async fn execute_plan(
+    fn execute_plan(
         &self,
         _plan: &[u8],
-        _input_data: Vec<substrait_compliance::TableData>,
-    ) -> Result<substrait_compliance::TableData, Box<dyn Error + Send + Sync>> {
-        // Simulate work
-        tokio::time::sleep(tokio::time::Duration::from_micros(100)).await;
-        Ok(substrait_compliance::TableData {
-            columns: vec![],
-            rows: vec![],
-        })
+        _input_data: &HashMap<String, TableData>,
+    ) -> substrait_compliance::error::Result<ComplianceResult> {
+        Ok(
+            ComplianceResult::new("benchmark-execute", TestStatus::Passed).with_output(
+                TableData::new(
+                    vec![Column::new("result", DataType::Integer)],
+                    vec![vec!["1".to_string()]],
+                ),
+            ),
+        )
     }
 
-    async fn validate_plan(&self, _plan: &[u8]) -> Result<bool, Box<dyn Error + Send + Sync>> {
-        // Simulate validation
-        tokio::time::sleep(tokio::time::Duration::from_micros(50)).await;
-        Ok(true)
+    fn validate_plan(&self, _plan: &[u8]) -> substrait_compliance::error::Result<ComplianceResult> {
+        Ok(ComplianceResult::new(
+            "benchmark-validate",
+            TestStatus::Passed,
+        ))
     }
+}
+
+fn make_operations() -> Vec<(
+    &'static str,
+    Box<dyn Fn() -> Result<(), Box<dyn Error>> + Send + Sync>,
+)> {
+    vec![
+        (
+            "simple_addition",
+            Box::new(|| {
+                let _result = 1 + 1;
+                Ok(())
+            }),
+        ),
+        (
+            "string_concat",
+            Box::new(|| {
+                let _result = format!("{}{}", "hello", "world");
+                Ok(())
+            }),
+        ),
+    ]
 }
 
 #[tokio::main]
@@ -71,32 +95,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let runner = BenchmarkRunner::new(&engine, config);
 
-    let operations: Vec<(
-        &str,
-        Box<dyn Fn() -> Result<(), Box<dyn Error>> + Send + Sync>,
-    )> = vec![
-        (
-            "simple_addition",
-            Box::new(|| {
-                let _result = 1 + 1;
-                Ok(())
-            }),
-        ),
-        (
-            "string_concat",
-            Box::new(|| {
-                let _result = format!("{}{}", "hello", "world");
-                Ok(())
-            }),
-        ),
-    ];
-
-    let result = runner.run_benchmark("basic_operations", operations).await?;
+    let result = runner
+        .run_benchmark("basic_operations", make_operations())
+        .await?;
     println!("{}", result.summary());
 
     // Example 2: Plan execution benchmark
     println!("\n=== Example 2: Plan Execution Benchmark ===");
-    let plan_data = vec![0u8; 1024]; // Mock plan data
+    let plan_data = vec![0u8; 1024];
+    let input_data: HashMap<String, TableData> = HashMap::new();
 
     let config = BenchmarkConfig {
         warmup_runs: 5,
@@ -104,22 +111,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         verbose: false,
         ..Default::default()
     };
-    
+
     let runner = BenchmarkRunner::new(&engine, config);
-    let stats = runner.benchmark_operation(
-        "execute_plan",
-        &Box::new(move || {
-            let rt = tokio::runtime::Runtime::new().unwrap();
-            rt.block_on(async {
-                engine
-                    .execute_plan(&plan_data, vec![])
-                    .await
-                    .map(|_| ())
-                    .map_err(|e| e.into())
-            })
-        }),
-    )
-    .await?;
+    let stats = runner
+        .benchmark_operation("execute_plan", &|| {
+            engine.execute_plan(&plan_data, &input_data).map(|_| ()).map_err(|e| e.into())
+        })
+        .await?;
 
     println!("{}", stats.summary());
 
@@ -140,24 +138,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         ..Default::default()
     };
 
-    let operations: Vec<(
-        &str,
-        Box<dyn Fn() -> Result<(), Box<dyn Error>> + Send + Sync>,
-    )> = vec![(
-        "computation",
-        Box::new(|| {
-            let _result: i32 = (0..1000).sum();
-            Ok(())
-        }),
-    )];
-
     let fast_runner = BenchmarkRunner::new(&fast_engine, config.clone());
     let fast_result = fast_runner
-        .run_benchmark("comparison", operations.clone())
+        .run_benchmark("comparison", make_operations())
         .await?;
 
     let slow_runner = BenchmarkRunner::new(&slow_engine, config);
-    let slow_result = slow_runner.run_benchmark("comparison", operations).await?;
+    let slow_result = slow_runner
+        .run_benchmark("comparison", make_operations())
+        .await?;
 
     println!("Fast Engine Results:");
     println!("{}", fast_result.summary());
@@ -167,17 +156,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // Example 5: Scalability test
     println!("\n=== Example 5: Scalability Test ===");
     for size in [10, 100, 1000] {
-        let operations: Vec<(
-            &str,
-            Box<dyn Fn() -> Result<(), Box<dyn Error>> + Send + Sync>,
-        )> = vec![(
-            &format!("process_{}_items", size),
-            Box::new(move || {
-                let _result: i32 = (0..size).sum();
-                Ok(())
-            }),
-        )];
-
+        let operation_name = format!("process_{}_items", size);
         let config = BenchmarkConfig {
             warmup_runs: 2,
             measurement_runs: 20,
@@ -187,10 +166,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
         let runner = BenchmarkRunner::new(&engine, config);
         let result = runner
-            .run_benchmark(&format!("scalability_{}", size), operations)
+            .run_benchmark(
+                &format!("scalability_{}", size),
+                vec![(
+                    "process_items",
+                    Box::new(move || {
+                        let _result: i32 = (0..size).sum();
+                        Ok(())
+                    }),
+                )],
+            )
             .await?;
 
-        println!("\nSize: {} items", size);
+        println!("\nSize: {} items ({})", size, operation_name);
         for stat in &result.stats {
             println!(
                 "  Avg: {:?}, Throughput: {:.2} ops/sec",

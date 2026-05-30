@@ -1,17 +1,19 @@
 spring:
   datasource:
-    # Will be overridden by TestContainers
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    # URL/credentials will be overridden by TestContainers
+    driver-class-name: org.postgresql.Driver
   
   jpa:
     hibernate:
-      ddl-auto: validate
+      ddl-auto: none
     properties:
+      spring.jpa.hibernate.ddl-auto: none
       hibernate:
-        dialect: org.hibernate.dialect.H2Dialect
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        temp:
+          use_jdbc_metadata_defaults: false
+        hbm2ddl:
+          auto: none
     show-sql: false
   
   flyway:

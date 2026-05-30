@@ -55,14 +55,14 @@ class WebhookDeliveryServiceTest {
             payload
         );
         
-        when(webhookRepository.findByActiveAndEventsContaining(true, WebhookEvent.EventType.REPORT_SUBMITTED))
+        when(webhookRepository.findByActive(true))
             .thenReturn(Collections.emptyList());
         
         // When
         webhookDeliveryService.handleWebhookEvent(event);
         
         // Then
-        verify(webhookRepository).findByActiveAndEventsContaining(true, WebhookEvent.EventType.REPORT_SUBMITTED);
+        verify(webhookRepository).findByActive(true);
         verifyNoInteractions(entityManager);
     }
     
@@ -87,7 +87,7 @@ class WebhookDeliveryServiceTest {
             payload
         );
         
-        when(webhookRepository.findByActiveAndEventsContaining(true, WebhookEvent.EventType.REPORT_SUBMITTED))
+        when(webhookRepository.findByActive(true))
             .thenReturn(Collections.singletonList(webhook));
         
         when(entityManager.createNativeQuery(anyString())).thenReturn(query);
@@ -98,7 +98,7 @@ class WebhookDeliveryServiceTest {
         webhookDeliveryService.handleWebhookEvent(event);
         
         // Then
-        verify(webhookRepository).findByActiveAndEventsContaining(true, WebhookEvent.EventType.REPORT_SUBMITTED);
+        verify(webhookRepository).findByActive(true);
         verify(entityManager, atLeastOnce()).createNativeQuery(anyString());
     }
     
@@ -145,7 +145,6 @@ class WebhookDeliveryServiceTest {
         when(entityManager.createNativeQuery(anyString())).thenReturn(query);
         when(query.setParameter(anyInt(), any())).thenReturn(query);
         when(query.getResultList()).thenReturn(Collections.singletonList(retry));
-        when(query.getSingleResult()).thenReturn(new Object[]{"report.submitted", "{}"});
         
         WebhookEntity webhook = WebhookEntity.builder()
             .id(1L)

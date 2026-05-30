@@ -79,11 +79,11 @@ public class WebhookDeliveryService {
         
         log.info("Processing webhook event: {}", event.getEventType());
         
-        // Find all active webhooks subscribed to this event type
-        List<WebhookEntity> webhooks = webhookRepository.findByActiveAndEventsContaining(
-            true, 
-            event.getEventType()
-        );
+        // Find all active webhooks and filter subscribed ones in memory because
+        // events is stored via a converter-backed column rather than a JPA collection.
+        List<WebhookEntity> webhooks = webhookRepository.findByActive(true).stream()
+            .filter(webhook -> webhook.getEvents() != null && webhook.getEvents().contains(event.getEventType()))
+            .toList();
         
         if (webhooks.isEmpty()) {
             log.debug("No active webhooks found for event type: {}", event.getEventType());

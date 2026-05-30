@@ -36,9 +36,8 @@ public class WebhookEntity {
     @Column(nullable = false)
     private String secret;
     
-    @ElementCollection
-    @CollectionTable(name = "webhook_events", joinColumns = @JoinColumn(name = "webhook_id"))
-    @Column(name = "event_type")
+    @Convert(converter = StringListConverter.class)
+    @Column(name = "events", nullable = false)
     @Builder.Default
     private List<String> events = new ArrayList<>();
     

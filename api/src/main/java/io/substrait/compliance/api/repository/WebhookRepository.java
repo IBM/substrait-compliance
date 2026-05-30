@@ -23,11 +23,7 @@ public interface WebhookRepository extends JpaRepository<WebhookEntity, Long> {
      * @param eventType the event type to filter by
      * @return list of matching webhooks
      */
-    @Query("SELECT w FROM WebhookEntity w WHERE w.active = :active AND :eventType MEMBER OF w.events")
-    List<WebhookEntity> findByActiveAndEventsContaining(
-        @Param("active") Boolean active,
-        @Param("eventType") String eventType
-    );
+    List<WebhookEntity> findByActive(Boolean active);
     
     /**
      * Finds all webhooks created by a specific user.
@@ -37,13 +33,6 @@ public interface WebhookRepository extends JpaRepository<WebhookEntity, Long> {
      */
     List<WebhookEntity> findByCreatedBy(String createdBy);
     
-    /**
-     * Finds all active webhooks.
-     * 
-     * @param active whether the webhook is active
-     * @return list of active webhooks
-     */
-    List<WebhookEntity> findByActive(Boolean active);
 }
 
 // Made with Bob
