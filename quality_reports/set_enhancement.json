@@ -1,0 +1,41 @@
+{
+  "category": "set",
+  "total_files": 3,
+  "successful": 3,
+  "failed": 0,
+  "total_tests_added": 60,
+  "output_directory": "test-suites-enhanced/functions/set",
+  "results": [
+    {
+      "file": "test-suites/functions/set/except.test",
+      "enhanced_file": "test-suites-enhanced/functions/set/except.test",
+      "status": "success",
+      "original_tests": 16,
+      "tests_added": 18,
+      "quality_score_before": 7,
+      "enhancements": "Added 18 new test cases",
+      "timestamp": "2026-04-24T19:05:03.110938"
+    },
+    {
+      "file": "test-suites/functions/set/intersect.test",
+      "enhanced_file": "test-suites-enhanced/functions/set/intersect.test",
+      "status": "success",
+      "original_tests": 15,
+      "tests_added": 20,
+      "quality_score_before": 7,
+      "enhancements": "Added 20 new test cases",
+      "timestamp": "2026-04-24T19:05:42.893608"
+    },
+    {
+      "file": "test-suites/functions/set/union.test",
+      "enhanced_file": "test-suites-enhanced/functions/set/union.test",
+      "status": "success",
+      "original_tests": 14,
+      "tests_added": 22,
+      "quality_score_before": 6,
+      "enhancements": "Added 22 new test cases",
+      "timestamp": "2026-04-24T19:06:27.377521"
+    }
+  ],
+  "timestamp": "2026-04-24T19:06:27.377818"
+}

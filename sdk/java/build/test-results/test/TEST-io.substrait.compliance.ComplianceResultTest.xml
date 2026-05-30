@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="io.substrait.compliance.ComplianceResultTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-04-22T23:17:52" hostname="Ranjans-MacBook-Pro.local" time="0.002">
+<testsuite name="io.substrait.compliance.ComplianceResultTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-05-30T02:11:17" hostname="Ranjans-MacBook-Pro.local" time="0.002">
   <properties/>
   <testcase name="testSuccessResult()" classname="io.substrait.compliance.ComplianceResultTest" time="0.001"/>
   <testcase name="testFailureResult()" classname="io.substrait.compliance.ComplianceResultTest" time="0.001"/>

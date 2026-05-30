@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="io.substrait.compliance.analysis.FailureAnalyzerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-04-22T23:17:52" hostname="Ranjans-MacBook-Pro.local" time="0.01">
+<testsuite name="io.substrait.compliance.analysis.FailureAnalyzerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-05-30T02:11:17" hostname="Ranjans-MacBook-Pro.local" time="0.012">
   <properties/>
-  <testcase name="testTimeout()" classname="io.substrait.compliance.analysis.FailureAnalyzerTest" time="0.002"/>
+  <testcase name="testTimeout()" classname="io.substrait.compliance.analysis.FailureAnalyzerTest" time="0.004"/>
   <testcase name="testSuccessResult()" classname="io.substrait.compliance.analysis.FailureAnalyzerTest" time="0.0"/>
   <testcase name="testRuntimeError()" classname="io.substrait.compliance.analysis.FailureAnalyzerTest" time="0.0"/>
   <testcase name="testResourceExhaustion()" classname="io.substrait.compliance.analysis.FailureAnalyzerTest" time="0.0"/>

@@ -1,0 +1,63 @@
+[
+  {
+    "suite_name": "acos",
+    "test_type": "SUBSTRAIT_SCALAR_TEST",
+    "test_count": 4,
+    "file_path": "test-suites/functions/arithmetic/acos.test",
+    "analysis": {
+      "overall_score": 4,
+      "correctness_score": 6,
+      "coverage_score": 3,
+      "completeness_score": 3,
+      "issues": [
+        "Test case 1: acos(0.00::fp32) = 1.5707963267948966::fp32 - The expected value has fp64 precision (16 digits) but is cast to fp32 which only has ~7 significant digits. Should be approximately 1.5707964::fp32",
+        "Test case 3: acos(-0.0000009::fp64) = 1.5707972267948966::fp64 - The expected value appears incorrect. acos(-0.0000009) \u2248 1.5707972267948966 is close but should be verified with higher precision",
+        "Missing validation for domain errors: acos is only defined for inputs in [-1, 1], but no tests verify behavior for out-of-domain values like acos(1.5) or acos(-2.0)",
+        "No tests for values at or near the domain boundaries (-1, 1) where the function behavior is most critical",
+        "No tests for special floating point values (NaN, +Inf, -Inf) which are important for IEEE 754 compliance"
+      ],
+      "missing_tests": [
+        "acos(1.0::fp32) = 0.0::fp32 - Test boundary value with fp32",
+        "acos(-1.0::fp64) = 3.141592653589793::fp64 - Test lower boundary (should return \u03c0)",
+        "acos(-1.0::fp32) = 3.1415927::fp32 - Test lower boundary with fp32",
+        "acos(0.5::fp64) = 1.0471975511965979::fp64 - Test common value (\u03c0/3)",
+        "acos(-0.5::fp64) = 2.0943951023931957::fp64 - Test negative common value (2\u03c0/3)",
+        "acos(0.7071067811865476::fp64) = 0.7853981633974483::fp64 - Test \u221a2/2 (\u03c0/4)",
+        "acos(1.5::fp64) = NaN::fp64 - Test out-of-domain positive value",
+        "acos(-1.5::fp64) = NaN::fp64 - Test out-of-domain negative value",
+        "acos(2.0::fp32) = NaN::fp32 - Test out-of-domain with fp32",
+        "acos(NaN::fp64) = NaN::fp64 - Test NaN propagation",
+        "acos(Inf::fp64) = NaN::fp64 - Test positive infinity",
+        "acos(-Inf::fp64) = NaN::fp64 - Test negative infinity",
+        "acos(0.0::fp64) = 1.5707963267948966::fp64 - Test exact zero with fp64",
+        "acos(-0.0::fp64) = 1.5707963267948966::fp64 - Test negative zero",
+        "acos(0.9999999999999999::fp64) - Test value very close to upper boundary",
+        "acos(-0.9999999999999999::fp64) - Test value very close to lower boundary",
+        "acos(null::fp32) = null::fp32 - Test null handling with fp32 type"
+      ],
+      "recommendations": [
+        "Add comprehensive domain boundary tests for values at -1, 1, and just outside the valid domain",
+        "Include tests for all special IEEE 754 floating point values (NaN, +Inf, -Inf, -0.0)",
+        "Add tests that verify error handling or NaN return for out-of-domain inputs (|x| > 1)",
+        "Test both fp32 and fp64 types more evenly - currently only 1 fp32 test vs 3 fp64 tests",
+        "Add tests for mathematically significant values (0.5, \u221a2/2, \u221a3/2) that correspond to common angles",
+        "Ensure fp32 expected values use appropriate precision (6-7 significant digits, not 16)",
+        "Consider adding a separate category for 'edge_cases' or 'boundary_values' to better organize tests",
+        "Add tests for values very close to boundaries to verify numerical stability",
+        "Document the expected behavior for out-of-domain inputs (should return NaN per IEEE 754)",
+        "Consider adding tests with denormalized numbers if relevant to the implementation"
+      ],
+      "strengths": [
+        "Includes null handling test which is essential for SQL compatibility",
+        "Tests both fp32 and fp64 data types",
+        "Includes a test with a value very close to zero, showing attention to precision",
+        "Tests positive, negative, and zero values within the valid domain",
+        "Simple, clear test case format that is easy to understand"
+      ]
+    },
+    "raw_analysis": "```json\n{\n  \"overall_score\": 4,\n  \"correctness_score\": 6,\n  \"coverage_score\": 3,\n  \"completeness_score\": 3,\n  \"issues\": [\n    \"Test case 1: acos(0.00::fp32) = 1.5707963267948966::fp32 - The expected value has fp64 precision (16 digits) but is cast to fp32 which only has ~7 significant digits. Should be approximately 1.5707964::fp32\",\n    \"Test case 3: acos(-0.0000009::fp64) = 1.5707972267948966::fp64 - The expected value appears incorrect. acos(-0.0000009) \u2248 1.5707972267948966 is close but should be verified with higher precision\",\n    \"Missing validation for domain errors: acos is only defined for inputs in [-1, 1], but no tests verify behavior for out-of-domain values like acos(1.5) or acos(-2.0)\",\n    \"No tests for values at or near the domain boundaries (-1, 1) where the function behavior is most critical\",\n    \"No tests for special floating point values (NaN, +Inf, -Inf) which are important for IEEE 754 compliance\"\n  ],\n  \"missing_tests\": [\n    \"acos(1.0::fp32) = 0.0::fp32 - Test boundary value with fp32\",\n    \"acos(-1.0::fp64) = 3.141592653589793::fp64 - Test lower boundary (should return \u03c0)\",\n    \"acos(-1.0::fp32) = 3.1415927::fp32 - Test lower boundary with fp32\",\n    \"acos(0.5::fp64) = 1.0471975511965979::fp64 - Test common value (\u03c0/3)\",\n    \"acos(-0.5::fp64) = 2.0943951023931957::fp64 - Test negative common value (2\u03c0/3)\",\n    \"acos(0.7071067811865476::fp64) = 0.7853981633974483::fp64 - Test \u221a2/2 (\u03c0/4)\",\n    \"acos(1.5::fp64) = NaN::fp64 - Test out-of-domain positive value\",\n    \"acos(-1.5::fp64) = NaN::fp64 - Test out-of-domain negative value\",\n    \"acos(2.0::fp32) = NaN::fp32 - Test out-of-domain with fp32\",\n    \"acos(NaN::fp64) = NaN::fp64 - Test NaN propagation\",\n    \"acos(Inf::fp64) = NaN::fp64 - Test positive infinity\",\n    \"acos(-Inf::fp64) = NaN::fp64 - Test negative infinity\",\n    \"acos(0.0::fp64) = 1.5707963267948966::fp64 - Test exact zero with fp64\",\n    \"acos(-0.0::fp64) = 1.5707963267948966::fp64 - Test negative zero\",\n    \"acos(0.9999999999999999::fp64) - Test value very close to upper boundary\",\n    \"acos(-0.9999999999999999::fp64) - Test value very close to lower boundary\",\n    \"acos(null::fp32) = null::fp32 - Test null handling with fp32 type\"\n  ],\n  \"recommendations\": [\n    \"Add comprehensive domain boundary tests for values at -1, 1, and just outside the valid domain\",\n    \"Include tests for all special IEEE 754 floating point values (NaN, +Inf, -Inf, -0.0)\",\n    \"Add tests that verify error handling or NaN return for out-of-domain inputs (|x| > 1)\",\n    \"Test both fp32 and fp64 types more evenly - currently only 1 fp32 test vs 3 fp64 tests\",\n    \"Add tests for mathematically significant values (0.5, \u221a2/2, \u221a3/2) that correspond to common angles\",\n    \"Ensure fp32 expected values use appropriate precision (6-7 significant digits, not 16)\",\n    \"Consider adding a separate category for 'edge_cases' or 'boundary_values' to better organize tests\",\n    \"Add tests for values very close to boundaries to verify numerical stability\",\n    \"Document the expected behavior for out-of-domain inputs (should return NaN per IEEE 754)\",\n    \"Consider adding tests with denormalized numbers if relevant to the implementation\"\n  ],\n  \"strengths\": [\n    \"Includes null handling test which is essential for SQL compatibility\",\n    \"Tests both fp32 and fp64 data types\",\n    \"Includes a test with a value very close to zero, showing attention to precision\",\n    \"Tests positive, negative, and zero values within the valid domain\",\n    \"Simple, clear test case format that is easy to understand\"\n  ]\n}\n```\n\n## Summary\n\nThe test suite for the `acos` function is **minimal and incomplete**, scoring 4/10 overall. While it demonstrates basic functionality and includes null handling, it has significant gaps in coverage.\n\n**Key Problems:**\n1. **Precision mismatch**: The fp32 test uses fp64-precision expected values, which is technically incorrect\n2. **Missing critical boundary tests**: No tests for the domain boundaries (-1, 1) where acos behavior is most important\n3. **No error condition tests**: The function is only defined for [-1, 1], but there are no tests verifying behavior for invalid inputs\n4. **Incomplete special value coverage**: Missing tests for NaN, infinity, and negative zero\n\n**Priority Additions:**\n- Domain boundary tests (acos(-1) = \u03c0, acos(1) = 0)\n- Out-of-domain tests (acos(2) should return NaN)\n- Special IEEE 754 values (NaN, \u00b1Inf)\n- Common mathematical values (0.5, \u221a2/2)\n\nThe test suite needs substantial expansion to be considered production-ready for Substrait compliance testing.",
+    "model": "aws/claude-sonnet-4-5",
+    "tokens_used": 2089,
+    "timestamp": "2026-04-24T16:10:13.596557"
+  }
+]

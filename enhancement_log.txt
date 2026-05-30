@@ -1,0 +1,1164 @@
+============================================================
+Substrait Test Enhancer - Batch Processing
+============================================================
+This will enhance all function test categories with:
+  - Error corrections (--fix-errors)
+  - New test cases for better coverage
+
+Original files: test-suites/functions/
+Enhanced files: test-suites-enhanced/functions/
+============================================================
+
+Found 16 categories to process
+
+[1/16] Processing aggregate...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: aggregate
+============================================================
+
+Enhancing avg.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/aggregate/avg.test
+  Added 34 new test cases
+
+Enhancing count.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/aggregate/count.test
+  Added 24 new test cases
+
+Enhancing count_distinct.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/aggregate/count_distinct.test
+  Added 22 new test cases
+
+Enhancing stddev.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/aggregate/stddev.test
+  Added 20 new test cases
+
+Enhancing string_agg.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/aggregate/string_agg.test
+  Added 24 new test cases
+
+Enhancing variance.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/aggregate/variance.test
+  Added 29 new test cases
+
+Category Summary:
+  Files processed: 6
+  Successful: 6
+  Total tests added: 153
+  Output: test-suites-enhanced/functions/aggregate
+
+Summary saved to: quality_reports/aggregate_enhancement.json
+✓ Completed aggregate
+
+[2/16] Processing arithmetic...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: arithmetic
+============================================================
+
+Enhancing abs.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/abs.test
+  Added 31 new test cases
+
+Enhancing acos.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/acos.test
+  Added 18 new test cases
+
+Enhancing acosh.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/acosh.test
+  Added 17 new test cases
+
+Enhancing add.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/add.test
+  Added 50 new test cases
+
+Enhancing asin.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/asin.test
+  Added 24 new test cases
+
+Enhancing asinh.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/asinh.test
+  Added 21 new test cases
+
+Enhancing atan.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/atan.test
+  Added 22 new test cases
+
+Enhancing atan2.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/atan2.test
+  Added 30 new test cases
+
+Enhancing atanh.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/atanh.test
+  Added 24 new test cases
+
+Enhancing bitwise_and.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/bitwise_and.test
+  Added 21 new test cases
+
+Enhancing bitwise_not.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/bitwise_not.test
+  Added 24 new test cases
+
+Enhancing bitwise_or.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/bitwise_or.test
+  Added 22 new test cases
+
+Enhancing bitwise_xor.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/bitwise_xor.test
+  Added 37 new test cases
+
+Enhancing ceil.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/ceil.test
+  Added 21 new test cases
+
+Enhancing cos.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/cos.test
+  Added 28 new test cases
+
+Enhancing cosh.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/cosh.test
+  Added 27 new test cases
+
+Enhancing degrees.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/degrees.test
+  Added 24 new test cases
+
+Enhancing divide.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/divide.test
+  Added 29 new test cases
+
+Enhancing exp.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/exp.test
+  Added 19 new test cases
+
+Enhancing factorial.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/factorial.test
+  Added 12 new test cases
+
+Enhancing floor.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/floor.test
+  Added 17 new test cases
+
+Enhancing ln.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/ln.test
+  Added 18 new test cases
+
+Enhancing log.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/log.test
+  Added 25 new test cases
+
+Enhancing log10.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/log10.test
+  Added 21 new test cases
+
+Enhancing max.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/max.test
+  Added 40 new test cases
+
+Enhancing min.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/min.test
+  Added 28 new test cases
+
+Enhancing mod.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/mod.test
+  Added 33 new test cases
+
+Enhancing multiply.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/multiply.test
+  Added 40 new test cases
+
+Enhancing negate.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/negate.test
+  Added 29 new test cases
+
+Enhancing power.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/power.test
+  Added 41 new test cases
+
+Enhancing radians.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/radians.test
+  Added 31 new test cases
+
+Enhancing round.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/round.test
+  Added 35 new test cases
+
+Enhancing shift_left.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/shift_left.test
+  Added 20 new test cases
+
+Enhancing shift_right.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/shift_right.test
+  Added 27 new test cases
+
+Enhancing shift_right_unsigned.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/shift_right_unsigned.test
+  Added 21 new test cases
+
+Enhancing sign.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/sign.test
+  Added 19 new test cases
+
+Enhancing sin.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/sin.test
+  Added 26 new test cases
+
+Enhancing sinh.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/sinh.test
+  Added 21 new test cases
+
+Enhancing sqrt.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/sqrt.test
+  Added 27 new test cases
+
+Enhancing subtract.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/subtract.test
+  Added 34 new test cases
+
+Enhancing sum.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/sum.test
+  Added 26 new test cases
+
+Enhancing tan.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/tan.test
+  Added 19 new test cases
+
+Enhancing tanh.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/tanh.test
+  Added 19 new test cases
+
+Enhancing trunc.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/arithmetic/trunc.test
+  Added 22 new test cases
+
+Category Summary:
+  Files processed: 44
+  Successful: 44
+  Total tests added: 1140
+  Output: test-suites-enhanced/functions/arithmetic
+
+Summary saved to: quality_reports/arithmetic_enhancement.json
+✓ Completed arithmetic
+
+[3/16] Processing array...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: array
+============================================================
+
+Enhancing array_concat.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/array/array_concat.test
+  Added 19 new test cases
+
+Enhancing array_construct.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/array/array_construct.test
+  Added 29 new test cases
+
+Enhancing array_contains.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/array/array_contains.test
+  Added 20 new test cases
+
+Enhancing array_element.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/array/array_element.test
+  Added 22 new test cases
+
+Enhancing array_length.test...
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+Enhancing array_position.test...
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+Category Summary:
+  Files processed: 6
+  Successful: 4
+  Total tests added: 90
+  Output: test-suites-enhanced/functions/array
+
+Summary saved to: quality_reports/array_enhancement.json
+✓ Completed array
+
+[4/16] Processing boolean...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: boolean
+============================================================
+
+Enhancing and.test...
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+Enhancing not.test...
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+Enhancing or.test...
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+Enhancing xor.test...
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+Category Summary:
+  Files processed: 4
+  Successful: 0
+  Total tests added: 0
+  Output: test-suites-enhanced/functions/boolean
+
+Summary saved to: quality_reports/boolean_enhancement.json
+✓ Completed boolean
+
+[5/16] Processing cast...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: cast
+============================================================
+
+Enhancing cast.test...
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+Enhancing try_cast.test...
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+
+[1;31mGive Feedback / Get Help: https://github.com/BerriAI/litellm/issues/new[0m
+LiteLLM.Info: If you need to debug this error, use `litellm.set_verbose=True'.
+
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/cast/try_cast.test
+  Added 37 new test cases
+
+Category Summary:
+  Files processed: 2
+  Successful: 1
+  Total tests added: 37
+  Output: test-suites-enhanced/functions/cast
+
+Summary saved to: quality_reports/cast_enhancement.json
+✓ Completed cast
+
+[6/16] Processing comparison...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: comparison
+============================================================
+
+Enhancing between.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/between.test
+  Added 43 new test cases
+
+Enhancing coalesce.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/coalesce.test
+  Added 34 new test cases
+
+Enhancing equal.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/equal.test
+  Added 23 new test cases
+
+Enhancing gt.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/gt.test
+  Added 41 new test cases
+
+Enhancing gte.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/gte.test
+  Added 66 new test cases
+
+Enhancing is_false.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_false.test
+  Added 12 new test cases
+
+Enhancing is_finite.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_finite.test
+  Added 20 new test cases
+
+Enhancing is_infinite.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_infinite.test
+  Added 10 new test cases
+
+Enhancing is_nan.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_nan.test
+  Added 10 new test cases
+
+Enhancing is_not_distinct_from.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_not_distinct_from.test
+  Added 44 new test cases
+
+Enhancing is_not_false.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_not_false.test
+  Added 14 new test cases
+
+Enhancing is_not_null.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_not_null.test
+  Added 38 new test cases
+
+Enhancing is_not_true.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_not_true.test
+  Added 11 new test cases
+
+Enhancing is_null.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_null.test
+  Added 48 new test cases
+
+Enhancing is_true.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/is_true.test
+  Added 10 new test cases
+
+Enhancing lt.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/lt.test
+  Added 46 new test cases
+
+Enhancing lte.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/lte.test
+  Added 41 new test cases
+
+Enhancing not_equal.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/not_equal.test
+  Added 37 new test cases
+
+Enhancing nullif.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/comparison/nullif.test
+  Added 49 new test cases
+
+Category Summary:
+  Files processed: 19
+  Successful: 19
+  Total tests added: 597
+  Output: test-suites-enhanced/functions/comparison
+
+Summary saved to: quality_reports/comparison_enhancement.json
+✓ Completed comparison
+
+[7/16] Processing conditional...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: conditional
+============================================================
+
+Enhancing case_when.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/conditional/case_when.test
+  Added 28 new test cases
+
+Enhancing if_then_else.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/conditional/if_then_else.test
+  Added 30 new test cases
+
+Category Summary:
+  Files processed: 2
+  Successful: 2
+  Total tests added: 58
+  Output: test-suites-enhanced/functions/conditional
+
+Summary saved to: quality_reports/conditional_enhancement.json
+✓ Completed conditional
+
+[8/16] Processing datetime...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: datetime
+============================================================
+
+Enhancing add_datetime.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/add_datetime.test
+  Added 25 new test cases
+
+Enhancing add_intervals.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/add_intervals.test
+  Added 22 new test cases
+
+Enhancing current_date.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/current_date.test
+  Added 21 new test cases
+
+Enhancing current_timestamp.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/current_timestamp.test
+  Added 10 new test cases
+
+Enhancing date_diff.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/date_diff.test
+  Added 32 new test cases
+
+Enhancing date_trunc.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/date_trunc.test
+  Added 34 new test cases
+
+Enhancing extract.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/extract.test
+  Added 45 new test cases
+
+Enhancing gt_datetime.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/gt_datetime.test
+  Added 25 new test cases
+
+Enhancing gte_datetime.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/gte_datetime.test
+  Added 21 new test cases
+
+Enhancing lt_datetime.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/lt_datetime.test
+  Added 23 new test cases
+
+Enhancing lte_datetime.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/lte_datetime.test
+  Added 33 new test cases
+
+Enhancing subtract_datetime.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/datetime/subtract_datetime.test
+  Added 18 new test cases
+
+Category Summary:
+  Files processed: 12
+  Successful: 12
+  Total tests added: 309
+  Output: test-suites-enhanced/functions/datetime
+
+Summary saved to: quality_reports/datetime_enhancement.json
+✓ Completed datetime
+
+[9/16] Processing geospatial...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: geospatial
+============================================================
+
+Enhancing st_area.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/geospatial/st_area.test
+  Added 14 new test cases
+
+Enhancing st_contains.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/geospatial/st_contains.test
+  Added 16 new test cases
+
+Enhancing st_distance.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/geospatial/st_distance.test
+  Added 18 new test cases
+
+Enhancing st_intersects.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/geospatial/st_intersects.test
+  Added 15 new test cases
+
+Category Summary:
+  Files processed: 4
+  Successful: 4
+  Total tests added: 63
+  Output: test-suites-enhanced/functions/geospatial
+
+Summary saved to: quality_reports/geospatial_enhancement.json
+✓ Completed geospatial
+
+[10/16] Processing json...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: json
+============================================================
+
+Enhancing json_extract.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/json/json_extract.test
+  Added 31 new test cases
+
+Enhancing json_parse.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/json/json_parse.test
+  Added 25 new test cases
+
+Category Summary:
+  Files processed: 2
+  Successful: 2
+  Total tests added: 56
+  Output: test-suites-enhanced/functions/json
+
+Summary saved to: quality_reports/json_enhancement.json
+✓ Completed json
+
+[11/16] Processing map...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: map
+============================================================
+
+Enhancing map_construct.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/map/map_construct.test
+  Added 23 new test cases
+
+Enhancing map_extract.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/map/map_extract.test
+  Added 25 new test cases
+
+Enhancing map_keys.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/map/map_keys.test
+  Added 13 new test cases
+
+Category Summary:
+  Files processed: 3
+  Successful: 3
+  Total tests added: 61
+  Output: test-suites-enhanced/functions/map
+
+Summary saved to: quality_reports/map_enhancement.json
+✓ Completed map
+
+[12/16] Processing math...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: math
+============================================================
+
+Category Summary:
+  Files processed: 0
+  Successful: 0
+  Total tests added: 0
+  Output: test-suites-enhanced/functions/math
+
+Summary saved to: quality_reports/math_enhancement.json
+✓ Completed math
+
+[13/16] Processing set...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: set
+============================================================
+
+Enhancing except.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/set/except.test
+  Added 18 new test cases
+
+Enhancing intersect.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/set/intersect.test
+  Added 20 new test cases
+
+Enhancing union.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/set/union.test
+  Added 22 new test cases
+
+Category Summary:
+  Files processed: 3
+  Successful: 3
+  Total tests added: 60
+  Output: test-suites-enhanced/functions/set
+
+Summary saved to: quality_reports/set_enhancement.json
+✓ Completed set
+
+[14/16] Processing string...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: string
+============================================================
+
+Enhancing bit_length.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/bit_length.test
+  Added 20 new test cases
+
+Enhancing char_length.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/char_length.test
+  Added 23 new test cases
+
+Enhancing concat.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/concat.test
+  Added 19 new test cases
+
+Enhancing concat_ws.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/concat_ws.test
+  Added 19 new test cases
+
+Enhancing contains.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/contains.test
+  Added 22 new test cases
+
+Enhancing ends_with.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/ends_with.test
+  Added 17 new test cases
+
+Enhancing left.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/left.test
+  Added 23 new test cases
+
+Enhancing like.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/like.test
+  Added 35 new test cases
+
+Enhancing lower.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/lower.test
+  Added 14 new test cases
+
+Enhancing lpad.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/lpad.test
+  Added 18 new test cases
+
+Enhancing ltrim.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/ltrim.test
+  Added 19 new test cases
+
+Enhancing octet_length.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/octet_length.test
+  Added 25 new test cases
+
+Enhancing regexp_count_substring.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/regexp_count_substring.test
+  Added 31 new test cases
+
+Enhancing regexp_match_substring.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/regexp_match_substring.test
+  Added 32 new test cases
+
+Enhancing regexp_replace.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/regexp_replace.test
+  Added 25 new test cases
+
+Enhancing regexp_string_split.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/regexp_string_split.test
+  Added 24 new test cases
+
+Enhancing repeat.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/repeat.test
+  Added 17 new test cases
+
+Enhancing replace.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/replace.test
+  Added 22 new test cases
+
+Enhancing reverse.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/reverse.test
+  Added 23 new test cases
+
+Enhancing right.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/right.test
+  Added 22 new test cases
+
+Enhancing rpad.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/rpad.test
+  Added 13 new test cases
+
+Enhancing rtrim.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/rtrim.test
+  Added 18 new test cases
+
+Enhancing starts_with.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/starts_with.test
+  Added 23 new test cases
+
+Enhancing string_split.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/string_split.test
+  Added 20 new test cases
+
+Enhancing substring.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/substring.test
+  Added 23 new test cases
+
+Enhancing trim.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/trim.test
+  Added 17 new test cases
+
+Enhancing upper.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/string/upper.test
+  Added 17 new test cases
+
+Category Summary:
+  Files processed: 27
+  Successful: 27
+  Total tests added: 581
+  Output: test-suites-enhanced/functions/string
+
+Summary saved to: quality_reports/string_enhancement.json
+✓ Completed string
+
+[15/16] Processing struct...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: struct
+============================================================
+
+Enhancing struct_construct.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/struct/struct_construct.test
+  Added 19 new test cases
+
+Enhancing struct_extract.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/struct/struct_extract.test
+  Added 19 new test cases
+
+Category Summary:
+  Files processed: 2
+  Successful: 2
+  Total tests added: 38
+  Output: test-suites-enhanced/functions/struct
+
+Summary saved to: quality_reports/struct_enhancement.json
+✓ Completed struct
+
+[16/16] Processing window...
+-----------------------------------------------------------
+============================================================
+Substrait Test Enhancer
+============================================================
+Model: aws/claude-sonnet-4-5
+Output: test-suites-enhanced/functions
+============================================================
+
+============================================================
+Enhancing Category: window
+============================================================
+
+Enhancing dense_rank.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/window/dense_rank.test
+  Added 22 new test cases
+
+Enhancing first_value.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/window/first_value.test
+  Added 22 new test cases
+
+Enhancing lag.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/window/lag.test
+  Added 22 new test cases
+
+Enhancing last_value.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/window/last_value.test
+  Added 19 new test cases
+
+Enhancing lead.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/window/lead.test
+  Added 15 new test cases
+
+Enhancing rank.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/window/rank.test
+  Added 21 new test cases
+
+Enhancing row_number.test...
+  Generating enhancements...
+  ✓ Enhanced file saved to test-suites-enhanced/functions/window/row_number.test
+  Added 17 new test cases
+
+Category Summary:
+  Files processed: 7
+  Successful: 7
+  Total tests added: 138
+  Output: test-suites-enhanced/functions/window
+
+Summary saved to: quality_reports/window_enhancement.json
+✓ Completed window
+
+============================================================
+Enhancement Complete
+============================================================
+Total categories: 16
+Successfully processed: 16
+Failed: 0
+
+Enhanced files saved to: test-suites-enhanced/functions/
+
+Next steps:
+  1. Review enhanced files in test-suites-enhanced/functions/
+  2. Clean files: python scripts/clean_test_file.py test-suites-enhanced/functions --output test-suites-final/functions --recursive
+============================================================

@@ -1,0 +1,2 @@
+# Requirements for generate_technical_report.py
+litellm>=1.0.0

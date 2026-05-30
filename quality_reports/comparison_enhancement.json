@@ -1,0 +1,201 @@
+{
+  "category": "comparison",
+  "total_files": 19,
+  "successful": 19,
+  "failed": 0,
+  "total_tests_added": 597,
+  "output_directory": "test-suites-enhanced/functions/comparison",
+  "results": [
+    {
+      "file": "test-suites/functions/comparison/between.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/between.test",
+      "status": "success",
+      "original_tests": 17,
+      "tests_added": 43,
+      "quality_score_before": 6,
+      "enhancements": "Added 43 new test cases",
+      "timestamp": "2026-04-24T18:40:03.755264"
+    },
+    {
+      "file": "test-suites/functions/comparison/coalesce.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/coalesce.test",
+      "status": "success",
+      "original_tests": 12,
+      "tests_added": 34,
+      "quality_score_before": 6,
+      "enhancements": "Added 34 new test cases",
+      "timestamp": "2026-04-24T18:40:43.796238"
+    },
+    {
+      "file": "test-suites/functions/comparison/equal.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/equal.test",
+      "status": "success",
+      "original_tests": 12,
+      "tests_added": 23,
+      "quality_score_before": 6,
+      "enhancements": "Added 23 new test cases",
+      "timestamp": "2026-04-24T18:41:19.018619"
+    },
+    {
+      "file": "test-suites/functions/comparison/gt.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/gt.test",
+      "status": "success",
+      "original_tests": 15,
+      "tests_added": 41,
+      "quality_score_before": 7,
+      "enhancements": "Added 41 new test cases",
+      "timestamp": "2026-04-24T18:41:59.227389"
+    },
+    {
+      "file": "test-suites/functions/comparison/gte.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/gte.test",
+      "status": "success",
+      "original_tests": 17,
+      "tests_added": 66,
+      "quality_score_before": 7,
+      "enhancements": "Added 66 new test cases",
+      "timestamp": "2026-04-24T18:42:39.822580"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_false.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_false.test",
+      "status": "success",
+      "original_tests": 3,
+      "tests_added": 12,
+      "quality_score_before": 7,
+      "enhancements": "Added 12 new test cases",
+      "timestamp": "2026-04-24T18:43:05.724078"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_finite.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_finite.test",
+      "status": "success",
+      "original_tests": 6,
+      "tests_added": 20,
+      "quality_score_before": 6,
+      "enhancements": "Added 20 new test cases",
+      "timestamp": "2026-04-24T18:43:31.856685"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_infinite.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_infinite.test",
+      "status": "success",
+      "original_tests": 6,
+      "tests_added": 10,
+      "quality_score_before": 6,
+      "enhancements": "Added 10 new test cases",
+      "timestamp": "2026-04-24T18:43:54.866036"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_nan.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_nan.test",
+      "status": "success",
+      "original_tests": 7,
+      "tests_added": 10,
+      "quality_score_before": 7,
+      "enhancements": "Added 10 new test cases",
+      "timestamp": "2026-04-24T18:44:20.345037"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_not_distinct_from.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_not_distinct_from.test",
+      "status": "success",
+      "original_tests": 8,
+      "tests_added": 44,
+      "quality_score_before": 6,
+      "enhancements": "Added 44 new test cases",
+      "timestamp": "2026-04-24T18:45:01.231038"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_not_false.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_not_false.test",
+      "status": "success",
+      "original_tests": 3,
+      "tests_added": 14,
+      "quality_score_before": 8,
+      "enhancements": "Added 14 new test cases",
+      "timestamp": "2026-04-24T18:45:26.115903"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_not_null.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_not_null.test",
+      "status": "success",
+      "original_tests": 6,
+      "tests_added": 38,
+      "quality_score_before": 6,
+      "enhancements": "Added 38 new test cases",
+      "timestamp": "2026-04-24T18:45:59.267271"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_not_true.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_not_true.test",
+      "status": "success",
+      "original_tests": 3,
+      "tests_added": 11,
+      "quality_score_before": 9,
+      "enhancements": "Added 11 new test cases",
+      "timestamp": "2026-04-24T18:46:22.638587"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_null.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_null.test",
+      "status": "success",
+      "original_tests": 5,
+      "tests_added": 48,
+      "quality_score_before": 6,
+      "enhancements": "Added 48 new test cases",
+      "timestamp": "2026-04-24T18:46:55.814762"
+    },
+    {
+      "file": "test-suites/functions/comparison/is_true.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/is_true.test",
+      "status": "success",
+      "original_tests": 3,
+      "tests_added": 10,
+      "quality_score_before": 7,
+      "enhancements": "Added 10 new test cases",
+      "timestamp": "2026-04-24T18:47:19.165083"
+    },
+    {
+      "file": "test-suites/functions/comparison/lt.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/lt.test",
+      "status": "success",
+      "original_tests": 15,
+      "tests_added": 46,
+      "quality_score_before": 7,
+      "enhancements": "Added 46 new test cases",
+      "timestamp": "2026-04-24T18:47:57.872165"
+    },
+    {
+      "file": "test-suites/functions/comparison/lte.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/lte.test",
+      "status": "success",
+      "original_tests": 17,
+      "tests_added": 41,
+      "quality_score_before": 7,
+      "enhancements": "Added 41 new test cases",
+      "timestamp": "2026-04-24T18:48:35.795698"
+    },
+    {
+      "file": "test-suites/functions/comparison/not_equal.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/not_equal.test",
+      "status": "success",
+      "original_tests": 13,
+      "tests_added": 37,
+      "quality_score_before": 6,
+      "enhancements": "Added 37 new test cases",
+      "timestamp": "2026-04-24T18:49:12.321206"
+    },
+    {
+      "file": "test-suites/functions/comparison/nullif.test",
+      "enhanced_file": "test-suites-enhanced/functions/comparison/nullif.test",
+      "status": "success",
+      "original_tests": 15,
+      "tests_added": 49,
+      "quality_score_before": 6,
+      "enhancements": "Added 49 new test cases",
+      "timestamp": "2026-04-24T18:49:52.644820"
+    }
+  ],
+  "timestamp": "2026-04-24T18:49:52.644963"
+}

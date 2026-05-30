@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="io.substrait.compliance.comparison.SpecialValueHandlerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-04-22T23:17:52" hostname="Ranjans-MacBook-Pro.local" time="0.004">
+<testsuite name="io.substrait.compliance.comparison.SpecialValueHandlerTest" tests="11" skipped="0" failures="0" errors="0" timestamp="2026-05-30T02:11:18" hostname="Ranjans-MacBook-Pro.local" time="0.004">
   <properties/>
-  <testcase name="testUndefinedMatchesAnything()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>
-  <testcase name="testPositiveVsNegativeInfinity()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.001"/>
+  <testcase name="testUndefinedMatchesAnything()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.001"/>
+  <testcase name="testPositiveVsNegativeInfinity()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>
   <testcase name="testCaseInsensitivity()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>
-  <testcase name="testInfinityVsValue()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>
+  <testcase name="testInfinityVsValue()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.001"/>
   <testcase name="testNegativeInfinity()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>
   <testcase name="testErrorComparison()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>
-  <testcase name="testNaNVsValue()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>
+  <testcase name="testNaNVsValue()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.001"/>
   <testcase name="testIsSpecialValue()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>
   <testcase name="testPositiveInfinity()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>
   <testcase name="testErrorVsValue()" classname="io.substrait.compliance.comparison.SpecialValueHandlerTest" time="0.0"/>

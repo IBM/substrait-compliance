@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="io.substrait.compliance.validator.ValidationResultTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-04-22T23:17:52" hostname="Ranjans-MacBook-Pro.local" time="0.004">
+<testsuite name="io.substrait.compliance.validator.ValidationResultTest" tests="10" skipped="0" failures="0" errors="0" timestamp="2026-05-30T02:11:18" hostname="Ranjans-MacBook-Pro.local" time="0.003">
   <properties/>
-  <testcase name="testAddWarning()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.001"/>
+  <testcase name="testAddWarning()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.0"/>
   <testcase name="testAddInfo()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.0"/>
-  <testcase name="testIssueWithLocation()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.0"/>
-  <testcase name="testToString()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.001"/>
+  <testcase name="testIssueWithLocation()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.001"/>
+  <testcase name="testToString()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.0"/>
   <testcase name="testInitiallyValid()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.0"/>
   <testcase name="testMultipleIssues()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.001"/>
   <testcase name="testAddError()" classname="io.substrait.compliance.validator.ValidationResultTest" time="0.0"/>

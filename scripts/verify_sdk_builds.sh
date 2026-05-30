@@ -79,7 +79,7 @@ if command_exists python3; then
     
     # Install dependencies
     echo "Installing dependencies..."
-    if pip install -e . >/dev/null 2>&1; then
+    if pip install --index-url https://pypi.org/simple -e . >/dev/null 2>&1 && pip install --index-url https://pypi.org/simple pytest pytest-cov >/dev/null 2>&1; then
         echo "Dependencies installed successfully"
         
         # Run tests

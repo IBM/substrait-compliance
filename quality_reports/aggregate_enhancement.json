@@ -1,0 +1,71 @@
+{
+  "category": "aggregate",
+  "total_files": 6,
+  "successful": 6,
+  "failed": 0,
+  "total_tests_added": 153,
+  "output_directory": "test-suites-enhanced/functions/aggregate",
+  "results": [
+    {
+      "file": "test-suites/functions/aggregate/avg.test",
+      "enhanced_file": "test-suites-enhanced/functions/aggregate/avg.test",
+      "status": "success",
+      "original_tests": 21,
+      "tests_added": 34,
+      "quality_score_before": 7,
+      "enhancements": "Added 34 new test cases",
+      "timestamp": "2026-04-24T17:01:22.043897"
+    },
+    {
+      "file": "test-suites/functions/aggregate/count.test",
+      "enhanced_file": "test-suites-enhanced/functions/aggregate/count.test",
+      "status": "success",
+      "original_tests": 13,
+      "tests_added": 24,
+      "quality_score_before": 6,
+      "enhancements": "Added 24 new test cases",
+      "timestamp": "2026-04-24T17:01:59.253865"
+    },
+    {
+      "file": "test-suites/functions/aggregate/count_distinct.test",
+      "enhanced_file": "test-suites-enhanced/functions/aggregate/count_distinct.test",
+      "status": "success",
+      "original_tests": 14,
+      "tests_added": 22,
+      "quality_score_before": 7,
+      "enhancements": "Added 22 new test cases",
+      "timestamp": "2026-04-24T17:02:35.904375"
+    },
+    {
+      "file": "test-suites/functions/aggregate/stddev.test",
+      "enhanced_file": "test-suites-enhanced/functions/aggregate/stddev.test",
+      "status": "success",
+      "original_tests": 16,
+      "tests_added": 20,
+      "quality_score_before": 6,
+      "enhancements": "Added 20 new test cases",
+      "timestamp": "2026-04-24T17:03:12.096307"
+    },
+    {
+      "file": "test-suites/functions/aggregate/string_agg.test",
+      "enhanced_file": "test-suites-enhanced/functions/aggregate/string_agg.test",
+      "status": "success",
+      "original_tests": 17,
+      "tests_added": 24,
+      "quality_score_before": 7,
+      "enhancements": "Added 24 new test cases",
+      "timestamp": "2026-04-24T17:03:50.064943"
+    },
+    {
+      "file": "test-suites/functions/aggregate/variance.test",
+      "enhanced_file": "test-suites-enhanced/functions/aggregate/variance.test",
+      "status": "success",
+      "original_tests": 16,
+      "tests_added": 29,
+      "quality_score_before": 7,
+      "enhancements": "Added 29 new test cases",
+      "timestamp": "2026-04-24T17:04:26.972626"
+    }
+  ],
+  "timestamp": "2026-04-24T17:04:26.972760"
+}
