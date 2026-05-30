@@ -664,7 +664,7 @@ Customize the workflow for your engine's build process.
 > **📚 Detailed Documentation**:
 > - [test-suites/functions/README.md](test-suites/functions/README.md) - Function tests (143 files, ~2,230 test cases)
 > - [test-suites/tpch/README.md](test-suites/tpch/README.md) - TPC-H benchmark (22 queries)
-> - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) - TPC-DS benchmark (5 queries)
+> - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) - TPC-DS benchmark (99 queries)
 
 ### TPC-H Benchmark (22 Queries)
 
@@ -1610,7 +1610,7 @@ Public leaderboard showing compliance status across all engines:
 ### 🧪 Test Suites
 - **[test-suites/functions/README.md](test-suites/functions/README.md)** - Function tests (143 files, ~2,230 test cases)
 - **[test-suites/tpch/README.md](test-suites/tpch/README.md)** - TPC-H benchmark (22 queries)
-- **[test-suites/tpcds/README.md](test-suites/tpcds/README.md)** - TPC-DS benchmark (5 queries, expanding to 99)
+- **[test-suites/tpcds/README.md](test-suites/tpcds/README.md)** - TPC-DS benchmark (99 queries)
 
 ### 📚 SDK Documentation
 - **[sdk/java/README.md](sdk/java/README.md)** - Java SDK (JDK 11+)
@@ -1705,7 +1705,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 | **Function Test Files** | 279 (143 standard + 136 enhanced) |
 | **Function Categories** | 15 (Aggregate, Arithmetic, Array, Boolean, Cast, Comparison, Conditional, DateTime, Geospatial, JSON, Map, Set, String, Struct, Window) |
 | **TPC-H Queries** | 22 queries |
-| **TPC-DS Queries** | 5 queries (expanding to 99) |
+| **TPC-DS Queries** | 99 queries |
 | **Test Data Rows** | 86,805 (TPC-H scale factor 0.01) |
 | **CI/CD Workflows** | 12 |
 | **Documentation Files** | 15+ |

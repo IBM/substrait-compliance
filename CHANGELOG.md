@@ -132,7 +132,7 @@ The Substrait Compliance Framework is now open source! This release represents t
   - Enhanced demo features documentation (query drill-down, complexity filtering, 10-phase framework)
   - Updated CI/CD workflow count to 12
   - Added REST API endpoints to project statistics
-  - Clarified TPC-DS status (5 queries, expanding to 99)
+  - Clarified TPC-DS status (99 queries complete)
 
 ### Added
 
@@ -335,7 +335,6 @@ The Substrait Compliance Framework is now open source! This release represents t
 - Performance regression detection
 
 ### Known Issues
-- TPC-DS benchmark is limited to 5 queries (expanding to 99)
 - Some SDKs have minor unused import warnings
 - Performance benchmarking features are in beta
 
