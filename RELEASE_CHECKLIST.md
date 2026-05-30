@@ -6,26 +6,27 @@ This document provides a comprehensive checklist for preparing and executing rel
 
 ### Pre-Launch Checklist
 
-- [x] **Documentation Complete**
-  - [x] README.md updated with accurate statistics (8 SDKs, 4,000+ test cases, 99 TPC-DS queries)
-  - [x] CHANGELOG.md prepared with v1.0.0 release notes
-  - [x] All governance files in place (CONTRIBUTING.md, GOVERNANCE.md, CODE_OF_CONDUCT.md, SECURITY.md)
-  - [x] MAINTAINERS.md populated with Project Lead (Ranjan Sinha)
+- [x] **Documentation Baseline Prepared**
+  - [x] README.md updated to describe the repository as pre-launch and in-progress where appropriate
+  - [x] CHANGELOG.md prepared for the planned v1.0.0 release
+  - [x] All governance files are present (CONTRIBUTING.md, GOVERNANCE.md, CODE_OF_CONDUCT.md, SECURITY.md)
   - [x] NOTICE file with proper attributions
   - [x] LICENSE file (Apache 2.0)
+  - [ ] Replace remaining placeholders in MAINTAINERS.md before launch
 
-- [x] **Security Validated**
-  - [x] Security scan completed (SECURITY_SCAN_REPORT.md)
-  - [x] 0 vulnerabilities found across all SDKs
-  - [x] No hardcoded secrets detected
+- [x] **Security Baseline Prepared**
+  - [x] Security scan report is present (SECURITY_SCAN_REPORT.md)
   - [x] Security disclosure process documented
+  - [ ] Re-validate current dependency and secret-scanning status immediately before launch
+  - [ ] Verify documented security controls against tested runtime behavior before launch
 
-- [x] **Test Coverage Verified**
-  - [x] 279 function test files (143 standard + 136 enhanced)
-  - [x] ~4,000+ individual test cases
-  - [x] TPC-H: 22 queries complete
-  - [x] TPC-DS: 99 queries complete
-  - [x] All 8 SDKs verified (Java, Python, Rust, Go, C++, TypeScript, C#, Scala)
+- [ ] **Implementation & Coverage Verification**
+  - [x] Function test files and enhancement artifacts are present in the repository
+  - [x] TPC-H assets are present in the repository
+  - [ ] Confirm exact test-case counts and suite completeness for public claims
+  - [ ] Confirm TPC-DS completion status before claiming 99-query support
+  - [ ] Verify each SDK's supported feature set and maturity before public launch messaging
+  - [ ] Verify all 8 SDKs through CI or documented manual release criteria
 
 - [ ] **Repository Setup**
   - [ ] Transfer/mirror from github.ibm.com to github.com/substrait-io/substrait-compliance

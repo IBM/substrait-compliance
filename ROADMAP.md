@@ -8,27 +8,28 @@ Build a comprehensive, decentralized compliance ecosystem for Substrait that ena
 
 ## 📍 Current State (Q2 2026)
 
-### ✅ Completed Milestones
+### 🚧 Repository Status
 
-1. **Core Infrastructure**
-   - Multi-language SDKs (Java, Python, Rust)
-   - Decentralized test execution framework
-   - TPC-H benchmark suite (22 queries, 143 function tests)
-   - Interactive demo system with dashboard
+The repository contains substantial pre-launch assets for the Substrait Compliance Framework, but the project should still be treated as being in launch-preparation rather than post-launch steady state.
 
-2. **REST API & Integration**
-   - Spring Boot REST API architecture
-   - Report submission and querying endpoints
-   - Webhook notification system
-   - JWT authentication and API keys
+1. **Core Infrastructure Present In-Repo**
+   - Multi-language SDK implementations are present across Java, Python, Rust, Go, C++, TypeScript, C#, and Scala
+   - Decentralized test execution framework components are present
+   - TPC-H benchmark assets and function test suites are included
+   - Interactive demo system with dashboard is included
 
-3. **CI/CD & Automation**
-   - GitHub Actions workflows for SDK testing
-   - Automated release and publishing
-   - Test suite validation
-   - Compliance leaderboard generation
+2. **REST API Present In-Repo**
+   - Spring Boot REST API architecture is implemented in the repository
+   - Report submission, querying, and webhook components are present
+   - Authentication, rate limiting, and related security/configuration components are present
+   - End-to-end launch validation remains in progress
 
-4. **Quality & Enhancement Tools**
+3. **CI/CD & Automation Present In-Repo**
+   - GitHub Actions workflows are included for SDK testing, validation, and release preparation
+   - Release and publishing workflows are defined, but public release execution remains pending
+   - Test suite validation and leaderboard automation assets are included
+
+4. **Quality & Enhancement Tooling Present In-Repo**
    - Test quality checker
    - Test enhancement scripts
    - Technical report generator

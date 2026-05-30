@@ -71,22 +71,22 @@ git --version     # Any recent version
 The Substrait Compliance Framework transforms how query engines validate their Substrait support. Instead of centralized testing, engines **self-certify** by:
 
 1. **Implementing standard interfaces** - ComplianceEngine trait/interface
-2. **Running pre-packaged test suites** - TPC-H (22 queries) + TPC-DS (99 queries) + 4,000+ function test cases
+2. **Running available test suites** - TPC-H (22 queries) + function test suites, with additional suites and broader verification still in progress
 3. **Generating compliance reports** - JSON format with pass/fail results
-4. **Publishing results** - Public leaderboard for ecosystem visibility
+4. **Publishing results** - Optional leaderboard/report publication once repository and community infrastructure are fully launched
 
 ### Key Features
 
 - 🔄 **Decentralized Testing** - Engines test themselves, no central bottleneck
-- 🌐 **Multi-Language SDKs** - Java, Python, Rust, C++, Go, TypeScript/JavaScript, C#/.NET, and Scala implementations
-- 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (99 queries), Function Tests (279 files, ~4,000+ test cases)
-- ⚡ **Performance Benchmarking** - Comprehensive benchmarking across all SDKs with statistical analysis (min, max, avg, P95, P99, throughput)
-- 🤖 **Automated CI/CD** - 12 GitHub Actions workflows for continuous compliance
-- 🌐 **REST API** - Programmatic access with JWT auth, webhooks, and rate limiting
+- 🌐 **Multi-Language SDKs** - Repository contains Java, Python, Rust, C++, Go, TypeScript/JavaScript, C#/.NET, and Scala SDK implementations at varying maturity levels
+- 📦 **Pre-packaged Test Suites** - TPC-H and function test suites are present in-repo; broader suite completion and verification remain in progress
+- ⚡ **Performance Benchmarking** - Benchmarking components are included across several SDKs
+- 🤖 **Automated CI/CD** - GitHub Actions workflows are included for validation, release, and automation, with full release verification still pending
+- 🌐 **REST API** - Spring Boot API implementation is included in the repository and should be treated as pre-release until launch validation is complete
 - 📊 **Interactive Demo** - Live dashboard with mock engines, query drill-down, and complexity filtering
-- 🏆 **Public Leaderboard** - Transparent compliance rankings across engines
-- ✨ **AI-Enhanced Quality** - 95%+ quality score with Claude-powered test validation
-- 🔟 **10-Phase Framework** - Comprehensive validation, analysis, storage, and reproducibility
+- 🏆 **Leaderboard Support** - Report aggregation and leaderboard generation are included; public publication depends on launch setup
+- ✨ **Quality Tooling** - Quality-checking and enhancement scripts are included for test-suite maintenance
+- 🔟 **10-Phase Framework** - Repository includes validation, analysis, storage, analytics, and reproducibility components in varying stages of maturity
 
 ---
 
@@ -799,7 +799,7 @@ ls -la
 # - window/        (7 files: ranking and navigation functions)
 ```
 
-**Quality Assurance:** All function tests have been enhanced with AI-powered quality checking to ensure comprehensive edge case coverage, accurate expected results, and proper null handling.
+**Quality Assurance:** Function-test quality tooling and enhancement artifacts are included in the repository. Treat generated quality metrics and enhancement outputs as project tooling results, not as a substitute for release verification.
 
 **Running Function Tests:**
 ```python

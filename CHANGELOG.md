@@ -15,21 +15,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - `.github/ISSUE_TEMPLATE/` - Bug report, feature request, and documentation templates
   - `.github/PULL_REQUEST_TEMPLATE.md` - Comprehensive PR template with checklists
 
-## [1.0.0] - 2026-05-30
+## [1.0.0] - Planned
 
-### 🎉 Initial Public Release
+### 🚧 Initial Public Release Preparation
 
-The Substrait Compliance Framework is now open source! This release represents the culmination of extensive development to create a comprehensive, decentralized testing infrastructure for Substrait implementations.
+This section tracks the planned initial public release. The repository contains the core framework, SDKs, test suites, API, demo assets, and automation needed for launch preparation, but public release and final verification steps are still in progress.
 
-### Highlights
+### Planned Highlights
 
-- **8 Language SDKs**: Java, Python, Rust, Go, C++, TypeScript, C#, and Scala
-- **279 Function Tests**: Comprehensive test coverage across 15 categories
-- **TPC-H Benchmark**: 22 queries for performance testing
-- **REST API**: Complete API for programmatic compliance reporting
-- **Interactive Demo**: Live dashboard with mock engines and visualization
-- **CI/CD Integration**: 12 GitHub Actions workflows for automation
-- **10-Phase Framework**: Complete validation, analysis, and reproducibility pipeline
+- **8 Language SDKs in-repo**: Java, Python, Rust, Go, C++, TypeScript, C#, and Scala
+- **279 Function Test Files**: Coverage across multiple categories, with broader verification still in progress
+- **TPC-H Benchmark**: 22 queries included for testing and benchmarking
+- **REST API Implementation**: Spring Boot API included in the repository as pre-release functionality
+- **Interactive Demo**: Dashboard and mock-engine demo for evaluation and walkthroughs
+- **CI/CD Workflows**: GitHub Actions workflows included for validation and release preparation
+- **10-Phase Framework Components**: Validation, analysis, storage, analytics, and reproducibility components included in the repository
 
 ### Added - Core Framework
 
