@@ -43,10 +43,14 @@ nano .env  # Edit with your values
 export JWT_SECRET=$(openssl rand -base64 32)
 echo "JWT_SECRET=$JWT_SECRET" >> .env
 
-# 4. Start all services
+# 4. Generate a database password and update .env
+export DB_PASSWORD=$(openssl rand -base64 24)
+echo "DB_PASSWORD=$DB_PASSWORD" >> .env
+
+# 5. Start all services
 docker-compose up -d
 
-# 5. Check logs
+# 6. Check logs
 docker-compose logs -f api
 
 # 6. Verify health
@@ -145,12 +149,15 @@ docker build -t substrait-compliance-api:1.0.0 -f api/Containerfile .
 podman network create substrait-network
 
 # Run PostgreSQL
+export DB_PASSWORD=$(openssl rand -base64 24)
+export JWT_SECRET=$(openssl rand -base64 32)
+
 podman run -d \
   --name substrait-db \
   --network substrait-network \
   -e POSTGRES_DB=substrait_compliance \
   -e POSTGRES_USER=substrait \
-  -e POSTGRES_PASSWORD=changeme \
+  -e POSTGRES_PASSWORD="$DB_PASSWORD" \
   -v substrait_data:/var/lib/postgresql/data \
   -p 5432:5432 \
   postgres:15-alpine
@@ -161,8 +168,8 @@ podman run -d \
   --network substrait-network \
   -e SPRING_DATASOURCE_URL=jdbc:postgresql://substrait-db:5432/substrait_compliance \
   -e SPRING_DATASOURCE_USERNAME=substrait \
-  -e SPRING_DATASOURCE_PASSWORD=changeme \
-  -e JWT_SECRET=$(openssl rand -base64 32) \
+  -e SPRING_DATASOURCE_PASSWORD="$DB_PASSWORD" \
+  -e JWT_SECRET="$JWT_SECRET" \
   -p 8080:8080 \
   substrait-compliance-api:1.0.0
 ```
@@ -178,8 +185,8 @@ metadata:
   name: substrait-api-secrets
 type: Opaque
 stringData:
-  jwt-secret: "your-jwt-secret-here"
-  db-password: "your-db-password-here"
+  jwt-secret: "<generate-with-openssl-rand-base64-32>"
+  db-password: "<generate-a-unique-database-password>"
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -276,8 +283,8 @@ RestartSec=10
 
 Environment="SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/substrait_compliance"
 Environment="SPRING_DATASOURCE_USERNAME=substrait"
-Environment="SPRING_DATASOURCE_PASSWORD=changeme"
-Environment="JWT_SECRET=your-jwt-secret"
+Environment="SPRING_DATASOURCE_PASSWORD=<set-a-generated-database-password>"
+Environment="JWT_SECRET=<set-a-generated-jwt-secret>"
 
 [Install]
 WantedBy=multi-user.target

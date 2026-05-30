@@ -40,21 +40,24 @@ open http://localhost:8080/swagger-ui.html
 ### Local Development
 
 ```bash
-# 1. Start PostgreSQL
+# 1. Generate local secrets for development
+export DEV_DB_PASSWORD=$(openssl rand -base64 24)
+export JWT_SECRET=$(openssl rand -base64 32)
+
+# 2. Start PostgreSQL
 docker run -d --name postgres \
   -e POSTGRES_DB=substrait_compliance \
   -e POSTGRES_USER=substrait \
-  -e POSTGRES_PASSWORD=changeme \
+  -e POSTGRES_PASSWORD="$DEV_DB_PASSWORD" \
   -p 5432:5432 \
   postgres:15-alpine
 
-# 2. Configure application
+# 3. Configure application
 export SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/substrait_compliance
 export SPRING_DATASOURCE_USERNAME=substrait
-export SPRING_DATASOURCE_PASSWORD=changeme
-export JWT_SECRET=$(openssl rand -base64 32)
+export SPRING_DATASOURCE_PASSWORD="$DEV_DB_PASSWORD"
 
-# 3. Run application
+# 4. Run application
 ./gradlew bootRun
 
 # 4. Run tests

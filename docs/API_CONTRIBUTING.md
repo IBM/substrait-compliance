@@ -60,11 +60,13 @@ This project adheres to the Substrait Community Code of Conduct. By participatin
 2. **Set up PostgreSQL**:
    ```bash
    # Using Podman
+   export DEV_DB_PASSWORD=$(openssl rand -base64 24)
+
    podman run -d \
      --name substrait-postgres \
      -e POSTGRES_DB=substrait_compliance \
      -e POSTGRES_USER=substrait \
-     -e POSTGRES_PASSWORD=password \
+     -e POSTGRES_PASSWORD="$DEV_DB_PASSWORD" \
      -p 5432:5432 \
      postgres:15-alpine
    ```

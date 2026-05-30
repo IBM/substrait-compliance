@@ -932,10 +932,10 @@ public class OpenApiConfig {
 # Database
 SPRING_DATASOURCE_URL=jdbc:postgresql://localhost:5432/substrait_compliance
 SPRING_DATASOURCE_USERNAME=substrait
-SPRING_DATASOURCE_PASSWORD=secure-password
+SPRING_DATASOURCE_PASSWORD=<generate-a-unique-database-password>
 
 # JWT
-JWT_SECRET=your-secret-key-min-256-bits
+JWT_SECRET=<generate-with-openssl-rand-base64-32>
 JWT_EXPIRATION=3600000
 
 # Rate Limiting

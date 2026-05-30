@@ -86,11 +86,24 @@ site/
 # Local configuration
 local.properties
 *.local
+.env
+.env.*
+!.env.example
 
 # Secrets and credentials
 *.key
 *.pem
 *.p12
+*.pfx
+*.jks
+*.keystore
+*.crt
+*.csr
+*.der
+*.kdb
+*.kdbx
+*.ovpn
+*.tfvars
 secrets/
 credentials/
 
@@ -106,6 +119,13 @@ credentials/
 # Generated files
 generated/
 gen/
+
+# Security and audit artifacts
+*.sarif
+dependency-check-report.*
+trivy-report.*
+gitleaks-report.*
+secret-scan-report.*
 
 # Made with Bob
 

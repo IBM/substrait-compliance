@@ -27,67 +27,29 @@ Enable database engines to self-certify their Substrait compliance through stand
 - [Contributing](#-contributing)
 - [Key Documentation](#-key-documentation)
 
-## 🔧 SDK Status & Recent Fixes
+## 🔧 SDK Notes
 
-All SDKs are now fully operational with recent fixes applied:
+This repository includes SDKs and examples across multiple languages. Support level, feature parity, and verification status may vary by SDK and release.
 
-| SDK | Status | Recent Fixes | Build Status |
-|-----|--------|--------------|--------------|
-| **Java** | ✅ Production Ready | - | ✅ BUILD SUCCESSFUL |
-| **Python** | ✅ Production Ready | - | ✅ All files compile |
-| **Rust** | ✅ Production Ready | Fixed benchmark API mismatches | ✅ Builds (3 minor warnings) |
-| **Go** | ✅ Production Ready | Fixed go.mod parsing errors | ✅ Builds successfully |
-| **TypeScript** | ✅ Production Ready | Fixed npm cache issues, added proper configuration | ✅ Configuration updated |
-| **C#/.NET** | ✅ Production Ready | - | ✅ Builds (doc warnings only) |
-| **Scala** | ✅ Production Ready | Fixed 22 compilation errors (type separation, method syntax) | ✅ Compiles (7 minor warnings) |
-| **C++** | ✅ Production Ready | Enhanced toolchain setup documentation | ✅ Documentation complete |
+Recent documentation and compatibility updates include:
 
-### Recent SDK Improvements (2026-05-30)
+- **Rust SDK**: Updated [`benchmark_example.rs`](sdk/rust/examples/benchmark_example.rs) to use the current instance-method benchmark pattern
+- **Go SDK**: Cleaned up [`go.mod`](sdk/go/go.mod) and refreshed module metadata
+- **Scala SDK**: Introduced [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) to separate engine execution from test results
+- **C++ SDK**: Expanded setup guidance in [`README.md`](sdk/cpp/README.md)
+- **TypeScript SDK**: Improved package configuration and troubleshooting guidance in [`README.md`](sdk/typescript/README.md)
 
-#### Rust SDK
-- **Fixed**: Removed unused `quick_benchmark` static method causing API mismatches
-- **Updated**: [`benchmark_example.rs`](sdk/rust/examples/benchmark_example.rs) to use instance method pattern
-- **Status**: Builds successfully with 3 minor unused import warnings
-
-#### Go SDK
-- **Fixed**: Removed invalid HTML comment from [`go.mod`](sdk/go/go.mod) causing parsing errors
-- **Added**: Proper `go.sum` file through `go mod tidy`
-- **Status**: Builds and tests pass successfully
-
-#### Scala SDK
-- **Fixed**: 22 compilation errors by introducing proper type separation
-- **Added**: New [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) type to separate engine execution from test results
-- **Updated**: [`ComplianceEngine.scala`](sdk/scala/src/main/scala/io/substrait/compliance/ComplianceEngine.scala) return type from `Future[ComplianceResult]` to `Future[EngineResult]`
-- **Fixed**: Method call syntax across multiple files (removed parentheses for parameterless methods)
-- **Status**: Compiles successfully with 7 minor unused import warnings
-
-#### C++ SDK
-- **Enhanced**: Comprehensive toolchain setup documentation in [`README.md`](sdk/cpp/README.md)
-- **Added**: Detailed compiler requirements (GCC 7+, Clang 5+, MSVC 2017+, Apple Clang)
-- **Added**: Platform-specific installation guides (Ubuntu/Debian, macOS, Windows)
-- **Added**: CMake configuration options and build instructions
-- **Added**: Package manager integration (vcpkg, Conan)
-- **Status**: Documentation complete, builds successfully
-
-#### TypeScript SDK
-- **Fixed**: npm cache issues through proper configuration
-- **Added**: [`package.json`](sdk/typescript/package.json) scripts: `clean`, `prepare`, `prepack`, `format:check`
-- **Added**: Jest, Prettier, and ESLint configurations
-- **Added**: [`.npmrc`](sdk/typescript/.npmrc) with cache settings
-- **Enhanced**: [`README.md`](sdk/typescript/README.md) with comprehensive troubleshooting section
-- **Status**: Configuration updated, ready for use
-
-All changes have been committed (commit `09185cb`) and pushed to the remote repository.
+For current build and test status, rely on repository CI results and per-SDK documentation.
 
 ---
 
 ---
 
-## � Prerequisites
+## 🔧 Prerequisites
 
 Before you begin, ensure you have:
 
-- ✅ **Java 11+** - Check with `java -version`
+- ✅ **Java 17+** - Check with `java -version`
 - ✅ **Python 3.8+** - Check with `python3 --version` (optional, for Python SDK/demo)
 - ✅ **Rust 1.70+** - Check with `rustc --version` (optional, for Rust SDK)
 - ✅ **Git** - For cloning the repository
@@ -95,9 +57,9 @@ Before you begin, ensure you have:
 
 **Quick Verification:**
 ```bash
-java -version    # Should show 11 or higher
+java -version     # Should show 17 or higher
 python3 --version # Should show 3.8 or higher
-git --version    # Any recent version
+git --version     # Any recent version
 ```
 
 ---
@@ -134,8 +96,8 @@ Experience the framework in action before integrating your own engine:
 
 ```bash
 # 1. Clone the repository
-git clone <repository-url>
-cd substrait-compliance-private
+git clone https://github.com/substrait-io/substrait-compliance.git
+cd substrait-compliance
 
 # 2. Run the demo (generates mock compliance reports)
 cd demo

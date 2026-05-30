@@ -159,7 +159,7 @@ Then create a pull request on GitHub.
 - Use meaningful variable and method names
 - Add Javadoc comments for public APIs
 - Keep methods focused and under 50 lines when possible
-- Use Java 17+ features appropriately
+- Target Java 17 compatibility unless a change is explicitly scoped otherwise
 
 Example:
 ```java
