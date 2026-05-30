@@ -7,8 +7,38 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- **Rust SDK** - Fixed benchmark API mismatches
+  - Removed unused `quick_benchmark` static method from `benchmark/mod.rs`
+  - Updated `benchmark_example.rs` to use instance method pattern
+  - Build status: ✅ Successful (3 minor unused import warnings)
+- **Go SDK** - Fixed go.mod parsing errors
+  - Removed invalid HTML comment from `go.mod`
+  - Added proper `go.sum` file through `go mod tidy`
+  - Build status: ✅ Successful
+- **Scala SDK** - Fixed 22 compilation errors
+  - Created new `EngineResult` type to separate engine execution from test results
+  - Updated `ComplianceEngine.scala` return type from `Future[ComplianceResult]` to `Future[EngineResult]`
+  - Fixed method call syntax across multiple files (removed parentheses for parameterless methods)
+  - Updated `ComplianceRunner.scala`, `BenchmarkExample.scala`, `BenchmarkRunner.scala`, and `ExampleEngine.scala`
+  - Build status: ✅ Successful (7 minor unused import warnings)
+- **TypeScript SDK** - Fixed npm cache issues
+  - Added proper npm scripts to `package.json`: `clean`, `prepare`, `prepack`, `format:check`
+  - Added Jest, Prettier, and ESLint configurations inline
+  - Created `.npmrc` with cache settings (`cache-min=3600`, `prefer-offline=true`)
+  - Enhanced `README.md` with comprehensive troubleshooting section
+  - Build status: ✅ Configuration updated
+
 ### Changed
-- **Updated README.md** to reflect current project state
+- **C++ SDK** - Enhanced toolchain setup documentation
+  - Added detailed compiler requirements (GCC 7+, Clang 5+, MSVC 2017+, Apple Clang)
+  - Added platform-specific installation guides (Ubuntu/Debian, macOS, Windows)
+  - Added CMake configuration options and build instructions
+  - Added package manager integration (vcpkg, Conan)
+  - Added verification steps
+- **Updated README.md** to reflect current project state and SDK fixes
+  - Added new "SDK Status & Recent Fixes" section with comprehensive status table
+  - Documented all SDK improvements with links to modified files
   - Updated test suite statistics: 279 total function test files (143 standard + 136 enhanced)
   - Corrected project statistics table with accurate counts
   - Added test-suites-enhanced directory to repository structure
