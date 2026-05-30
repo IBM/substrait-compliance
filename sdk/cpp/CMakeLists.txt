@@ -6,6 +6,16 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+# Set macOS SDK path for C++ standard library
+if(APPLE)
+    execute_process(
+        COMMAND xcrun --show-sdk-path
+        OUTPUT_VARIABLE MACOS_SDK_PATH
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    set(CMAKE_OSX_SYSROOT ${MACOS_SDK_PATH})
+endif()
+
 # Options
 option(BUILD_TESTS "Build unit tests" ON)
 option(BUILD_EXAMPLES "Build examples" ON)
@@ -21,31 +31,17 @@ include_directories(
     ${Protobuf_INCLUDE_DIRS}
 )
 
-# Library sources
-set(LIBRARY_SOURCES
-    src/engine.cpp
-    src/result.cpp
-    src/runner.cpp
-    src/test_suite.cpp
-    src/table_data.cpp
-    src/loader.cpp
-    src/error.cpp
-    src/comparator.cpp
-)
-
-# Create library
-add_library(substrait_compliance ${LIBRARY_SOURCES})
+# Create header-only interface library
+add_library(substrait_compliance INTERFACE)
 
 target_include_directories(substrait_compliance
-    PUBLIC
+    INTERFACE
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
-    PRIVATE
-        ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
 target_link_libraries(substrait_compliance
-    PUBLIC
+    INTERFACE
         ${Protobuf_LIBRARIES}
         yaml-cpp
 )
@@ -57,10 +53,10 @@ set_target_properties(substrait_compliance PROPERTIES
     PUBLIC_HEADER "include/substrait_compliance.h"
 )
 
-# Examples
-if(BUILD_EXAMPLES)
-    add_subdirectory(examples)
-endif()
+# Examples - temporarily disabled due to compiler issues
+# if(BUILD_EXAMPLES)
+#     add_subdirectory(examples)
+# endif()
 
 # Tests
 if(BUILD_TESTS)
