@@ -1,10 +1,197 @@
-# Substrait Compliance Framework - End-to-End Demo
+# Substrait Compliance Framework - Interactive Demo
 
 This demo showcases the complete workflow of testing database engines for Substrait compliance and publishing results to an interactive dashboard.
+
+## 📋 Table of Contents
+
+- [Quick Start (5 Minutes)](#quick-start-5-minutes)
+- [Demo Overview](#demo-overview)
+- [Dashboard Features](#dashboard-features)
+- [Demo Components](#demo-components)
+- [Usage Scenarios](#usage-scenarios)
+- [Mock Engine Characteristics](#mock-engine-characteristics)
+- [Function Tests](#function-tests)
+- [Customization](#customization)
+- [Troubleshooting](#troubleshooting)
+- [Next Steps](#next-steps)
+
+---
+
+## Quick Start (5 Minutes)
+
+### Prerequisites
+
+- ✅ Java 11 or higher
+- ✅ Python 3.8+ (for web server)
+- ✅ Web browser
+
+### Step 1: Run the Demo
+
+```bash
+# Navigate to demo directory
+cd demo
+
+# Run the simplified demo script
+./runner/run-simple-demo.sh
+```
+
+**Expected Output:**
+```
+================================================================================
+Substrait Compliance Framework - Demo
+================================================================================
+
+🔧 Testing: MockDB v1.0.0
+   ✅ Passed: 19/22 (85.4%)
+   💾 Report saved: output/mockdb-report.json
+
+🔧 Testing: FastDB v2.5.0
+   ✅ Passed: 21/22 (95.5%)
+   💾 Report saved: output/fastdb-report.json
+
+🔧 Testing: CloudDB v3.1.0
+   ✅ Passed: 17/22 (77.3%)
+   💾 Report saved: output/clouddb-report.json
+
+📈 Generating leaderboard...
+   💾 Leaderboard saved: output/leaderboard.json
+   💾 Dashboard data updated: dashboard/data/leaderboard.json
+
+✅ Demo completed successfully!
+```
+
+### Step 2: Verify Files Were Created
+
+```bash
+# Check that reports were generated
+ls -la output/
+# Should show: mockdb-report.json, fastdb-report.json, clouddb-report.json, leaderboard.json
+
+# Check that dashboard data was created
+ls -la dashboard/data/
+# Should show: leaderboard.json
+```
+
+### Step 3: Start Web Server
+
+⚠️ **Important:** Due to browser security (CORS), you **must** use a web server, not open files directly.
+
+```bash
+# Navigate to dashboard directory
+cd dashboard
+
+# Start Python web server
+python3 -m http.server 8080
+```
+
+**If port 8080 is in use, try:**
+```bash
+python3 -m http.server 8081
+# or
+python3 -m http.server 9000
+```
+
+### Step 4: Open Dashboard
+
+Open your web browser and go to:
+```
+http://localhost:8080
+```
+
+---
 
 ## Demo Overview
 
 The demo simulates five database engines (MockDB, FastDB, CloudDB, DuckDB, and PostgreSQL) running compliance tests against both the TPC-H benchmark and the functional test suite, then publishing integrated results to a web dashboard.
+
+### What You'll See
+
+#### In the Dashboard:
+- **Header**: Shows 3 engines, average pass rate ~86%
+- **Leaderboard Table**: Rankings with 🥇🥈🥉 medals
+- **Bar Chart**: Pass rate comparison
+- **Doughnut Chart**: Test distribution
+- **Detail Cards**: Per-engine breakdowns
+
+#### Rankings:
+```
+🥇 FastDB  - 95.5% (🟢 Excellent)
+🥈 MockDB  - 85.4% (🟡 Good)
+🥉 CloudDB - 77.3% (🟠 Fair)
+```
+
+### Demo Workflow
+
+1. **Mock Engines Execute Tests**
+   - Loads TPC-H test data (simulated)
+   - Executes 22 Substrait query plans
+   - Generates pass/fail results with realistic patterns
+   - Produces compliance report JSON
+
+2. **Reports Aggregation**
+   - Collects all engine reports
+   - Calculates rankings
+   - Generates leaderboard markdown and JSON
+
+3. **Dashboard Display**
+   - Shows rankings and statistics
+   - Provides interactive visualizations
+   - Enables query-level drill-down
+
+---
+
+## Dashboard Features
+
+### 1. Leaderboard View
+- **Real-time Rankings**: Engines ranked by pass rate
+- **Key Metrics**: Pass rate, tests passed/failed/skipped
+- **Status Indicators**: Visual badges (Excellent 🟢, Good 🟡, Fair 🟠, Needs Work 🔴)
+- **Interactive Rows**: Click any engine row to view detailed results
+
+### 2. Query-Level Drill-Down ✨
+
+Click on any engine in the leaderboard to open a detailed modal showing:
+- **Summary Statistics**: Pass rate, passed/failed/skipped counts, average execution time
+- **Individual Query Results**: Each TPC-H query displayed as a card with:
+  - Query name (Q01-Q22)
+  - Complexity badge (Simple, Medium, Complex, Very Complex)
+  - Status (Passed/Failed/Skipped)
+  - Execution time in milliseconds
+  - Error messages (for failed tests)
+
+**How to Use:**
+1. Click any engine row in the leaderboard table
+2. Modal opens with detailed query-by-query results
+3. Scroll through query cards to see individual results
+4. Click the X or outside the modal to close
+
+### 3. Filter by Query Complexity ✨
+
+Filter results to focus on specific query complexity levels:
+- **All Queries** (default): Shows all 22 TPC-H queries
+- **Simple**: 3 queries (Q1, Q6, Q14) - Basic aggregations
+- **Medium**: 7 queries (Q3, Q4, Q10, Q12, Q13, Q16, Q19) - Joins and filters
+- **Complex**: 8 queries (Q5, Q7, Q9, Q11, Q15, Q17, Q18, Q22) - Multi-table joins
+- **Very Complex**: 4 queries (Q2, Q8, Q20, Q21) - Subqueries and advanced operations
+
+**How to Use:**
+1. Use the dropdown in the leaderboard section header
+2. Select a complexity level
+3. Click any engine to see filtered results in the modal
+4. Modal shows only queries matching the selected complexity
+5. Summary statistics update to reflect filtered queries only
+
+### 4. Visual Charts
+- **Pass Rate Comparison**: Bar chart comparing engine pass rates
+- **Test Distribution**: Doughnut chart showing tests passed per engine
+- **Color-coded Performance**: Green (95%+), Yellow (85-94%), Orange (70-84%), Red (<70%)
+
+### 5. Auto-Refresh
+- Dashboard automatically refreshes every 30 seconds
+- Ensures latest test results are always displayed
+- No manual refresh needed
+
+---
 
 ## Demo Components
 
@@ -23,6 +210,7 @@ demo/
 │   ├── FunctionTestDemo.java   # Functional test demo runner
 │   ├── run-demo.sh             # Basic demo runner script
 │   ├── run-enhanced-demo.sh    # Integrated TPC-H + function dashboard demo
+│   ├── run-simple-demo.sh      # Simplified demo (recommended)
 │   └── run-function-tests.sh   # Functional test runner
 ├── dashboard/                   # Web dashboard
 │   ├── index.html              # Dashboard UI
@@ -34,87 +222,117 @@ demo/
     └── .gitkeep
 ```
 
-## Quick Start
+---
 
-### Prerequisites
+## Usage Scenarios
 
-- Java 11+
-- Python 3.8+
-- Web browser (for dashboard)
+### Scenario 1: Quick Overview
+**Goal**: Get a high-level view of engine compliance
 
-### Run the Demo
+1. Run demo: `./runner/run-simple-demo.sh`
+2. Open dashboard
+3. Review leaderboard rankings
+4. Check pass rate chart
 
-```bash
-# From the demo directory
-cd demo
+**Expected Result**: FastDB leads with 95.5%, MockDB at 85.4%, CloudDB at 77.3%
 
-# Run the complete demo
-./runner/run-enhanced-demo.sh
-```
+### Scenario 2: Investigate Failures
+**Goal**: Understand why an engine is failing tests
 
-This will:
-1. ✅ Run the integrated TPC-H end-to-end demo for 5 engines
-2. ✅ Include DuckDB and PostgreSQL in dashboard outputs
-3. ✅ Reuse functional test results when available
-4. ✅ Generate cross-suite dashboard data for TPC-H and functional tests
-5. ✅ Publish integrated results for both dashboard views
+1. Open dashboard
+2. Click on CloudDB (lowest pass rate)
+3. Scroll through query cards
+4. Identify failed queries (red border)
+5. Read error messages
 
-## Demo Workflow
+**Expected Result**: See which specific queries failed and why
 
-### Step 1: Mock Engines Execute Tests
+### Scenario 3: Compare Simple vs Complex Query Support
+**Goal**: Determine if an engine handles complex queries well
 
-Each demo engine:
-- Loads TPC-H test data (simulated)
-- Executes 22 Substrait query plans
-- Generates pass/fail results with realistic patterns
-- Produces compliance report JSON
-- Contributes to cross-suite dashboard summaries with functional test results
+1. Open dashboard
+2. Select "Simple" from complexity filter
+3. Click FastDB → Note pass rate for simple queries
+4. Select "Very Complex" from filter
+5. Click FastDB again → Compare pass rate
 
-### Step 2: Reports Aggregation
+**Expected Result**: Most engines perform better on simple queries
 
-The `generate_leaderboard.py` script:
-- Collects all engine reports
-- Calculates rankings
-- Generates leaderboard markdown and JSON
+### Scenario 4: Performance Analysis
+**Goal**: Find the fastest engine for specific query types
 
-### Step 3: Dashboard Display
+1. Open dashboard
+2. Select "Medium" complexity
+3. Click each engine and note average execution times
+4. Compare times across engines
 
-The web dashboard shows:
-- **TPC-H Rankings Table**: Engines sorted by TPC-H pass rate
-- **Cross-Suite Summary**: TPC-H and functional results side-by-side
-- **Pass Rate Charts**: Visual comparison across both suites
-- **Detailed Results**: Per-engine TPC-H + functional breakdown
-- **Query Analysis**: Which TPC-H queries passed/failed
+**Expected Result**: Identify which engine executes medium queries fastest
+
+---
 
 ## Mock Engine Characteristics
 
 ### MockDB (Baseline)
-- Pass Rate: ~85%
-- Strengths: Simple queries, basic aggregations
-- Weaknesses: Complex joins, subqueries
+- **Pass Rate**: ~85%
+- **Strengths**: Simple queries, basic aggregations
+- **Weaknesses**: Complex joins, subqueries
+- **Use Case**: Testing basic compliance
 
 ### FastDB (High Performance)
-- Pass Rate: ~95%
-- Strengths: All query types, optimized execution
-- Weaknesses: Some edge cases
+- **Pass Rate**: ~95%
+- **Strengths**: All query types, optimized execution
+- **Weaknesses**: Some edge cases
+- **Use Case**: Production-ready reference
 
 ### CloudDB (Cloud-Native)
-- Pass Rate: ~78%
-- Strengths: Scalable queries, distributed execution
-- Weaknesses: Complex analytical queries
+- **Pass Rate**: ~78%
+- **Strengths**: Scalable queries, distributed execution
+- **Weaknesses**: Complex analytical queries
+- **Use Case**: Cloud deployment scenarios
 
-## Dashboard Features
+---
 
-### Interactive Elements
-- 📊 **Bar Chart**: Visual pass rate comparison
-- 📈 **Trend Lines**: Historical performance (simulated)
-- 🔍 **Query Details**: Click engine to see query-level results
-- 🎨 **Color Coding**: Green (≥95%), Yellow (85-94%), Orange (70-84%), Red (<70%)
+## Function Tests
 
-### Real-Time Updates
-- Auto-refresh every 30 seconds (configurable)
-- Live status indicators
-- Timestamp of last update
+The demo includes comprehensive function-level compliance tests across **7 major categories**:
+
+### Test Categories (33 test files)
+
+1. **Advanced Math Functions** (11 tests)
+   - round, ceil, floor, trunc, log, log10, ln, sign, mod, radians, degrees
+
+2. **Array/List Functions** (6 tests)
+   - array_construct, array_element, array_length, array_concat, array_contains, array_position
+
+3. **Struct/Map Functions** (5 tests)
+   - struct_construct, struct_extract, map_construct, map_extract, map_keys
+
+4. **JSON Functions** (2 tests)
+   - json_extract, json_parse
+
+5. **Conditional Functions** (2 tests)
+   - case_when, if_then_else
+
+6. **Set Operations** (3 tests)
+   - union, intersect, except
+
+7. **Geospatial Functions** (4 tests)
+   - st_distance, st_contains, st_intersects, st_area
+
+### Running Function Tests
+
+```bash
+cd demo/runner
+./run-function-tests-python.sh
+```
+
+This will:
+- Execute tests for all function categories
+- Generate JSON reports in `demo/output/`
+- Create a summary report
+- Display results in a formatted table
+
+---
 
 ## Customization
 
@@ -154,6 +372,112 @@ Update `DemoRunner.java` to use different test suites:
 TestSuite suite = loader.load("path/to/your/suite.yaml");
 ```
 
+### Modify Dashboard Appearance
+
+Edit `demo/dashboard/styles.css`:
+- `.modal-content`: Modal size and positioning
+- `.query-card`: Individual query card styling
+- `.complexity-*`: Complexity badge colors
+
+---
+
+## Troubleshooting
+
+### Dashboard Not Loading Data
+
+**Problem**: Dashboard shows "Failed to load leaderboard data"
+
+**Solution**:
+```bash
+# Ensure demo has been run
+./runner/run-simple-demo.sh
+
+# Check if data file exists
+ls -la dashboard/data/leaderboard.json
+
+# Use web server instead of file://
+cd dashboard && python3 -m http.server 8080
+```
+
+### Modal Not Opening
+
+**Problem**: Clicking engine row does nothing
+
+**Solution**:
+1. Open browser console (F12)
+2. Look for errors like "Failed to load report"
+3. Verify files exist: `ls demo/output/*.json`
+4. Check file names match: `mockdb-report.json`, `fastdb-report.json`, `clouddb-report.json`
+5. Re-run demo: `./runner/run-simple-demo.sh`
+
+### Filter Not Working
+
+**Problem**: Dropdown changes but modal shows all queries
+
+**Solution**:
+1. Check browser console for JavaScript errors
+2. Verify `onchange="filterByComplexity(this.value)"` in HTML
+3. Hard refresh browser (Ctrl+Shift+R or Cmd+Shift+R)
+
+### Port Already in Use
+
+**Problem**: "Address already in use" error
+
+**Solution**:
+```bash
+# Use a different port
+python3 -m http.server 8081
+# or
+python3 -m http.server 9000
+```
+
+### Permission Denied on Scripts
+
+**Problem**: Cannot execute run-simple-demo.sh
+
+**Solution**:
+```bash
+chmod +x runner/run-simple-demo.sh
+./runner/run-simple-demo.sh
+```
+
+### Charts Not Displaying
+
+**Problem**: Empty chart areas
+
+**Solution**:
+- Check internet connection (Chart.js loads from CDN)
+- Verify JavaScript is enabled
+- Try different browser
+- Check browser console for CDN errors
+
+### Compilation Errors
+
+**Problem**: Java compilation fails
+
+**Solution**:
+```bash
+# Ensure SDK is built first
+cd ../sdk/java
+./gradlew build
+cd ../../demo
+```
+
+### Reports Not Generated
+
+**Problem**: Output directory is empty
+
+**Solution**:
+```bash
+# Check output directory permissions
+chmod -R 755 demo/output
+
+# Re-run demo
+./runner/run-simple-demo.sh
+```
+
+---
+
 ## Output Files
 
 After running the integrated demo:
@@ -174,19 +498,41 @@ demo/dashboard/data/
 └── summary.json                            # Cross-suite dashboard summary
 ```
 
-## Demo Scenarios
+---
 
-### Scenario 1: Initial Cross-Suite Compliance Check
-Run all engines and see baseline TPC-H and function compliance together.
+## Next Steps
 
-### Scenario 2: Engine Improvement
-Modify an engine's pass rate and re-run to show improvement.
+### For Demo Purposes
+1. ✅ Run the demo: `./runner/run-simple-demo.sh`
+2. ✅ View dashboard: Open `http://localhost:8080`
+3. ✅ Explore reports: `cat output/*.json`
+4. ✅ Present to stakeholders
 
-### Scenario 3: New Engine Addition
-Add a new engine and see how it ranks.
+### For Production Use
+1. Replace `SimpleDemoRunner` with actual engine implementations
+2. Integrate with real Substrait plan execution
+3. Connect to actual databases
+4. Deploy dashboard to web server
+5. Set up CI/CD for automated testing
 
-### Scenario 4: Dashboard Monitoring
-Keep dashboard open and run the integrated and function demos multiple times to see updates across both views.
+### Explore Further
+1. **Review Code**: Examine mock engine implementations
+2. **Modify Engines**: Change pass rates and behaviors
+3. **Customize Dashboard**: Update styles and charts
+4. **Real Integration**: Replace mocks with actual database engines
+
+---
+
+## Support
+
+For questions or issues:
+- Review main project README: `../README.md`
+- Check SDK documentation: `../sdk/*/README.md`
+- See examples: `../examples/README.md`
+- Check browser console for errors (F12)
+- Verify all files generated correctly
+
+---
 
 ## Technical Details
 
@@ -216,45 +562,15 @@ Keep dashboard open and run the integrated and function demos multiple times to 
 - Pure HTML/CSS/JavaScript (no frameworks)
 - Chart.js for visualizations
 - Responsive design
-- Works offline
+- Works offline (after initial load)
 
-## Troubleshooting
-
-### Issue: Compilation Errors
-```bash
-# Ensure SDK is built first
-cd ../sdk/java
-./gradlew build
-```
-
-### Issue: Dashboard Not Loading
-```bash
-# Use a local web server
-cd demo/dashboard
-python3 -m http.server 8000
-# Open http://localhost:8000
-```
-
-### Issue: Reports Not Generated
-```bash
-# Check output directory permissions
-chmod -R 755 demo/output
-```
-
-## Next Steps
-
-1. **Explore Code**: Review mock engine implementations
-2. **Modify Engines**: Change pass rates and behaviors
-3. **Customize Dashboard**: Update styles and charts
-4. **Real Integration**: Replace mocks with actual database engines
-
-## Support
-
-For questions or issues:
-- Review main project README: `../README.md`
-- Check SDK documentation: `../sdk/*/README.md`
-- See examples: `../examples/README.md`
+### Browser Requirements
+- Modern browser with JavaScript enabled
+- Chart.js library (loaded via CDN)
+- Local web server (due to CORS restrictions)
 
 ---
 
 **Demo Purpose**: Educational demonstration of the Substrait Compliance Framework workflow. Mock engines simulate real database behavior for testing and visualization purposes.
+
+**Last Updated**: 2026-05-30

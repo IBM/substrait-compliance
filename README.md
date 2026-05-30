@@ -1,7 +1,9 @@
 # Substrait Compliance Framework
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)](https://github.ibm.com/rsinha/substrait-compliance/actions)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)](https://github.com/substrait-io/substrait-compliance/actions)
+[![Release](https://img.shields.io/github/v/release/substrait-io/substrait-compliance)](https://github.com/substrait-io/substrait-compliance/releases)
+[![Contributors](https://img.shields.io/github/contributors/substrait-io/substrait-compliance)](https://github.com/substrait-io/substrait-compliance/graphs/contributors)
 
 > **A decentralized compliance testing framework for Substrait implementations**
 
@@ -1360,8 +1362,8 @@ If you're still experiencing issues:
    ```
 
 4. **Report Issues**
-   - 🐛 [GitHub Issues](https://github.ibm.com/rsinha/substrait-compliance/issues)
-   - 💬 [GitHub Discussions](https://github.ibm.com/rsinha/substrait-compliance/discussions)
+   - 🐛 [GitHub Issues](https://github.com/substrait-io/substrait-compliance/issues)
+   - 💬 [GitHub Discussions](https://github.com/substrait-io/substrait-compliance/discussions)
 
 ---
 
@@ -1560,41 +1562,42 @@ Public leaderboard showing compliance status across all engines:
 
 ### 🎯 Getting Started
 - **[README.md](README.md)** - This file - comprehensive overview and quick start
-- **[demo/START_HERE.md](demo/START_HERE.md)** - Interactive demo guide
-- **[INTEGRATION_GUIDE.md](INTEGRATION_GUIDE.md)** - Complete integration guide for engines
+- **[demo/README.md](demo/README.md)** - Complete interactive demo guide with setup and usage
+- **[demo/DASHBOARD_GUIDE.md](demo/DASHBOARD_GUIDE.md)** - Dashboard features and navigation
+- **[demo/TROUBLESHOOTING.md](demo/TROUBLESHOOTING.md)** - Demo troubleshooting and FAQ
 - **[examples/README.md](examples/README.md)** - Example implementations (DuckDB, DataFusion)
 
 ### 🧪 Test Suites
 - **[test-suites/functions/README.md](test-suites/functions/README.md)** - Function tests (143 files, ~2,230 test cases)
 - **[test-suites/tpch/README.md](test-suites/tpch/README.md)** - TPC-H benchmark (22 queries)
 - **[test-suites/tpcds/README.md](test-suites/tpcds/README.md)** - TPC-DS benchmark (5 queries, expanding to 99)
-- **[docs/FUNCTION_TESTS_IMPLEMENTATION.md](docs/FUNCTION_TESTS_IMPLEMENTATION.md)** - Function testing implementation guide
 
 ### 📚 SDK Documentation
 - **[sdk/java/README.md](sdk/java/README.md)** - Java SDK (JDK 11+)
 - **[sdk/python/README.md](sdk/python/README.md)** - Python SDK (3.8+)
 - **[sdk/rust/README.md](sdk/rust/README.md)** - Rust SDK (2021 edition)
+- **[sdk/csharp/README.md](sdk/csharp/README.md)** - C# SDK (.NET 6.0+)
 
 ### 🌐 REST API
-- **[docs/REST_API_SUMMARY.md](docs/REST_API_SUMMARY.md)** - REST API overview
-- **[docs/REST_API_PLAN.md](docs/REST_API_PLAN.md)** - API specifications
-- **[docs/REST_API_ARCHITECTURE.md](docs/REST_API_ARCHITECTURE.md)** - System architecture
-- **[api/DEPLOYMENT.md](api/DEPLOYMENT.md)** - API deployment guide
-
-### 🔧 Implementation & CI/CD
-- **[docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md)** - Comprehensive technical report
-- **[docs/CI_CD_IMPLEMENTATION.md](docs/CI_CD_IMPLEMENTATION.md)** - CI/CD implementation
+- **[docs/REST_API_GUIDE.md](docs/REST_API_GUIDE.md)** - Complete REST API reference and usage guide
+- **[docs/REST_API_ARCHITECTURE.md](docs/REST_API_ARCHITECTURE.md)** - System architecture and design
+- **[docs/API_IMPLEMENTATION.md](docs/API_IMPLEMENTATION.md)** - Implementation guide with CI/CD integration
 - **[docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md)** - Deployment instructions
+
+### 🔧 Implementation & History
+- **[docs/IMPLEMENTATION_HISTORY.md](docs/IMPLEMENTATION_HISTORY.md)** - Complete implementation history and milestones
+- **[docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md)** - Comprehensive technical report
 - **[.github/workflows/README.md](.github/workflows/README.md)** - CI/CD workflow documentation
 
-### 🎨 Quality & Enhancement
-- **[scripts/QUALITY_CHECKER_README.md](scripts/QUALITY_CHECKER_README.md)** - AI-powered quality checking
+### 🎨 Quality & Automation
+- **[scripts/README.md](scripts/README.md)** - Complete scripts documentation and usage guide
 - **[scripts/TEST_ENHANCEMENT_GUIDE.md](scripts/TEST_ENHANCEMENT_GUIDE.md)** - Test enhancement workflow
 - **[CHANGELOG.md](CHANGELOG.md)** - Version history and changes
 
 ### 🤝 Contributing
-- **[docs/API_CONTRIBUTING.md](docs/API_CONTRIBUTING.md)** - API contribution guide
-- **[CONTRIBUTING.md](CONTRIBUTING.md)** - General contribution guidelines (if exists)
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - General contribution guidelines
+- **[CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)** - Community code of conduct
+- **[GOVERNANCE.md](GOVERNANCE.md)** - Project governance model
 
 ---
 
@@ -1687,9 +1690,11 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.ibm.com/rsinha/substrait-compliance/issues)
-- **Discussions**: [GitHub Discussions](https://github.ibm.com/rsinha/substrait-compliance/discussions)
+- **Issues**: [GitHub Issues](https://github.com/substrait-io/substrait-compliance/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/substrait-io/substrait-compliance/discussions)
 - **Documentation**: [docs/](docs/)
+- **Mailing List**: substrait-dev@googlegroups.com
+- **Slack**: #substrait-compliance (join at [substrait.io](https://substrait.io/))
 
 ---
 
