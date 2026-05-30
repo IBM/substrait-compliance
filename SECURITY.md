@@ -2,12 +2,12 @@
 
 ## Supported Versions
 
-We release patches for security vulnerabilities in the following versions:
+Security support commitments will be finalized at open-source launch. Until a stable public release process is in place, treat this repository as pre-release and coordinate security reports against the current default branch.
 
-| Version | Supported          |
-| ------- | ------------------ |
-| 1.x.x   | :white_check_mark: |
-| < 1.0   | :x:                |
+| Version | Supported |
+| ------- | --------- |
+| main    | Best effort, pre-release |
+| tagged releases | To be defined at launch |
 
 ## Reporting a Vulnerability
 
@@ -35,10 +35,10 @@ Please include the following information in your report:
 
 ### Response Timeline
 
-- **Initial Response**: Within 48 hours of report submission
-- **Status Update**: Within 7 days with an assessment of the report
-- **Fix Timeline**: Critical vulnerabilities will be addressed within 30 days
-- **Disclosure**: Coordinated disclosure after patch is available
+- **Initial Response**: Best effort acknowledgment as maintainers are available
+- **Status Update**: Best effort follow-up after triage
+- **Fix Timeline**: Depends on severity, maintainer availability, and release readiness
+- **Disclosure**: Coordinated disclosure after a fix or mitigation is available
 
 ### What to Expect
 
@@ -141,58 +141,37 @@ server:
    - Use `.env.example` for configuration templates
    - Scan commits for accidentally committed secrets
 
-## Security Features
+## Security Implementation Status
 
-### Implemented Protections
+Security-related code exists in the repository, especially around the pre-release REST API, but the project should not yet be treated as having a fully verified security posture.
+
+### Current Status
+
+The following areas may exist partially or in pre-release form, but should be considered **implementation goals rather than verified guarantees** until they are covered by dedicated tests, deployment guidance, and release validation:
 
 1. **Authentication & Authorization**
-   - JWT-based authentication
-   - Role-based access control (RBAC)
-   - API key management with rotation
-   - Session management (stateless)
+   - JWT-based authentication code paths may exist in the API module
+   - Role and permission checks may exist in selected endpoints or services
+   - Operational hardening and end-to-end verification are still required
 
 2. **Input Validation**
-   - SQL injection prevention
-   - XSS (Cross-Site Scripting) protection
-   - Path traversal prevention
-   - Command injection prevention
-   - LDAP injection prevention
+   - Some validation and defensive coding patterns are present
+   - Repository-wide verification for injection, traversal, and related classes of attacks is still pending
 
-3. **Security Headers**
-   - `X-Content-Type-Options: nosniff`
-   - `X-Frame-Options: DENY`
-   - `X-XSS-Protection: 1; mode=block`
-   - `Strict-Transport-Security` (HSTS)
-   - `Content-Security-Policy` (CSP)
-   - `Referrer-Policy: strict-origin-when-cross-origin`
-   - `Permissions-Policy`
+3. **Security Headers and Transport**
+   - Recommended production headers and TLS settings are documented
+   - Actual enforcement depends on deployment configuration and has not yet been validated as a repository-wide guarantee
 
-4. **Rate Limiting**
-   - Configurable rate limits per endpoint
-   - IP-based throttling
-   - Burst protection
+4. **Rate Limiting and Audit Logging**
+   - These are design goals for production deployments
+   - They should not be assumed to be comprehensively implemented or enabled by default across all components
 
-5. **Audit Logging**
-   - Authentication events
-   - Authorization failures
-   - Rate limit violations
-   - Suspicious activity detection
-   - API key usage tracking
+### Verification Guidance
 
-### Security Audit Events
-
-The following events are logged for security monitoring:
-
-- Authentication success/failure
-- Authorization failures
-- Rate limit violations
-- Invalid input attempts
-- SQL injection attempts
-- XSS attempts
-- Password changes
-- Account lockouts
-- API key creation/rotation/deletion
-- Suspicious activity patterns
+Before describing any protection as supported in a release, verify it with:
+- automated tests covering the relevant behavior
+- configuration documentation showing how it is enabled
+- release validation confirming the behavior in the shipped artifact
 
 ## Vulnerability Disclosure Policy
 
@@ -235,8 +214,8 @@ We will not pursue legal action against researchers who follow these guidelines.
 Stay informed about security updates:
 
 - **GitHub Security Advisories**: [github.com/substrait-io/substrait-compliance/security/advisories](https://github.com/substrait-io/substrait-compliance/security/advisories)
-- **Release Notes**: Check [CHANGELOG.md](CHANGELOG.md) for security fixes
-- **Mailing List**: Subscribe to security announcements (coming soon)
+- **Release Notes**: Check [CHANGELOG.md](CHANGELOG.md) for security fixes in published releases
+- **Mailing List**: Subscribe to security announcements (coming soon, if adopted at launch)
 
 ### Update Recommendations
 

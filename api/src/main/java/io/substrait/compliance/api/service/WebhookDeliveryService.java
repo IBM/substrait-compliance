@@ -1,5 +1,7 @@
 package io.substrait.compliance.api.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.substrait.compliance.api.model.entity.WebhookEntity;
 import io.substrait.compliance.api.repository.WebhookRepository;
 import io.substrait.compliance.api.webhook.WebhookEvent;
@@ -50,6 +52,7 @@ public class WebhookDeliveryService {
     
     private final WebhookRepository webhookRepository;
     private final RestTemplate restTemplate;
+    private final ObjectMapper objectMapper;
     
     @PersistenceContext
     private EntityManager entityManager;
@@ -60,9 +63,10 @@ public class WebhookDeliveryService {
     @Value("${webhook.delivery.enabled:true}")
     private boolean deliveryEnabled;
     
-    public WebhookDeliveryService(WebhookRepository webhookRepository) {
+    public WebhookDeliveryService(WebhookRepository webhookRepository, ObjectMapper objectMapper) {
         this.webhookRepository = webhookRepository;
         this.restTemplate = new RestTemplate();
+        this.objectMapper = objectMapper;
     }
     
     /**
@@ -150,6 +154,13 @@ public class WebhookDeliveryService {
      * Generates HMAC-SHA256 signature for webhook payload.
      */
     private String generateSignature(Map<String, Object> payload, String secret) {
+        return generateSignature(convertPayloadToJson(payload), secret);
+    }
+
+    /**
+     * Generates HMAC-SHA256 signature for a serialized webhook payload.
+     */
+    private String generateSignature(String payloadJson, String secret) {
         try {
             Mac mac = Mac.getInstance(HMAC_ALGORITHM);
             SecretKeySpec secretKeySpec = new SecretKeySpec(
@@ -157,11 +168,9 @@ public class WebhookDeliveryService {
                 HMAC_ALGORITHM
             );
             mac.init(secretKeySpec);
-            
-            // Convert payload to JSON string (simplified)
-            String payloadJson = payload.toString();
+
             byte[] signatureBytes = mac.doFinal(payloadJson.getBytes(StandardCharsets.UTF_8));
-            
+
             return Base64.getEncoder().encodeToString(signatureBytes);
         } catch (NoSuchAlgorithmException | InvalidKeyException e) {
             log.error("Failed to generate webhook signature: {}", e.getMessage());
@@ -324,7 +333,7 @@ public class WebhookDeliveryService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set(EVENT_TYPE_HEADER, eventType);
             headers.set(DELIVERY_ID_HEADER, deliveryId.toString());
-            headers.set(SIGNATURE_HEADER, generateSignature(Map.of("payload", payloadJson), webhook.getSecret()));
+            headers.set(SIGNATURE_HEADER, generateSignature(payloadJson, webhook.getSecret()));
             
             HttpEntity<String> request = new HttpEntity<>(payloadJson, headers);
             
@@ -355,21 +364,12 @@ public class WebhookDeliveryService {
      * Converts payload map to JSON string.
      */
     private String convertPayloadToJson(Map<String, Object> payload) {
-        // Simplified JSON conversion - in production use Jackson ObjectMapper
-        StringBuilder json = new StringBuilder("{");
-        boolean first = true;
-        for (Map.Entry<String, Object> entry : payload.entrySet()) {
-            if (!first) json.append(",");
-            json.append("\"").append(entry.getKey()).append("\":");
-            if (entry.getValue() instanceof String) {
-                json.append("\"").append(entry.getValue()).append("\"");
-            } else {
-                json.append(entry.getValue());
-            }
-            first = false;
+        try {
+            return objectMapper.writeValueAsString(payload);
+        } catch (JsonProcessingException e) {
+            log.error("Failed to serialize webhook payload: {}", e.getMessage());
+            throw new RuntimeException("Failed to serialize webhook payload", e);
         }
-        json.append("}");
-        return json.toString();
     }
     
     /**
