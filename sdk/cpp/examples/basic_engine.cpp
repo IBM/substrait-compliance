@@ -9,6 +9,7 @@
 #include <substrait_compliance.h>
 #include <iostream>
 #include <iomanip>
+#include <string>
 
 using namespace substrait::compliance;
 
@@ -40,10 +41,28 @@ public:
         const TableCollection& input_data
     ) override {
         try {
-            // TODO: Implement actual plan execution
+            if (plan_bytes.empty()) {
+                return ComplianceResult("test", TestStatus::FAILED)
+                    .with_error("Plan is empty");
+            }
+
             TableData output;
+            if (!input_data.empty()) {
+                const auto& first_entry = *input_data.begin();
+                const auto& input_table = first_entry.second;
+
+                output.set_columns(input_table.columns());
+                for (const auto& row : input_table.rows()) {
+                    output.add_row(row);
+                }
+
+                return ComplianceResult("test", TestStatus::PASSED)
+                    .with_output(std::move(output))
+                    .with_error_details("Echoed input table: " + first_entry.first);
+            }
+
             output.set_columns({{"result", "INTEGER"}});
-            output.add_row({42});
+            output.add_row({static_cast<int64_t>(plan_bytes.size())});
             
             return ComplianceResult("test", TestStatus::PASSED)
                 .with_output(std::move(output));

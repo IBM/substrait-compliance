@@ -31,12 +31,37 @@ func (e *BasicEngine) GetCapabilities() compliance.EngineCapabilities {
 }
 
 func (e *BasicEngine) ExecutePlan(ctx context.Context, planBytes []byte, inputData map[string]*compliance.TableData) (*compliance.ComplianceResult, error) {
-	// TODO: Implement actual plan execution
-	// For this example, we'll return a simple result
+	if len(planBytes) == 0 {
+		return compliance.NewComplianceResult("test", compliance.TestStatusFailed).
+			WithError("plan is empty"), nil
+	}
+
+	if len(inputData) == 0 {
+		output := compliance.NewTableData([]compliance.ColumnMetadata{
+			{Name: "result", Type: "INTEGER", Nullable: false},
+		})
+		output.AddRow(compliance.Row{len(planBytes)})
+
+		return compliance.NewComplianceResult("test", compliance.TestStatusPassed).
+			WithOutput(output), nil
+	}
+
+	for tableName, table := range inputData {
+		if table == nil {
+			continue
+		}
+
+		output := compliance.NewTableData(cloneColumns(table.Columns))
+		output.AddRows(cloneRows(table.Rows))
+		return compliance.NewComplianceResult("test", compliance.TestStatusPassed).
+			WithOutput(output).
+			WithErrorDetails(fmt.Sprintf("echoed input table %s", tableName)), nil
+	}
+
 	output := compliance.NewTableData([]compliance.ColumnMetadata{
 		{Name: "result", Type: "INTEGER", Nullable: false},
 	})
-	output.AddRow(compliance.Row{42})
+	output.AddRow(compliance.Row{0})
 
 	return compliance.NewComplianceResult("test", compliance.TestStatusPassed).
 		WithOutput(output), nil
@@ -62,6 +87,22 @@ func (e *BasicEngine) Shutdown(ctx context.Context) error {
 
 func (e *BasicEngine) CanRunTest(testID string) bool {
 	return true
+}
+
+func cloneColumns(columns []compliance.ColumnMetadata) []compliance.ColumnMetadata {
+	cloned := make([]compliance.ColumnMetadata, len(columns))
+	copy(cloned, columns)
+	return cloned
+}
+
+func cloneRows(rows []compliance.Row) []compliance.Row {
+	cloned := make([]compliance.Row, len(rows))
+	for i, row := range rows {
+		rowCopy := make(compliance.Row, len(row))
+		copy(rowCopy, row)
+		cloned[i] = rowCopy
+	}
+	return cloned
 }
 
 func main() {

@@ -1,7 +1,8 @@
 """Test runner for executing compliance tests."""
 
 from datetime import datetime
-from typing import List
+from math import isclose
+from typing import Any, List
 from .engine import ComplianceEngine
 from .test_suite import TestSuite, TestCase
 from .result import ComplianceResult, ComplianceReport, TestStatus
@@ -101,9 +102,74 @@ class ComplianceRunner:
     
     def _compare_results(self, actual, expected) -> bool:
         """Compare actual vs expected results."""
-        # Simplified comparison - would need more sophisticated logic
+        if actual is None or expected is None:
+            return actual is expected
+
         if actual.row_count() != expected.row_count():
             return False
         if actual.column_count() != expected.column_count():
             return False
+
+        actual_columns = actual.columns
+        expected_columns = expected.columns
+        if len(actual_columns) != len(expected_columns):
+            return False
+
+        for actual_column, expected_column in zip(actual_columns, expected_columns):
+            if actual_column.name != expected_column.name:
+                return False
+            if self._normalize_type(actual_column.data_type.value) != self._normalize_type(expected_column.data_type.value):
+                return False
+
+        for actual_row, expected_row in zip(actual.rows, expected.rows):
+            if len(actual_row) != len(expected_row):
+                return False
+            for actual_value, expected_value in zip(actual_row, expected_row):
+                if not self._values_match(actual_value, expected_value):
+                    return False
+
         return True
+
+    def _normalize_type(self, data_type: str | None) -> str | None:
+        """Normalize type aliases before comparison."""
+        if data_type is None:
+            return None
+
+        normalized = data_type.strip().lower()
+        aliases = {
+            'int': 'integer',
+            'integer': 'integer',
+            'i8': 'integer',
+            'i16': 'integer',
+            'i32': 'integer',
+            'long': 'bigint',
+            'bigint': 'bigint',
+            'i64': 'bigint',
+            'float': 'double',
+            'double': 'double',
+            'fp32': 'double',
+            'fp64': 'double',
+            'decimal': 'double',
+            'bool': 'boolean',
+            'boolean': 'boolean',
+        }
+        return aliases.get(normalized, normalized)
+
+    def _values_match(self, actual: Any, expected: Any) -> bool:
+        """Compare individual cell values with basic normalization."""
+        if actual is None or expected is None:
+            return actual is expected
+
+        if isinstance(actual, (int, float)) and isinstance(expected, (int, float)):
+            return isclose(float(actual), float(expected), rel_tol=0.0, abs_tol=1e-9)
+
+        if isinstance(actual, bool) or isinstance(expected, bool):
+            return self._to_bool(actual) == self._to_bool(expected)
+
+        return str(actual) == str(expected)
+
+    def _to_bool(self, value: Any) -> bool:
+        """Normalize boolean-like values."""
+        if isinstance(value, bool):
+            return value
+        return str(value).strip().lower() == 'true'
