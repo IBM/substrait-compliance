@@ -92,7 +92,13 @@ public class YamlTestSuiteLoader implements TestSuiteLoader {
         if (relativePath == null || relativePath.isBlank()) {
             return null;
         }
-        return loadCsvTable(baseDir.resolve(relativePath));
+
+        Path resolvedPath = baseDir.resolve(relativePath);
+        if (!Files.exists(resolvedPath)) {
+            return null;
+        }
+
+        return loadCsvTable(resolvedPath);
     }
 
     private TableData loadCsvTable(Path csvPath) throws IOException, ComplianceException {
@@ -101,37 +107,51 @@ public class YamlTestSuiteLoader implements TestSuiteLoader {
             throw new ComplianceException("CSV file is empty: " + csvPath);
         }
 
-        List<String> headers = parseCsvLine(lines.get(0));
-        if (headers.isEmpty()) {
-            throw new ComplianceException("CSV header is empty: " + csvPath);
-        }
+        char delimiter = detectDelimiter(lines.get(0));
+        boolean hasTypedHeader = looksLikeTypedHeader(lines.get(0), delimiter);
 
         List<String> columnNames = new ArrayList<>();
         List<String> columnTypes = new ArrayList<>();
-        for (String header : headers) {
-            String trimmed = header.trim();
-            if (trimmed.isEmpty()) {
-                throw new ComplianceException("CSV header contains empty column name: " + csvPath);
+        int dataStartIndex = 0;
+
+        if (hasTypedHeader) {
+            List<String> headers = parseDelimitedLine(lines.get(0), delimiter);
+            if (headers.isEmpty()) {
+                throw new ComplianceException("CSV header is empty: " + csvPath);
             }
 
-            int separatorIndex = trimmed.indexOf(':');
-            if (separatorIndex >= 0) {
-                columnNames.add(trimmed.substring(0, separatorIndex).trim());
-                columnTypes.add(trimmed.substring(separatorIndex + 1).trim().toLowerCase(Locale.ROOT));
-            } else {
-                columnNames.add(trimmed);
+            for (String header : headers) {
+                String trimmed = header.trim();
+                if (trimmed.isEmpty()) {
+                    throw new ComplianceException("CSV header contains empty column name: " + csvPath);
+                }
+
+                int separatorIndex = trimmed.indexOf(':');
+                if (separatorIndex >= 0) {
+                    columnNames.add(trimmed.substring(0, separatorIndex).trim());
+                    columnTypes.add(trimmed.substring(separatorIndex + 1).trim().toLowerCase(Locale.ROOT));
+                } else {
+                    columnNames.add(trimmed);
+                    columnTypes.add("string");
+                }
+            }
+            dataStartIndex = 1;
+        } else {
+            int columnCount = parseDelimitedLine(lines.get(0), delimiter).size();
+            for (int i = 0; i < columnCount; i++) {
+                columnNames.add("column_" + (i + 1));
                 columnTypes.add("string");
             }
         }
 
         List<List<Object>> rows = new ArrayList<>();
-        for (int i = 1; i < lines.size(); i++) {
+        for (int i = dataStartIndex; i < lines.size(); i++) {
             String line = lines.get(i);
             if (line.trim().isEmpty()) {
                 continue;
             }
 
-            List<String> values = parseCsvLine(line);
+            List<String> values = parseDelimitedLine(line, delimiter);
             if (values.size() != columnNames.size()) {
                 throw new ComplianceException(
                     "CSV row " + (i + 1) + " in " + csvPath + " has " + values.size()
@@ -149,7 +169,7 @@ public class YamlTestSuiteLoader implements TestSuiteLoader {
         return new TableData(columnNames, columnTypes, rows);
     }
 
-    private List<String> parseCsvLine(String line) {
+    private List<String> parseDelimitedLine(String line, char delimiter) {
         List<String> values = new ArrayList<>();
         StringBuilder current = new StringBuilder();
         boolean inQuotes = false;
@@ -163,7 +183,7 @@ public class YamlTestSuiteLoader implements TestSuiteLoader {
                 } else {
                     inQuotes = !inQuotes;
                 }
-            } else if (ch == ',' && !inQuotes) {
+            } else if (ch == delimiter && !inQuotes) {
                 values.add(current.toString().trim());
                 current.setLength(0);
             } else {
@@ -173,6 +193,25 @@ public class YamlTestSuiteLoader implements TestSuiteLoader {
 
         values.add(current.toString().trim());
         return values.stream().map(this::stripWrappingQuotes).collect(Collectors.toList());
+    }
+
+    private char detectDelimiter(String line) {
+        long pipeCount = line.chars().filter(ch -> ch == '|').count();
+        long commaCount = line.chars().filter(ch -> ch == ',').count();
+        return pipeCount > commaCount ? '|' : ',';
+    }
+
+    private boolean looksLikeTypedHeader(String line, char delimiter) {
+        List<String> values = parseDelimitedLine(line, delimiter);
+        if (values.isEmpty()) {
+            return false;
+        }
+
+        return values.stream().allMatch(value -> {
+            String trimmed = value.trim();
+            int separatorIndex = trimmed.indexOf(':');
+            return separatorIndex > 0 && separatorIndex < trimmed.length() - 1;
+        });
     }
 
     private String stripWrappingQuotes(String value) {
@@ -228,12 +267,15 @@ public class YamlTestSuiteLoader implements TestSuiteLoader {
         public String name;
         public String version;
         public String description;
+        public Double scale_factor;
+        public Integer total_rows;
         public List<TestCaseDefinition> testCases = new ArrayList<>();
     }
     
     public static class TestCaseDefinition {
         public String id;
         public String description;
+        public String complexity;
         public String planBinary;
         public String planJson;
         public List<InputTableDefinition> inputTables = new ArrayList<>();
