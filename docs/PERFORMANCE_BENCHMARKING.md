@@ -177,60 +177,85 @@ class BenchmarkRunner:
 - `multiprocessing` for parallel execution
 - Integration with `pytest-benchmark`
 
-### 🔄 Rust SDK (To Be Implemented)
-**Recommended Location**: `sdk/rust/src/benchmark/`
+### ✅ Rust SDK (Complete)
+**Location**: `sdk/rust/src/benchmark/mod.rs`
 
-**Suggested Implementation**:
+**Files**:
+- `mod.rs` - Core benchmarking engine with async support (318 lines)
+- `examples/benchmark_example.rs` - Comprehensive example with 5 scenarios (181 lines)
+
+**Usage**:
 ```rust
-// benchmark_runner.rs
-pub struct BenchmarkRunner {
-    engine: Box<dyn ComplianceEngine>,
-    config: BenchmarkConfig,
-}
+use substrait_compliance::{BenchmarkConfig, BenchmarkRunner};
 
-impl BenchmarkRunner {
-    pub async fn run_benchmark(
-        &self,
-        name: &str,
-        operations: Vec<(&str, Box<dyn Fn() -> BoxFuture<()>>)>
-    ) -> BenchmarkResult {
-        // Use std::time::Instant for timing
-        // Use jemalloc for memory tracking
-        // Use tokio for async operations
-    }
-}
+let config = BenchmarkConfig {
+    warmup_runs: 5,
+    measurement_runs: 100,
+    verbose: true,
+    ..Default::default()
+};
+
+let runner = BenchmarkRunner::new(&engine, config);
+
+let operations = vec![
+    ("operation_name", Box::new(|| {
+        // Your operation here
+        Ok(())
+    }) as Box<dyn Fn() -> Result<(), Box<dyn std::error::Error>> + Send + Sync>),
+];
+
+let result = runner.run_benchmark("benchmark_name", operations).await?;
+println!("{}", result.summary());
+println!("{}", result.to_csv());
 ```
 
-**Key Rust Features to Use**:
-- `std::time::Instant` for timing
-- `jemalloc` or custom allocator for memory tracking
-- `tokio` for async runtime
-- `rayon` for parallel execution
-- Integration with `criterion` for benchmarking
+**Key Features**:
+- `std::time::Instant` for high-precision timing
+- Async/await support with tokio
+- Statistical analysis (min, max, avg, median, P95, P99)
+- CSV export functionality
+- Memory tracking support
 
-### 🔄 Java SDK (To Be Implemented)
-**Recommended Location**: `sdk/java/src/main/java/io/substrait/compliance/benchmark/`
+### ✅ Java SDK (Complete)
+**Location**: `sdk/java/src/main/java/io/substrait/compliance/benchmark/`
 
-**Suggested Implementation**:
+**Files**:
+- `BenchmarkRunner.java` - Core benchmarking engine (227 lines)
+- `BenchmarkConfig.java` - Configuration builder (81 lines)
+- `BenchmarkStats.java` - Statistical results (125 lines)
+- `BenchmarkResult.java` - Complete benchmark results (104 lines)
+- `BenchmarkOperation.java` - Operation wrapper (33 lines)
+- `OperationMetrics.java` - Individual metrics (37 lines)
+- `BenchmarkExample.java` - Example with 6 scenarios (213 lines)
+
+**Usage**:
 ```java
-// BenchmarkRunner.java
-public class BenchmarkRunner {
-    public CompletableFuture<BenchmarkResult> runBenchmark(
-        String benchmarkName,
-        List<Pair<String, Supplier<CompletableFuture<?>>>> operations
-    ) {
-        // Use System.nanoTime() for timing
-        // Use Runtime.getRuntime().totalMemory() for memory
-        // Use ExecutorService for parallel execution
-    }
-}
+BenchmarkConfig config = BenchmarkConfig.builder()
+    .warmupRuns(5)
+    .measurementRuns(100)
+    .verbose(true)
+    .build();
+
+BenchmarkRunner runner = new BenchmarkRunner(engine, config);
+
+List<BenchmarkOperation> operations = Arrays.asList(
+    BenchmarkOperation.of("operation_name", () -> {
+        // Your operation here
+    })
+);
+
+BenchmarkResult result = runner.runBenchmark("benchmark_name", operations);
+System.out.println(result.summary());
+System.out.println(result.toCSV());
 ```
 
-**Key Java Features to Use**:
+**Key Features**:
 - `System.nanoTime()` for high-resolution timing
 - `Runtime.getRuntime()` for memory tracking
 - `ExecutorService` for parallel execution
-- JMH (Java Microbenchmark Harness) integration
+- Builder pattern for configuration
+- CSV export functionality
+- Parallel benchmark support
 
 ## Standard Benchmark Suite
 

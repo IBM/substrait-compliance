@@ -10,6 +10,7 @@ pub mod test_suite;
 pub mod table_data;
 pub mod loader;
 pub mod error;
+pub mod benchmark;
 
 pub use engine::{ComplianceEngine, EngineInfo, EngineCapabilities};
 pub use runner::ComplianceRunner;
@@ -18,3 +19,4 @@ pub use test_suite::{TestSuite, TestCase, TestSuiteMetadata};
 pub use table_data::{TableData, Column, DataType};
 pub use loader::{TestSuiteLoader, YamlTestSuiteLoader};
 pub use error::ComplianceError;
+pub use benchmark::{BenchmarkRunner, BenchmarkConfig, BenchmarkResult, BenchmarkStats};
