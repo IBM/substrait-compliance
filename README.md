@@ -62,6 +62,7 @@ The Substrait Compliance Framework transforms how query engines validate their S
 - 🔄 **Decentralized Testing** - Engines test themselves, no central bottleneck
 - 🌐 **Multi-Language SDKs** - Java, Python, Rust, C++, Go, TypeScript/JavaScript, C#/.NET, and Scala implementations
 - 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (99 queries), Function Tests (279 files across standard and enhanced suites)
+- ⚡ **Performance Benchmarking** - Comprehensive benchmarking across all SDKs with statistical analysis (min, max, avg, P95, P99, throughput)
 - 🤖 **Automated CI/CD** - 12 GitHub Actions workflows for continuous compliance
 - 🌐 **REST API** - Programmatic access with JWT auth, webhooks, and rate limiting
 - 📊 **Interactive Demo** - Live dashboard with mock engines, query drill-down, and complexity filtering
@@ -496,6 +497,58 @@ cd examples/duckdb-java
 ./gradlew run
 
 # Expected output:
+
+---
+
+## ⚡ Performance Benchmarking
+
+All SDKs include comprehensive performance benchmarking capabilities to measure and optimize engine performance.
+
+### Features
+
+- **Statistical Analysis**: Min, Max, Avg, Median, P95, P99 latencies
+- **Throughput Metrics**: Operations per second calculations
+- **Memory Profiling**: Track memory usage patterns (language-specific)
+- **Warmup Support**: Configurable warmup runs before measurement
+- **Parallel Execution**: Test concurrent execution capabilities
+- **CSV Export**: Export results for external analysis
+
+### Quick Example (Scala)
+
+```scala
+import io.substrait.compliance.benchmark._
+
+val engine = new MyEngine()
+val config = BenchmarkConfig(warmupRuns = 10, measurementRuns = 100)
+val runner = BenchmarkRunner(engine, config)
+
+val operations = Seq(
+  ("executePlan", () => engine.executePlan(plan, inputs)),
+  ("validatePlan", () => engine.validatePlan(plan))
+)
+
+val result = Await.result(runner.runBenchmark("My Benchmark", operations), 5.minutes)
+println(result.summary)
+// Output: Min: 45ms, Max: 123ms, Avg: 54ms, P95: 67ms, Throughput: 18.5 ops/sec
+```
+
+### Available in All SDKs
+
+- ✅ **Scala** - `sdk/scala/src/main/scala/io/substrait/compliance/benchmark/`
+- ✅ **C++** - `sdk/cpp/include/substrait_compliance/benchmark_runner.hpp`
+- ✅ **Go** - `sdk/go/benchmark/benchmark_runner.go`
+- ✅ **TypeScript** - `sdk/typescript/src/benchmark/BenchmarkRunner.ts`
+- ✅ **C#** - `sdk/csharp/Substrait.Compliance/Benchmark/BenchmarkRunner.cs`
+- ✅ **Python** - `sdk/python/substrait_compliance/benchmark/benchmark_runner.py`
+
+### Documentation
+
+See [Performance Benchmarking Guide](docs/PERFORMANCE_BENCHMARKING.md) for:
+- Detailed usage examples for each language
+- Standard benchmark suite definitions
+- Best practices and CI/CD integration
+- Output format specifications
+
 # Loading TPC-H test suite...
 # Running 22 test cases...
 # ✅ Passed: 20/22 (90.9%)
