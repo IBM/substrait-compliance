@@ -18,8 +18,8 @@ Enable database engines to self-certify their Substrait compliance through stand
 - [5-Minute Quick Start](#-5-minute-quick-start)
 - [Test Suites](#-test-suites)
   - [TPC-H Benchmark](#tpc-h-benchmark-22-queries)
-  - [TPC-DS Benchmark](#tpc-ds-benchmark-5-queries)
-  - [Function Tests](#function-tests-143-files-2230-test-cases)
+  - [TPC-DS Benchmark](#tpc-ds-benchmark-99-queries)
+  - [Function Tests](#function-tests-279-files-4000-test-cases)
 - [Integration Guide](#-integration-guide)
 - [Repository Structure](#-repository-structure)
 - [CI/CD Integration](#-cicd-integration)
@@ -71,7 +71,7 @@ git --version     # Any recent version
 The Substrait Compliance Framework transforms how query engines validate their Substrait support. Instead of centralized testing, engines **self-certify** by:
 
 1. **Implementing standard interfaces** - ComplianceEngine trait/interface
-2. **Running pre-packaged test suites** - TPC-H queries + 2,230+ function tests
+2. **Running pre-packaged test suites** - TPC-H (22 queries) + TPC-DS (99 queries) + 4,000+ function test cases
 3. **Generating compliance reports** - JSON format with pass/fail results
 4. **Publishing results** - Public leaderboard for ecosystem visibility
 
@@ -79,7 +79,7 @@ The Substrait Compliance Framework transforms how query engines validate their S
 
 - 🔄 **Decentralized Testing** - Engines test themselves, no central bottleneck
 - 🌐 **Multi-Language SDKs** - Java, Python, Rust, C++, Go, TypeScript/JavaScript, C#/.NET, and Scala implementations
-- 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (99 queries), Function Tests (279 files across standard and enhanced suites)
+- 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (99 queries), Function Tests (279 files, ~4,000+ test cases)
 - ⚡ **Performance Benchmarking** - Comprehensive benchmarking across all SDKs with statistical analysis (min, max, avg, P95, P99, throughput)
 - 🤖 **Automated CI/CD** - 12 GitHub Actions workflows for continuous compliance
 - 🌐 **REST API** - Programmatic access with JWT auth, webhooks, and rate limiting
@@ -662,7 +662,7 @@ Customize the workflow for your engine's build process.
 ## 🧪 Test Suites
 
 > **📚 Detailed Documentation**:
-> - [test-suites/functions/README.md](test-suites/functions/README.md) - Function tests (143 files, ~2,230 test cases)
+> - [test-suites/functions/README.md](test-suites/functions/README.md) - Function tests (279 files total: 143 standard + 136 enhanced, ~4,000+ test cases)
 > - [test-suites/tpch/README.md](test-suites/tpch/README.md) - TPC-H benchmark (22 queries)
 > - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) - TPC-DS benchmark (99 queries)
 
@@ -1608,7 +1608,7 @@ Public leaderboard showing compliance status across all engines:
 - **[examples/README.md](examples/README.md)** - Example implementations (DuckDB, DataFusion)
 
 ### 🧪 Test Suites
-- **[test-suites/functions/README.md](test-suites/functions/README.md)** - Function tests (143 files, ~2,230 test cases)
+- **[test-suites/functions/README.md](test-suites/functions/README.md)** - Function tests (279 files: 143 standard + 136 enhanced, ~4,000+ test cases)
 - **[test-suites/tpch/README.md](test-suites/tpch/README.md)** - TPC-H benchmark (22 queries)
 - **[test-suites/tpcds/README.md](test-suites/tpcds/README.md)** - TPC-DS benchmark (99 queries)
 
