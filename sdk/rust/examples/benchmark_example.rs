@@ -98,10 +98,17 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("\n=== Example 2: Plan Execution Benchmark ===");
     let plan_data = vec![0u8; 1024]; // Mock plan data
 
-    let stats = BenchmarkRunner::quick_benchmark(
-        &engine,
+    let config = BenchmarkConfig {
+        warmup_runs: 5,
+        measurement_runs: 100,
+        verbose: false,
+        ..Default::default()
+    };
+    
+    let runner = BenchmarkRunner::new(&engine, config);
+    let stats = runner.benchmark_operation(
         "execute_plan",
-        Box::new(move || {
+        &Box::new(move || {
             let rt = tokio::runtime::Runtime::new().unwrap();
             rt.block_on(async {
                 engine
@@ -111,7 +118,6 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     .map_err(|e| e.into())
             })
         }),
-        100,
     )
     .await?;
 

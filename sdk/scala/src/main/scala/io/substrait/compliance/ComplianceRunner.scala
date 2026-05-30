@@ -101,7 +101,8 @@ class ComplianceRunner(
 
     planFuture.flatMap { plan =>
       // Execute plan
-      engine.executePlan(plan, testCase.inputTables).map { actualOutput =>
+      engine.executePlan(plan, testCase.inputTables).map { engineResult =>
+        val actualOutput = engineResult.outputData.getOrElse(TableData.empty)
         val endTime = Instant.now()
         val executionTime = Duration.between(startTime, endTime)
 
@@ -126,10 +127,19 @@ class ComplianceRunner(
             }
           case None =>
             // No expected output, just check if execution succeeded
+            val status = if (engineResult.isSuccess) {
+              if (testCase.shouldFail) TestStatus.Failed else TestStatus.Passed
+            } else {
+              if (testCase.shouldFail) TestStatus.Passed else TestStatus.Failed
+            }
             TestCaseResult(
               testName = testCase.name,
-              status = if (testCase.shouldFail) TestStatus.Failed else TestStatus.Passed,
-              message = if (testCase.shouldFail) Some("Test should have failed but succeeded") else None,
+              status = status,
+              message = if (testCase.shouldFail && engineResult.isSuccess) {
+                Some("Test should have failed but succeeded")
+              } else {
+                engineResult.message
+              },
               actual = Some(actualOutput),
               executionTime = executionTime
             )

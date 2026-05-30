@@ -13,37 +13,162 @@ Modern C++17 SDK for decentralized Substrait compliance testing.
 
 ## Requirements
 
-- C++17 compatible compiler (GCC 7+, Clang 5+, MSVC 2017+)
-- CMake 3.15 or higher
-- Protocol Buffers (libprotobuf)
-- yaml-cpp library
+### Compiler Requirements
+- **GCC**: Version 7.0 or higher
+- **Clang**: Version 5.0 or higher
+- **MSVC**: Visual Studio 2017 (v141) or higher
+- **Apple Clang**: Xcode 10.0 or higher
+
+### Build Tools
+- **CMake**: Version 3.15 or higher (3.20+ recommended)
+- **Make** or **Ninja**: Build system (Ninja recommended for faster builds)
+
+### Dependencies
+- **Protocol Buffers**: libprotobuf 3.15.0 or higher
+- **yaml-cpp**: Version 0.6.0 or higher
+- **Google Test** (optional): For running tests
 
 ## Installation
 
-### Using CMake
+### Prerequisites Setup
+
+#### Ubuntu/Debian
+```bash
+# Install compiler and build tools
+sudo apt-get update
+sudo apt-get install -y build-essential cmake ninja-build
+
+# Install dependencies
+sudo apt-get install -y libprotobuf-dev protobuf-compiler libyaml-cpp-dev
+
+# Optional: Install Google Test for testing
+sudo apt-get install -y libgtest-dev
+```
+
+#### macOS
+```bash
+# Install Xcode Command Line Tools
+xcode-select --install
+
+# Install dependencies via Homebrew
+brew install cmake ninja protobuf yaml-cpp
+
+# Optional: Install Google Test
+brew install googletest
+```
+
+#### Windows (Visual Studio)
+```powershell
+# Install vcpkg (if not already installed)
+git clone https://github.com/Microsoft/vcpkg.git
+cd vcpkg
+.\bootstrap-vcpkg.bat
+
+# Install dependencies
+.\vcpkg install protobuf yaml-cpp gtest
+
+# Integrate with Visual Studio
+.\vcpkg integrate install
+```
+
+### Building from Source
+
+#### Using CMake (Unix/Linux/macOS)
 
 ```bash
 # Clone the repository
 git clone https://github.com/substrait-io/substrait-compliance.git
 cd substrait-compliance/sdk/cpp
 
-# Build and install
+# Create build directory
 mkdir build && cd build
-cmake ..
-make
-sudo make install
+
+# Configure with CMake
+cmake .. -G Ninja \
+  -DCMAKE_BUILD_TYPE=Release \
+  -DBUILD_TESTS=ON \
+  -DBUILD_EXAMPLES=ON
+
+# Build
+ninja
+
+# Run tests (optional)
+ctest --output-on-failure
+
+# Install (optional)
+sudo ninja install
 ```
 
-### Using vcpkg
+#### Using CMake (Windows with Visual Studio)
 
+```powershell
+# Clone the repository
+git clone https://github.com/substrait-io/substrait-compliance.git
+cd substrait-compliance\sdk\cpp
+
+# Create build directory
+mkdir build
+cd build
+
+# Configure with CMake (adjust vcpkg path as needed)
+cmake .. -G "Visual Studio 16 2019" -A x64 ^
+  -DCMAKE_TOOLCHAIN_FILE=C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake ^
+  -DBUILD_TESTS=ON ^
+  -DBUILD_EXAMPLES=ON
+
+# Build
+cmake --build . --config Release
+
+# Run tests (optional)
+ctest -C Release --output-on-failure
+
+# Install (optional, requires admin)
+cmake --install . --config Release
+```
+
+### Using Package Managers
+
+#### vcpkg
 ```bash
+# Install via vcpkg
 vcpkg install substrait-compliance
+
+# Use in your CMakeLists.txt
+find_package(substrait_compliance CONFIG REQUIRED)
+target_link_libraries(your_target PRIVATE substrait::substrait_compliance)
 ```
 
-### Using Conan
+#### Conan
+```bash
+# Add to conanfile.txt
+[requires]
+substrait-compliance/1.0.0
+
+[generators]
+cmake
+
+# Install
+conan install . --build=missing
+```
+
+### CMake Options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `BUILD_TESTS` | `OFF` | Build unit tests |
+| `BUILD_EXAMPLES` | `OFF` | Build example programs |
+| `BUILD_SHARED_LIBS` | `OFF` | Build shared libraries instead of static |
+| `CMAKE_BUILD_TYPE` | `Release` | Build type (Debug, Release, RelWithDebInfo, MinSizeRel) |
+| `CMAKE_INSTALL_PREFIX` | `/usr/local` | Installation directory |
+
+### Verifying Installation
 
 ```bash
-conan install substrait-compliance/1.0.0@
+# Check if library is installed
+pkg-config --modversion substrait_compliance
+
+# Or check CMake can find it
+cmake --find-package -DNAME=substrait_compliance -DCOMPILER_ID=GNU -DLANGUAGE=CXX -DMODE=EXIST
 ```
 
 ## Quick Start

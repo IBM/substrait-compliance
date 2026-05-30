@@ -8,65 +8,57 @@ import scala.concurrent.{Future, ExecutionContext}
  */
 class ExampleEngine(implicit ec: ExecutionContext) extends ComplianceEngine {
 
-  override def getInfo(): EngineInfo = {
+  override def getInfo: EngineInfo = {
     EngineInfo(
       name = "Example Engine",
       version = "1.0.0",
+      vendor = "Example Corp",
       description = Some("Example Substrait compliance engine implementation")
     )
   }
 
-  override def getCapabilities(): EngineCapabilities = {
+  override def getCapabilities: EngineCapabilities = {
     EngineCapabilities(
-      supportedFormats = Set("json", "binary"),
-      supportedFunctions = Set(
+      supportedRelations = Seq("read", "filter", "project", "aggregate", "join"),
+      supportedFunctions = Seq(
         "add", "subtract", "multiply", "divide",
         "equal", "not_equal", "greater_than", "less_than",
         "and", "or", "not"
       ),
-      supportedTypes = Set(
+      supportedTypes = Seq(
         "i32", "i64", "fp32", "fp64", "boolean", "string", "date", "timestamp"
-      ),
-      maxParallelism = 4
+      )
     )
   }
 
   override def executePlan(
-    plan: Array[Byte],
-    inputTables: Map[String, TableData]
-  ): Future[TableData] = {
+    planBytes: Array[Byte],
+    inputData: Map[String, TableData]
+  ): Future[EngineResult] = {
     Future {
       // This is a mock implementation that just returns the first input table
       // or an empty table if no inputs are provided
-      inputTables.headOption match {
+      inputData.headOption match {
         case Some((_, table)) =>
           // In a real implementation, you would:
           // 1. Parse the Substrait plan
           // 2. Execute the plan against the input tables
           // 3. Return the result
-          table
+          EngineResult.success(table)
         case None =>
-          TableData.empty
+          EngineResult.success(TableData.empty)
       }
     }
   }
 
-  override def validatePlan(plan: Array[Byte]): Future[ValidationResult] = {
+  override def validatePlan(planBytes: Array[Byte]): Future[EngineResult] = {
     Future {
       // This is a mock implementation
       // In a real implementation, you would parse and validate the plan
-      if (plan.isEmpty) {
-        ValidationResult(
-          isValid = false,
-          errors = Seq("Plan is empty"),
-          warnings = Seq.empty
-        )
+      if (planBytes.isEmpty) {
+        EngineResult.failed("Plan is empty")
       } else {
-        ValidationResult(
-          isValid = true,
-          errors = Seq.empty,
-          warnings = Seq.empty
-        )
+        EngineResult.success(TableData.empty)
       }
     }
   }
@@ -89,12 +81,12 @@ object ExampleUsage {
     val engine = ExampleEngine()
 
     // Get engine information
-    val info = engine.getInfo()
+    val info = engine.getInfo
     println(s"Engine: ${info.name} v${info.version}")
 
     // Get engine capabilities
-    val capabilities = engine.getCapabilities()
-    println(s"Supported formats: ${capabilities.supportedFormats.mkString(", ")}")
+    val capabilities = engine.getCapabilities
+    println(s"Supported relations: ${capabilities.supportedRelations.mkString(", ")}")
     println(s"Supported functions: ${capabilities.supportedFunctions.take(5).mkString(", ")}...")
 
     // Create sample input data
@@ -115,13 +107,15 @@ object ExampleUsage {
     val planBytes = Array[Byte](1, 2, 3, 4) // Mock plan
     val executionFuture = engine.executePlan(planBytes, Map("input" -> inputTable))
 
-    val result = Await.result(executionFuture, 5.seconds)
-    println(s"\nExecution result: ${result.rowCount} rows, ${result.columnCount} columns")
+    val engineResult = Await.result(executionFuture, 5.seconds)
+    engineResult.outputData.foreach { data =>
+      println(s"\nExecution result: ${data.rowCount} rows, ${data.columnCount} columns")
+    }
 
     // Validate a plan
     val validationFuture = engine.validatePlan(planBytes)
     val validation = Await.result(validationFuture, 5.seconds)
-    println(s"\nPlan validation: ${if (validation.isValid) "Valid" else "Invalid"}")
+    println(s"\nPlan validation: ${if (validation.isSuccess) "Valid" else "Invalid"}")
 
     // Load and run test suites
     println("\n--- Running Test Suites ---")

@@ -273,23 +273,6 @@ impl<'a, E: ComplianceEngine> BenchmarkRunner<'a, E> {
         }
     }
 
-    /// Quick benchmark helper
-    pub async fn quick_benchmark(
-        engine: &E,
-        operation_name: &str,
-        operation: Box<dyn Fn() -> Result<(), Box<dyn std::error::Error>> + Send + Sync>,
-        runs: usize,
-    ) -> Result<BenchmarkStats, Box<dyn std::error::Error>> {
-        let config = BenchmarkConfig {
-            warmup_runs: 5,
-            measurement_runs: runs,
-            verbose: false,
-            ..Default::default()
-        };
-
-        let runner = BenchmarkRunner::new(engine, config);
-        runner.benchmark_operation(operation_name, &operation).await
-    }
 }
 
 #[cfg(test)]

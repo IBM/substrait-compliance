@@ -43,8 +43,8 @@ object BenchmarkExample {
     val runner = BenchmarkRunner(engine, config)
 
     val operations = Seq(
-      ("getInfo", () => Future.successful(engine.getInfo())),
-      ("getCapabilities", () => Future.successful(engine.getCapabilities()))
+      ("getInfo", () => Future.successful(engine.getInfo)),
+      ("getCapabilities", () => Future.successful(engine.getCapabilities))
     )
 
     val resultFuture = runner.runBenchmark("Basic Operations", operations)
@@ -122,8 +122,8 @@ object BenchmarkExample {
     val runner = BenchmarkRunner(engines.head, config)
 
     val operations = Seq[(String, ComplianceEngine => Future[_])](
-      ("getInfo", eng => Future.successful(eng.getInfo())),
-      ("getCapabilities", eng => Future.successful(eng.getCapabilities()))
+      ("getInfo", eng => Future.successful(eng.getInfo)),
+      ("getCapabilities", eng => Future.successful(eng.getCapabilities))
     )
 
     val resultsFuture = runner.compareBenchmark(

@@ -419,6 +419,98 @@ npm run lint
 
 # Format code
 npm run format
+
+# Check formatting
+npm run format:check
+```
+
+## Troubleshooting
+
+### NPM Cache Issues
+
+If you encounter npm cache-related errors during installation or build:
+
+```bash
+# Clear npm cache
+npm cache clean --force
+
+# Verify cache integrity
+npm cache verify
+
+# Remove node_modules and package-lock.json
+rm -rf node_modules package-lock.json
+
+# Reinstall dependencies
+npm install
+```
+
+### Common Issues
+
+#### Module Resolution Errors
+
+If you see "Cannot find module" errors:
+
+```bash
+# Ensure TypeScript is installed
+npm install --save-dev typescript
+
+# Rebuild the project
+npm run clean
+npm run build
+```
+
+#### Jest Configuration Issues
+
+If tests fail to run:
+
+```bash
+# Install jest dependencies
+npm install --save-dev jest ts-jest @types/jest
+
+# Run tests with verbose output
+npm test -- --verbose
+```
+
+#### Build Errors
+
+If the build fails:
+
+```bash
+# Check TypeScript version
+npx tsc --version
+
+# Clean and rebuild
+npm run clean
+npm run build
+
+# Check for TypeScript errors
+npx tsc --noEmit
+```
+
+### Environment-Specific Issues
+
+#### Windows
+
+On Windows, you may need to use cross-platform commands:
+
+```bash
+# Install cross-env for environment variables
+npm install --save-dev cross-env
+
+# Use forward slashes in paths
+npm run format -- "src/**/*.ts"
+```
+
+#### Node Version
+
+Ensure you're using Node.js 16 or higher:
+
+```bash
+# Check Node version
+node --version
+
+# Use nvm to switch versions (if installed)
+nvm use 16
 ```
 
 ## Examples

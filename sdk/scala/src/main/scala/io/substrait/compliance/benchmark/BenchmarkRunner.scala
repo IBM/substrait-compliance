@@ -130,7 +130,7 @@ class BenchmarkRunner(
       val totalDuration = Duration.between(startTime, endTime)
       
       BenchmarkResult(
-        engineName = engine.getInfo().name,
+        engineName = engine.getInfo.name,
         benchmarkName = benchmarkName,
         stats = stats,
         totalDuration = totalDuration,

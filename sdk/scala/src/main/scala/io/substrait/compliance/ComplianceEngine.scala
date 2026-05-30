@@ -38,23 +38,23 @@ trait ComplianceEngine {
 
   /**
    * Execute a Substrait plan
-   * 
+   *
    * @param planBytes Serialized Substrait plan (JSON or binary)
    * @param inputData Map of table names to input data
-   * @return Future containing compliance result with output data
+   * @return Future containing engine result with output data
    */
   def executePlan(
     planBytes: Array[Byte],
     inputData: Map[String, TableData]
-  ): Future[ComplianceResult]
+  ): Future[EngineResult]
 
   /**
    * Validate a Substrait plan without executing it
-   * 
+   *
    * @param planBytes Serialized Substrait plan
-   * @return Future containing compliance result indicating validity
+   * @return Future containing engine result indicating validity
    */
-  def validatePlan(planBytes: Array[Byte]): Future[ComplianceResult]
+  def validatePlan(planBytes: Array[Byte]): Future[EngineResult]
 
   /**
    * Optional: Initialize engine resources
