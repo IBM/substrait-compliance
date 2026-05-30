@@ -17,6 +17,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0] - Planned
 
+### Release Readiness Notes
+- Added explicit release-blocker documentation for items that still require external execution or policy decisions before a truthful OSS release closeout
+- Clarified that stable support policy is not yet active until the first stable release publishes and [`SECURITY.md`](SECURITY.md) is updated accordingly
+
 ### 🚧 Initial Public Release Preparation
 
 This section tracks the planned initial public release. The repository contains the core framework, SDKs, test suites, API, demo assets, and automation needed for launch preparation, but public release and final verification steps are still in progress.

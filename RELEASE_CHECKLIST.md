@@ -240,15 +240,39 @@ If critical issues are discovered after release:
 
 ## Version Support Policy
 
-- **Current Release**: Full support with bug fixes and security updates
-- **Previous Minor Release**: Security updates only for 6 months
-- **Older Releases**: Community support only
+This policy is **not active yet for a stable release**. Until the project publishes its first stable release and updates [`SECURITY.md`](SECURITY.md), support remains pre-release and best-effort only.
+
+Planned stable-release policy to confirm before launch:
+
+- [ ] Define the first stable supported-version window
+- [ ] Confirm who owns security triage and maintenance for supported releases
+- [ ] Confirm whether previous minor releases receive security-only support and for how long
+- [ ] Update [`SECURITY.md`](SECURITY.md), [`README.md`](README.md), and release notes to match the final policy exactly
 
 ## Release Schedule
 
 - **Regular Releases**: Every 6-8 weeks
 - **Patch Releases**: As needed for critical bugs
 - **Major Releases**: Annually or when breaking changes accumulate
+
+## Release Blockers Requiring External Execution or Policy Decisions
+
+The following items cannot be truthfully closed by repository edits alone and must be completed by maintainers/operators before calling the project open-source release ready:
+
+- [ ] **Broader repository hygiene resolved**
+  - Review the remaining tracked modifications outside the scoped OSS-readiness commits
+  - Revert, split, or intentionally land those changes before the release cut
+- [ ] **Operator evidence generated in a real environment**
+  - Produce backup, restore, rollback, smoke-test, and incident-drill records
+  - Store durable evidence with the release issue, release notes, or an agreed evidence location
+- [ ] **Stable support policy established**
+  - Publish a real supported-version window and maintainer response commitment
+  - Update [`SECURITY.md`](SECURITY.md) and related docs to reflect the actual support promise
+- [ ] **Release-candidate process executed**
+  - Tag and publish an RC
+  - Deploy to staging
+  - Run community testing, security scanning, and integration validation
+  - Promote only after RC evidence is reviewed and accepted
 
 ## Contact
 
