@@ -97,7 +97,9 @@ src/
 ├── test_suite.rs   # Test suite types
 ├── table_data.rs   # Data structures
 ├── loader.rs       # Test suite loaders
-└── error.rs        # Error types
+├── error.rs        # Error types
+└── benchmark/      # Performance benchmarking
+    └── mod.rs      # Benchmarking engine
 ```
 
 ## Features
@@ -107,6 +109,7 @@ src/
 - **Memory safety** - Rust's ownership system ensures correctness
 - **Performance** - Compiled to native code for maximum speed
 - **Async support** - Ready for async/await patterns
+- **Performance Benchmarking** - Built-in benchmarking framework
 
 ## API Reference
 
@@ -132,6 +135,57 @@ Load test suites from YAML:
 
 - `load(path)` - Load from file
 - `supports(path)` - Check format support
+
+## Performance Benchmarking
+
+The Rust SDK includes a comprehensive benchmarking framework for measuring engine performance.
+
+### Quick Example
+
+```rust
+use substrait_compliance::{BenchmarkConfig, BenchmarkRunner};
+
+let config = BenchmarkConfig {
+    warmup_runs: 5,
+    measurement_runs: 100,
+    verbose: true,
+    ..Default::default()
+};
+
+let runner = BenchmarkRunner::new(&engine, config);
+
+let operations = vec![
+    ("operation_name", Box::new(|| {
+        // Your operation here
+        Ok(())
+    }) as Box<dyn Fn() -> Result<(), Box<dyn std::error::Error>> + Send + Sync>),
+];
+
+let result = runner.run_benchmark("benchmark_name", operations).await?;
+println!("{}", result.summary());
+println!("{}", result.to_csv());
+```
+
+### Features
+
+- **Statistical Analysis**: Min, Max, Avg, Median, P95, P99 latencies
+- **Throughput Measurement**: Operations per second
+- **Standard Deviation**: Measure of variance
+- **CSV Export**: Export results for analysis
+- **Async Support**: Full tokio async/await support
+- **Configurable**: Warmup runs, measurement runs, verbosity
+
+### Running the Example
+
+```bash
+cargo run --example benchmark_example
+```
+
+### Running Benchmark Tests
+
+```bash
+cargo test --test benchmark_test
+```
 
 ## Development
 

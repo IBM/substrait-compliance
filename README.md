@@ -540,6 +540,8 @@ println(result.summary)
 - ✅ **TypeScript** - `sdk/typescript/src/benchmark/BenchmarkRunner.ts`
 - ✅ **C#** - `sdk/csharp/Substrait.Compliance/Benchmark/BenchmarkRunner.cs`
 - ✅ **Python** - `sdk/python/substrait_compliance/benchmark/benchmark_runner.py`
+- ✅ **Rust** - `sdk/rust/src/benchmark/mod.rs`
+- ✅ **Java** - `sdk/java/src/main/java/io/substrait/compliance/benchmark/`
 
 ### Documentation
 
