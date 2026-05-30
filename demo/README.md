@@ -2,6 +2,8 @@
 
 This demo showcases the framework-backed workflow for testing database engines for Substrait compliance and publishing results to an interactive dashboard.
 
+> Status: pre-release demo surface. This demo is intended for local evaluation, contributor walkthroughs, and documentation support. It should not be presented as a benchmark, certification program, or production monitoring system.
+
 ## 📋 Table of Contents
 
 - [Quick Start (5 Minutes)](#quick-start-5-minutes)
@@ -16,6 +18,20 @@ This demo showcases the framework-backed workflow for testing database engines f
 - [Next Steps](#next-steps)
 
 ---
+
+## Support Boundary
+
+This demo is intended for:
+- local walkthroughs of the framework-backed execution flow
+- deterministic sample report generation
+- dashboard UX evaluation
+- contributor documentation and experimentation
+
+This demo is **not** intended to serve as:
+- an official certification result for any engine
+- a substitute for production observability or SLO monitoring
+- a statistically rigorous benchmark harness
+- a guarantee of real engine behavior outside the deterministic demo adapters in [`demo/engines`](demo/engines)
 
 ## Quick Start (5 Minutes)
 
@@ -116,6 +132,8 @@ http://localhost:8080
 
 The demo runs five deterministic demo engines (MockDB, FastDB, CloudDB, DuckDB, and PostgreSQL) against the framework-backed TPC-H suite and publishes the generated results to a web dashboard.
 
+All five engines in this directory are demo adapters with deterministic behavior. They are useful for validating the framework flow and dashboard rendering, but they are not evidence of certified behavior for upstream database products.
+
 ### What You'll See
 
 #### In the Dashboard:
@@ -148,6 +166,16 @@ The demo runs five deterministic demo engines (MockDB, FastDB, CloudDB, DuckDB, 
    - Shows rankings and statistics
    - Provides interactive visualizations
    - Enables query-level drill-down
+
+### Production-Style Validation Before External Use
+
+If you want to adapt this demo for a public showcase, staging environment, or downstream distribution, validate the following first:
+
+- replace demo adapters with real engine integrations or clearly label them as simulated
+- verify generated reports against the packaged framework artifacts you intend to distribute
+- confirm dashboard hosting, caching, and refresh behavior in your target environment
+- document data provenance for every displayed result
+- define who owns support for demo failures, stale data, and broken visualizations
 
 ---
 
@@ -245,7 +273,7 @@ demo/
 3. Review leaderboard rankings
 4. Check pass rate chart
 
-**Expected Result**: FastDB leads with 95.5%, MockDB at 85.4%, CloudDB at 77.3%
+**Expected Result**: A deterministic leaderboard is generated from the current demo adapters and written to the dashboard data directory.
 
 ### Scenario 2: Investigate Failures
 **Goal**: Understand why an engine is failing tests
@@ -256,7 +284,7 @@ demo/
 4. Identify failed queries (red border)
 5. Read error messages
 
-**Expected Result**: See which specific queries failed and why
+**Expected Result**: See which specific queries failed and why in the generated demo report set.
 
 ### Scenario 3: Compare Simple vs Complex Query Support
 **Goal**: Determine if an engine handles complex queries well
@@ -267,7 +295,7 @@ demo/
 4. Select "Very Complex" from filter
 5. Click FastDB again → Compare pass rate
 
-**Expected Result**: Most engines perform better on simple queries
+**Expected Result**: Compare how the deterministic demo adapters present different complexity buckets in the dashboard.
 
 ### Scenario 4: Performance Analysis
 **Goal**: Find the fastest engine for specific query types
@@ -277,7 +305,7 @@ demo/
 3. Click each engine and note average execution times
 4. Compare times across engines
 
-**Expected Result**: Identify which engine executes medium queries fastest
+**Expected Result**: Compare the demo adapters' reported execution-time estimates in the generated dashboard output.
 
 ---
 
@@ -287,26 +315,31 @@ demo/
 - **Mode**: Deterministic baseline engine
 - **Behavior**: Returns deterministic output derived from loaded input tables
 - **Use Case**: Baseline framework validation
+- **Support Boundary**: Demo-only adapter, not a real product integration
 
 ### FastDB (High Performance)
 - **Mode**: Deterministic optimized engine
 - **Behavior**: Returns deterministic output with lower estimated execution times
 - **Use Case**: Optimized-engine demo comparison
+- **Support Boundary**: Fictional/demo adapter used to illustrate leaderboard variation
 
 ### CloudDB (Cloud-Native)
 - **Mode**: Deterministic cloud-oriented engine
 - **Behavior**: Returns deterministic output with higher estimated execution times
 - **Use Case**: Cloud-style demo comparison
+- **Support Boundary**: Fictional/demo adapter used to illustrate leaderboard variation
 
 ### DuckDB
 - **Mode**: Deterministic analytical engine
 - **Behavior**: Returns deterministic output derived from loaded input tables
 - **Use Case**: Analytical-engine demo comparison
+- **Support Boundary**: Demo adapter in this repository, not an official upstream certification result
 
 ### PostgreSQL
 - **Mode**: Deterministic relational engine
 - **Behavior**: Returns deterministic output derived from loaded input tables
 - **Use Case**: Relational-engine demo comparison
+- **Support Boundary**: Demo adapter in this repository, not an official upstream certification result
 
 ---
 

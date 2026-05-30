@@ -2,18 +2,51 @@
 
 REST API for programmatic submission and querying of Substrait compliance test results.
 
+> Status: pre-release API surface. The module is buildable and locally deployable, but it should not yet be presented as a stable hosted service contract until release validation, support ownership, and production operations are finalized.
+
 ## Features
+
+The following capabilities exist in the current module and are suitable for local evaluation and contributor testing:
 
 - ✅ **Report Submission** - Submit compliance test results via REST API
 - ✅ **Query Interface** - Query compliance data with pagination and filtering
-- ✅ **JWT Authentication** - Secure token-based authentication
-- ✅ **Rate Limiting** - Token bucket algorithm with configurable limits
+- ✅ **JWT Authentication Hooks** - JWT-based authentication code paths and configuration
+- ✅ **Rate Limiting Hooks** - Token bucket configuration for API throttling
 - ✅ **Response Caching** - In-memory caching with Caffeine
 - ✅ **Webhook Notifications** - Event-driven notifications for report events
 - ✅ **OpenAPI Documentation** - Interactive API documentation with Swagger UI
 - ✅ **Database Migrations** - Versioned schema management with Flyway
-- ✅ **Health Checks** - Kubernetes-ready liveness and readiness probes
+- ✅ **Health Checks** - Liveness and readiness endpoints for deployment integration
 - ✅ **Metrics Export** - Prometheus metrics for monitoring
+
+## Support Boundary
+
+The current API module is intended for:
+- local development
+- CI validation
+- contributor experimentation
+- reference deployment work
+
+The current API module is **not yet declared as**:
+- a hosted public service
+- a compatibility-guaranteed long-term API contract
+- a fully production-certified deployment artifact with on-call support
+
+## Deployment Modes
+
+### 1. Local Development
+Use this mode when iterating on code, tests, and schema changes.
+
+### 2. Containerized Evaluation
+Use [`docker-compose.yml`](api/docker-compose.yml) and [`Containerfile`](api/Containerfile) for reproducible local or staging-style evaluation.
+
+### 3. Production-Style Validation
+Before calling the API production-ready in your environment, validate:
+- database migration behavior against your target PostgreSQL version
+- JWT secret provisioning and rotation procedures
+- reverse-proxy / TLS termination behavior
+- webhook delivery and retry behavior against real endpoints
+- metrics, health probes, and log forwarding in your deployment platform
 
 ## Quick Start
 
@@ -70,6 +103,7 @@ export SPRING_DATASOURCE_PASSWORD="$DEV_DB_PASSWORD"
 - **[API Usage Guide](API_USAGE.md)** - API endpoints and examples
 - **[Swagger UI](http://localhost:8080/swagger-ui.html)** - Interactive API documentation
 - **[Implementation Plan](../API_IMPLEMENTATION_PLAN.md)** - Architecture and design decisions
+- **[Security Policy](../SECURITY.md)** - Verified vs. operator-dependent security guarantees
 
 ## Project Structure
 
@@ -121,6 +155,19 @@ api/
 - **OpenAPI 3.0** - API documentation
 - **TestContainers** - Integration testing
 - **Gradle 8.5** - Build tool
+
+## Production-Style Validation Checklist
+
+Use the following checklist before presenting this module as an externally consumable OSS API surface:
+
+- [ ] Run [`./gradlew test`](api/build.gradle:68) successfully in your target branch
+- [ ] Validate startup against PostgreSQL with Flyway migrations enabled
+- [ ] Confirm health endpoints through your ingress or reverse proxy
+- [ ] Confirm JWT secret injection from your secret-management path
+- [ ] Exercise webhook signing and retry behavior against a test receiver
+- [ ] Confirm metrics scraping from [`/actuator/prometheus`](api/README.md:110)
+- [ ] Review rate-limit behavior under representative traffic
+- [ ] Document your operator ownership, escalation path, and support window
 
 ## Configuration
 
@@ -214,14 +261,14 @@ openssl rand -base64 64
 
 ### API Key Management
 
-API keys are stored in the database with bcrypt hashing:
+Treat API key handling as deployment-specific until your environment has validated issuance, rotation, revocation, and audit procedures end to end.
 
 ```sql
--- Create API key
+-- Example bootstrap record for local evaluation only
 INSERT INTO api_keys (key_hash, name, scopes, active)
 VALUES (
   encode(digest('your-api-key', 'sha256'), 'hex'),
-  'Production Client',
+  'Evaluation Client',
   '["read", "write"]'::jsonb,
   true
 );
@@ -258,6 +305,12 @@ curl -I http://localhost:8080/api/v1/reports
 
 See [DEPLOYMENT.md](DEPLOYMENT.md#troubleshooting) for more solutions.
 
+## Stability Notes
+
+- Endpoint shapes may still evolve before a stable OSS API release.
+- Authentication, rate limiting, and webhook behavior should be treated as pre-release surfaces unless validated in your deployment.
+- Backward-compatibility guarantees for external clients are not yet claimed.
+
 ## Contributing
 
 1. Fork the repository
@@ -278,5 +331,5 @@ Apache License 2.0 - See LICENSE file for details
 
 ---
 
-**Version**: 1.0.0-SNAPSHOT  
-**Last Updated**: 2026-04-16
+**Version**: 1.0.0-SNAPSHOT
+**Last Updated**: 2026-05-30

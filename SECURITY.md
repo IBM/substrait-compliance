@@ -2,12 +2,12 @@
 
 ## Supported Versions
 
-Security support commitments will be finalized at open-source launch. Until a stable public release process is in place, treat this repository as pre-release and coordinate security reports against the current default branch.
+Security support commitments remain pre-release. The repository contains security-related implementation and deployment scaffolding, but only the controls explicitly called out as verified below should be treated as current guarantees.
 
 | Version | Supported |
 | ------- | --------- |
-| main    | Best effort, pre-release |
-| tagged releases | To be defined at launch |
+| [`main`](README.md) | Best effort, pre-release |
+| tagged releases | Release process in progress; support window not yet finalized |
 
 ## Reporting a Vulnerability
 
@@ -39,6 +39,7 @@ Please include the following information in your report:
 - **Status Update**: Best effort follow-up after triage
 - **Fix Timeline**: Depends on severity, maintainer availability, and release readiness
 - **Disclosure**: Coordinated disclosure after a fix or mitigation is available
+- **Incident Coordination**: Current process is maintainer-driven email/advisory triage; no separate 24x7 incident-response rotation is claimed
 
 ### What to Expect
 
@@ -50,72 +51,97 @@ Please include the following information in your report:
 
 ## Security Best Practices
 
+### Verified Today vs. Still Operator-Dependent
+
+The repository now has enough implementation and deployment material to distinguish between controls that are **verified in-repo** and controls that are **still deployment/operator responsibilities**.
+
+#### Verified in Repository Artifacts
+
+The following statements are supported by repository code, configuration, or workflow evidence and can be treated as current verified behavior for the pre-release codebase:
+
+1. **Containerized API deployment runs as a non-root user**
+   - [`api/Containerfile`](api/Containerfile) creates and switches to the `spring` user before startup
+   - The runtime image exposes only the application process and health check entrypoint
+
+2. **Container and local deployment paths require externally supplied JWT secrets**
+   - [`api/docker-compose.yml`](api/docker-compose.yml) requires `JWT_SECRET` for the API service
+   - [`api/README.md`](api/README.md) instructs operators to generate secrets outside source control
+   - [`api/src/main/resources/application.yml`](api/src/main/resources/application.yml) reads JWT configuration from environment variables
+
+3. **Webhook signing uses canonical JSON serialization before HMAC generation**
+   - [`api/src/main/java/io/substrait/compliance/api/service/WebhookDeliveryService.java`](api/src/main/java/io/substrait/compliance/api/service/WebhookDeliveryService.java) serializes payloads with Jackson before signature generation
+   - This closes the earlier mismatch between payload representation and signature input
+
+4. **Dependency and artifact validation are part of repository automation**
+   - [` .github/workflows/sdk-build-test.yml`](.github/workflows/sdk-build-test.yml) verifies build/test coverage across claimed SDKs
+   - [` .github/workflows/release-publish.yml`](.github/workflows/release-publish.yml) now validates release-candidate artifacts and smoke-tests packaged outputs before release publication
+
+#### Not Yet Claimed as Guarantees
+
+The following controls may be partially implemented or documented, but they are **not yet guaranteed by this repository alone** and must still be treated as deployment-specific or future hardening work:
+
+1. **End-to-end authentication and authorization assurance**
+   - JWT-related code and Spring Security dependencies exist
+   - Full production auth-flow verification, token lifecycle testing, and role-boundary validation are not yet documented as release gates
+
+2. **TLS / HTTPS enforcement**
+   - HTTPS is recommended in docs
+   - The repository does not ship certificates or prove that every deployment path terminates TLS correctly by default
+
+3. **Rate limiting effectiveness in production**
+   - Rate-limit configuration exists
+   - Production tuning, proxy-awareness, and abuse-case validation remain operator responsibilities
+
+4. **Audit logging and incident monitoring**
+   - Logging and monitoring hooks exist
+   - Centralized retention, alert routing, and incident escalation are not yet verified as maintained service guarantees
+
+5. **Repository-wide dependency scanning and incident-response readiness**
+   - Security review guidance exists
+   - A formal, continuously verified dependency-scanning and incident-response program is not yet claimed as complete
+
 ### For Users
 
 #### API Security
 
 1. **Authentication**
-   - Always use strong JWT secrets (minimum 256 bits)
-   - Rotate API keys regularly (recommended: every 90 days)
+   - Use strong JWT secrets (minimum 256 bits)
+   - Rotate API keys and signing secrets on an operator-defined schedule
    - Never commit secrets to version control
-   - Use environment variables for sensitive configuration
+   - Use environment variables or a secret manager for sensitive configuration
 
 2. **HTTPS/TLS**
-   - Always use HTTPS in production environments
+   - Terminate TLS in front of the API for every production deployment
    - Use TLS 1.2 or higher
-   - Keep SSL certificates up to date
-   - Configure proper certificate validation
+   - Keep certificates up to date
+   - Validate upstream and downstream certificates explicitly
 
 3. **Rate Limiting**
-   - Configure appropriate rate limits for your use case
+   - Configure limits appropriate to your traffic profile
    - Monitor for unusual traffic patterns
-   - Implement IP-based restrictions if needed
+   - Add IP- or identity-based restrictions where needed
 
 4. **Input Validation**
-   - Enable strict input validation mode
-   - Sanitize all user inputs
-   - Use parameterized queries for database operations
-
-#### Configuration Security
-
-```yaml
-# Example secure configuration (application.yml)
-security:
-  headers:
-    enabled: true
-  audit:
-    enabled: true
-    log-level: INFO
-  validation:
-    strict-mode: true
-
-jwt:
-  secret: ${JWT_SECRET}  # Use environment variable
-  expiration: 3600000    # 1 hour
-
-server:
-  ssl:
-    enabled: true
-    key-store: ${SSL_KEYSTORE_PATH}
-    key-store-password: ${SSL_KEYSTORE_PASSWORD}
-```
+   - Treat all external input as untrusted
+   - Keep validation enabled in deployed environments
+   - Use parameterized queries and framework-managed persistence paths
 
 #### Deployment Security
 
 1. **Environment Variables**
    - Never hardcode secrets
-   - Use secure secret management (e.g., HashiCorp Vault, AWS Secrets Manager)
+   - Use secure secret management (for example Vault or cloud secret stores)
    - Rotate credentials regularly
 
 2. **Network Security**
-   - Use firewalls to restrict access
-   - Implement network segmentation
-   - Use VPCs in cloud environments
+   - Restrict ingress to trusted networks or gateways
+   - Place the API behind a reverse proxy or ingress controller
+   - Use segmented networks/VPCs for database access
 
 3. **Monitoring**
-   - Enable security audit logging
-   - Monitor for suspicious activity
-   - Set up alerts for security events
+   - Forward application and security logs to centralized storage
+   - Alert on repeated auth failures, webhook delivery failures, and unusual request spikes
+   - Test incident contacts before claiming production readiness
 
 ### For Contributors
 
@@ -123,55 +149,34 @@ server:
 
 1. **Code Review**
    - All code changes require review
-   - Security-sensitive changes require additional review
-   - Use automated security scanning tools
+   - Security-sensitive changes should include explicit reviewer attention to auth, webhook, and persistence behavior
+   - Keep automated validation green before merge
 
 2. **Dependencies**
    - Keep dependencies up to date
-   - Review dependency security advisories
-   - Use tools like Dependabot or Snyk
+   - Review dependency advisories before release
+   - Treat release-candidate workflow failures as blockers for publication
 
 3. **Testing**
-   - Write security tests for new features
-   - Test authentication and authorization
-   - Validate input handling
+   - Add tests for authentication, authorization, webhook signing, and unsafe input handling when touching those areas
+   - Prefer release-artifact smoke tests over source-only validation for user-facing packages
 
 4. **Secrets Management**
    - Never commit secrets to the repository
-   - Use `.env.example` for configuration templates
-   - Scan commits for accidentally committed secrets
+   - Use templates and environment variables for local setup
+   - Rotate any accidentally exposed credentials immediately
 
 ## Security Implementation Status
 
-Security-related code exists in the repository, especially around the pre-release REST API, but the project should not yet be treated as having a fully verified security posture.
+Security-related code exists in the repository, especially around the pre-release REST API, but the project should still be treated as **pre-release with partial verification** rather than as a fully production-certified service.
 
-### Current Status
+### Verification Standard for Future Guarantees
 
-The following areas may exist partially or in pre-release form, but should be considered **implementation goals rather than verified guarantees** until they are covered by dedicated tests, deployment guidance, and release validation:
-
-1. **Authentication & Authorization**
-   - JWT-based authentication code paths may exist in the API module
-   - Role and permission checks may exist in selected endpoints or services
-   - Operational hardening and end-to-end verification are still required
-
-2. **Input Validation**
-   - Some validation and defensive coding patterns are present
-   - Repository-wide verification for injection, traversal, and related classes of attacks is still pending
-
-3. **Security Headers and Transport**
-   - Recommended production headers and TLS settings are documented
-   - Actual enforcement depends on deployment configuration and has not yet been validated as a repository-wide guarantee
-
-4. **Rate Limiting and Audit Logging**
-   - These are design goals for production deployments
-   - They should not be assumed to be comprehensively implemented or enabled by default across all components
-
-### Verification Guidance
-
-Before describing any protection as supported in a release, verify it with:
+Before describing any protection as supported in a stable release, verify it with:
 - automated tests covering the relevant behavior
-- configuration documentation showing how it is enabled
+- deployment documentation showing how it is enabled
 - release validation confirming the behavior in the shipped artifact
+- an identified maintainer process for triage and incident handling
 
 ## Vulnerability Disclosure Policy
 
@@ -214,7 +219,7 @@ We will not pursue legal action against researchers who follow these guidelines.
 Stay informed about security updates:
 
 - **GitHub Security Advisories**: [github.com/substrait-io/substrait-compliance/security/advisories](https://github.com/substrait-io/substrait-compliance/security/advisories)
-- **Release Notes**: Check [CHANGELOG.md](CHANGELOG.md) for security fixes in published releases
+- **Release Notes**: Check [`CHANGELOG.md`](CHANGELOG.md) for security fixes in published releases
 - **Mailing List**: Subscribe to security announcements (coming soon, if adopted at launch)
 
 ### Update Recommendations
@@ -230,6 +235,7 @@ Stay informed about security updates:
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
+- [API README](api/README.md)
 
 ## Contact
 
@@ -240,6 +246,6 @@ For security-related questions or concerns:
 
 ---
 
-**Last Updated**: May 22, 2026
+**Last Updated**: May 30, 2026
 
 Thank you for helping keep the Substrait Compliance Framework and its users safe!
