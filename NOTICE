@@ -1,0 +1,134 @@
+Substrait Compliance Framework
+Copyright 2024-2026 Substrait Compliance Framework Contributors
+
+This product includes software developed by the Substrait project
+(https://substrait.io/).
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+
+================================================================================
+
+This project includes or depends on the following third-party components:
+
+--------------------------------------------------------------------------------
+Spring Framework
+Copyright 2002-2024 Pivotal Software, Inc.
+Licensed under the Apache License 2.0
+https://spring.io/
+
+--------------------------------------------------------------------------------
+PostgreSQL JDBC Driver
+Copyright 1997-2024 PostgreSQL Global Development Group
+Licensed under the BSD 2-Clause License
+https://jdbc.postgresql.org/
+
+--------------------------------------------------------------------------------
+Jackson JSON Processor
+Copyright 2007-2024 FasterXML, LLC
+Licensed under the Apache License 2.0
+https://github.com/FasterXML/jackson
+
+--------------------------------------------------------------------------------
+Gradle Build Tool
+Copyright 2008-2024 the original author or authors
+Licensed under the Apache License 2.0
+https://gradle.org/
+
+--------------------------------------------------------------------------------
+JUnit 5
+Copyright 2015-2024 the original author or authors
+Licensed under the Eclipse Public License 2.0
+https://junit.org/junit5/
+
+--------------------------------------------------------------------------------
+Rust Programming Language
+Copyright 2010-2024 The Rust Project Developers
+Licensed under the Apache License 2.0 and MIT License
+https://www.rust-lang.org/
+
+--------------------------------------------------------------------------------
+Python Software Foundation
+Copyright 2001-2024 Python Software Foundation
+Licensed under the PSF License
+https://www.python.org/
+
+--------------------------------------------------------------------------------
+Go Programming Language
+Copyright 2009-2024 The Go Authors
+Licensed under the BSD 3-Clause License
+https://golang.org/
+
+--------------------------------------------------------------------------------
+Chart.js
+Copyright 2014-2024 Chart.js Contributors
+Licensed under the MIT License
+https://www.chartjs.org/
+
+--------------------------------------------------------------------------------
+Docker
+Copyright 2013-2024 Docker, Inc.
+Licensed under the Apache License 2.0
+https://www.docker.com/
+
+================================================================================
+
+For a complete list of dependencies and their licenses, please refer to:
+- Java SDK: sdk/java/build.gradle
+- Python SDK: sdk/python/requirements.txt
+- Rust SDK: sdk/rust/Cargo.toml
+- Go SDK: sdk/go/go.mod
+- TypeScript SDK: sdk/typescript/package.json
+- C# SDK: sdk/csharp/Substrait.Compliance.csproj
+- Scala SDK: sdk/scala/build.sbt
+- C++ SDK: sdk/cpp/CMakeLists.txt
+
+================================================================================
+
+SUBSTRAIT TRADEMARK NOTICE
+
+"Substrait" is a trademark of the Substrait project. Use of the Substrait
+name and logo is subject to the Substrait trademark policy.
+
+================================================================================
+
+EXPORT CONTROL NOTICE
+
+This distribution includes cryptographic software. The country in which you
+currently reside may have restrictions on the import, possession, use, and/or
+re-export to another country, of encryption software. BEFORE using any
+encryption software, please check your country's laws, regulations and
+policies concerning the import, possession, or use, and re-export of
+encryption software, to see if this is permitted. See http://www.wassenaar.org/
+for more information.
+
+The U.S. Government Department of Commerce, Bureau of Industry and Security
+(BIS), has classified this software as Export Commodity Control Number (ECCN)
+5D002.C.1, which includes information security software using or performing
+cryptographic functions with asymmetric algorithms.
+
+================================================================================
+
+ADDITIONAL ATTRIBUTIONS
+
+This project was inspired by and builds upon concepts from:
+- TPC Benchmark™ specifications (http://www.tpc.org/)
+- Apache Arrow project (https://arrow.apache.org/)
+- Various database compliance testing frameworks
+
+Special thanks to all contributors who have helped make this project possible.
+See the Contributors page for a complete list:
+https://github.com/substrait-io/substrait-compliance/graphs/contributors
+
+================================================================================
+
+Last Updated: May 30, 2026
