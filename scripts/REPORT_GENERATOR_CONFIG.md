@@ -10,15 +10,15 @@ The technical report generator uses the **same LiteLLM configuration** as the qu
 
 ```python
 LITELLM_BASE_URL = "https://ete-litellm.bx.cloud9.ibm.com"
-LITELLM_API_KEY = "sk-VMZ3xKwap-cYmizbN_qrsw"
+LITELLM_API_KEY = os.getenv("LITELLM_API_KEY", "")
 DEFAULT_MODEL = "aws/claude-sonnet-4-5"
 ```
 
 ### Why This Configuration?
 
-1. **Consistency**: Same setup as quality_checker.py
-2. **Pre-configured**: No need for users to set up API keys
-3. **Team Access**: Uses your team's LiteLLM proxy
+1. **Consistency**: Same setup as the report-generation tooling
+2. **Safer Secret Handling**: API keys come from environment variables, not source control
+3. **Team Access**: Supports your team's LiteLLM proxy
 4. **Cost Control**: Centralized billing and rate limiting
 
 ## Available Models
@@ -49,7 +49,7 @@ python scripts/generate_technical_report.py
 
 This automatically uses:
 - Base URL: `https://ete-litellm.bx.cloud9.ibm.com`
-- API Key: Pre-configured
+- API Key: from the `LITELLM_API_KEY` environment variable
 - Model: `aws/claude-sonnet-4-5`
 
 ### Use Different Model
@@ -105,7 +105,7 @@ completion(
 | Aspect | Quality Checker | Report Generator |
 |--------|----------------|------------------|
 | **Base URL** | `https://ete-litellm.bx.cloud9.ibm.com` | Same ✅ |
-| **API Key** | `sk-VMZ3xKwap-cYmizbN_qrsw` | Same ✅ |
+| **API Key** | `LITELLM_API_KEY` environment variable | Same approach ✅ |
 | **Default Model** | `aws/claude-sonnet-4-5` | Same ✅ |
 | **Temperature** | 0.3 | 0.3 ✅ |
 | **Max Tokens** | 4000 | 4000 ✅ |
@@ -118,7 +118,7 @@ Using the team's LiteLLM proxy:
 
 - **Centralized Billing**: All costs tracked centrally
 - **Rate Limiting**: Managed by proxy
-- **No Individual API Keys**: No need for personal accounts
+- **No Embedded API Keys**: Credentials stay outside the repository
 
 ### Estimated Costs per Report
 
@@ -139,7 +139,7 @@ curl https://ete-litellm.bx.cloud9.ibm.com/health
 
 # Check available models
 curl https://ete-litellm.bx.cloud9.ibm.com/models \
-  -H "Authorization: Bearer sk-VMZ3xKwap-cYmizbN_qrsw"
+  -H "Authorization: Bearer $LITELLM_API_KEY"
 ```
 
 ### Rate Limiting

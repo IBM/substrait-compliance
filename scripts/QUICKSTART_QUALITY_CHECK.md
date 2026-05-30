@@ -60,10 +60,10 @@ cat quality_reports/arithmetic_quality.json
 
 ## Configuration
 
-The quality checker is pre-configured with:
+The quality checker is configured with:
 
 - **LiteLLM Proxy**: `https://ete-litellm.bx.cloud9.ibm.com`
-- **API Key**: `sk-VMZ3xKwap-cYmizbN_qrsw`
+- **API Key**: set via the `LITELLM_API_KEY` environment variable
 - **Model**: `claude-3-5-sonnet-20241022`
 
 To modify settings, edit `scripts/quality_config.yaml`.

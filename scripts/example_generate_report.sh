@@ -18,9 +18,18 @@ if ! python3 -c "import litellm" 2>/dev/null; then
     exit 1
 fi
 
-# Note: Using pre-configured LiteLLM proxy (same as quality checker)
+if [ -z "$LITELLM_API_KEY" ]; then
+    echo "❌ Error: LITELLM_API_KEY is not set"
+    echo ""
+    echo "Set it before running:"
+    echo "  export LITELLM_API_KEY=your_api_key"
+    echo ""
+    exit 1
+fi
+
 echo "ℹ️  Using LiteLLM proxy: https://ete-litellm.bx.cloud9.ibm.com"
 echo "   Model: aws/claude-sonnet-4-5"
+echo "   API key: from LITELLM_API_KEY environment variable"
 echo ""
 
 echo "📊 Step 1: Analyzing project structure..."

@@ -472,7 +472,7 @@ from test_enhancer import TestEnhancer
 from pathlib import Path
 
 enhancer = TestEnhancer(
-    api_key="sk-VMZ3xKwap-cYmizbN_qrsw",
+    api_key=os.environ["LITELLM_API_KEY"],
     base_url="https://ete-litellm.bx.cloud9.ibm.com"
 )
 

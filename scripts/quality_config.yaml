@@ -4,7 +4,7 @@
 # LiteLLM Configuration
 litellm:
   base_url: "https://ete-litellm.bx.cloud9.ibm.com"
-  api_key: "sk-VMZ3xKwap-cYmizbN_qrsw"
+  api_key: "${LITELLM_API_KEY}"
   model: "aws/claude-sonnet-4-5"
   
   # Alternative models available for your team:

@@ -6,7 +6,7 @@ Validates test correctness, coverage, and edge cases.
 import os
 import sys
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 import json
 from datetime import datetime
 import time
@@ -15,7 +15,7 @@ import time
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 try:
-    from litellm import completion
+    from litellm import completion  # type: ignore[reportMissingImports]
 except ImportError:
     print("Error: litellm not installed. Run: pip install litellm openai")
     sys.exit(1)
@@ -28,7 +28,7 @@ from sdk.python.substrait_compliance.function_test_parser import (
 
 # LiteLLM Configuration
 LITELLM_BASE_URL = "https://ete-litellm.bx.cloud9.ibm.com"
-LITELLM_API_KEY = "sk-VMZ3xKwap-cYmizbN_qrsw"
+LITELLM_API_KEY = os.getenv("LITELLM_API_KEY", "")
 # Use exact model name from available models list
 MODEL = "aws/claude-sonnet-4-5"
 
@@ -36,7 +36,7 @@ MODEL = "aws/claude-sonnet-4-5"
 class TestQualityChecker:
     """Checks quality of function tests using Claude via LiteLLM."""
     
-    def __init__(self, api_key: str, base_url: str = None, model: str = MODEL):
+    def __init__(self, api_key: str, base_url: Optional[str] = None, model: str = MODEL):
         """
         Initialize the quality checker.
         

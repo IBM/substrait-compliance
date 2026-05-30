@@ -18,10 +18,10 @@ python scripts/generate_technical_report.py
 
 That's it! Your report will be saved to `docs/TECHNICAL_REPORT.md`
 
-**Note:** The script uses the same pre-configured LiteLLM proxy as the quality checker:
+**Note:** The script uses the same LiteLLM proxy configuration as the quality checker:
 - **Base URL:** `https://ete-litellm.bx.cloud9.ibm.com`
 - **Model:** `aws/claude-sonnet-4-5`
-- **API Key:** Pre-configured (same as quality_checker.py)
+- **API Key:** Set the `LITELLM_API_KEY` environment variable before running
 
 ## 📋 What You Get
 

@@ -15,7 +15,7 @@ Usage:
     python scripts/generate_technical_report.py --model claude-3-5-sonnet-20241022 --output report.md
     
     # With API key from environment
-    export ANTHROPIC_API_KEY=your_key_here
+    export LITELLM_API_KEY=your_key_here
     python scripts/generate_technical_report.py
 """
 
@@ -28,14 +28,14 @@ from datetime import datetime
 from typing import Dict, List, Any, Optional
 
 try:
-    from litellm import completion
+    from litellm import completion  # type: ignore[reportMissingImports]
 except ImportError:
     print("Error: litellm is not installed. Install it with: pip install litellm")
     sys.exit(1)
 
-# LiteLLM Configuration (same as quality_checker.py)
+# LiteLLM Configuration
 LITELLM_BASE_URL = "https://ete-litellm.bx.cloud9.ibm.com"
-LITELLM_API_KEY = "sk-VMZ3xKwap-cYmizbN_qrsw"
+LITELLM_API_KEY = os.getenv("LITELLM_API_KEY", "")
 DEFAULT_MODEL = "aws/claude-sonnet-4-5"
 
 

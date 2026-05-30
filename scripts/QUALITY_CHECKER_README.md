@@ -25,9 +25,9 @@ pip install litellm openai pyyaml protobuf
 
 ### 2. LiteLLM Configuration
 
-The quality checker is pre-configured to use:
+The quality checker is configured to use:
 - **Base URL**: `https://ete-litellm.bx.cloud9.ibm.com`
-- **API Key**: `sk-VMZ3xKwap-cYmizbN_qrsw`
+- **API Key**: from the `LITELLM_API_KEY` environment variable
 - **Model**: `claude-3-5-sonnet-20241022`
 
 Configuration can be modified in `scripts/quality_config.yaml`.
@@ -185,7 +185,7 @@ Edit `scripts/quality_config.yaml` to customize:
 ```yaml
 litellm:
   base_url: "https://ete-litellm.bx.cloud9.ibm.com"
-  api_key: "sk-VMZ3xKwap-cYmizbN_qrsw"
+  api_key: "${LITELLM_API_KEY}"
   model: "claude-3-5-sonnet-20241022"
   temperature: 0.3
   max_tokens: 4000
@@ -283,7 +283,7 @@ python scripts/quality_checker.py
 
 Check:
 1. LiteLLM proxy is accessible: `https://ete-litellm.bx.cloud9.ibm.com`
-2. API key is valid: `sk-VMZ3xKwap-cYmizbN_qrsw`
+2. `LITELLM_API_KEY` is set and valid
 3. Network connectivity
 
 ### Error: Rate Limit Exceeded
@@ -341,7 +341,7 @@ from sdk.python.substrait_compliance.function_test_parser import FunctionTestPar
 
 # Initialize
 checker = TestQualityChecker(
-    api_key="sk-VMZ3xKwap-cYmizbN_qrsw",
+    api_key=os.environ["LITELLM_API_KEY"],
     base_url="https://ete-litellm.bx.cloud9.ibm.com"
 )
 
