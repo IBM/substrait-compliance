@@ -1700,12 +1700,14 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 | Metric | Value |
 |--------|-------|
 | **Total Lines of Code** | ~33,000 |
-| **SDKs** | 3 (Java, Python, Rust) |
+| **SDKs** | 8 (Java, Python, Rust, Go, C++, TypeScript, C#, Scala) |
 | **Test Suites** | 3 (TPC-H, TPC-DS, Functions) |
 | **Function Test Files** | 279 (143 standard + 136 enhanced) |
+| **Function Test Cases** | ~4,000+ individual test cases |
 | **Function Categories** | 15 (Aggregate, Arithmetic, Array, Boolean, Cast, Comparison, Conditional, DateTime, Geospatial, JSON, Map, Set, String, Struct, Window) |
 | **TPC-H Queries** | 22 queries |
-| **TPC-DS Queries** | 99 queries |
+| **TPC-DS Queries** | 99 queries (complete) |
+| **Total Test Coverage** | 4,000+ test cases + 121 benchmark queries |
 | **Test Data Rows** | 86,805 (TPC-H scale factor 0.01) |
 | **CI/CD Workflows** | 12 |
 | **Documentation Files** | 15+ |
