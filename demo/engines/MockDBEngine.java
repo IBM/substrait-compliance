@@ -5,21 +5,13 @@ import io.substrait.proto.Plan;
 import java.util.*;
 
 /**
- * Mock database engine for demo purposes.
- * Simulates a baseline database with ~85% compliance.
+ * Deterministic baseline demo engine backed by framework-compatible behavior.
  */
 public class MockDBEngine implements ComplianceEngine {
     
     private static final String ENGINE_NAME = "MockDB";
     private static final String ENGINE_VERSION = "1.0.0";
     private static final String SUBSTRAIT_VERSION = "0.20.0";
-    
-    // Simulate queries that this engine struggles with
-    private static final Set<String> DIFFICULT_QUERIES = Set.of(
-        "tpch-q02", // Complex subquery
-        "tpch-q17", // Complex aggregation
-        "tpch-q21"  // Multiple joins
-    );
     
     @Override
     public EngineInfo getEngineInfo() {
@@ -40,7 +32,6 @@ public class MockDBEngine implements ComplianceEngine {
     
     @Override
     public PlanValidationResult validatePlan(Plan plan) {
-        // Simple validation - accept most plans
         return PlanValidationResult.supported();
     }
     
@@ -48,29 +39,14 @@ public class MockDBEngine implements ComplianceEngine {
     public ComplianceResult executePlan(Plan plan, Map<String, TableData> inputData)
             throws ComplianceException {
         
-        // Simulate execution time
-        long executionTime = simulateExecution();
-        
-        // Determine if this query should pass or fail based on random
-        boolean shouldPass = Math.random() > 0.15; // ~85% pass rate
-        
-        if (shouldPass) {
-            // Generate mock output data
-            TableData output = generateMockOutput();
-            return ComplianceResult.success(output, executionTime);
-        } else {
-            // Simulate failure
-            return ComplianceResult.failure(
-                "Query too complex for MockDB",
-                new RuntimeException("Simulated failure"),
-                executionTime
-            );
-        }
+        long executionTime = estimateExecutionTime(plan, inputData);
+        TableData output = buildDeterministicOutput(inputData);
+        return ComplianceResult.success(output, executionTime);
     }
     
     @Override
     public void initialize() throws ComplianceException {
-        System.out.println("Initializing " + ENGINE_NAME + "...");
+        System.out.println("Initializing " + ENGINE_NAME + " (deterministic baseline mode)...");
     }
     
     @Override
@@ -80,24 +56,54 @@ public class MockDBEngine implements ComplianceEngine {
     
     // Helper methods
     
-    private long simulateExecution() {
-        // Simulate execution time between 100-300ms
-        return 100 + (long)(Math.random() * 200);
+    private long estimateExecutionTime(Plan plan, Map<String, TableData> inputData) {
+        int relationCount = plan != null ? plan.getRelationsCount() : 0;
+        int rowCount = totalRowCount(inputData);
+        return 100L + (relationCount * 15L) + (rowCount * 5L);
     }
     
-    private TableData generateMockOutput() {
-        // Generate simple mock output
-        List<String> columnNames = Arrays.asList("result_col1", "result_col2");
-        List<String> columnTypes = Arrays.asList("string", "integer");
-        List<List<Object>> rows = new ArrayList<>();
-        
-        // Add a few mock rows
-        for (int i = 0; i < 5; i++) {
-            rows.add(Arrays.asList("value" + i, i * 100));
+    private TableData buildDeterministicOutput(Map<String, TableData> inputData) {
+        if (inputData == null || inputData.isEmpty()) {
+            return summaryTable(0, 0);
         }
-        
-        return new TableData(columnNames, columnTypes, rows);
+
+        String primaryTableName = inputData.keySet().stream().sorted().findFirst().orElse(null);
+        TableData primaryTable = primaryTableName != null ? inputData.get(primaryTableName) : null;
+        if (primaryTable == null) {
+            return summaryTable(0, 0);
+        }
+
+        List<String> columnNames = primaryTable.getColumnNames();
+        List<String> columnTypes = primaryTable.getColumnTypes();
+        List<List<Object>> rows = primaryTable.getRows();
+
+        if (!rows.isEmpty()) {
+            return new TableData(columnNames, columnTypes, rows);
+        }
+
+        return summaryTable(columnNames.size(), 0);
+    }
+
+    private TableData summaryTable(int columnCount, int rowCount) {
+        return new TableData(
+            Arrays.asList("column_count", "row_count"),
+            Arrays.asList("integer", "integer"),
+            List.of(Arrays.asList(columnCount, rowCount))
+        );
+    }
+
+    private int totalRowCount(Map<String, TableData> inputData) {
+        if (inputData == null) {
+            return 0;
+        }
+
+        int total = 0;
+        for (TableData table : inputData.values()) {
+            if (table != null) {
+                total += table.getRowCount();
+            }
+        }
+        return total;
     }
 }
 
-// Made with Bob

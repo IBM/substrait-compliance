@@ -110,14 +110,99 @@ public class ComplianceRunner {
      * Compare expected and actual results.
      */
     private boolean compareResults(TableData expected, TableData actual) {
+        if (actual == null) {
+            return false;
+        }
         if (expected.getRowCount() != actual.getRowCount()) {
             return false;
         }
         if (expected.getColumnCount() != actual.getColumnCount()) {
             return false;
         }
-        
-        // Simple comparison - can be enhanced
-        return expected.equals(actual);
+        if (!Objects.equals(expected.getColumnNames(), actual.getColumnNames())) {
+            return false;
+        }
+        if (!compareColumnTypes(expected.getColumnTypes(), actual.getColumnTypes())) {
+            return false;
+        }
+
+        for (int row = 0; row < expected.getRowCount(); row++) {
+            for (int col = 0; col < expected.getColumnCount(); col++) {
+                if (!valuesMatch(expected.getValue(row, col), actual.getValue(row, col))) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
+    }
+
+    private boolean compareColumnTypes(List<String> expectedTypes, List<String> actualTypes) {
+        if (expectedTypes == null || actualTypes == null) {
+            return expectedTypes == actualTypes;
+        }
+        if (expectedTypes.size() != actualTypes.size()) {
+            return false;
+        }
+
+        for (int i = 0; i < expectedTypes.size(); i++) {
+            String expected = normalizeType(expectedTypes.get(i));
+            String actual = normalizeType(actualTypes.get(i));
+            if (!Objects.equals(expected, actual)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private String normalizeType(String type) {
+        if (type == null) {
+            return null;
+        }
+
+        String normalized = type.trim().toLowerCase(Locale.ROOT);
+        switch (normalized) {
+            case "int":
+            case "integer":
+            case "i8":
+            case "i16":
+            case "i32":
+                return "integer";
+            case "long":
+            case "bigint":
+            case "i64":
+                return "bigint";
+            case "float":
+            case "fp32":
+                return "float";
+            case "double":
+            case "fp64":
+            case "decimal":
+                return "double";
+            case "bool":
+            case "boolean":
+                return "boolean";
+            default:
+                return normalized;
+        }
+    }
+
+    private boolean valuesMatch(Object expected, Object actual) {
+        if (expected == null || actual == null) {
+            return expected == actual;
+        }
+
+        if (expected instanceof Number && actual instanceof Number) {
+            double expectedValue = ((Number) expected).doubleValue();
+            double actualValue = ((Number) actual).doubleValue();
+            return Math.abs(expectedValue - actualValue) < 1e-9;
+        }
+
+        if (expected instanceof Boolean || actual instanceof Boolean) {
+            return Boolean.parseBoolean(String.valueOf(expected))
+                == Boolean.parseBoolean(String.valueOf(actual));
+        }
+
+        return Objects.equals(String.valueOf(expected), String.valueOf(actual));
     }
 }

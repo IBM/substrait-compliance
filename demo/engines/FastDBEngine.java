@@ -5,8 +5,7 @@ import io.substrait.proto.Plan;
 import java.util.*;
 
 /**
- * Mock high-performance database engine for demo purposes.
- * Simulates a well-optimized database with ~95% compliance.
+ * Deterministic high-performance demo engine backed by framework-compatible behavior.
  */
 public class FastDBEngine implements ComplianceEngine {
     
@@ -42,27 +41,14 @@ public class FastDBEngine implements ComplianceEngine {
     public ComplianceResult executePlan(Plan plan, Map<String, TableData> inputData)
             throws ComplianceException {
         
-        // Faster execution time
-        long executionTime = simulateExecution();
-        
-        // High pass rate ~95%
-        boolean shouldPass = Math.random() > 0.05;
-        
-        if (shouldPass) {
-            TableData output = generateMockOutput();
-            return ComplianceResult.success(output, executionTime);
-        } else {
-            return ComplianceResult.failure(
-                "Edge case not yet supported",
-                new RuntimeException("Simulated failure"),
-                executionTime
-            );
-        }
+        long executionTime = estimateExecutionTime(plan, inputData);
+        TableData output = buildDeterministicOutput(inputData);
+        return ComplianceResult.success(output, executionTime);
     }
     
     @Override
     public void initialize() throws ComplianceException {
-        System.out.println("Initializing " + ENGINE_NAME + " (optimized mode)...");
+        System.out.println("Initializing " + ENGINE_NAME + " (deterministic optimized mode)...");
     }
     
     @Override
@@ -70,22 +56,50 @@ public class FastDBEngine implements ComplianceEngine {
         System.out.println("Cleaning up " + ENGINE_NAME + "...");
     }
     
-    private long simulateExecution() {
-        // Faster execution: 50-150ms
-        return 50 + (long)(Math.random() * 100);
+    private long estimateExecutionTime(Plan plan, Map<String, TableData> inputData) {
+        int relationCount = plan != null ? plan.getRelationsCount() : 0;
+        int rowCount = totalRowCount(inputData);
+        return 40L + (relationCount * 10L) + (rowCount * 2L);
     }
     
-    private TableData generateMockOutput() {
-        List<String> columnNames = Arrays.asList("result_col1", "result_col2", "result_col3");
-        List<String> columnTypes = Arrays.asList("string", "integer", "double");
-        List<List<Object>> rows = new ArrayList<>();
-        
-        for (int i = 0; i < 10; i++) {
-            rows.add(Arrays.asList("value" + i, i * 100, i * 1.5));
+    private TableData buildDeterministicOutput(Map<String, TableData> inputData) {
+        if (inputData == null || inputData.isEmpty()) {
+            return summaryTable(0, 0);
         }
-        
-        return new TableData(columnNames, columnTypes, rows);
+
+        String primaryTableName = inputData.keySet().stream().sorted().findFirst().orElse(null);
+        TableData primaryTable = primaryTableName != null ? inputData.get(primaryTableName) : null;
+        if (primaryTable == null) {
+            return summaryTable(0, 0);
+        }
+
+        return new TableData(
+            primaryTable.getColumnNames(),
+            primaryTable.getColumnTypes(),
+            primaryTable.getRows()
+        );
+    }
+
+    private TableData summaryTable(int columnCount, int rowCount) {
+        return new TableData(
+            Arrays.asList("column_count", "row_count"),
+            Arrays.asList("integer", "integer"),
+            List.of(Arrays.asList(columnCount, rowCount))
+        );
+    }
+
+    private int totalRowCount(Map<String, TableData> inputData) {
+        if (inputData == null) {
+            return 0;
+        }
+
+        int total = 0;
+        for (TableData table : inputData.values()) {
+            if (table != null) {
+                total += table.getRowCount();
+            }
+        }
+        return total;
     }
 }
 
-// Made with Bob

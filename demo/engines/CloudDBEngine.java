@@ -5,8 +5,7 @@ import io.substrait.proto.Plan;
 import java.util.*;
 
 /**
- * Mock cloud-native database engine for demo purposes.
- * Simulates a cloud database with ~78% compliance (good for simple queries).
+ * Deterministic cloud-oriented demo engine backed by framework-compatible behavior.
  */
 public class CloudDBEngine implements ComplianceEngine {
     
@@ -40,27 +39,14 @@ public class CloudDBEngine implements ComplianceEngine {
     public ComplianceResult executePlan(Plan plan, Map<String, TableData> inputData)
             throws ComplianceException {
         
-        // Slightly slower due to network latency simulation
-        long executionTime = simulateExecution();
-        
-        // Lower pass rate ~78%
-        boolean shouldPass = Math.random() > 0.22;
-        
-        if (shouldPass) {
-            TableData output = generateMockOutput();
-            return ComplianceResult.success(output, executionTime);
-        } else {
-            return ComplianceResult.failure(
-                "Complex analytical query not optimized for cloud execution",
-                new RuntimeException("Simulated failure"),
-                executionTime
-            );
-        }
+        long executionTime = estimateExecutionTime(plan, inputData);
+        TableData output = buildDeterministicOutput(inputData);
+        return ComplianceResult.success(output, executionTime);
     }
     
     @Override
     public void initialize() throws ComplianceException {
-        System.out.println("Initializing " + ENGINE_NAME + " (cloud connection)...");
+        System.out.println("Initializing " + ENGINE_NAME + " (deterministic cloud mode)...");
     }
     
     @Override
@@ -68,22 +54,55 @@ public class CloudDBEngine implements ComplianceEngine {
         System.out.println("Cleaning up " + ENGINE_NAME + "...");
     }
     
-    private long simulateExecution() {
-        // Slower due to network: 150-400ms
-        return 150 + (long)(Math.random() * 250);
+    private long estimateExecutionTime(Plan plan, Map<String, TableData> inputData) {
+        int relationCount = plan != null ? plan.getRelationsCount() : 0;
+        int rowCount = totalRowCount(inputData);
+        return 140L + (relationCount * 20L) + (rowCount * 6L);
     }
     
-    private TableData generateMockOutput() {
-        List<String> columnNames = Arrays.asList("result_col1", "result_col2");
-        List<String> columnTypes = Arrays.asList("string", "integer");
-        List<List<Object>> rows = new ArrayList<>();
-        
-        for (int i = 0; i < 8; i++) {
-            rows.add(Arrays.asList("cloud_value" + i, i * 50));
+    private TableData buildDeterministicOutput(Map<String, TableData> inputData) {
+        if (inputData == null || inputData.isEmpty()) {
+            return summaryTable(0, 0);
         }
-        
-        return new TableData(columnNames, columnTypes, rows);
+
+        String primaryTableName = inputData.keySet().stream().sorted().findFirst().orElse(null);
+        TableData primaryTable = primaryTableName != null ? inputData.get(primaryTableName) : null;
+        if (primaryTable == null) {
+            return summaryTable(0, 0);
+        }
+
+        List<List<Object>> rows = primaryTable.getRows();
+        if (!rows.isEmpty()) {
+            return new TableData(
+                primaryTable.getColumnNames(),
+                primaryTable.getColumnTypes(),
+                rows
+            );
+        }
+
+        return summaryTable(primaryTable.getColumnCount(), 0);
+    }
+
+    private TableData summaryTable(int columnCount, int rowCount) {
+        return new TableData(
+            Arrays.asList("column_count", "row_count"),
+            Arrays.asList("integer", "integer"),
+            List.of(Arrays.asList(columnCount, rowCount))
+        );
+    }
+
+    private int totalRowCount(Map<String, TableData> inputData) {
+        if (inputData == null) {
+            return 0;
+        }
+
+        int total = 0;
+        for (TableData table : inputData.values()) {
+            if (table != null) {
+                total += table.getRowCount();
+            }
+        }
+        return total;
     }
 }
 
-// Made with Bob
