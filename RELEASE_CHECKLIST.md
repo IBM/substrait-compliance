@@ -2,7 +2,61 @@
 
 This document provides a comprehensive checklist for preparing and executing releases of the Substrait Compliance Framework.
 
-## Pre-Release Preparation
+## Initial Open Source Release (v1.0.0)
+
+### Pre-Launch Checklist
+
+- [x] **Documentation Complete**
+  - [x] README.md updated with accurate statistics (8 SDKs, 4,000+ test cases, 99 TPC-DS queries)
+  - [x] CHANGELOG.md prepared with v1.0.0 release notes
+  - [x] All governance files in place (CONTRIBUTING.md, GOVERNANCE.md, CODE_OF_CONDUCT.md, SECURITY.md)
+  - [x] MAINTAINERS.md populated with Project Lead (Ranjan Sinha)
+  - [x] NOTICE file with proper attributions
+  - [x] LICENSE file (Apache 2.0)
+
+- [x] **Security Validated**
+  - [x] Security scan completed (SECURITY_SCAN_REPORT.md)
+  - [x] 0 vulnerabilities found across all SDKs
+  - [x] No hardcoded secrets detected
+  - [x] Security disclosure process documented
+
+- [x] **Test Coverage Verified**
+  - [x] 279 function test files (143 standard + 136 enhanced)
+  - [x] ~4,000+ individual test cases
+  - [x] TPC-H: 22 queries complete
+  - [x] TPC-DS: 99 queries complete
+  - [x] All 8 SDKs verified (Java, Python, Rust, Go, C++, TypeScript, C#, Scala)
+
+- [ ] **Repository Setup**
+  - [ ] Transfer/mirror from github.ibm.com to github.com/substrait-io/substrait-compliance
+  - [ ] Make repository public
+  - [ ] Enable GitHub Discussions
+  - [ ] Configure branch protection on main branch
+  - [ ] Set up Dependabot for automated dependency updates
+  - [ ] Add repository topics/tags for discoverability
+
+- [ ] **Release Preparation**
+  - [ ] Create v1.0.0 tag: `git tag -a v1.0.0 -m "Initial public release"`
+  - [ ] Push tag to GitHub
+  - [ ] Create GitHub Release with CHANGELOG.md content
+  - [ ] Verify all CI/CD workflows pass
+
+- [ ] **Community Setup**
+  - [ ] Set up project email addresses (security@, conduct@)
+  - [ ] Verify mailing list (substrait-dev@googlegroups.com)
+  - [ ] Create initial GitHub Discussions categories
+  - [ ] Prepare announcement for Substrait channels
+
+- [ ] **Launch Announcement**
+  - [ ] Post in GitHub Discussions
+  - [ ] Email to substrait-dev@googlegroups.com
+  - [ ] Post in Substrait Slack channels
+  - [ ] Update Substrait website (if applicable)
+  - [ ] Social media announcements (optional)
+
+---
+
+## Pre-Release Preparation (For Future Releases)
 
 ### 1. Version Planning
 
