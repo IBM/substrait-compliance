@@ -6,7 +6,7 @@ echo "=================================="
 echo ""
 
 # Check if we're in the demo directory
-if [ ! -f "runner/SimpleDemoRunner.java" ]; then
+if [ ! -f "runner/DemoRunner.java" ]; then
     echo "❌ Error: Please run this script from the demo directory"
     echo "   cd demo && ./verify-setup.sh"
     exit 1
@@ -39,13 +39,20 @@ else
 fi
 
 echo ""
-echo "Checking for complexity data..."
-COMPLEXITY_COUNT=$(grep -c '"complexity"' output/mockdb-report.json)
-if [ "$COMPLEXITY_COUNT" -eq 22 ]; then
-    echo "✓ Complexity data present (22 queries)"
+echo "Checking for framework-backed outputs..."
+if grep -q '"testResults"' output/mockdb-report.json; then
+    echo "✓ Test result details present in engine report"
 else
-    echo "❌ Complexity data missing or incomplete ($COMPLEXITY_COUNT/22)"
-    echo "   Recompile and run: cd demo && javac -d . runner/SimpleDemoRunner.java && ./runner/run-simple-demo.sh"
+    echo "❌ Test result details missing from engine report"
+    echo "   Re-run: ./runner/run-simple-demo.sh"
+    exit 1
+fi
+
+if [ -f "dashboard/data/summary.json" ]; then
+    echo "✓ Shared dashboard summary present"
+else
+    echo "❌ Missing shared dashboard summary"
+    echo "   Re-run: ./runner/run-simple-demo.sh"
     exit 1
 fi
 
@@ -116,8 +123,8 @@ echo ""
 echo "Test the features:"
 echo "• Click any engine row to open modal"
 echo "• Use complexity filter dropdown"
-echo "• Verify query cards show correct data"
+echo "• Verify query cards show generated framework-backed results"
 echo ""
-echo "See TEST_INSTRUCTIONS.md for detailed testing"
+echo "Primary validation flow: ./runner/run-simple-demo.sh"
 
 # Made with Bob

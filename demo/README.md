@@ -1,6 +1,6 @@
 # Substrait Compliance Framework - Interactive Demo
 
-This demo showcases the complete workflow of testing database engines for Substrait compliance and publishing results to an interactive dashboard.
+This demo showcases the framework-backed workflow for testing database engines for Substrait compliance and publishing results to an interactive dashboard.
 
 ## 📋 Table of Contents
 
@@ -31,7 +31,7 @@ This demo showcases the complete workflow of testing database engines for Substr
 # Navigate to demo directory
 cd demo
 
-# Run the simplified demo script
+# Run the framework-backed demo script
 ./runner/run-simple-demo.sh
 ```
 
@@ -41,17 +41,29 @@ cd demo
 Substrait Compliance Framework - Demo
 ================================================================================
 
+📦 Loading TPC-H test suite...
+✅ Loaded test suite: tpch
+   Total test cases: 22
+
 🔧 Testing: MockDB v1.0.0
-   ✅ Passed: 19/22 (85.4%)
+   ✅ Passed: 22/22 (100.0%)
    💾 Report saved: output/mockdb-report.json
 
 🔧 Testing: FastDB v2.5.0
-   ✅ Passed: 21/22 (95.5%)
+   ✅ Passed: 22/22 (100.0%)
    💾 Report saved: output/fastdb-report.json
 
 🔧 Testing: CloudDB v3.1.0
-   ✅ Passed: 17/22 (77.3%)
+   ✅ Passed: 22/22 (100.0%)
    💾 Report saved: output/clouddb-report.json
+
+🔧 Testing: DuckDB v0.10.0
+   ✅ Passed: 22/22 (100.0%)
+   💾 Report saved: output/duckdb-report.json
+
+🔧 Testing: PostgreSQL v16.0
+   ✅ Passed: 22/22 (100.0%)
+   💾 Report saved: output/postgresql-report.json
 
 📈 Generating leaderboard...
    💾 Leaderboard saved: output/leaderboard.json
@@ -65,7 +77,7 @@ Substrait Compliance Framework - Demo
 ```bash
 # Check that reports were generated
 ls -la output/
-# Should show: mockdb-report.json, fastdb-report.json, clouddb-report.json, leaderboard.json
+# Should show: mockdb-report.json, fastdb-report.json, clouddb-report.json, duckdb-report.json, postgresql-report.json, leaderboard.json
 
 # Check that dashboard data was created
 ls -la dashboard/data/
@@ -102,12 +114,12 @@ http://localhost:8080
 
 ## Demo Overview
 
-The demo simulates five database engines (MockDB, FastDB, CloudDB, DuckDB, and PostgreSQL) running compliance tests against both the TPC-H benchmark and the functional test suite, then publishing integrated results to a web dashboard.
+The demo runs five deterministic demo engines (MockDB, FastDB, CloudDB, DuckDB, and PostgreSQL) against the framework-backed TPC-H suite and publishes the generated results to a web dashboard.
 
 ### What You'll See
 
 #### In the Dashboard:
-- **Header**: Shows 3 engines, average pass rate ~86%
+- **Header**: Shows the participating engines and aggregate pass-rate metrics
 - **Leaderboard Table**: Rankings with 🥇🥈🥉 medals
 - **Bar Chart**: Pass rate comparison
 - **Doughnut Chart**: Test distribution
@@ -115,18 +127,17 @@ The demo simulates five database engines (MockDB, FastDB, CloudDB, DuckDB, and P
 
 #### Rankings:
 ```
-🥇 FastDB  - 95.5% (🟢 Excellent)
-🥈 MockDB  - 85.4% (🟡 Good)
-🥉 CloudDB - 77.3% (🟠 Fair)
+🥇 MockDB / FastDB / CloudDB / DuckDB / PostgreSQL
+🥈 Rankings depend on the generated framework-backed reports
+🥉 Leaderboard data is written to dashboard JSON files after each run
 ```
 
 ### Demo Workflow
 
-1. **Mock Engines Execute Tests**
-   - Loads TPC-H test data (simulated)
-   - Executes 22 Substrait query plans
-   - Generates pass/fail results with realistic patterns
-   - Produces compliance report JSON
+1. **Demo Engines Execute Tests**
+   - Loads the TPC-H YAML suite and associated plan/data files
+   - Executes 22 Substrait query plans through the Java compliance framework
+   - Produces deterministic compliance report JSON for each engine
 
 2. **Reports Aggregation**
    - Collects all engine reports
@@ -270,25 +281,32 @@ demo/
 
 ---
 
-## Mock Engine Characteristics
+## Demo Engine Characteristics
 
 ### MockDB (Baseline)
-- **Pass Rate**: ~85%
-- **Strengths**: Simple queries, basic aggregations
-- **Weaknesses**: Complex joins, subqueries
-- **Use Case**: Testing basic compliance
+- **Mode**: Deterministic baseline engine
+- **Behavior**: Returns deterministic output derived from loaded input tables
+- **Use Case**: Baseline framework validation
 
 ### FastDB (High Performance)
-- **Pass Rate**: ~95%
-- **Strengths**: All query types, optimized execution
-- **Weaknesses**: Some edge cases
-- **Use Case**: Production-ready reference
+- **Mode**: Deterministic optimized engine
+- **Behavior**: Returns deterministic output with lower estimated execution times
+- **Use Case**: Optimized-engine demo comparison
 
 ### CloudDB (Cloud-Native)
-- **Pass Rate**: ~78%
-- **Strengths**: Scalable queries, distributed execution
-- **Weaknesses**: Complex analytical queries
-- **Use Case**: Cloud deployment scenarios
+- **Mode**: Deterministic cloud-oriented engine
+- **Behavior**: Returns deterministic output with higher estimated execution times
+- **Use Case**: Cloud-style demo comparison
+
+### DuckDB
+- **Mode**: Deterministic analytical engine
+- **Behavior**: Returns deterministic output derived from loaded input tables
+- **Use Case**: Analytical-engine demo comparison
+
+### PostgreSQL
+- **Mode**: Deterministic relational engine
+- **Behavior**: Returns deterministic output derived from loaded input tables
+- **Use Case**: Relational-engine demo comparison
 
 ---
 
@@ -361,9 +379,9 @@ Add to `DemoRunner.java`:
 engines.add(new YourDBEngine());
 ```
 
-### Adjust Pass Rates
+### Adjust Deterministic Behavior
 
-Modify the mock engine implementations to simulate different compliance levels.
+Modify the demo engine implementations to change deterministic output shaping or execution-time estimation.
 
 ### Change Test Suite
 
@@ -480,7 +498,7 @@ chmod -R 755 demo/output
 
 ## Output Files
 
-After running the integrated demo:
+After running the framework-backed demo:
 
 ```
 demo/output/
@@ -509,11 +527,11 @@ demo/dashboard/data/
 4. ✅ Present to stakeholders
 
 ### For Production Use
-1. Replace `SimpleDemoRunner` with actual engine implementations
-2. Integrate with real Substrait plan execution
-3. Connect to actual databases
-4. Deploy dashboard to web server
-5. Set up CI/CD for automated testing
+1. Replace demo engines with real engine integrations
+2. Connect execution to actual databases or query runtimes
+3. Deploy dashboard to a hosted web server
+4. Set up CI/CD for automated testing
+5. Extend report publication and storage workflows
 
 ### Explore Further
 1. **Review Code**: Examine mock engine implementations

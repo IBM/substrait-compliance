@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Substrait Compliance Framework - Demo Runner Script
-# This script compiles and runs the complete demo
+# This script runs the framework-backed TPC-H demo and the function demo
 
 set -e  # Exit on error
 
@@ -24,51 +24,17 @@ if [ ! -f "README.md" ] || [ ! -d "engines" ]; then
     exit 1
 fi
 
-# Step 1: Build the main SDK
-echo -e "${BLUE}📦 Step 1: Building Substrait Compliance SDK...${NC}"
-cd ../sdk/java
-if [ ! -f "gradlew" ]; then
-    echo -e "${RED}❌ Error: Gradle wrapper not found${NC}"
-    exit 1
-fi
-
-./gradlew build -x test
-if [ $? -eq 0 ]; then
-    echo -e "${GREEN}✅ SDK built successfully${NC}"
-else
-    echo -e "${RED}❌ SDK build failed${NC}"
-    exit 1
-fi
-
-cd ../../demo
+# Step 1: Run framework-backed TPC-H demo
+echo -e "${BLUE}🚀 Step 1: Running framework-backed TPC-H compliance demo...${NC}"
 echo ""
 
-# Step 2: Create output directories
-echo -e "${BLUE}📁 Step 2: Creating output directories...${NC}"
-mkdir -p output
-mkdir -p dashboard/data
-echo -e "${GREEN}✅ Directories created${NC}"
+./runner/run-simple-demo.sh
+echo ""
+echo -e "${GREEN}✅ TPC-H demo completed successfully!${NC}"
 echo ""
 
-# Step 3: Run standalone TPC-H demo
-echo -e "${BLUE}🚀 Step 3: Running TPC-H compliance demo...${NC}"
-echo ""
-
-mkdir -p build
-javac -d build runner/SimpleDemoRunner.java
-
-if [ $? -eq 0 ]; then
-    java -cp build SimpleDemoRunner
-    echo ""
-    echo -e "${GREEN}✅ TPC-H demo completed successfully!${NC}"
-else
-    echo -e "${RED}❌ TPC-H demo compilation failed${NC}"
-    exit 1
-fi
-echo ""
-
-# Step 4: Run standalone function demo
-echo -e "${BLUE}🔬 Step 4: Running function compliance demo...${NC}"
+# Step 2: Run function demo
+echo -e "${BLUE}🔬 Step 2: Running function compliance demo...${NC}"
 echo ""
 
 if command -v python3 &> /dev/null; then
@@ -82,17 +48,7 @@ else
 fi
 echo ""
 
-# Step 5: Create symlink for dashboard to access output files
-echo -e "${BLUE}🔗 Step 5: Setting up dashboard access...${NC}"
-if [ ! -L "dashboard/output" ]; then
-    ln -s ../output dashboard/output
-    echo -e "${GREEN}✅ Created symlink: dashboard/output -> ../output${NC}"
-else
-    echo -e "${GREEN}✅ Symlink already exists${NC}"
-fi
-echo ""
-
-# Step 7: Display results
+# Step 3: Display results
 echo "================================================================================"
 echo -e "${GREEN}🎉 Demo Complete!${NC}"
 echo "================================================================================"
@@ -114,12 +70,9 @@ echo "   • dashboard/data/leaderboard.json"
 echo "   • dashboard/data/summary.json"
 echo ""
 echo "🌐 View Dashboard:"
-echo "   Option 1: Open file directly"
-echo "      open dashboard/index.html"
-echo ""
-echo "   Option 2: Use local web server"
-echo "      cd dashboard && python3 -m http.server 8000"
-echo "      Then open: http://localhost:8000"
+echo "   Use local web server"
+echo "      cd dashboard && python3 -m http.server 8080"
+echo "      Then open: http://localhost:8080"
 echo ""
 echo "📊 View Reports:"
 echo "   cat output/leaderboard.json | jq"
