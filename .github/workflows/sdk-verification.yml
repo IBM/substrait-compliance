@@ -1,0 +1,419 @@
+name: SDK Build Verification
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'sdk/**'
+      - '.github/workflows/sdk-verification.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'sdk/**'
+  schedule:
+    # Run daily at 2 AM UTC
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+
+jobs:
+  # ============================================================================
+  # Python SDK
+  # ============================================================================
+  python-sdk:
+    name: Python SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.9', '3.10', '3.11', '3.12']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      
+      - name: Cache pip packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('sdk/python/setup.py') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      
+      - name: Install dependencies
+        working-directory: sdk/python
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install pytest pytest-cov
+      
+      - name: Run tests
+        working-directory: sdk/python
+        run: |
+          pytest tests/ -v --cov=substrait_compliance --cov-report=xml
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: sdk/python/coverage.xml
+          flags: python
+          name: python-${{ matrix.python-version }}
+
+  # ============================================================================
+  # Rust SDK
+  # ============================================================================
+  rust-sdk:
+    name: Rust SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        rust-version: ['stable', 'beta', 'nightly']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install Rust ${{ matrix.rust-version }}
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ matrix.rust-version }}
+          override: true
+          components: rustfmt, clippy
+      
+      - name: Cache cargo registry
+        uses: actions/cache@v3
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('sdk/rust/Cargo.lock') }}
+      
+      - name: Cache cargo build
+        uses: actions/cache@v3
+        with:
+          path: sdk/rust/target
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('sdk/rust/Cargo.lock') }}
+      
+      - name: Check formatting
+        working-directory: sdk/rust
+        run: cargo fmt -- --check
+        continue-on-error: ${{ matrix.rust-version != 'stable' }}
+      
+      - name: Run clippy
+        working-directory: sdk/rust
+        run: cargo clippy -- -D warnings
+        continue-on-error: ${{ matrix.rust-version != 'stable' }}
+      
+      - name: Build
+        working-directory: sdk/rust
+        run: cargo build --release --verbose
+      
+      - name: Run tests
+        working-directory: sdk/rust
+        run: cargo test --verbose
+      
+      - name: Run benchmarks (dry run)
+        working-directory: sdk/rust
+        run: cargo test --benches
+        continue-on-error: true
+
+  # ============================================================================
+  # Java SDK
+  # ============================================================================
+  java-sdk:
+    name: Java SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java-version: ['11', '17', '21']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: 'temurin'
+      
+      - name: Cache Gradle packages
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('sdk/java/**/*.gradle*', 'sdk/java/**/gradle-wrapper.properties') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      
+      - name: Grant execute permission for gradlew
+        working-directory: sdk/java
+        run: chmod +x gradlew
+      
+      - name: Build with Gradle
+        working-directory: sdk/java
+        run: ./gradlew build --no-daemon
+      
+      - name: Run tests
+        working-directory: sdk/java
+        run: ./gradlew test --no-daemon
+      
+      - name: Generate test report
+        working-directory: sdk/java
+        run: ./gradlew jacocoTestReport
+        continue-on-error: true
+      
+      - name: Upload test results
+        uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: java-test-results-${{ matrix.java-version }}
+          path: sdk/java/build/reports/tests/
+
+  # ============================================================================
+  # C++ SDK
+  # ============================================================================
+  cpp-sdk:
+    name: C++ SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        compiler: ['g++', 'clang++']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake build-essential ${{ matrix.compiler }}
+      
+      - name: Configure CMake
+        working-directory: sdk/cpp
+        run: |
+          mkdir -p build
+          cd build
+          cmake .. -DCMAKE_CXX_COMPILER=${{ matrix.compiler }}
+      
+      - name: Build
+        working-directory: sdk/cpp/build
+        run: cmake --build . --config Release
+      
+      - name: Run tests
+        working-directory: sdk/cpp/build
+        run: ctest --output-on-failure
+        continue-on-error: true
+
+  # ============================================================================
+  # Go SDK
+  # ============================================================================
+  go-sdk:
+    name: Go SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        go-version: ['1.20', '1.21', '1.22']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Go ${{ matrix.go-version }}
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go-version }}
+      
+      - name: Cache Go modules
+        uses: actions/cache@v3
+        with:
+          path: ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('sdk/go/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-
+      
+      - name: Download dependencies
+        working-directory: sdk/go
+        run: go mod download
+      
+      - name: Build
+        working-directory: sdk/go
+        run: go build -v ./...
+      
+      - name: Run tests
+        working-directory: sdk/go
+        run: go test -v -race -coverprofile=coverage.txt -covermode=atomic ./...
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: sdk/go/coverage.txt
+          flags: go
+          name: go-${{ matrix.go-version }}
+
+  # ============================================================================
+  # TypeScript SDK
+  # ============================================================================
+  typescript-sdk:
+    name: TypeScript SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: ['18', '20', '21']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+      
+      - name: Cache npm packages
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('sdk/typescript/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      
+      - name: Install dependencies
+        working-directory: sdk/typescript
+        run: npm ci
+      
+      - name: Lint
+        working-directory: sdk/typescript
+        run: npm run lint
+        continue-on-error: true
+      
+      - name: Build
+        working-directory: sdk/typescript
+        run: npm run build
+      
+      - name: Run tests
+        working-directory: sdk/typescript
+        run: npm test -- --coverage
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: sdk/typescript/coverage/lcov.info
+          flags: typescript
+          name: typescript-${{ matrix.node-version }}
+
+  # ============================================================================
+  # C# SDK
+  # ============================================================================
+  csharp-sdk:
+    name: C# SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        dotnet-version: ['6.0', '7.0', '8.0']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup .NET ${{ matrix.dotnet-version }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ matrix.dotnet-version }}
+      
+      - name: Restore dependencies
+        working-directory: sdk/csharp
+        run: dotnet restore
+      
+      - name: Build
+        working-directory: sdk/csharp
+        run: dotnet build --no-restore --configuration Release
+      
+      - name: Run tests
+        working-directory: sdk/csharp
+        run: dotnet test --no-build --configuration Release --verbosity normal --collect:"XPlat Code Coverage"
+      
+      - name: Upload coverage
+        uses: codecov/codecov-action@v3
+        with:
+          file: sdk/csharp/**/coverage.cobertura.xml
+          flags: csharp
+          name: csharp-${{ matrix.dotnet-version }}
+
+  # ============================================================================
+  # Scala SDK
+  # ============================================================================
+  scala-sdk:
+    name: Scala SDK
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        scala-version: ['2.13', '3.3']
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up JDK 11
+        uses: actions/setup-java@v4
+        with:
+          java-version: '11'
+          distribution: 'temurin'
+      
+      - name: Cache SBT
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.sbt
+            ~/.ivy2/cache
+          key: ${{ runner.os }}-sbt-${{ hashFiles('sdk/scala/build.sbt') }}
+          restore-keys: |
+            ${{ runner.os }}-sbt-
+      
+      - name: Compile
+        working-directory: sdk/scala
+        run: sbt ++${{ matrix.scala-version }} compile
+      
+      - name: Run tests
+        working-directory: sdk/scala
+        run: sbt ++${{ matrix.scala-version }} test
+      
+      - name: Generate coverage report
+        working-directory: sdk/scala
+        run: sbt ++${{ matrix.scala-version }} coverageReport
+        continue-on-error: true
+
+  # ============================================================================
+  # Summary Report
+  # ============================================================================
+  summary:
+    name: Build Summary
+    runs-on: ubuntu-latest
+    needs: [python-sdk, rust-sdk, java-sdk, cpp-sdk, go-sdk, typescript-sdk, csharp-sdk, scala-sdk]
+    if: always()
+    
+    steps:
+      - name: Check build status
+        run: |
+          echo "## SDK Build Verification Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| SDK | Status |" >> $GITHUB_STEP_SUMMARY
+          echo "|-----|--------|" >> $GITHUB_STEP_SUMMARY
+          echo "| Python | ${{ needs.python-sdk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Rust | ${{ needs.rust-sdk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Java | ${{ needs.java-sdk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| C++ | ${{ needs.cpp-sdk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Go | ${{ needs.go-sdk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| TypeScript | ${{ needs.typescript-sdk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| C# | ${{ needs.csharp-sdk.result }} |" >> $GITHUB_STEP_SUMMARY
+          echo "| Scala | ${{ needs.scala-sdk.result }} |" >> $GITHUB_STEP_SUMMARY
+      
+      - name: Fail if any SDK failed
+        if: |
+          needs.python-sdk.result == 'failure' ||
+          needs.rust-sdk.result == 'failure' ||
+          needs.java-sdk.result == 'failure' ||
+          needs.cpp-sdk.result == 'failure' ||
+          needs.go-sdk.result == 'failure' ||
+          needs.typescript-sdk.result == 'failure' ||
+          needs.csharp-sdk.result == 'failure' ||
+          needs.scala-sdk.result == 'failure'
+        run: |
+          echo "One or more SDKs failed to build"
+          exit 1
+
+# Made with Bob
