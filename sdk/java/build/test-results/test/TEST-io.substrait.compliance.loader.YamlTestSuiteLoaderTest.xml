@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<testsuite name="io.substrait.compliance.loader.YamlTestSuiteLoaderTest" tests="2" skipped="0" failures="0" errors="0" timestamp="2026-05-30T02:11:18" hostname="Ranjans-MacBook-Pro.local" time="0.098">
-  <properties/>
-  <testcase name="testLoadSimpleYaml(Path)" classname="io.substrait.compliance.loader.YamlTestSuiteLoaderTest" time="0.098"/>
-  <testcase name="testSupportsYamlFiles()" classname="io.substrait.compliance.loader.YamlTestSuiteLoaderTest" time="0.0"/>
-  <system-out><![CDATA[]]></system-out>
-  <system-err><![CDATA[]]></system-err>
-</testsuite>
