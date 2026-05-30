@@ -1,0 +1,19 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 💬 GitHub Discussions
+    url: https://github.com/substrait-io/substrait-compliance/discussions
+    about: Ask questions and discuss ideas with the community
+  - name: 📧 Mailing List
+    url: https://groups.google.com/g/substrait-dev
+    about: Join the Substrait development mailing list
+  - name: 💬 Slack Channel
+    url: https://substrait.io/
+    about: Join #substrait-compliance on Slack
+  - name: 📚 Documentation
+    url: https://github.com/substrait-io/substrait-compliance/tree/main/docs
+    about: Browse the project documentation
+  - name: 🔒 Security Issues
+    url: https://github.com/substrait-io/substrait-compliance/security/advisories/new
+    about: Report security vulnerabilities privately
+
+# Made with Bob

@@ -1,0 +1,516 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Substrait.Compliance</name>
+    </assembly>
+    <members>
+        <member name="T:Substrait.Compliance.TestStatus">
+            <summary>
+            Test execution status
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.ComplianceResult">
+            <summary>
+            Result of a single test case execution
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.ComplianceResult.WithOutput(Substrait.Compliance.TableData)">
+            <summary>
+            Create a result with output data
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.ComplianceResult.WithError(System.String)">
+            <summary>
+            Create a result with error message
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.ComplianceResult.WithErrorDetails(System.String)">
+            <summary>
+            Create a result with error details
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.ComplianceResult.WithExecutionTime(System.Int64)">
+            <summary>
+            Create a result with execution time
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceResult.IsPassed">
+            <summary>
+            Check if test passed
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceResult.IsFailed">
+            <summary>
+            Check if test failed
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceResult.IsSkipped">
+            <summary>
+            Check if test was skipped
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceResult.IsError">
+            <summary>
+            Check if test had an error
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceResult.IsUnsupported">
+            <summary>
+            Check if test is unsupported
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.ComplianceReport">
+            <summary>
+            Aggregated report for a test suite execution
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.ComplianceReport.AddResult(Substrait.Compliance.ComplianceResult)">
+            <summary>
+            Add a test result to the report
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.Results">
+            <summary>
+            Get all results
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.TotalCount">
+            <summary>
+            Get total number of tests
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.PassedCount">
+            <summary>
+            Get number of passed tests
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.FailedCount">
+            <summary>
+            Get number of failed tests
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.SkippedCount">
+            <summary>
+            Get number of skipped tests
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.ErrorCount">
+            <summary>
+            Get number of error tests
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.UnsupportedCount">
+            <summary>
+            Get number of unsupported tests
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.PassRate">
+            <summary>
+            Calculate pass rate (0-100)
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.TotalExecutionTimeMs">
+            <summary>
+            Get total execution time in milliseconds
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.AllPassed">
+            <summary>
+            Check if all tests passed
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.ComplianceReport.Summary">
+            <summary>
+            Get summary string
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.RunnerOptions">
+            <summary>
+            Configuration options for the test runner
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.RunnerOptions.FailFast">
+            <summary>
+            Stop execution on first failure
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.RunnerOptions.Parallel">
+            <summary>
+            Run tests in parallel
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.RunnerOptions.MaxParallel">
+            <summary>
+            Maximum number of parallel tests
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.RunnerOptions.Tags">
+            <summary>
+            Filter tests by tags
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.RunnerOptions.TestIdPattern">
+            <summary>
+            Filter tests by ID pattern (regex)
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.RunnerOptions.Verbose">
+            <summary>
+            Verbose output
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.ResultComparator">
+            <summary>
+            Comparator for comparing expected and actual results
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.ResultComparator.Compare(Substrait.Compliance.TableData,Substrait.Compliance.TableData)">
+            <summary>
+            Compare two TableData objects for equality
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.ComplianceRunner">
+            <summary>
+            Test runner for executing compliance test suites
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.ComplianceRunner.RunTestSuiteAsync(Substrait.Compliance.TestSuite)">
+            <summary>
+            Run a complete test suite
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.ComplianceRunner.RunTestCaseAsync(Substrait.Compliance.TestCase)">
+            <summary>
+            Run a single test case
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.Examples.ExampleEngine">
+            <summary>
+            Example implementation of a ComplianceEngine
+            This is a mock engine that demonstrates the interface
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.Examples.Program">
+            <summary>
+            Example usage of the SDK
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.EngineInfo">
+            <summary>
+            Engine metadata information
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.EngineInfo.#ctor(System.String,System.String,System.String,System.String)">
+            <summary>
+            Engine metadata information
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.EngineCapabilities">
+            <summary>
+            Engine capability information
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.EngineCapabilities.#ctor(System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyList{System.String},System.Collections.Generic.IReadOnlyDictionary{System.String,System.String})">
+            <summary>
+            Engine capability information
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.IComplianceEngine">
+            <summary>
+            Main interface that query engines must implement
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.IComplianceEngine.GetInfo">
+            <summary>
+            Get engine metadata
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.IComplianceEngine.GetCapabilities">
+            <summary>
+            Get engine capabilities
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.IComplianceEngine.ExecutePlanAsync(System.Byte[],System.Collections.Generic.IReadOnlyDictionary{System.String,Substrait.Compliance.TableData})">
+            <summary>
+            Execute a Substrait plan
+            </summary>
+            <param name="planBytes">Serialized Substrait plan (JSON or binary)</param>
+            <param name="inputData">Map of table names to input data</param>
+            <returns>Compliance result with output data</returns>
+        </member>
+        <member name="M:Substrait.Compliance.IComplianceEngine.ValidatePlanAsync(System.Byte[])">
+            <summary>
+            Validate a Substrait plan without executing it
+            </summary>
+            <param name="planBytes">Serialized Substrait plan</param>
+            <returns>Compliance result indicating validity</returns>
+        </member>
+        <member name="M:Substrait.Compliance.IComplianceEngine.InitializeAsync">
+            <summary>
+            Optional: Initialize engine resources
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.IComplianceEngine.ShutdownAsync">
+            <summary>
+            Optional: Cleanup engine resources
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.IComplianceEngine.CanRunTest(System.String)">
+            <summary>
+            Optional: Check if engine can handle a specific test
+            </summary>
+            <param name="testId">Test identifier</param>
+            <returns>True if engine can run the test</returns>
+        </member>
+        <member name="T:Substrait.Compliance.Benchmark.OperationMetrics">
+            <summary>
+            Performance metrics for a single operation
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Benchmark.OperationMetrics.#ctor(System.String,System.TimeSpan,System.Int64,System.DateTime)">
+            <summary>
+            Performance metrics for a single operation
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.Benchmark.BenchmarkStats">
+            <summary>
+            Benchmark statistics
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Benchmark.BenchmarkStats.#ctor(System.String,System.Int32,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.TimeSpan,System.Double,System.Double)">
+            <summary>
+            Benchmark statistics
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.Benchmark.BenchmarkResult">
+            <summary>
+            Complete benchmark result
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Benchmark.BenchmarkResult.#ctor(System.String,System.String,System.Collections.Generic.List{Substrait.Compliance.Benchmark.BenchmarkStats},System.TimeSpan,System.DateTime)">
+            <summary>
+            Complete benchmark result
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.Benchmark.BenchmarkConfig">
+            <summary>
+            Configuration for benchmark execution
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Benchmark.BenchmarkConfig.#ctor(System.Int32,System.Int32,System.Int32,System.Boolean,System.Boolean)">
+            <summary>
+            Configuration for benchmark execution
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.Benchmark.BenchmarkRunner">
+            <summary>
+            Runs performance benchmarks on compliance engines
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Benchmark.BenchmarkRunner.RunBenchmarkAsync(System.String,System.Collections.Generic.List{System.ValueTuple{System.String,System.Func{System.Threading.Tasks.Task}}})">
+            <summary>
+            Run a complete benchmark suite
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Benchmark.BenchmarkRunner.BenchmarkOperationAsync(System.String,System.Func{System.Threading.Tasks.Task})">
+            <summary>
+            Benchmark a single operation
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Benchmark.BenchmarkRunner.MeasureOperationAsync(System.String,System.Func{System.Threading.Tasks.Task})">
+            <summary>
+            Measure a single operation execution
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Benchmark.BenchmarkRunner.CalculateStats(System.String,System.Collections.Generic.List{Substrait.Compliance.Benchmark.OperationMetrics})">
+            <summary>
+            Calculate statistics from metrics
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Benchmark.BenchmarkRunner.QuickBenchmarkAsync(Substrait.Compliance.IComplianceEngine,System.String,System.Func{System.Threading.Tasks.Task},System.Int32)">
+            <summary>
+            Quick benchmark helper
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.ColumnType">
+            <summary>
+            Column type enumeration
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.Column">
+            <summary>
+            Column definition
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.Column.#ctor(System.String,Substrait.Compliance.ColumnType,System.Boolean)">
+            <summary>
+            Column definition
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.TableData">
+            <summary>
+            Represents tabular data with schema and rows
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.#ctor">
+            <summary>
+            Create an empty table
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.#ctor(System.Collections.Generic.IEnumerable{Substrait.Compliance.Column})">
+            <summary>
+            Create a table with columns
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.#ctor(System.Collections.Generic.IEnumerable{Substrait.Compliance.Column},System.Collections.Generic.IEnumerable{System.Object[]})">
+            <summary>
+            Create a table with columns and rows
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.TableData.Columns">
+            <summary>
+            Get column definitions
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.TableData.Rows">
+            <summary>
+            Get all rows
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.TableData.RowCount">
+            <summary>
+            Get number of rows
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.TableData.ColumnCount">
+            <summary>
+            Get number of columns
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.TableData.IsEmpty">
+            <summary>
+            Check if table is empty
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.AddRow(System.Object[])">
+            <summary>
+            Add a row to the table
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.AddRows(System.Collections.Generic.IEnumerable{System.Object[]})">
+            <summary>
+            Add multiple rows to the table
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.GetRow(System.Int32)">
+            <summary>
+            Get a specific row by index
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.GetCell(System.Int32,System.Int32)">
+            <summary>
+            Get a specific cell value
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.SetColumns(System.Collections.Generic.IEnumerable{Substrait.Compliance.Column})">
+            <summary>
+            Set column definitions
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.Clear">
+            <summary>
+            Clear all rows
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.GetColumn(System.String)">
+            <summary>
+            Get column by name
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TableData.GetColumnIndex(System.String)">
+            <summary>
+            Get column index by name
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.TestSuiteMetadata">
+            <summary>
+            Metadata about a test suite
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TestSuiteMetadata.#ctor(System.String,System.String,System.String,System.String,System.Collections.Generic.IReadOnlyList{System.String})">
+            <summary>
+            Metadata about a test suite
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.TestCase">
+            <summary>
+            A single test case within a test suite
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.TestSuite">
+            <summary>
+            Complete test suite definition
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TestSuite.GetTestCase(System.String)">
+            <summary>
+            Get test case by ID
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TestSuite.GetTestCaseIds">
+            <summary>
+            Get all test case IDs
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TestSuite.FilterByTag(System.String)">
+            <summary>
+            Filter test cases by tag
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TestSuite.GetActiveTestCases">
+            <summary>
+            Get non-skipped test cases
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TestSuite.GetSkippedTestCases">
+            <summary>
+            Get skipped test cases
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.TestSuite.TotalCount">
+            <summary>
+            Get total number of test cases
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.TestSuite.ActiveCount">
+            <summary>
+            Get number of active test cases
+            </summary>
+        </member>
+        <member name="P:Substrait.Compliance.TestSuite.SkippedCount">
+            <summary>
+            Get number of skipped test cases
+            </summary>
+        </member>
+        <member name="T:Substrait.Compliance.TestSuiteLoader">
+            <summary>
+            Loader for test suites from YAML files
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TestSuiteLoader.LoadFromFileAsync(System.String)">
+            <summary>
+            Load a test suite from a YAML file
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TestSuiteLoader.LoadFromYaml(System.String,System.String)">
+            <summary>
+            Load a test suite from YAML string
+            </summary>
+        </member>
+        <member name="M:Substrait.Compliance.TestSuiteLoader.LoadFromDirectoryAsync(System.String)">
+            <summary>
+            Load multiple test suites from a directory
+            </summary>
+        </member>
+    </members>
+</doc>

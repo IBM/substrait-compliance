@@ -7,7 +7,93 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Fixed
+### Added
+- Open source governance files
+  - `NOTICE` - Apache 2.0 attribution file
+  - `GOVERNANCE.md` - Project governance model and decision-making process
+  - `MAINTAINERS.md` - List of project maintainers and committers
+  - `.github/ISSUE_TEMPLATE/` - Bug report, feature request, and documentation templates
+  - `.github/PULL_REQUEST_TEMPLATE.md` - Comprehensive PR template with checklists
+
+## [1.0.0] - 2026-05-30
+
+### 🎉 Initial Public Release
+
+The Substrait Compliance Framework is now open source! This release represents the culmination of extensive development to create a comprehensive, decentralized testing infrastructure for Substrait implementations.
+
+### Highlights
+
+- **8 Language SDKs**: Java, Python, Rust, Go, C++, TypeScript, C#, and Scala
+- **279 Function Tests**: Comprehensive test coverage across 15 categories
+- **TPC-H Benchmark**: 22 queries for performance testing
+- **REST API**: Complete API for programmatic compliance reporting
+- **Interactive Demo**: Live dashboard with mock engines and visualization
+- **CI/CD Integration**: 12 GitHub Actions workflows for automation
+- **10-Phase Framework**: Complete validation, analysis, and reproducibility pipeline
+
+### Added - Core Framework
+
+#### Multi-Language SDK Support
+- **Java SDK** - Complete implementation with Gradle build system
+  - ComplianceEngine interface for engine integration
+  - TestSuiteLoader for YAML test suite parsing
+  - ComplianceRunner for test execution
+  - Benchmark framework with statistical analysis
+  - Result comparison with type-aware comparators
+  - Plan validation and failure analysis
+- **Python SDK** - Full-featured Python implementation
+  - Type-hinted interfaces for better IDE support
+  - Async execution support
+  - pytest integration
+  - Comprehensive examples
+- **Rust SDK** - High-performance Rust implementation
+  - Zero-cost abstractions
+  - Memory-safe execution
+  - Cargo integration
+  - Benchmark support
+- **Go SDK** - Idiomatic Go implementation
+  - Goroutine-based parallel execution
+  - Go modules support
+  - Standard library integration
+- **C++ SDK** - Modern C++17 implementation
+  - CMake build system
+  - Header-only option
+  - Cross-platform support
+- **TypeScript SDK** - Full TypeScript/JavaScript support
+  - npm package ready
+  - Type definitions included
+  - Jest testing integration
+- **C# SDK** - .NET implementation
+  - NuGet package ready
+  - .NET 10.0 support
+  - xUnit integration
+- **Scala SDK** - Functional Scala implementation
+  - sbt build system
+  - Future-based async execution
+  - ScalaTest integration
+
+#### Test Suites
+- **TPC-H Benchmark** - 22 industry-standard queries
+  - Complete query implementations
+  - Sample data generation
+  - Performance benchmarking
+- **Function Tests** - 279 test files across 15 categories
+  - Arithmetic operations (48 functions)
+  - String operations (25 functions)
+  - Comparison operations (15 functions)
+  - Aggregate functions (6 functions)
+  - Date/time operations (7 functions)
+  - Geospatial functions (4 functions)
+  - JSON operations (2 functions)
+  - Map operations (3 functions)
+  - Set operations (3 functions)
+  - Cast operations (1 function)
+- **Enhanced Test Suite** - 136 additional test files
+  - Extended coverage for complex scenarios
+  - Edge case testing
+  - Performance-focused tests
+
+### Fixed - SDK Improvements
 - **Rust SDK** - Fixed benchmark API mismatches
   - Removed unused `quick_benchmark` static method from `benchmark/mod.rs`
   - Updated `benchmark_example.rs` to use instance method pattern
@@ -215,6 +301,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Export to JSON/CSV formats
 - Comprehensive test coverage
 - Easy setup and execution
+#### Documentation & Community
+- **Comprehensive Documentation**
+  - README.md with quick start guide
+  - CONTRIBUTING.md with contribution guidelines
+  - CODE_OF_CONDUCT.md (Contributor Covenant)
+  - SECURITY.md with vulnerability reporting
+  - LICENSE (Apache 2.0)
+  - Integration Guide with 10-phase examples
+  - API documentation and usage guides
+  - SDK-specific README files
+  - Troubleshooting guides
+- **Community Infrastructure**
+  - GitHub Discussions for Q&A
+  - Issue templates for bugs and features
+  - Pull request template
+  - Mailing list integration
+  - Slack channel
+
+### Security
+- JWT authentication for REST API
+- Rate limiting and DDoS protection
+- Security headers configuration
+- Audit logging for security events
+- Vulnerability disclosure policy
+- Regular dependency updates via Dependabot
+
+### Performance
+- Parallel test execution support
+- Caching for API responses
+- Optimized database queries with indexes
+- Benchmark framework with statistical analysis
+- Performance regression detection
+
+### Known Issues
+- TPC-DS benchmark is limited to 5 queries (expanding to 99)
+- Some SDKs have minor unused import warnings
+- Performance benchmarking features are in beta
+
+### Contributors
+Thank you to all contributors who made this release possible! See the [Contributors page](https://github.com/substrait-io/substrait-compliance/graphs/contributors) for a complete list.
+
+### Links
+- [Documentation](https://github.com/substrait-io/substrait-compliance/tree/main/docs)
+- [Release Notes](https://github.com/substrait-io/substrait-compliance/releases/tag/v1.0.0)
+- [Substrait Website](https://substrait.io/)
+
+---
+
+## Previous Development (Pre-v1.0.0)
+
+The sections below document development work prior to the v1.0.0 public release.
+
 
 ### Breaking Changes
 - **Project structure reorganized** with multi-module Gradle setup
