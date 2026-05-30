@@ -20,6 +20,8 @@
 bin/
 **/bin/
 api/bin/
+obj/
+**/obj/
 
 # IDE files
 .idea/
@@ -45,6 +47,7 @@ __pycache__/
 .Python
 env/
 venv/
+**/venv/
 ENV/
 *.egg-info/
 dist/
@@ -52,6 +55,7 @@ dist/
 
 # Rust
 target/
+**/target/
 Cargo.lock
 **/*.rs.bk
 
@@ -119,6 +123,7 @@ credentials/
 # Generated files
 generated/
 gen/
+javac.*.args
 
 # Security and audit artifacts
 *.sarif
@@ -127,4 +132,3 @@ trivy-report.*
 gitleaks-report.*
 secret-scan-report.*
 
-# Made with Bob
