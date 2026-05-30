@@ -60,7 +60,7 @@ The Substrait Compliance Framework transforms how query engines validate their S
 ### Key Features
 
 - 🔄 **Decentralized Testing** - Engines test themselves, no central bottleneck
-- 🌐 **Multi-Language SDKs** - Java, Python, Rust, C++, Go, and TypeScript/JavaScript implementations
+- 🌐 **Multi-Language SDKs** - Java, Python, Rust, C++, Go, TypeScript/JavaScript, C#/.NET, and Scala implementations
 - 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (99 queries), Function Tests (279 files across standard and enhanced suites)
 - 🤖 **Automated CI/CD** - 12 GitHub Actions workflows for continuous compliance
 - 🌐 **REST API** - Programmatic access with JWT auth, webhooks, and rate limiting
@@ -281,6 +281,31 @@ ls -la bin/Debug/net6.0/
 # Should see: Substrait.Compliance.dll and related files
 ```
 </details>
+<details>
+<summary><b>Scala SDK (Functional & Type-Safe)</b></summary>
+
+```bash
+# Build the SDK
+cd sdk/scala
+sbt compile
+
+# Run tests to verify
+sbt test
+
+# Expected output:
+# [info] ComplianceEngineSpec:
+# [info] - should return engine information
+# [info] - should return engine capabilities
+# [info] All tests passed ✅
+```
+
+**Verify Installation:**
+```bash
+ls -la target/scala-2.13/
+# Should see: substrait-compliance_2.13-1.0.0.jar
+```
+</details>
+
 
 <details>
 <summary><b>Rust SDK (High Performance)</b></summary>
