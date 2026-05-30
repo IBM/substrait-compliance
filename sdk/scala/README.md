@@ -466,3 +466,147 @@ For issues and questions:
 - [Substrait](https://substrait.io/) - Cross-language serialization for relational algebra
 - [Substrait Java](https://github.com/substrait-io/substrait-java) - Java implementation
 - Other SDK implementations: C++, Go, TypeScript, C#
+## Performance Benchmarking
+
+The Scala SDK includes comprehensive performance benchmarking capabilities to measure and compare engine performance.
+
+### Quick Benchmark
+
+```scala
+import io.substrait.compliance.benchmark._
+import scala.concurrent.ExecutionContext.Implicits.global
+
+val engine = new MyEngine()
+
+// Quick benchmark of a single operation
+val statsFuture = BenchmarkRunner.quickBenchmark(
+  engine,
+  "executePlan",
+  () => engine.executePlan(plan, inputTables),
+  runs = 100
+)
+
+statsFuture.map { stats =>
+  println(s"Average time: ${stats.avgTime.toMillis}ms")
+  println(s"Throughput: ${stats.throughput} ops/sec")
+  println(s"P95 latency: ${stats.p95Time.toMillis}ms")
+}
+```
+
+### Full Benchmark Suite
+
+```scala
+import io.substrait.compliance.benchmark._
+
+val config = BenchmarkConfig(
+  warmupRuns = 10,        // Warmup iterations
+  measurementRuns = 100,  // Measurement iterations
+  parallelism = 4,        // Parallel execution
+  collectMemoryStats = true,
+  verbose = true
+)
+
+val runner = BenchmarkRunner(engine, config)
+
+val operations = Seq(
+  ("executePlan", () => engine.executePlan(plan, inputs)),
+  ("validatePlan", () => engine.validatePlan(plan)),
+  ("getCapabilities", () => Future.successful(engine.getCapabilities()))
+)
+
+val resultFuture = runner.runBenchmark("My Benchmark", operations)
+
+resultFuture.map { result =>
+  // Print summary
+  println(result.summary)
+  
+  // Export to CSV
+  Files.write(Paths.get("results.csv"), result.toCSV.getBytes)
+  
+  // Access individual stats
+  result.stats.foreach { stat =>
+    println(s"${stat.operationName}:")
+    println(s"  Min: ${stat.minTime.toMillis}ms")
+    println(s"  Max: ${stat.maxTime.toMillis}ms")
+    println(s"  Avg: ${stat.avgTime.toMillis}ms")
+    println(s"  Median: ${stat.medianTime.toMillis}ms")
+    println(s"  P95: ${stat.p95Time.toMillis}ms")
+    println(s"  P99: ${stat.p99Time.toMillis}ms")
+    println(s"  Throughput: ${stat.throughput} ops/sec")
+  }
+}
+```
+
+### Engine Comparison
+
+```scala
+// Compare multiple engines
+val engines = Seq(engine1, engine2, engine3)
+
+val operations = Seq[(String, ComplianceEngine => Future[_])](
+  ("executePlan", eng => eng.executePlan(plan, inputs)),
+  ("validatePlan", eng => eng.validatePlan(plan))
+)
+
+val resultsFuture = runner.compareBenchmark(
+  "Engine Comparison",
+  engines,
+  operations
+)
+
+resultsFuture.map { results =>
+  results.foreach { result =>
+    println(s"\nEngine: ${result.engineName}")
+    result.stats.foreach { stat =>
+      println(f"  ${stat.operationName}: ${stat.avgTime.toMillis}ms")
+    }
+  }
+}
+```
+
+### Scalability Testing
+
+```scala
+// Test with different data sizes
+val dataSizes = Seq(100, 1000, 10000, 100000)
+
+dataSizes.foreach { size =>
+  val inputTable = TableData(
+    columns = Seq(Column("id", ColumnType.Integer)),
+    rows = (1 to size).map(i => Seq(i))
+  )
+  
+  val statsFuture = BenchmarkRunner.quickBenchmark(
+    engine,
+    s"size_$size",
+    () => engine.executePlan(plan, Map("input" -> inputTable)),
+    runs = 50
+  )
+  
+  statsFuture.map { stats =>
+    println(f"Size: $size, Avg: ${stats.avgTime.toMillis}ms, " +
+            f"Throughput: ${stats.throughput}%.2f ops/sec")
+  }
+}
+```
+
+### Benchmark Metrics
+
+The benchmarking framework provides comprehensive metrics:
+
+- **Execution Time**: Min, Max, Average, Median, P95, P99
+- **Throughput**: Operations per second
+- **Standard Deviation**: Measure of variance
+- **Memory Usage**: Optional memory consumption tracking
+- **CSV Export**: Export results for analysis
+
+### Running Benchmark Examples
+
+```bash
+# Run the benchmark example
+sbt "runMain io.substrait.compliance.benchmark.BenchmarkExample"
+
+# Run specific benchmark scenarios
+sbt "runMain io.substrait.compliance.benchmark.BenchmarkExample basic"
+sbt "runMain io.substrait.compliance.benchmark.BenchmarkExample scalability"
+```
