@@ -128,9 +128,3 @@ gitleaks-report.*
 secret-scan-report.*
 
 # Made with Bob
-
-# Deployment and validation scripts (not for version control)
-INTEGRATION_GUIDE.md
-deploy-to-github.sh
-verify-implementation.sh
-VALIDATION_AND_COMPARISON_IMPLEMENTATION_PLAN.md
