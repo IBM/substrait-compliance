@@ -138,6 +138,23 @@ Use this checklist before describing any environment as externally usable.
 - [ ] Perform at least one restore rehearsal into a disposable database
 - [ ] Document rollback owner and rollback trigger
 - [ ] Record the deployed image tag or commit SHA
+- [ ] Record who executed the rehearsal and where the evidence is stored
+
+## Operator Evidence Expectations
+
+For any shared environment or release candidate, keep a durable evidence record that includes:
+
+- deployment owner
+- rollback owner
+- image tag
+- commit SHA
+- backup rehearsal outcome
+- restore rehearsal outcome
+- smoke-test outcome
+- incident-drill outcome or explicit note that it was not run
+- links to workflow runs, logs, tickets, or release artifacts used as evidence
+
+Repository documentation can define this requirement, but the operator must actually retain the evidence in the system of record used for the environment.
 
 ## Tested Operator Procedures
 

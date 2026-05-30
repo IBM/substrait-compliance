@@ -24,10 +24,10 @@ jobs:
         with:
           fetch-depth: 0
       
-      - name: Setup Java 11
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
           cache: 'gradle'
       
@@ -71,7 +71,11 @@ jobs:
           ## Documentation
           - [Deployment Guide](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/api/DEPLOYMENT.md)
           - [API Usage Guide](https://github.com/${{ github.repository }}/blob/${{ github.ref_name }}/api/API_USAGE.md)
-          - [API Documentation](https://api.substrait.io/swagger-ui.html)
+          - Hosted API endpoints should only be referenced after the corresponding deployment workflow and smoke validation complete successfully for the target environment
+          
+          ## Release Evidence
+          - This release workflow proves artifact creation and container publication only when the hosted workflow run succeeds
+          - Environment rollout, ingress reachability, and operator acceptance remain separate deployment-stage checks
           
           ## Full Changelog
           **Full Changelog**: https://github.com/${{ github.repository }}/compare/...
@@ -104,10 +108,31 @@ jobs:
             org.opencontainers.image.version=${{ github.ref_name }}
             org.opencontainers.image.source=https://github.com/${{ github.repository }}
       
+      - name: Record API release evidence
+        run: |
+          mkdir -p release-evidence
+          cat > release-evidence/api-release-${{ github.ref_name }}.txt <<EOF
+          component=api
+          release_ref=${{ github.ref_name }}
+          workflow=${{ github.workflow }}
+          run_id=${{ github.run_id }}
+          run_attempt=${{ github.run_attempt }}
+          sha=${{ github.sha }}
+          jar_built=true
+          container_published=true
+          note=environment-rollout-and-public-endpoint-validation-are-separate-post-release-checks
+          EOF
+
+      - name: Upload API release evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-release-evidence-${{ github.ref_name }}
+          path: release-evidence/api-release-${{ github.ref_name }}.txt
+
       - name: Summary
         run: |
           echo "✅ Release ${{ github.ref_name }} created successfully"
           echo "📦 Container image: ghcr.io/${{ github.repository }}/substrait-compliance-api:${{ github.ref_name }}"
           echo "📄 Release notes: https://github.com/${{ github.repository }}/releases/tag/${{ github.ref_name }}"
+          echo "🧾 API release evidence artifact uploaded for this workflow run"
 
-# Made with Bob

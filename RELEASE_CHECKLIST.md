@@ -106,6 +106,7 @@ This document provides a comprehensive checklist for preparing and executing rel
 - [ ] Verify REST API functionality
 - [ ] Check CI/CD workflows pass
 - [ ] Perform manual smoke testing
+- [ ] Archive hosted CI release evidence for this candidate (workflow run URL, artifact manifest, publication evidence artifacts)
 
 ### 5. Security Review
 
@@ -114,6 +115,18 @@ This document provides a comprehensive checklist for preparing and executing rel
 - [ ] Check for exposed secrets
 - [ ] Verify security headers in API
 - [ ] Review authentication/authorization
+
+### 5A. Operational Evidence
+
+Record the following before calling any shared environment or release candidate operationally validated:
+
+- [ ] Document deployment owner for the target environment
+- [ ] Record rollback owner and rollback trigger
+- [ ] Record deployed image tag and commit SHA
+- [ ] Perform one backup rehearsal and record command, operator, and timestamp
+- [ ] Perform one restore rehearsal into a disposable database and record outcome
+- [ ] Perform one incident drill for secret exposure or failed deployment and record remediation steps
+- [ ] Store links or paths to the resulting evidence with the release notes or release issue
 
 ### 6. Performance Testing
 

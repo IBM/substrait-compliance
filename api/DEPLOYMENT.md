@@ -251,6 +251,40 @@ curl -fsS http://localhost:8080/actuator/prometheus > /dev/null
 podman logs substrait-api --tail 200
 ```
 
+## Operator Evidence Record
+
+Before describing any shared environment as validated, record the following evidence outside ephemeral terminal output:
+
+- deployment owner
+- rollback owner
+- deployed image tag
+- deployed commit SHA
+- date and operator for the validation run
+- backup rehearsal result
+- restore rehearsal result
+- smoke-test result
+- incident-drill result if one was performed for the release candidate
+
+A minimal evidence record can be captured in Markdown like this:
+
+```md
+# Deployment Evidence
+
+- Environment: staging
+- Deployment owner: <name>
+- Rollback owner: <name>
+- Image tag: ghcr.io/ORG/REPO/substrait-compliance-api:<tag>
+- Commit SHA: <sha>
+- Validation date: YYYY-MM-DD
+- Backup rehearsal: passed/failed
+- Restore rehearsal: passed/failed
+- Smoke test: passed/failed
+- Incident drill: passed/failed/not-run
+- Notes: <links to logs, tickets, or workflow runs>
+```
+
+Store this evidence with the release issue, release notes, or operator ticketing system used for the environment.
+
 ## Database Validation
 
 The repository assumes PostgreSQL-backed execution.
