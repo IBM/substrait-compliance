@@ -1,4 +1,4 @@
-import { ComplianceEngine } from '../ComplianceEngine';
+import { ComplianceEngine } from '../engine';
 import { performance } from 'perf_hooks';
 
 /**

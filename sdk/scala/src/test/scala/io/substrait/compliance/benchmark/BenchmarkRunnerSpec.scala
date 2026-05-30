@@ -4,35 +4,33 @@ import io.substrait.compliance._
 import org.scalatest.flatspec.AsyncFlatSpec
 import org.scalatest.matchers.should.Matchers
 import scala.concurrent.Future
-import java.time.Duration
 
 class BenchmarkRunnerSpec extends AsyncFlatSpec with Matchers {
 
   // Mock engine for testing
   class MockEngine extends ComplianceEngine {
-    override def getInfo(): EngineInfo = {
-      EngineInfo("Mock Engine", "1.0.0", Some("Test engine"))
+    override def getInfo: EngineInfo = {
+      EngineInfo("Mock Engine", "1.0.0", "Test Vendor", Some("Test engine"))
     }
 
-    override def getCapabilities(): EngineCapabilities = {
+    override def getCapabilities: EngineCapabilities = {
       EngineCapabilities(
-        supportedFormats = Set("json"),
-        supportedFunctions = Set("add"),
-        supportedTypes = Set("i32"),
-        maxParallelism = 2
+        supportedRelations = Seq("read"),
+        supportedFunctions = Seq("add"),
+        supportedTypes = Seq("i32"),
+        extensions = Map("format" -> "json", "maxParallelism" -> "2")
       )
     }
 
-    override def executePlan(plan: Array[Byte], inputTables: Map[String, TableData]): Future[TableData] = {
-      // Simulate some work
+    override def executePlan(plan: Array[Byte], inputTables: Map[String, TableData]): Future[EngineResult] = {
       Future {
         Thread.sleep(10)
-        TableData.empty
+        EngineResult.success(TableData.empty)
       }
     }
 
-    override def validatePlan(plan: Array[Byte]): Future[ValidationResult] = {
-      Future.successful(ValidationResult(isValid = true, Seq.empty, Seq.empty))
+    override def validatePlan(plan: Array[Byte]): Future[EngineResult] = {
+      Future.successful(EngineResult.success(TableData.empty))
     }
   }
 

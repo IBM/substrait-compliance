@@ -8,31 +8,31 @@ class ComplianceEngineSpec extends AsyncFlatSpec with Matchers {
 
   // Mock engine for testing
   class MockEngine extends ComplianceEngine {
-    override def getInfo(): EngineInfo = {
-      EngineInfo("Mock Engine", "1.0.0", Some("Test engine"))
+    override def getInfo: EngineInfo = {
+      EngineInfo("Mock Engine", "1.0.0", "Test Vendor", Some("Test engine"))
     }
 
-    override def getCapabilities(): EngineCapabilities = {
+    override def getCapabilities: EngineCapabilities = {
       EngineCapabilities(
-        supportedFormats = Set("json"),
-        supportedFunctions = Set("add", "subtract"),
-        supportedTypes = Set("i32", "i64"),
-        maxParallelism = 2
+        supportedRelations = Seq("read"),
+        supportedFunctions = Seq("add", "subtract"),
+        supportedTypes = Seq("i32", "i64"),
+        extensions = Map("format" -> "json", "maxParallelism" -> "2")
       )
     }
 
-    override def executePlan(plan: Array[Byte], inputTables: Map[String, TableData]): Future[TableData] = {
-      Future.successful(TableData.empty)
+    override def executePlan(plan: Array[Byte], inputTables: Map[String, TableData]): Future[EngineResult] = {
+      Future.successful(EngineResult.success(TableData.empty))
     }
 
-    override def validatePlan(plan: Array[Byte]): Future[ValidationResult] = {
-      Future.successful(ValidationResult(isValid = true, Seq.empty, Seq.empty))
+    override def validatePlan(plan: Array[Byte]): Future[EngineResult] = {
+      Future.successful(EngineResult.success(TableData.empty))
     }
   }
 
   "ComplianceEngine" should "return engine information" in {
     val engine = new MockEngine()
-    val info = engine.getInfo()
+    val info = engine.getInfo
     
     info.name shouldBe "Mock Engine"
     info.version shouldBe "1.0.0"
@@ -41,11 +41,11 @@ class ComplianceEngineSpec extends AsyncFlatSpec with Matchers {
 
   it should "return engine capabilities" in {
     val engine = new MockEngine()
-    val capabilities = engine.getCapabilities()
+    val capabilities = engine.getCapabilities
     
-    capabilities.supportedFormats should contain("json")
+    capabilities.supportedRelations should contain("read")
     capabilities.supportedFunctions should contain("add")
-    capabilities.maxParallelism shouldBe 2
+    capabilities.extensions should contain("format" -> "json")
   }
 
   it should "execute a plan" in {
@@ -54,7 +54,9 @@ class ComplianceEngineSpec extends AsyncFlatSpec with Matchers {
     val inputTables = Map.empty[String, TableData]
     
     engine.executePlan(plan, inputTables).map { result =>
-      result shouldBe a[TableData]
+      result.isSuccess shouldBe true
+      result.outputData.isDefined shouldBe true
+      result.outputData.get.isEmpty shouldBe true
     }
   }
 
@@ -63,8 +65,8 @@ class ComplianceEngineSpec extends AsyncFlatSpec with Matchers {
     val plan = Array[Byte](1, 2, 3)
     
     engine.validatePlan(plan).map { result =>
-      result.isValid shouldBe true
-      result.errors shouldBe empty
+      result.isSuccess shouldBe true
+      result.isError shouldBe false
     }
   }
 }
