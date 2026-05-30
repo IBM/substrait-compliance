@@ -10,11 +10,9 @@ Maintainers are responsible for the overall direction, health, and sustainabilit
 
 | Name | GitHub | Role | Focus Areas | Timezone |
 |------|--------|------|-------------|----------|
-| Ranjan Sinha | [@RanjanSinha-GH](https://github.com/RanjanSinha-GH) | Project Lead | Overall direction, releases | UTC-7 |
-| TBD | [@username](https://github.com/username) | Core Maintainer | Java SDK, API | UTC+0 |
-| TBD | [@username](https://github.com/username) | Core Maintainer | Python/Rust SDKs | UTC+1 |
+| Ranjan Sinha | [@RanjanSinha-GH](https://github.com/RanjanSinha-GH) | Project Lead / Release Maintainer | Overall direction, releases, security triage coordination | UTC-7 |
 
-> **Note**: This list will be populated as the project establishes its initial maintainer team during the open source launch.
+> **Current launch-state note**: The project currently has a single named active maintainer. Additional maintainer seats may be added after open source launch, but no unnamed or placeholder maintainers are treated as active for governance, release approval, or security-response purposes.
 
 ## Maintainer Responsibilities
 
@@ -28,6 +26,16 @@ Maintainers are expected to:
 6. **Documentation**: Ensure documentation stays current
 7. **Mentorship**: Guide new contributors and committers
 8. **Governance**: Participate in governance decisions
+
+## Maintainer Ownership and On-Call Expectations
+
+- **Primary Maintainer of Record**: Ranjan Sinha
+- **Release Authority Owner**: Ranjan Sinha
+- **Security Triage Owner**: Ranjan Sinha
+- **Operational Coverage**: Best-effort maintainer coverage during normal working hours in UTC-7
+- **Current On-Call Status**: No separate 24x7 production on-call rotation is claimed for this repository at pre-release stage
+
+Until additional maintainers are formally added to the table above, release execution, security triage coordination, and final escalation decisions remain the responsibility of the Project Lead.
 
 ## Maintainer Meetings
 
@@ -54,7 +62,7 @@ Maintainers who have stepped down but made significant contributions:
 
 | Name | GitHub | Period | Contributions |
 |------|--------|--------|---------------|
-| TBD | [@username](https://github.com/username) | 2024-2026 | Initial project setup |
+| None yet | - | - | Emeritus maintainers will be listed here when applicable |
 
 ## Committers
 
@@ -62,8 +70,7 @@ Committers have write access to the repository and help with day-to-day maintena
 
 | Name | GitHub | Focus Areas | Since |
 |------|--------|-------------|-------|
-| TBD | [@username](https://github.com/username) | Test suites | 2024 |
-| TBD | [@username](https://github.com/username) | C++/Go SDKs | 2025 |
+| None yet | - | Additional committers will be listed here once formally approved | - |
 
 ## Contact
 

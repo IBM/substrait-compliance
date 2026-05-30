@@ -117,8 +117,12 @@ Committers who have demonstrated leadership and long-term commitment to the proj
 
 A Maintainer who coordinates overall project direction and represents the project externally.
 
+**Current Launch-State Assignment:**
+- Until additional active Maintainers are formally added in [`MAINTAINERS.md`](MAINTAINERS.md), the Project Lead role is held by the sole named active Maintainer of record.
+- At the current pre-release stage, the Project Lead is the release authority owner, security triage coordinator, and final escalation point for repository operations.
+
 **Selection:**
-- Elected by Maintainers annually
+- Once there are at least two active Maintainers, the Project Lead is elected by Maintainers annually
 - Requires 2/3 majority vote
 - Can be re-elected
 
@@ -128,6 +132,7 @@ A Maintainer who coordinates overall project direction and represents the projec
 - Break tie votes when necessary
 - Coordinate releases and announcements
 - Manage project infrastructure
+- Approve or delegate release execution according to the release authority rules below
 
 ## Decision Making
 
@@ -236,9 +241,11 @@ See [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for detailed steps.
 
 ### Release Authority
 
-- **Patch Releases**: Any Maintainer can execute
-- **Minor Releases**: Requires 2 Maintainer approvals
-- **Major Releases**: Requires Maintainer consensus
+- **Current pre-release authority model**: Because the project currently has one named active Maintainer, release execution authority is held by the Project Lead / Release Maintainer of record listed in [`MAINTAINERS.md`](MAINTAINERS.md)
+- **Patch Releases**: The Release Maintainer may execute after required validation and checklist completion
+- **Minor Releases**: Require explicit approval by the Release Maintainer and documented release checklist completion; once multiple Maintainers exist, require 2 Maintainer approvals
+- **Major Releases**: Require documented Maintainer consensus; until multiple Maintainers exist, no major stable release should be represented as community-approved governance consensus
+- **Delegation**: Operational release steps may be delegated, but accountability for release approval and rollback decisions remains with the Release Maintainer of record
 
 ## Conflict Resolution
 
@@ -330,7 +337,7 @@ Handled according to [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md):
 
 ### Infrastructure Management
 
-Maintainers collectively manage:
+Maintainers collectively manage, or in the current launch state the Project Lead manages directly:
 - GitHub repository settings
 - CI/CD systems
 - Domain names and websites

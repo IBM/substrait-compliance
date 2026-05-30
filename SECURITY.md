@@ -4,10 +4,14 @@
 
 Security support commitments remain pre-release. The repository contains security-related implementation and deployment scaffolding, but only the controls explicitly called out as verified below should be treated as current guarantees.
 
+At the current launch stage, security support is owned by the named maintainer of record in [`MAINTAINERS.md`](MAINTAINERS.md). There is no separate staffed security operations team or 24x7 incident-response rotation.
+
 | Version | Supported |
 | ------- | --------- |
-| [`main`](README.md) | Best effort, pre-release |
-| tagged releases | Release process in progress; support window not yet finalized |
+| [`main`](README.md) | Best effort for active development and pre-release validation only |
+| pre-release tags | Best effort for the most recent tagged pre-release only |
+| older pre-release tags | Not supported |
+| stable releases | No stable support window is claimed until the project publishes its first stable release and updates this policy |
 
 ## Reporting a Vulnerability
 
@@ -35,7 +39,8 @@ Please include the following information in your report:
 
 ### Response Timeline
 
-- **Initial Response**: Best effort acknowledgment as maintainers are available
+- **Security Triage Owner**: Ranjan Sinha, acting as maintainer of record and security triage coordinator
+- **Initial Response**: Best effort acknowledgment during normal maintainer working hours (UTC-7)
 - **Status Update**: Best effort follow-up after triage
 - **Fix Timeline**: Depends on severity, maintainer availability, and release readiness
 - **Disclosure**: Coordinated disclosure after a fix or mitigation is available
@@ -97,8 +102,8 @@ The following controls may be partially implemented or documented, but they are 
    - Centralized retention, alert routing, and incident escalation are not yet verified as maintained service guarantees
 
 5. **Repository-wide dependency scanning and incident-response readiness**
-   - Security review guidance exists
-   - A formal, continuously verified dependency-scanning and incident-response program is not yet claimed as complete
+   - Security review guidance and workflow-based validation exist
+   - Continuous dependency-scanning coverage, alert routing, and staffed incident-response operations are not yet claimed as complete service guarantees
 
 ### For Users
 
@@ -220,7 +225,7 @@ Stay informed about security updates:
 
 - **GitHub Security Advisories**: [github.com/substrait-io/substrait-compliance/security/advisories](https://github.com/substrait-io/substrait-compliance/security/advisories)
 - **Release Notes**: Check [`CHANGELOG.md`](CHANGELOG.md) for security fixes in published releases
-- **Mailing List**: Subscribe to security announcements (coming soon, if adopted at launch)
+- **Repository Documentation**: Review [`SECURITY.md`](SECURITY.md) and release notes in the tagged version you deploy
 
 ### Update Recommendations
 
