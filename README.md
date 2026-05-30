@@ -876,50 +876,71 @@ for (TestCase test : simpleTests) {
 substrait-compliance/
 ├── 🎯 demo/                       # ⭐ START HERE - Interactive demo
 │   ├── runner/
-│   │   └── run-simple-demo.sh     # ⭐ Run this first!
+│   │   ├── run-simple-demo.sh     # ⭐ Run this first!
+│   │   ├── run-demo.sh            # Full demo with dashboard
+│   │   ├── run-enhanced-demo.sh   # Enhanced demo runner
+│   │   └── run-function-tests.sh  # Function test runner
 │   ├── dashboard/                 # Visual results dashboard
-│   ├── engines/                   # Example mock engines
+│   ├── engines/                   # Example mock engines (Java)
+│   │   ├── MockDBEngine.java      # Simple mock implementation
+│   │   ├── FastDBEngine.java      # Fast mock engine
+│   │   ├── CloudDBEngine.java     # Cloud mock engine
+│   │   ├── DuckDBEngine.java      # DuckDB integration
+│   │   └── PostgreSQLEngine.java  # PostgreSQL integration
 │   └── output/                    # Generated reports
-├── 📚 sdk/                        # Multi-language SDKs
+├── 📚 sdk/                        # Multi-language SDKs (8 languages)
+│   ├── cpp/                       # ⭐ C++ SDK - High performance
+│   │   └── examples/              # C++ examples
+│   ├── csharp/                    # ⭐ C# SDK - .NET integration
+│   │   ├── IComplianceEngine.cs   # Core interface
+│   │   ├── ComplianceRunner.cs    # Test runner
+│   │   ├── Examples/              # C# examples
+│   │   └── Tests/                 # Unit tests
+│   ├── go/                        # ⭐ Go SDK - Concurrent processing
+│   │   ├── engine.go              # Core interface
+│   │   ├── result.go              # Result types
+│   │   └── table_data_test.go     # Unit tests
 │   ├── java/                      # ⭐ Java SDK (JDK 11+) - Most complete
 │   │   ├── src/main/java/         # Core interfaces
-│   │   ├── src/test/java/         # Unit tests (12 passing)
+│   │   ├── src/test/java/         # Unit tests
 │   │   └── build.gradle           # Gradle build
 │   ├── python/                    # ⭐ Python SDK (3.8+) - Pythonic interface
 │   │   ├── substrait_compliance/  # Package modules
-│   │   ├── tests/                 # Unit tests (8 passing)
+│   │   ├── tests/                 # Unit tests
 │   │   └── setup.py               # PyPI setup
-│   └── rust/                      # ⭐ Rust SDK (2021 edition) - High performance
-│       ├── src/                   # Library modules
-│       ├── tests/                 # Integration tests (6 passing)
-│       └── Cargo.toml             # Cargo manifest
-├── 🧪 test-suites/                # Pre-packaged test suites
-│   ├── tpch/                      # ⭐ TPC-H benchmark (22 queries)
+│   ├── rust/                      # ⭐ Rust SDK (2021 edition) - High performance
+│   │   ├── src/                   # Library modules
+│   │   ├── tests/                 # Integration tests
+│   │   └── Cargo.toml             # Cargo manifest
+│   ├── scala/                     # ⭐ Scala SDK - JVM integration
+│   └── typescript/                # ⭐ TypeScript SDK - Node.js/Browser
+├── 🧪 test-suites/                # Standard test suites (143 files)
+│   ├── functions/                 # ⭐ Function tests (143 files)
+│   │   ├── aggregate/             # 7 files - COUNT, AVG, SUM, STDDEV, etc.
+│   │   ├── arithmetic/            # 44 files - ADD, MULTIPLY, SQRT, etc.
+│   │   ├── array/                 # 6 files - Array operations
+│   │   ├── boolean/               # 4 files - AND, OR, NOT, XOR
+│   │   ├── cast/                  # 2 files - CAST, TRY_CAST
+│   │   ├── comparison/            # 19 files - =, <, >, BETWEEN, etc.
+│   │   ├── conditional/           # 2 files - CASE, IF
+│   │   ├── datetime/              # 12 files - Date/time operations
+│   │   ├── geospatial/            # 4 files - ST_* functions
+│   │   ├── json/                  # 2 files - JSON operations
+│   │   ├── map/                   # 3 files - Map operations
+│   │   ├── set/                   # 3 files - UNION, INTERSECT, EXCEPT
+│   │   ├── string/                # 27 files - String manipulation
+│   │   ├── struct/                # 2 files - Struct operations
+│   │   └── window/                # 8 files - ROW_NUMBER, RANK, LAG, etc.
+│   ├── tpch/                      # TPC-H benchmark (22 queries)
 │   │   ├── metadata.yaml          # Test suite definition
 │   │   ├── data/                  # 8 CSV files (86,805 rows)
 │   │   └── plans/                 # 44 Substrait plans (bin + json)
-│   ├── tpcds/                     # ⭐ TPC-DS benchmark (5 queries, expanding to 99)
-│   │   ├── metadata.yaml          # Test suite definition
-│   │   ├── data/                  # Multi-channel retail data
-│   │   └── plans/                 # Substrait plans for decision support queries
-│   └── functions/                 # ⭐ Function tests (143 files, standard suite)
-│       ├── aggregate/             # 6 files - COUNT, AVG, SUM, etc.
-│       ├── arithmetic/            # 44 files - ADD, MULTIPLY, SQRT, etc.
-│       ├── array/                 # 6 files - Array operations
-│       ├── boolean/               # 4 files - AND, OR, NOT, XOR
-│       ├── cast/                  # 2 files - CAST, TRY_CAST
-│       ├── comparison/            # 19 files - =, <, >, BETWEEN, etc.
-│       ├── conditional/           # 2 files - CASE, IF
-│       ├── datetime/              # 12 files - Date/time operations
-│       ├── geospatial/            # 4 files - ST_* functions
-│       ├── json/                  # 2 files - JSON operations
-│       ├── map/                   # 3 files - Map operations
-│       ├── set/                   # 3 files - UNION, INTERSECT, EXCEPT
-│       ├── string/                # 27 files - String manipulation
-│       ├── struct/                # 2 files - Struct operations
-│       └── window/                # 7 files - ROW_NUMBER, RANK, LAG, etc.
-├── 🧪 test-suites-enhanced/       # ⭐ Enhanced test suites (AI-quality checked, 95%+ score)
-│   └── functions/                 # 136 files with comprehensive coverage
+│   └── tpcds/                     # TPC-DS benchmark (expanding to 99)
+│       ├── metadata.yaml          # Test suite definition
+│       ├── data/                  # Multi-channel retail data
+│       └── plans/                 # Substrait plans for decision support
+├── 🧪 test-suites-enhanced/       # ⭐ Enhanced test suites (136 files, AI-quality checked)
+│   └── functions/                 # 136 files with comprehensive coverage (95%+ quality)
 │       ├── aggregate/             # 6 files - Enhanced aggregate functions
 │       ├── arithmetic/            # 44 files - Enhanced math operations
 │       ├── array/                 # 4 files - Enhanced array operations
@@ -934,34 +955,53 @@ substrait-compliance/
 │       ├── string/                # 27 files - Enhanced string functions
 │       ├── struct/                # 2 files - Enhanced struct operations
 │       └── window/                # 7 files - Enhanced window functions
-├── 💡 examples/                   # ⭐ Copy these as starting points
-│   ├── duckdb-java/              # DuckDB integration (Java)
-│   └── datafusion-python/        # DataFusion integration (Python)
+├── 💡 examples/                   # ⭐ Real-world integration examples
+│   ├── datafusion-python/         # DataFusion integration (Python)
+│   ├── datafusion-rust/           # DataFusion integration (Rust)
+│   ├── duckdb-cpp/                # DuckDB integration (C++)
+│   ├── duckdb-java/               # DuckDB integration (Java)
+│   └── velox-cpp/                 # Velox integration (C++)
 ├── 🌐 api/                        # REST API (Spring Boot)
 │   ├── src/                       # API source code
 │   ├── docker-compose.yml         # Container orchestration
 │   └── build.gradle               # Gradle build
 ├── 🤖 .github/workflows/          # CI/CD automation
-│   ├── api-build-test.yml        # API build and test
-│   ├── api-container-build.yml   # Container image builds
-│   ├── api-deploy-staging.yml    # Staging deployment
-│   ├── api-deploy-production.yml # Production deployment
+│   ├── api-build-test.yml         # API build and test
+│   ├── api-container-build.yml    # Container image builds
+│   ├── api-deploy-staging.yml     # Staging deployment
+│   ├── api-deploy-production.yml  # Production deployment
 │   └── engine-compliance-template.yml # ⭐ Template for your engine
-├── 🔧 scripts/                    # Helper scripts
-│   ├── generate_leaderboard.py   # Leaderboard generator
-│   └── quality_config.yaml       # Quality check configuration
-└── 📖 docs/                       # Detailed documentation
-    ├── IMPLEMENTATION_SUMMARY.md  # Framework overview
-    ├── CI_CD_IMPLEMENTATION.md    # CI/CD documentation
+├── 🔧 scripts/                    # Automation and quality tools
+│   ├── generate_leaderboard.py    # Leaderboard generator
+│   ├── generate_technical_report.py # Technical report generator
+│   ├── quality_checker.py         # Test quality checker
+│   ├── test_enhancer.py           # Test enhancement tool
+│   ├── test_comparator.py         # Test comparison tool
+│   ├── enhance_all_categories.sh  # Batch enhancement script
+│   ├── verify_sdk_builds.sh       # SDK build verification
+│   └── quality_config.yaml        # Quality check configuration
+├── 📊 quality_reports/            # Quality assessment reports
+│   ├── *_quality.json             # Individual function quality reports
+│   └── *_enhancement.json         # Enhancement results
+└── 📖 docs/                       # Comprehensive documentation
+    ├── API_IMPLEMENTATION.md      # API implementation details
     ├── DEPLOYMENT_GUIDE.md        # Deployment instructions
-    └── REST_API_*.md              # API documentation
+    ├── IMPLEMENTATION_HISTORY.md  # Development history
+    ├── PERFORMANCE_BENCHMARKING.md # Performance analysis
+    ├── REST_API_ARCHITECTURE.md   # API architecture
+    ├── REST_API_GUIDE.md          # API usage guide
+    ├── SDK_VERIFICATION.md        # SDK verification guide
+    ├── SECURITY_HARDENING_GUIDE.md # Security best practices
+    └── TECHNICAL_REPORT.md        # Comprehensive technical report
 ```
 
 **Key Directories for Developers:**
 - 🎯 **Start with `demo/`** - Run the interactive demo first to see the framework in action
-- 📚 **Use `sdk/`** - Choose Java, Python, or Rust SDK based on your preference
-- 🧪 **Test with `test-suites/`** - TPC-H queries and function tests ready to use
-- 💡 **Learn from `examples/`** - Real integration examples with DuckDB and DataFusion
+- 📚 **Use `sdk/`** - Choose from 8 SDKs: C++, C#, Go, Java, Python, Rust, Scala, or TypeScript
+- 🧪 **Test with `test-suites/`** - 143 standard function tests plus TPC-H/TPC-DS benchmarks
+- 🧪 **Enhanced tests in `test-suites-enhanced/`** - 136 AI-quality-checked tests (95%+ quality score)
+- 💡 **Learn from `examples/`** - Real integration examples with DuckDB, DataFusion, and Velox
+- 📊 **Review `quality_reports/`** - Quality metrics and enhancement results
 
 ---
 
