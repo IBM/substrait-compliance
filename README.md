@@ -60,7 +60,7 @@ The Substrait Compliance Framework transforms how query engines validate their S
 ### Key Features
 
 - 🔄 **Decentralized Testing** - Engines test themselves, no central bottleneck
-- 🌐 **Multi-Language SDKs** - Java, Python, and Rust implementations
+- 🌐 **Multi-Language SDKs** - Java, Python, Rust, C++, Go, and TypeScript/JavaScript implementations
 - 📦 **Pre-packaged Test Suites** - TPC-H (22 queries), TPC-DS (99 queries), Function Tests (279 files across standard and enhanced suites)
 - 🤖 **Automated CI/CD** - 12 GitHub Actions workflows for continuous compliance
 - 🌐 **REST API** - Programmatic access with JWT auth, webhooks, and rate limiting
@@ -186,6 +186,103 @@ python3 -c "import substrait_compliance; print('SDK installed successfully!')"
 </details>
 
 <details>
+<summary><b>C++ SDK (Native Performance)</b></summary>
+
+```bash
+# Build the SDK
+cd sdk/cpp
+mkdir build && cd build
+cmake ..
+make
+
+# Run tests to verify
+ctest --output-on-failure
+
+# Expected output:
+# 100% tests passed ✅
+```
+
+**Verify Installation:**
+```bash
+ls -la libsubstrait_compliance.*
+# Should see: libsubstrait_compliance.so (or .dylib on macOS, .dll on Windows)
+```
+</details>
+
+<details>
+<summary><b>Go SDK (Cloud-Native & Concurrent)</b></summary>
+
+```bash
+# Get the SDK
+cd sdk/go
+go mod download
+
+# Run tests to verify
+go test ./...
+
+# Expected output:
+# PASS
+# ok      github.com/substrait-io/substrait-compliance/sdk/go
+```
+
+**Verify Installation:**
+```bash
+go list -m github.com/substrait-io/substrait-compliance/sdk/go
+# Should see: github.com/substrait-io/substrait-compliance/sdk/go v1.0.0
+```
+</details>
+
+<details>
+<summary><b>TypeScript/JavaScript SDK (Modern Web & Node.js)</b></summary>
+
+```bash
+# Install the SDK
+cd sdk/typescript
+npm install
+
+# Build the SDK
+npm run build
+
+# Run tests to verify
+npm test
+
+# Expected output:
+# PASS  tests/table-data.test.ts
+# Test Suites: 1 passed, 1 total
+# Tests:       12 passed, 12 total
+```
+
+**Verify Installation:**
+```bash
+ls -la dist/
+# Should see: index.js, index.d.ts, and other compiled files
+```
+</details>
+
+<details>
+<summary><b>C#/.NET SDK (Enterprise & Cross-Platform)</b></summary>
+
+```bash
+# Build the SDK
+cd sdk/csharp
+dotnet restore
+dotnet build
+
+# Run tests to verify
+dotnet test
+
+# Expected output:
+# Passed!  - Failed:     0, Passed:    12, Skipped:     0, Total:    12
+```
+
+**Verify Installation:**
+```bash
+ls -la bin/Debug/net6.0/
+# Should see: Substrait.Compliance.dll and related files
+```
+</details>
+
+<details>
 <summary><b>Rust SDK (High Performance)</b></summary>
 
 ```bash
@@ -275,6 +372,97 @@ impl ComplianceEngine for MyEngine {
 ```
 </details>
 
+<details>
+<summary><b>TypeScript Example</b></summary>
+
+```typescript
+import { ComplianceEngine, EngineInfo, EngineCapabilities, ComplianceResult, TestStatus, TableData } from '@substrait/compliance';
+
+class MyEngine implements ComplianceEngine {
+    getInfo(): EngineInfo {
+        return {
+            name: 'MyEngine',
+            version: '1.0.0',
+            vendor: 'MyCompany',
+            description: 'A high-performance query engine'
+        };
+    }
+    
+    getCapabilities(): EngineCapabilities {
+        return {
+            supportedRelations: ['read', 'filter', 'project', 'aggregate'],
+            supportedFunctions: ['add', 'subtract', 'equal'],
+            supportedTypes: ['i32', 'i64', 'string', 'boolean']
+        };
+    }
+    
+    async executePlan(planBytes: Uint8Array, inputData: Map<string, TableData>): Promise<ComplianceResult> {
+        // Load data into your engine
+        await this.loadInputData(inputData);
+        
+        // Execute Substrait plan
+        const output = await this.executeSubstraitPlan(planBytes);
+        
+        return new ComplianceResult('test-id', TestStatus.PASSED, output, undefined, undefined, executionTimeMs);
+    }
+    
+    async validatePlan(planBytes: Uint8Array): Promise<ComplianceResult> {
+        const isValid = await this.validateSubstraitPlan(planBytes);
+        return new ComplianceResult('validation', isValid ? TestStatus.PASSED : TestStatus.FAILED);
+    }
+}
+```
+</details>
+
+<details>
+<summary><b>C# Example</b></summary>
+
+```csharp
+using Substrait.Compliance;
+
+public class MyEngine : IComplianceEngine
+{
+    public EngineInfo GetInfo()
+    {
+        return new EngineInfo(
+            Name: "MyEngine",
+            Version: "1.0.0",
+            Vendor: "MyCompany",
+            Description: "A high-performance query engine"
+        );
+    }
+    
+    public EngineCapabilities GetCapabilities()
+    {
+        return new EngineCapabilities(
+            SupportedRelations: new[] { "read", "filter", "project", "aggregate" },
+            SupportedFunctions: new[] { "add", "subtract", "equal" },
+            SupportedTypes: new[] { "i32", "i64", "string", "boolean" }
+        );
+    }
+    
+    public async Task<ComplianceResult> ExecutePlanAsync(
+        byte[] planBytes,
+        IReadOnlyDictionary<string, TableData> inputData)
+    {
+        // Load data into your engine
+        await LoadInputDataAsync(inputData);
+        
+        // Execute Substrait plan
+        var output = await ExecuteSubstraitPlanAsync(planBytes);
+        
+        return new ComplianceResult("test-id", TestStatus.Passed, output, null, null, executionTimeMs);
+    }
+    
+    public async Task<ComplianceResult> ValidatePlanAsync(byte[] planBytes)
+    {
+        var isValid = await ValidateSubstraitPlanAsync(planBytes);
+        return new ComplianceResult("validation", isValid ? TestStatus.Passed : TestStatus.Failed);
+    }
+}
+```
+</details>
+
 ### Step 3: Run Against Test Suites
 
 **Java Example:**
@@ -299,6 +487,34 @@ python datafusion_compliance.py
 # Running 22 test cases...
 # ✅ Passed: 21/22 (95.5%)
 # Report saved: output/datafusion-report.json
+```
+
+**TypeScript Example:**
+```bash
+cd examples/my-engine-typescript
+npm install
+npm run test
+
+# Or run directly with ts-node
+npx ts-node src/compliance-test.ts
+
+# Expected output:
+# Loading TPC-H test suite...
+# Running 22 test cases...
+# ✅ Passed: 20/22 (90.9%)
+# Report saved: output/my-engine-report.json
+```
+
+**C# Example:**
+```bash
+cd examples/my-engine-csharp
+dotnet run
+
+# Expected output:
+# Loading TPC-H test suite...
+# Running 22 test cases...
+# ✅ Passed: 19/22 (86.4%)
+# Report saved: output/my-engine-report.json
 ```
 
 **Programmatic Usage:**
@@ -744,6 +960,51 @@ Complete TPC-H benchmark at scale factor 0.01:
 - `runner.py` - ComplianceRunner
 - `loader.py` - YamlTestSuiteLoader
 - `result.py` - Result classes
+
+### C++ SDK
+
+- **Version**: 1.0.0
+- **Standard**: C++17
+- **Build**: CMake 3.15+
+- **Tests**: 4 unit test suites (Google Test)
+- **Coverage**: gcov/lcov
+- **Distribution**: vcpkg, Conan (planned)
+
+**Key Headers:**
+- `engine.h` - ComplianceEngine interface
+- `runner.h` - ComplianceRunner
+- `loader.h` - YamlTestSuiteLoader
+- `result.h` - Result classes
+- `comparator.h` - Result comparison
+
+**Features:**
+- Modern C++17 with smart pointers
+- Zero-copy operations for performance
+- Header-only option available
+- Cross-platform (Linux, macOS, Windows)
+
+### Go SDK
+
+- **Version**: 1.0.0
+- **Go**: 1.21+
+- **Build**: Go modules
+- **Tests**: 3 test suites (100% passing)
+- **Coverage**: go test -cover
+- **Distribution**: Go modules
+
+**Key Packages:**
+- `engine.go` - ComplianceEngine interface
+- `runner.go` - ComplianceRunner with goroutines
+- `loader.go` - YAMLTestSuiteLoader
+- `result.go` - Result types
+- `table_data.go` - Data structures
+
+**Features:**
+- Idiomatic Go with interfaces
+- Built-in concurrency with goroutines
+- Context support for cancellation
+- Zero external dependencies (core)
+- Cross-platform
 
 ### Rust SDK
 
