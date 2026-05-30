@@ -10,7 +10,7 @@ Maintainers are responsible for the overall direction, health, and sustainabilit
 
 | Name | GitHub | Role | Focus Areas | Timezone |
 |------|--------|------|-------------|----------|
-| TBD | [@username](https://github.com/username) | Project Lead | Overall direction, releases | UTC-7 |
+| Ranjan Sinha | [@RanjanSinha-GH](https://github.com/RanjanSinha-GH) | Project Lead | Overall direction, releases | UTC-7 |
 | TBD | [@username](https://github.com/username) | Core Maintainer | Java SDK, API | UTC+0 |
 | TBD | [@username](https://github.com/username) | Core Maintainer | Python/Rust SDKs | UTC+1 |
 
