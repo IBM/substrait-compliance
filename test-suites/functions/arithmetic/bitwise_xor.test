@@ -13,3 +13,57 @@ bitwise_xor(9223372036854775807::i64, 127::i64) = 9223372036854775680::i64
 bitwise_xor(-9223372036854775807::i64, 127::i64) = -9223372036854775682::i64
 bitwise_xor(null::i64, 127::i64) = null::i64
 bitwise_xor(127::i64, null::i64) = null::i64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+bitwise_xor(-128::i8, -128::i8) = 0::i8
+bitwise_xor(-128::i8, 127::i8) = -1::i8
+bitwise_xor(127::i8, 127::i8) = 0::i8
+bitwise_xor(-32768::i16, -32768::i16) = 0::i16
+bitwise_xor(-32768::i16, 32767::i16) = -1::i16
+bitwise_xor(32767::i16, 32767::i16) = 0::i16
+bitwise_xor(-2147483648::i32, -2147483648::i32) = 0::i32
+bitwise_xor(-2147483648::i32, 2147483647::i32) = -1::i32
+bitwise_xor(-9223372036854775808::i64, -9223372036854775808::i64) = 0::i64
+bitwise_xor(-9223372036854775808::i64, 9223372036854775807::i64) = -1::i64
+bitwise_xor(null::i32, -2147483648::i32) = null::i32
+bitwise_xor(9223372036854775807::i64, null::i64) = null::i64
+
+# null_handling_extended: Extended null handling scenarios
+bitwise_xor(null::i8, null::i8) = null::i8
+bitwise_xor(null::i16, null::i16) = null::i16
+bitwise_xor(null::i32, null::i32) = null::i32
+bitwise_xor(null::i64, null::i64) = null::i64
+bitwise_xor(null::i8, 0::i8) = null::i8
+bitwise_xor(0::i16, null::i16) = null::i16
+
+# zero_handling: Zero and negative zero handling
+bitwise_xor(0::i8, 0::i8) = 0::i8
+bitwise_xor(5::i8, 0::i8) = 5::i8
+bitwise_xor(0::i8, 5::i8) = 5::i8
+bitwise_xor(42::i8, 42::i8) = 0::i8
+bitwise_xor(0::i16, 1234::i16) = 1234::i16
+bitwise_xor(5678::i16, 5678::i16) = 0::i16
+bitwise_xor(0::i32, 987654321::i32) = 987654321::i32
+bitwise_xor(123456789::i32, 123456789::i32) = 0::i32
+bitwise_xor(0::i64, 9876543210::i64) = 9876543210::i64
+bitwise_xor(1234567890123::i64, 1234567890123::i64) = 0::i64
+bitwise_xor(-1::i8, -1::i8) = 0::i8
+bitwise_xor(-1::i8, 0::i8) = -1::i8
+bitwise_xor(-1::i16, -1::i16) = 0::i16
+bitwise_xor(-1::i32, -1::i32) = 0::i32
+bitwise_xor(-1::i64, -1::i64) = 0::i64
+
+# negative_values: Negative number handling
+bitwise_xor(-50::i8, -25::i8) = 43::i8
+bitwise_xor(-1000::i16, -2000::i16) = 3096::i16
+
+# mixed_magnitude: Mixed magnitude values
+bitwise_xor(-1000000::i32, -500000::i32) = 1499496::i32
+bitwise_xor(-1000000000000::i64, -500000000000::i64) = 1499995213824::i64
+

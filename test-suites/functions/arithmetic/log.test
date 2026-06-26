@@ -32,3 +32,45 @@ log(nan::fp64) = nan::fp64
 # precision: Small and large values
 log(0.001::fp64) = -6.907755278982137::fp64
 log(1000.0::fp64) = 6.907755278982137::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+log(0.1353352832366127::fp64) = -2.0::fp64
+
+# special_values: Special floating point values (NaN, Infinity)
+log(1.0::fp64, 1.0::fp64) = nan::fp64
+log(10.0::fp64, 0.0::fp64) = nan::fp64
+log(10.0::fp64, -2.0::fp64) = nan::fp64
+log(inf::fp64, 10.0::fp64) = inf::fp64
+log(0.0::fp64, 10.0::fp64) = -inf::fp64
+log(10.0::fp64, inf::fp64) = 0.0::fp64
+log(nan::fp64, 10.0::fp64) = nan::fp64
+log(10.0::fp64, nan::fp64) = nan::fp64
+
+# zero_handling: Zero and negative zero handling
+log(5.0::fp64, 5.0::fp64) = 1.0::fp64
+log(1.0::fp64, 10.0::fp64) = 0.0::fp64
+log(1.0::fp64, 2.0::fp64) = 0.0::fp64
+log(0.5::fp64, 2.0::fp64) = -1.0::fp64
+log(0.125::fp64, 2.0::fp64) = -3.0::fp64
+log(0.25::fp64, 2.0::fp64) = -2.0::fp64
+log(0.01::fp64, 10.0::fp64) = -2.0::fp64
+log(0.001::fp64, 10.0::fp64) = -3.0::fp64
+log(0.36787944117144233::fp64) = -1.0::fp64
+log(0.9::fp64, 10.0::fp64) = -0.045757490560675115::fp64
+log(0.99::fp64) = -0.010050335853501442::fp64
+
+# precision: Floating point precision and small values
+log(1e-300::fp64) = -690.7755278982137::fp64
+log(2.2250738585072014e-308::fp64) = -708.3964185322641::fp64
+log(1e-38::fp32) = -87.49823::fp32
+
+# type_coverage: Various data type coverage
+log(1.7976931348623157e308::fp64) = 709.782712893384::fp64
+log(3.4028235e38::fp32) = 88.72284::fp32
+

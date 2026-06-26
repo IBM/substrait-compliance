@@ -33,3 +33,58 @@ avg((1, 1, 1, 2)::i32) = 1.25::fp64
 avg((1::i8, 2::i8, 3::i8))::i8 = 2.0::fp64
 avg((100::i16, 200::i16, 300::i16))::i16 = 200.0::fp64
 avg((1.5::fp32, 2.5::fp32, 3.5::fp32))::fp32 = 2.5::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+avg((2147483647, 2147483647)::i32) = 2147483647.0::fp64
+avg((-2147483648, -2147483648)::i32) = -2147483648.0::fp64
+avg((9223372036854775807)::i64) = 9223372036854775807.0::fp64
+avg((-9223372036854775808)::i64) = -9223372036854775808.0::fp64
+avg((127, 127, 127)::i8) = 127.0::fp64
+avg((-128, -128, -128)::i8) = -128.0::fp64
+avg((32767, 32767)::i16) = 32767.0::fp64
+avg((-32768, -32768)::i16) = -32768.0::fp64
+
+# special_values: Special floating point values (NaN, Infinity)
+avg((NaN, 1.0, 2.0)::fp64) = NaN::fp64
+avg((1.0, NaN, 3.0)::fp64) = NaN::fp64
+avg((NaN, NaN)::fp64) = NaN::fp64
+avg((inf, -inf)::fp64) = NaN::fp64
+avg((NaN)::fp64) = NaN::fp64
+
+# null_handling_extended: Extended null handling scenarios
+avg((Null)::i32) = Null::fp64
+avg(()::i64) = Null::fp64
+avg(()::fp32) = Null::fp64
+avg(()::fp64) = Null::fp64
+avg(()::i8) = Null::fp64
+avg(()::i16) = Null::fp64
+
+# zero_handling: Zero and negative zero handling
+avg((1)::i32) = 1.0::fp64
+avg((42)::i64) = 42.0::fp64
+avg((-100)::i32) = -100.0::fp64
+avg((0, 0, 0)::i32) = 0.0::fp64
+avg((0, 0, 0, 0, 0)::i64) = 0.0::fp64
+avg((0.0, 0.0, 0.0)::fp64) = 0.0::fp64
+avg((0)::i32) = 0.0::fp64
+avg((0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1)::fp64) = 0.1::fp64
+avg((0.333333333333, 0.666666666667)::fp64) = 0.5::fp64
+avg((1e10, 1.0, 2.0)::fp64) = 3333333334.333333333333333::fp64
+avg((1e-10, 1e10)::fp64) = 5000000000.0::fp64
+
+# precision: Floating point precision and small values
+avg((1e-308, 1e-308)::fp64) = 1e-308::fp64
+avg((1e-100, 1e-100, 1e-100)::fp64) = 1e-100::fp64
+
+# single_value: Single value inputs
+avg((3.14)::fp64) = 3.14::fp64
+
+# mixed_magnitude: Mixed magnitude values
+avg((1000000, 1, 1, 1)::i64) = 250000.75::fp64
+

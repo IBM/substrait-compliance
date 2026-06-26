@@ -17,3 +17,49 @@ negate(null::i8) = null::i8
 negate(-128::i8) [overflow:ERROR] = <!ERROR>
 negate(-128::i8) [overflow:SATURATE] = 127::i8
 negate(-128::i8) [overflow:SILENT] = <!UNDEFINED>
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+negate(127::i8) = -127::i8
+negate(32767::i16) = -32767::i16
+negate(2147483647::i32) = -2147483647::i32
+negate(9223372036854775807::i64) = -9223372036854775807::i64
+
+# overflow_behavior: Overflow and saturation behavior
+negate(-32768::i16) [overflow:ERROR] = <!ERROR>
+negate(-32768::i16) [overflow:SATURATE] = 32767::i16
+negate(-32768::i16) [overflow:SILENT] = <!UNDEFINED>
+negate(-2147483648::i32) [overflow:ERROR] = <!ERROR>
+negate(-2147483648::i32) [overflow:SATURATE] = 2147483647::i32
+negate(-2147483648::i32) [overflow:SILENT] = <!UNDEFINED>
+negate(-9223372036854775808::i64) [overflow:ERROR] = <!ERROR>
+negate(-9223372036854775808::i64) [overflow:SATURATE] = 9223372036854775807::i64
+negate(-9223372036854775808::i64) [overflow:SILENT] = <!UNDEFINED>
+
+# special_values: Special floating point values (NaN, Infinity)
+negate(-inf::fp32) = inf::fp32
+negate(-inf::fp64) = inf::fp64
+negate(nan::fp32) = nan::fp32
+negate(nan::fp64) = nan::fp64
+
+# zero_handling: Zero and negative zero handling
+negate(0::i8) = 0::i8
+negate(0::i16) = 0::i16
+negate(0::i32) = 0::i32
+negate(0::i64) = 0::i64
+negate(0.0::fp32) = -0.0::fp32
+negate(-0.0::fp32) = 0.0::fp32
+negate(0.0::fp64) = -0.0::fp64
+negate(-0.0::fp64) = 0.0::fp64
+
+# negative_values: Negative number handling
+negate(-1::i8) = 1::i8
+negate(-1::i16) = 1::i16
+negate(-1::i32) = 1::i32
+negate(-1::i64) = 1::i64
+

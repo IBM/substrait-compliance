@@ -18,3 +18,28 @@ st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0
 st_contains(st_polygon([[-10.0, -10.0], [10.0, -10.0], [10.0, 10.0], [-10.0, 10.0], [-10.0, -10.0]]::list<point>), st_point(0.0::fp64, 0.0::fp64)) = true::bool
 st_contains(st_polygon([[-10.0, -10.0], [10.0, -10.0], [10.0, 10.0], [-10.0, 10.0], [-10.0, -10.0]]::list<point>), st_point(-5.0::fp64, -5.0::fp64)) = true::bool
 st_contains(st_polygon([[-10.0, -10.0], [10.0, -10.0], [10.0, 10.0], [-10.0, 10.0], [-10.0, -10.0]]::list<point>), st_point(15.0::fp64, 15.0::fp64)) = false::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# zero_handling: Zero and negative zero handling
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 5.0], [5.0, 5.0], [5.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_point(7.0::fp64, 7.0::fp64)) = false::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 5.0], [5.0, 5.0], [5.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_point(2.0::fp64, 7.0::fp64)) = true::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 5.0], [5.0, 5.0], [5.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_point(7.0::fp64, 2.0::fp64)) = true::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_point(100.0::fp64, 100.0::fp64)) = false::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_point(-50.0::fp64, -50.0::fp64)) = false::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_point(9.9999999::fp64, 5.0::fp64)) = true::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_point(10.0000001::fp64, 5.0::fp64)) = false::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_point(0.0000001::fp64, 5.0::fp64)) = true::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_polygon([[2.0, 2.0], [8.0, 2.0], [8.0, 8.0], [2.0, 8.0], [2.0, 2.0]]::list<point>)) = true::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_polygon([[5.0, 5.0], [15.0, 5.0], [15.0, 15.0], [5.0, 15.0], [5.0, 5.0]]::list<point>)) = false::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_linestring([[2.0, 2.0], [8.0, 8.0]]::list<point>)) = true::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [10.0, 10.0], [0.0, 10.0], [0.0, 0.0]]::list<point>), st_linestring([[5.0, 5.0], [15.0, 15.0]]::list<point>)) = false::bool
+st_contains(st_polygon([[0.0, 0.0], [10.0, 0.0], [5.0, 0.0], [0.0, 0.0]]::list<point>), st_point(5.0::fp64, 0.0::fp64)) = false::bool
+st_contains(st_polygon([[5.0, 5.0], [5.0, 5.0], [5.0, 5.0], [5.0, 5.0]]::list<point>), st_point(5.0::fp64, 5.0::fp64)) = false::bool
+st_contains(st_polygon([[0.0, 0.0], [0.001, 0.0], [0.001, 0.001], [0.0, 0.001], [0.0, 0.0]]::list<point>), st_point(0.0005::fp64, 0.0005::fp64)) = true::bool
+st_contains(st_polygon([[0.0, 0.0], [0.001, 0.0], [0.001, 0.001], [0.0, 0.001], [0.0, 0.0]]::list<point>), st_point(0.002::fp64, 0.002::fp64)) = false::bool
+

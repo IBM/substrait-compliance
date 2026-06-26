@@ -16,3 +16,47 @@ equal(null::i16, 1::i16) = null::bool
 equal(null::i16, null::i16) = null::bool
 equal(7::dec<38, 0>, null::dec<38, 0>) = null::bool
 equal(null::dec<38, 0>, null::dec<38, 0>) = null::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+equal(-128::i8, -128::i8) = true::bool
+equal(127::i8, 127::i8) = true::bool
+equal(-32768::i16, -32768::i16) = true::bool
+equal(32767::i16, 32767::i16) = true::bool
+equal(2147483647::i32, 2147483647::i32) = true::bool
+equal(-9223372036854775808::i64, -9223372036854775808::i64) = true::bool
+
+# special_values: Special floating point values (NaN, Infinity)
+equal(inf::fp32, inf::fp32) = true::bool
+equal(-inf::fp32, -inf::fp32) = true::bool
+equal(inf::fp32, -inf::fp32) = false::bool
+equal(nan::fp64, nan::fp64) = false::bool
+equal(nan::fp32, nan::fp32) = false::bool
+equal(nan::fp64, 1.0::fp64) = false::bool
+equal(1.0::fp32, nan::fp32) = false::bool
+
+# zero_handling: Zero and negative zero handling
+equal(0::i8, 0::i8) = true::bool
+equal(0.0::fp64, -0.0::fp64) = true::bool
+equal(0.0::fp32, -0.0::fp32) = true::bool
+equal(0.00001::dec<38, 5>, 0.00001::dec<38, 5>) = true::bool
+
+# precision: Floating point precision and small values
+equal(10.12345::dec<38, 5>, 10.12345::dec<38, 5>) = true::bool
+equal(10.12345::dec<38, 5>, 10.12346::dec<38, 5>) = false::bool
+
+# negative_values: Negative number handling
+equal(-12345.678::dec<20, 3>, -12345.678::dec<20, 3>) = true::bool
+
+# type_coverage: Various data type coverage
+equal(1.5::fp32, 1.5::fp32) = true::bool
+equal(3.402823e+38::fp32, 3.402823e+38::fp32) = true::bool
+
+# additional_coverage: Additional test coverage
+equal(99999.99999::dec<10, 5>, 99999.99999::dec<10, 5>) = true::bool
+

@@ -9,3 +9,22 @@ is_nan(-inf::fp64) = false::bool
 is_nan(inf::fp64) = false::bool
 is_nan(null::fp64) = null::bool
 is_nan(nan::fp64) = true::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+is_nan(nan::fp32) = true::bool
+is_nan(-inf::fp32) = false::bool
+is_nan(inf::fp32) = false::bool
+is_nan(-0.0::fp32) = false::bool
+is_nan(-0.0::fp64) = false::bool
+is_nan(-1.5::fp32) = false::bool
+is_nan(-1000.000000000001::fp64) = false::bool
+is_nan(1.17549435e-38::fp32) = false::bool
+is_nan(2.2250738585072014e-308::fp64) = false::bool
+is_nan(3.40282347e+38::fp32) = false::bool
+

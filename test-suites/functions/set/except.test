@@ -28,3 +28,42 @@ except([true, false]::list<bool>, [false]::list<bool>) = [true]::list<bool>
 # identical: Except of identical sets
 except([1, 2, 3]::list<i32>, [1, 2, 3]::list<i32>) = []::list<i32>
 except(['a', 'b']::list<str>, ['a', 'b']::list<str>) = []::list<str>
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+except([2147483647, 2147483646]::list<i32>, [2147483646]::list<i32>) = [2147483647]::list<i32>
+except([-2147483648, -2147483647]::list<i32>, [-2147483647]::list<i32>) = [-2147483648]::list<i32>
+
+# special_values: Special floating point values (NaN, Infinity)
+except([1.0, 2.0, NaN]::list<fp64>, [2.0]::list<fp64>) = [1.0, NaN]::list<fp64>
+except([Infinity, 1.0, 2.0]::list<fp64>, [1.0]::list<fp64>) = [Infinity, 2.0]::list<fp64>
+except([-Infinity, 0.0, Infinity]::list<fp64>, [0.0]::list<fp64>) = [-Infinity, Infinity]::list<fp64>
+except([NaN, NaN]::list<fp64>, [NaN]::list<fp64>) = []::list<fp64>
+
+# null_handling_extended: Extended null handling scenarios
+except([null, null, 1]::list<i32>, [null]::list<i32>) = [1]::list<i32>
+except([1, 2, null, null, 3]::list<i32>, [null, 2]::list<i32>) = [1, 3]::list<i32>
+except([null, null]::list<i32>, [null]::list<i32>) = []::list<i32>
+
+# zero_handling: Zero and negative zero handling
+except([0, 1, 2]::list<i32>, [0]::list<i32>) = [1, 2]::list<i32>
+except([-2, -1, 0, 1, 2]::list<i32>, [0, 1]::list<i32>) = [-2, -1, 2]::list<i32>
+
+# negative_values: Negative number handling
+except([-1, -2, -3]::list<i32>, [-2, -3, -4]::list<i32>) = [-1]::list<i32>
+except([-5, -10, -15]::list<i32>, [-10]::list<i32>) = [-5, -15]::list<i32>
+except([5, -5, 10, -10]::list<i32>, [-5, -10]::list<i32>) = [5, 10]::list<i32>
+
+# large_datasets: Large input datasets
+except([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]::list<i32>, [2, 4, 6, 8]::list<i32>) = [1, 3, 5, 7, 9, 10]::list<i32>
+
+# additional_coverage: Additional test coverage
+except([1, 1, 2, 3]::list<i32>, [3]::list<i32>) = [1, 1, 2]::list<i32>
+except([1, 1, 1, 2, 2]::list<i32>, [2]::list<i32>) = [1, 1, 1]::list<i32>
+except([10, 20, 30, 40, 50]::list<i32>, [15, 25, 35, 45]::list<i32>) = [10, 20, 30, 40, 50]::list<i32>
+

@@ -1,0 +1,33 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_arithmetic.yaml'
+
+# basic: Basic rounding examples
+round(3.14159::fp64) = 3::fp64
+round(2.5::fp64) = 3::fp64
+round(2.4::fp64) = 2::fp64
+round(-2.5::fp64) = -3::fp64
+round(-2.4::fp64) = -2::fp64
+round(0.0::fp64) = 0::fp64
+
+# precision: Rounding to specific decimal places
+round(3.14159::fp64, 2::i32) = 3.14::fp64
+round(3.14159::fp64, 3::i32) = 3.142::fp64
+round(123.456::fp64, 1::i32) = 123.5::fp64
+round(123.456::fp64, 0::i32) = 123::fp64
+round(123.456::fp64, -1::i32) = 120::fp64
+round(123.456::fp64, -2::i32) = 100::fp64
+
+# null_handling: Examples with null as input
+round(null::fp64) = null::fp64
+round(3.14::fp64, null::i32) = null::fp64
+round(null::fp64, 2::i32) = null::fp64
+
+# types: Examples with different numeric types
+round(3.14159::fp32) = 3::fp32
+round(2.5::fp32) = 3::fp32
+round(123.456::fp32, 1::i32) = 123.5::fp32
+
+# edge_cases: Special floating point values
+round(inf::fp64) = inf::fp64
+round(-inf::fp64) = -inf::fp64
+round(nan::fp64) = nan::fp64

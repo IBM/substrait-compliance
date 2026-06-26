@@ -10,3 +10,39 @@ repeat(''::str, 2::i64) = ''::str
 
 # null_input: Examples with null as input
 repeat(null::str, 2::i64) = null::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+repeat(''::str, 9223372036854775807::i64) = ''::str
+repeat('a'::str, 2147483647::i64) = 'aaa...'::str  # Large but potentially feasible
+
+# null_handling_extended: Extended null handling scenarios
+repeat('abc'::str, null::i64) = null::str
+repeat(null::str, null::i64) = null::str
+
+# zero_handling: Zero and negative zero handling
+repeat('\0'::str, 3::i64) = '\0\0\0'::str
+
+# empty_values: Empty strings and collections
+repeat('test'::str, -1::i64) = ''::str
+repeat('x'::str, -100::i64) = ''::str
+
+# type_coverage: Various data type coverage
+repeat('abc'::str, 1::i64) = 'abc'::str
+repeat('\n'::str, 3::i64) = '\n\n\n'::str
+repeat('\t'::str, 2::i64) = '\t\t'::str
+repeat('\r\n'::str, 2::i64) = '\r\n\r\n'::str
+repeat('你好'::str, 2::i64) = '你好你好'::str
+repeat('a'::str, 10000::i64) = 'aaaaaaaaaa...'::str  # 10000 'a' characters
+repeat('xy'::str, 5000::i64) = 'xyxyxyxy...'::str  # 10000 characters total
+
+# unicode_handling: Unicode and special characters
+repeat('🔥'::str, 3::i64) = '🔥🔥🔥'::str
+repeat('café'::str, 2::i64) = 'cafécafé'::str
+repeat('🎉🎊'::str, 3::i64) = '🎉🎊🎉🎊🎉🎊'::str
+

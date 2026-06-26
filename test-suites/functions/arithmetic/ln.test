@@ -26,3 +26,38 @@ ln(10.0::fp64) = 2.302585092994046::fp64
 ln(0.5::fp64) = -0.6931471805599453::fp64
 ln(0.1::fp64) = -2.302585092994046::fp64
 ln(100.0::fp64) = 4.605170185988092::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+ln(0.0::fp32) = -inf::fp32
+ln(-1.0::fp32) = nan::fp32
+ln(inf::fp32) = inf::fp32
+ln(nan::fp32) = nan::fp32
+ln(-0.0::fp64) = -inf::fp64
+ln(-0.0::fp32) = -inf::fp32
+
+# zero_handling: Zero and negative zero handling
+ln(0.9999999999999999::fp64) = -1.1102230246251565e-16::fp64
+ln(1.0001::fp64) = 0.00009999500033330834::fp64
+ln(0.9999::fp64) = -0.00010000500033334732::fp64
+
+# precision: Floating point precision and small values
+ln(1e-308::fp64) = -709.0895657128241::fp64
+ln(1e-100::fp64) = -230.25850929940458::fp64
+ln(1.0000000000000002::fp64) = 2.220446049250313e-16::fp64
+ln(1e-38::fp32) = -87.49823::fp32
+ln(1e-20::fp32) = -46.051704::fp32
+
+# type_coverage: Various data type coverage
+ln(1e308::fp64) = 709.0895657128241::fp64
+ln(1e38::fp32) = 87.49823::fp32
+ln(1e20::fp32) = 46.051704::fp32
+
+# mixed_magnitude: Mixed magnitude values
+ln(1e100::fp64) = 230.25850929940458::fp64
+

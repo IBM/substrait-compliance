@@ -48,3 +48,51 @@ regexp_count_substring('USD100'::str, '(?<=USD)\d{3}'::str) [lookaround:TRUE] = 
 # negative_lookbehind: Examples with negative lookbehind
 regexp_count_substring('JPY100JPY100'::str, '\d{3}(?<!USD\d{3})'::str, 1::i64) [lookaround:TRUE] = 2::i64
 regexp_count_substring('JPY100JPY100'::str, '\d{3}(?<!USD\d{3})'::str) [lookaround:TRUE] = 2::i64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# zero_handling: Zero and negative zero handling
+regexp_count_substring(''::str, 'a'::str, 1::i64) = 0::i64
+regexp_count_substring(''::str, 'a'::str) = 0::i64
+regexp_count_substring('abcabc'::str, 'a'::str, 0::i64) = 0::i64
+regexp_count_substring('abcabc'::str, 'a'::str, -1::i64) = 0::i64
+regexp_count_substring('abcabc'::str, 'a'::str, 10::i64) = 0::i64
+
+# empty_values: Empty strings and collections
+regexp_count_substring('abc'::str, ''::str, 1::i64) = 4::i64
+regexp_count_substring(''::str, ''::str, 1::i64) = 1::i64
+regexp_count_substring('abc'::str, ''::str) = 4::i64
+
+# negative_values: Negative number handling
+regexp_count_substring('test@example.com'::str, '[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'::str, 1::i64) = 1::i64
+
+# type_coverage: Various data type coverage
+regexp_count_substring('abcabc'::str, 'a'::str, 4::i64) = 1::i64
+regexp_count_substring('abcabc'::str, 'abc'::str, 2::i64) = 1::i64
+regexp_count_substring('AaBbCc'::str, 'a'::str, 1::i64) = 1::i64
+regexp_count_substring('AaBbCc'::str, 'A'::str, 1::i64) = 1::i64
+regexp_count_substring('HELLO hello HeLLo'::str, 'hello'::str, 1::i64) = 1::i64
+regexp_count_substring('AaBbCc'::str, '[a-z]'::str, 1::i64) = 3::i64
+regexp_count_substring('aaa'::str, 'aa'::str, 1::i64) = 1::i64
+regexp_count_substring('aaaa'::str, 'aa'::str, 1::i64) = 2::i64
+regexp_count_substring('ababa'::str, 'aba'::str, 1::i64) = 1::i64
+regexp_count_substring('Москва'::str, '[а-я]'::str, 1::i64) = 5::i64
+regexp_count_substring('abc\nabc'::str, '^abc'::str, 1::i64) = 1::i64
+regexp_count_substring('abc\nabc'::str, 'abc$'::str, 1::i64) = 1::i64
+regexp_count_substring('abc abc'::str, '\babc\b'::str, 1::i64) = 2::i64
+regexp_count_substring('word1 word2'::str, '\bword'::str, 1::i64) = 2::i64
+regexp_count_substring('192.168.1.1'::str, '\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}'::str, 1::i64) = 1::i64
+regexp_count_substring('abc123def456'::str, '[a-z]+\d+'::str, 1::i64) = 2::i64
+regexp_count_substring('100 dollars'::str, '\d+(?=\sdollars)'::str, 1::i64) = 1::i64
+regexp_count_substring('USD100'::str, '(?<=USD)\d+'::str, 1::i64) = 1::i64
+regexp_count_substring('USD100 EUR200'::str, '(?<=USD|EUR)\d+'::str, 1::i64) = 2::i64
+
+# unicode_handling: Unicode and special characters
+regexp_count_substring('café'::str, 'é'::str, 1::i64) = 1::i64
+regexp_count_substring('你好世界'::str, '好'::str, 1::i64) = 1::i64
+regexp_count_substring('🎉🎊🎉'::str, '🎉'::str, 1::i64) = 2::i64
+

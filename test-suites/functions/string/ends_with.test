@@ -14,3 +14,35 @@ ends_with('😊a😊b😊😊'::str, 'b😊😊'::str) = true::bool
 
 # multi_byte_characters case insensitivity: multi byte character comparison with case insensitivity
 ends_with('😊a😊b😊😊'::str, 'B😊😊'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+ends_with(null::str, 'a'::str) = null::bool
+ends_with('abcd'::str, null::str) = null::bool
+ends_with(null::str, null::str) = null::bool
+
+# empty_values: Empty strings and collections
+ends_with(''::str, ''::str) = true::bool
+ends_with('abcd'::str, ''::str) = true::bool
+ends_with(''::str, 'a'::str) = false::bool
+
+# whitespace_handling: Whitespace and control characters
+ends_with('  abc  '::str, '  '::str) = true::bool
+ends_with('tab\tend'::str, 'end'::str) = true::bool
+
+# additional_coverage: Additional test coverage
+ends_with('abc'::str, 'abcdef'::str) = false::bool
+ends_with('abcd'::str, 'abcd'::str) = true::bool
+ends_with('a'::str, 'a'::str) = true::bool
+ends_with('hello world'::str, 'world'::str) = true::bool
+ends_with('ABCD'::str, 'cd'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+ends_with('MixedCase'::str, 'CASE'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+ends_with('test123'::str, 'TEST123'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+ends_with('Café'::str, 'FÉ'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+ends_with('HELLO😊'::str, 'hello😊'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+

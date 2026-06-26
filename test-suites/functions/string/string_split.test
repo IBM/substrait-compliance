@@ -7,3 +7,38 @@ string_split('abc abc'::str, ' '::str) = ['abc', 'abc']::list<str>
 string_split('bacad'::str, 'a'::str) = ['b', 'c', 'd']::list<str>
 string_split('a b c d'::str, ' '::str) = ['a', 'b', 'c', 'd']::list<str>
 string_split('a b c d'::str, null::str) = ['a b c d']::list<str>
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+string_split('banana'::str, 'a'::str) = ['b', 'n', 'n', '']::list<str>
+
+# null_handling_extended: Extended null handling scenarios
+string_split(null::str, ' '::str) = null::list<str>
+string_split('abc'::str, null::str) = null::list<str>
+string_split(null::str, null::str) = null::list<str>
+
+# empty_values: Empty strings and collections
+string_split(''::str, ' '::str) = []::list<str>
+string_split('abc'::str, ''::str) = ['a', 'b', 'c']::list<str>
+string_split(''::str, ''::str) = []::list<str>
+string_split('a,,b'::str, ','::str) = ['a', '', 'b']::list<str>
+string_split('aaaa'::str, 'a'::str) = ['', '', '', '', '']::list<str>
+string_split('a  b'::str, ' '::str) = ['a', '', 'b']::list<str>
+string_split(',a,b,'::str, ','::str) = ['', 'a', 'b', '']::list<str>
+string_split('  abc  '::str, ' '::str) = ['', '', 'abc', '', '']::list<str>
+string_split(' abc'::str, ' '::str) = ['', 'abc']::list<str>
+string_split('abc '::str, ' '::str) = ['abc', '']::list<str>
+
+# additional_coverage: Additional test coverage
+string_split('a::b::c'::str, '::'::str) = ['a', 'b', 'c']::list<str>
+string_split('hello, world, test'::str, ', '::str) = ['hello', 'world', 'test']::list<str>
+string_split('one||two||three'::str, '||'::str) = ['one', 'two', 'three']::list<str>
+string_split('abc'::str, 'xyz'::str) = ['abc']::list<str>
+string_split('hello world'::str, ','::str) = ['hello world']::list<str>
+string_split('hello world'::str, 'o'::str) = ['hell', ' w', 'rld']::list<str>
+

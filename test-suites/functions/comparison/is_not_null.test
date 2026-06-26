@@ -8,3 +8,54 @@ is_not_null(7.25::fp32) = true::bool
 is_not_null(7.25::dec<38, 3>) = true::bool
 is_not_null(null::i8) = false::bool
 is_not_null(null::dec<38, 3>) = false::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+is_not_null(255::u8) = true::bool
+is_not_null(65535::u16) = true::bool
+is_not_null(4294967295::u32) = true::bool
+is_not_null(9223372036854775807::i64) = true::bool
+is_not_null(-9223372036854775808::i64) = true::bool
+
+# special_values: Special floating point values (NaN, Infinity)
+is_not_null(NaN::fp32) = true::bool
+is_not_null(NaN::fp64) = true::bool
+is_not_null(Infinity::fp32) = true::bool
+is_not_null(Infinity::fp64) = true::bool
+is_not_null(-Infinity::fp32) = true::bool
+is_not_null(-Infinity::fp64) = true::bool
+
+# null_handling_extended: Extended null handling scenarios
+is_not_null('hello'::varchar) = true::bool
+is_not_null(null::varchar) = false::bool
+is_not_null(''::varchar) = true::bool
+is_not_null('test string'::string) = true::bool
+is_not_null(null::string) = false::bool
+is_not_null(2023-01-01::date) = true::bool
+is_not_null(null::date) = false::bool
+is_not_null(2023-01-01T12:30:45::timestamp) = true::bool
+is_not_null(null::timestamp) = false::bool
+is_not_null(12:30:45::time) = true::bool
+is_not_null(null::time) = false::bool
+is_not_null(null::u8) = false::bool
+is_not_null(null::u16) = false::bool
+is_not_null(null::u32) = false::bool
+is_not_null(18446744073709551615::u64) = true::bool
+is_not_null(null::u64) = false::bool
+is_not_null(0::i32) = true::bool
+is_not_null(0::i64) = true::bool
+is_not_null(-1::i64) = true::bool
+is_not_null(0.0::fp64) = true::bool
+is_not_null(-0.0::fp64) = true::bool
+is_not_null(0x48656C6C6F::binary) = true::bool
+is_not_null(null::binary) = false::bool
+is_not_null(0x00::binary) = true::bool
+is_not_null(0.0::dec<10, 2>) = true::bool
+is_not_null(-123.456::dec<10, 3>) = true::bool
+is_not_null(null::dec<10, 5>) = false::bool
+

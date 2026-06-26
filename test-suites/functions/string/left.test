@@ -12,3 +12,43 @@ left('abcdef'::str, null::i32) = null::str
 # unicode: Examples with unicode characters as input
 left('ææããa'::str, 2::i32) = 'ææ'::str
 left('😔😄😔😄'::str, 2::i32) = '😔😄'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+left('abc'::str, 2147483647::i32) = 'abc'::str
+
+# zero_handling: Zero and negative zero handling
+left('abcdef'::str, 0::i32) = ''::str
+left(''::str, 0::i32) = ''::str
+left('test\0data'::str, 5::i32) = 'test\0'::str
+
+# empty_values: Empty strings and collections
+left('abcdef'::str, -1::i32) = ''::str
+left('abcdef'::str, -10::i32) = ''::str
+left(''::str, 2::i32) = ''::str
+left(''::str, -1::i32) = ''::str
+
+# type_coverage: Various data type coverage
+left('a'::str, 1::i32) = 'a'::str
+left('abc'::str, 1::i32) = 'a'::str
+left('hello'::str, 1::i32) = 'h'::str
+left('hello\nworld'::str, 6::i32) = 'hello\n'::str
+left('tab\there'::str, 4::i32) = 'tab\t'::str
+left('line1\r\nline2'::str, 7::i32) = 'line1\r\n'::str
+left('مرحبا'::str, 3::i32) = 'مرح'::str
+left('🏴󠁧󠁢󠁥󠁮󠁧󠁿test'::str, 2::i32) = '🏴󠁧󠁢󠁥󠁮󠁧󠁿t'::str
+left('नमस्ते'::str, 2::i32) = 'नम'::str
+left('test😀data'::str, 5::i32) = 'test😀'::str
+left('abc123مرحبا'::str, 6::i32) = 'abc123'::str
+
+# unicode_handling: Unicode and special characters
+left('你好世界'::str, 2::i32) = '你好'::str
+left('café'::str, 3::i32) = 'caf'::str
+left('Ω≈ç√∫'::str, 3::i32) = 'Ω≈ç'::str
+left('hello世界'::str, 6::i32) = 'hello世'::str
+

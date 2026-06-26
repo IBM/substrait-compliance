@@ -5,3 +5,28 @@
 is_not_false(true::bool) = true::bool
 is_not_false(false::bool) = false::bool
 is_not_false(null::bool) = true::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+is_not_false(null::bool) = true::bool
+is_not_false(null::bool) = true::bool
+is_not_false(is_not_false(null::bool)) = true::bool
+is_not_false(null::i32 = null::i32) = true::bool
+is_not_false(null::i32 > 5::i32) = true::bool
+is_not_false(null::str = "test"::str) = true::bool
+
+# additional_coverage: Additional test coverage
+is_not_false(true::bool) = true::bool
+is_not_false(false::bool) = false::bool
+is_not_false(is_not_false(false::bool)) = false::bool
+is_not_false(is_not_false(true::bool)) = true::bool
+is_not_false(1 > 2) = false::bool
+is_not_false(5 = 5) = true::bool
+is_not_false(10 < 5) = false::bool
+is_not_false(3 >= 3) = true::bool
+

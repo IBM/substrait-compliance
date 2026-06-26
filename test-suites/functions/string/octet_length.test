@@ -14,3 +14,41 @@ octet_length(null::str) = null::i64
 # unicode: Examples with unicode characters as input
 octet_length('à'::str) = 2::i64
 octet_length('😄'::str) = 4::i64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# zero_handling: Zero and negative zero handling
+octet_length('\0'::str) = 1::i64
+
+# type_coverage: Various data type coverage
+octet_length('abc😄def'::str) = 10::i64
+octet_length('\n'::str) = 1::i64
+octet_length('\t'::str) = 1::i64
+octet_length('\r\n'::str) = 2::i64
+octet_length('line1\nline2'::str) = 11::i64
+octet_length('col1\tcol2'::str) = 9::i64
+octet_length('hello\0world'::str) = 11::i64
+octet_length('start\0middle\0end'::str) = 16::i64
+octet_length('🏴󠁧󠁢󠁥󠁮󠁧󠁿'::str) = 28::i64
+octet_length('👨‍👩‍👧‍👦'::str) = 25::i64
+octet_length('e\u0301'::str) = 3::i64
+octet_length('नमस्ते'::str) = 18::i64
+octet_length('你好'::str) = 6::i64
+octet_length('مرحبا'::str) = 10::i64
+octet_length('Привет'::str) = 12::i64
+octet_length('こんにちは'::str) = 15::i64
+octet_length('안녕하세요'::str) = 15::i64
+octet_length('Hello你好مرحبا'::str) = 21::i64
+octet_length('a'::str) = 1::i64
+octet_length('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'::str) = 100::i64
+
+# unicode_handling: Unicode and special characters
+octet_length('Hello世界'::str) = 11::i64
+octet_length('test🎉string'::str) = 15::i64
+octet_length('café'::str) = 5::i64
+octet_length('ASCII+日本語+한글'::str) = 23::i64
+

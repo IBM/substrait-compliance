@@ -12,3 +12,44 @@ bitwise_not(2147483647::i32) = -2147483648::i32
 bitwise_not(9223372036854775807::i64) = -9223372036854775808::i64
 bitwise_not(-9223372036854775807::i64) = 9223372036854775806::i64
 bitwise_not(null::i64) = null::i64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+bitwise_not(-128::i8) = 127::i8
+bitwise_not(127::i8) = -128::i8
+bitwise_not(-32768::i16) = 32767::i16
+bitwise_not(32767::i16) = -32768::i16
+bitwise_not(-2147483648::i32) = 2147483647::i32
+bitwise_not(-9223372036854775808::i64) = 9223372036854775807::i64
+
+# null_handling_extended: Extended null handling scenarios
+bitwise_not(null::i8) = null::i8
+bitwise_not(null::i16) = null::i16
+bitwise_not(null::i32) = null::i32
+
+# zero_handling: Zero and negative zero handling
+bitwise_not(0::i16) = -1::i16
+bitwise_not(0::i32) = -1::i32
+bitwise_not(0::i64) = -1::i64
+bitwise_not(-1::i8) = 0::i8
+bitwise_not(-1::i16) = 0::i16
+bitwise_not(-1::i32) = 0::i32
+bitwise_not(-1::i64) = 0::i64
+
+# negative_values: Negative number handling
+bitwise_not(42::i8) = -43::i8
+bitwise_not(-42::i8) = 41::i8
+bitwise_not(1000::i16) = -1001::i16
+bitwise_not(-1000::i16) = 999::i16
+bitwise_not(100000::i32) = -100001::i32
+bitwise_not(-100000::i32) = 99999::i32
+
+# mixed_magnitude: Mixed magnitude values
+bitwise_not(1000000000000::i64) = -1000000000001::i64
+bitwise_not(-1000000000000::i64) = 999999999999::i64
+

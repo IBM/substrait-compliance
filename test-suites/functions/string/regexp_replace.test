@@ -74,3 +74,45 @@ regexp_replace('USD100'::str, '(?<=USD)\d{3}'::str, '999'::str) [lookaround:TRUE
 # negative_lookbehind: Examples with negative lookbehind
 regexp_replace('JPY100'::str, '\d{3}(?<!USD\d{3})'::str, '999'::str, 1::i64, 0::i64) [lookaround:TRUE] = 'JPY999'::str
 regexp_replace('JPY100'::str, '\d{3}(?<!USD\d{3})'::str, '999'::str) [lookaround:TRUE] = 'JPY999'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+regexp_replace('test'::str, 'e'::str, null::str, 1::i64, 0::i64) = null::str
+regexp_replace('hello'::str, 'l'::str, null::str, 0::i64, 0::i64) = null::str
+regexp_replace('abc'::str, '[a-z]'::str, null::str) = null::str
+
+# zero_handling: Zero and negative zero handling
+regexp_replace('abc123def456ghi789'::str, '[0-9]+'::str, 'X'::str, 2::i64, 0::i64) = 'abc123defX'::str
+regexp_replace('abc123def456ghi789'::str, '[0-9]+'::str, 'X'::str, 3::i64, 0::i64) = 'abc123def456ghiX'::str
+regexp_replace('testtest'::str, 'test'::str, 'X'::str, 0::i64, 0::i64) = 'XX'::str
+regexp_replace('dogdogdog'::str, 'dog'::str, 'cat'::str, 0::i64, 0::i64) = 'catcatcat'::str
+regexp_replace('abcdefabc'::str, 'abc'::str, 'X'::str, 0::i64, 4::i64) = 'abcdefX'::str
+regexp_replace(''::str, 'a'::str, 'b'::str, 1::i64, 0::i64) = ''::str
+regexp_replace('test'::str, 't'::str, ''::str, 1::i64, 0::i64) = 'est'::str
+regexp_replace('test'::str, 't'::str, ''::str, 0::i64, 0::i64) = 'es'::str
+regexp_replace('hello world'::str, '(\w+) (\w+)'::str, '\2 \1'::str, 1::i64, 0::i64) = 'world hello'::str
+regexp_replace('2023-12-25'::str, '(\d{4})-(\d{2})-(\d{2})'::str, '\3/\2/\1'::str, 1::i64, 0::i64) = '25/12/2023'::str
+regexp_replace('abc123'::str, '([a-z]+)([0-9]+)'::str, '\2-\1'::str, 1::i64, 0::i64) = '123-abc'::str
+regexp_replace('test123'::str, '\d+(?=test)'::str, 'X'::str, 1::i64, 0::i64) = 'test123'::str
+regexp_replace('123test'::str, '\d+(?=test)'::str, 'X'::str, 1::i64, 0::i64) = 'Xtest'::str
+regexp_replace('test123'::str, '(?<=test)\d+'::str, 'X'::str, 1::i64, 0::i64) = 'testX'::str
+regexp_replace('123test456'::str, '(?<=test)\d+'::str, 'X'::str, 1::i64, 0::i64) = '123testX'::str
+regexp_replace('foo123bar456baz789'::str, '[a-z]+\d+'::str, 'X'::str, 0::i64, 0::i64) = 'XXX'::str
+regexp_replace('a1b2c3'::str, '([a-z])(\d)'::str, '\1-\2'::str, 0::i64, 0::i64) = 'a-1b-2c-3'::str
+regexp_replace('test@example.com'::str, '(\w+)@(\w+)\.(\w+)'::str, '\1 at \2 dot \3'::str, 1::i64, 0::i64) = 'test at example dot com'::str
+
+# empty_values: Empty strings and collections
+regexp_replace('hello'::str, 'l'::str, ''::str) = 'helo'::str
+
+# type_coverage: Various data type coverage
+regexp_replace('abcabc'::str, 'abc'::str, 'X'::str, 1::i64, 4::i64) = 'abcX'::str
+regexp_replace('testtest'::str, 'test'::str, 'X'::str, 1::i64, 5::i64) = 'testX'::str
+
+# additional_coverage: Additional test coverage
+regexp_replace('John Doe'::str, '(\w+) (\w+)'::str, '\2, \1'::str) = 'Doe, John'::str
+

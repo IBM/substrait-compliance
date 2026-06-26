@@ -27,3 +27,41 @@ ceil(nan::fp64) = nan::fp64
 ceil(0.0001::fp64) = 1::fp64
 ceil(-0.0001::fp64) = 0::fp64
 ceil(1e-10::fp64) = 1::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+ceil(inf::fp32) = inf::fp32
+ceil(-inf::fp32) = -inf::fp32
+ceil(nan::fp32) = nan::fp32
+
+# zero_handling: Zero and negative zero handling
+ceil(-0.0::fp64) = -0.0::fp64
+ceil(-0.0::fp32) = -0.0::fp32
+ceil(-2.2250738585072014e-308::fp64) = 0::fp64
+ceil(-1.401298464324817e-45::fp32) = 0::fp32
+ceil(0.9999999999999999::fp64) = 1::fp64
+ceil(-0.9999999999999999::fp64) = 0::fp64
+ceil(0.0001::fp32) = 1::fp32
+ceil(-0.0001::fp32) = 0::fp32
+ceil(-1e-10::fp32) = 0::fp32
+
+# precision: Floating point precision and small values
+ceil(2.2250738585072014e-308::fp64) = 1::fp64
+ceil(1.401298464324817e-45::fp32) = 1::fp32
+ceil(1e-10::fp32) = 1::fp32
+
+# negative_values: Negative number handling
+ceil(-1.7976931348623157e+308::fp64) = -1.7976931348623157e+308::fp64
+ceil(-3.4028235e+38::fp32) = -3.4028235e+38::fp32
+
+# type_coverage: Various data type coverage
+ceil(1.7976931348623157e+308::fp64) = 1.7976931348623157e+308::fp64
+ceil(3.4028235e+38::fp32) = 3.4028235e+38::fp32
+ceil(1.9999999999999998::fp64) = 2::fp64
+ceil(2.0000000000000004::fp64) = 3::fp64
+

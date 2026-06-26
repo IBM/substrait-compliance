@@ -25,3 +25,53 @@ json_extract(null::str, '$.name'::str) = null::str
 json_extract('{"flag": true}'::str, '$.flag'::str) = 'true'::str
 json_extract('{"value": 3.14}'::str, '$.value'::str) = '3.14'::str
 json_extract('{"text": "hello world"}'::str, '$.text'::str) = 'hello world'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+json_extract('{invalid json'::str, '$.name'::str) = null::str
+json_extract('{"name": "John"'::str, '$.name'::str) = null::str
+json_extract('{"name": }'::str, '$.name'::str) = null::str
+json_extract('{name: "John"}'::str, '$.name'::str) = null::str
+json_extract('{}'::str, '$.name'::str) = null::str
+json_extract('[]'::str, '$[0]'::str) = null::str
+json_extract('{"data": {}}'::str, '$.data.value'::str) = null::str
+json_extract('{"items": []}'::str, '$.items[0]'::str) = null::str
+json_extract('[1, 2, 3]'::str, '$[10]'::str) = null::str
+json_extract('[1, 2, 3]'::str, '$[-1]'::str) = null::str
+json_extract('["a", "b", "c"]'::str, '$[3]'::str) = null::str
+json_extract('{"arr": [null, 1, 2]}'::str, '$.arr[0]'::str) = 'null'::str
+json_extract('{"key": "value"}'::str, '$.invalid.path'::str) = null::str
+json_extract('{"a": 1}'::str, '$.a.b.c'::str) = null::str
+json_extract('[1, 2, 3]'::str, '$.items'::str) = null::str
+json_extract('{"mixed": [1, "two", true, null]}'::str, '$.mixed[3]'::str) = 'null'::str
+
+# zero_handling: Zero and negative zero handling
+json_extract('{"zero": 0}'::str, '$.zero'::str) = '0'::str
+json_extract('{"decimal": 0.0}'::str, '$.decimal'::str) = '0.0'::str
+
+# empty_values: Empty strings and collections
+json_extract('{"name": ""}'::str, '$.name'::str) = ''::str
+json_extract('{"a": "", "b": "value"}'::str, '$.a'::str) = ''::str
+json_extract('{"quote": "He said \"hello\""}'::str, '$.quote'::str) = 'He said "hello"'::str
+
+# negative_values: Negative number handling
+json_extract('{"negative": -42}'::str, '$.negative'::str) = '-42'::str
+
+# whitespace_handling: Whitespace and control characters
+json_extract('{"newline": "line1\\nline2"}'::str, '$.newline'::str) = 'line1\nline2'::str
+
+# additional_coverage: Additional test coverage
+json_extract('{"a": {"b": {"c": {"d": 1}}}}'::str, '$.a.b.c.d'::str) = '1'::str
+json_extract('{"a": {"b": {"c": {"d": {"e": "deep"}}}}}'::str, '$.a.b.c.d.e'::str) = 'deep'::str
+json_extract('{"level1": {"level2": {"level3": [1, 2, 3]}}}'::str, '$.level1.level2.level3[1]'::str) = '2'::str
+json_extract('{"path": "C:\\\\Users\\\\file.txt"}'::str, '$.path'::str) = 'C:\\Users\\file.txt'::str
+json_extract('{"large": 999999999999}'::str, '$.large'::str) = '999999999999'::str
+json_extract('{"bool_false": false}'::str, '$.bool_false'::str) = 'false'::str
+json_extract('{"empty_array": []}'::str, '$.empty_array'::str) = '[]'::str
+json_extract('{"empty_object": {}}'::str, '$.empty_object'::str) = '{}'::str
+

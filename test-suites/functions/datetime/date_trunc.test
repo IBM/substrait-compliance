@@ -46,3 +46,50 @@ date_trunc('MONTH'::str, null::date) = null::date
 # edge_cases: Edge case dates
 date_trunc('YEAR'::str, '2000-01-01T00:00:00'::ts) = '2000-01-01T00:00:00'::ts
 date_trunc('MONTH'::str, '2020-02-29T12:00:00'::ts) = '2020-02-01T00:00:00'::ts
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+date_trunc(null::str, '2020-01-01T12:30:45'::ts) = null::ts
+date_trunc('YEAR'::str, null::ts) = null::ts
+date_trunc(null::str, null::ts) = null::ts
+date_trunc(null::str, '2020-01-01'::date) = null::date
+date_trunc('MONTH'::str, null::date) = null::date
+
+# zero_handling: Zero and negative zero handling
+date_trunc('QUARTER'::str, '2020-01-01T08:45:30'::ts) = '2020-01-01T00:00:00'::ts
+date_trunc('QUARTER'::str, '2020-04-01T08:45:30'::ts) = '2020-04-01T00:00:00'::ts
+date_trunc('QUARTER'::str, '2020-07-01T08:45:30'::ts) = '2020-07-01T00:00:00'::ts
+date_trunc('QUARTER'::str, '2020-10-01T08:45:30'::ts) = '2020-10-01T00:00:00'::ts
+date_trunc('WEEK'::str, '2020-06-14T10:30:00'::ts) = '2020-06-08T00:00:00'::ts
+date_trunc('WEEK'::str, '2020-06-16T10:30:00'::ts) = '2020-06-15T00:00:00'::ts
+date_trunc('WEEK'::str, '2020-06-17T10:30:00'::ts) = '2020-06-15T00:00:00'::ts
+date_trunc('WEEK'::str, '2020-06-20T10:30:00'::ts) = '2020-06-15T00:00:00'::ts
+date_trunc('WEEK'::str, '2020-06-21T10:30:00'::ts) = '2020-06-15T00:00:00'::ts
+date_trunc('DAY'::str, '2020-02-29T23:59:59'::ts) = '2020-02-29T00:00:00'::ts
+date_trunc('MONTH'::str, '2020-02-29T23:59:59'::ts) = '2020-02-01T00:00:00'::ts
+date_trunc('YEAR'::str, '2020-02-29T23:59:59'::ts) = '2020-01-01T00:00:00'::ts
+date_trunc('YEAR'::str, '0001-01-01T00:00:00'::ts) = '0001-01-01T00:00:00'::ts
+date_trunc('YEAR'::str, '9999-12-31T23:59:59'::ts) = '9999-01-01T00:00:00'::ts
+date_trunc('MONTH'::str, '9999-12-31T23:59:59'::ts) = '9999-12-01T00:00:00'::ts
+date_trunc('DAY'::str, '0001-01-01T12:30:45'::ts) = '0001-01-01T00:00:00'::ts
+date_trunc('QUARTER'::str, '2019-12-31T23:59:59'::ts) = '2019-10-01T00:00:00'::ts
+date_trunc('MONTH'::str, '2019-12-31T23:59:59'::ts) = '2019-12-01T00:00:00'::ts
+date_trunc('WEEK'::str, '2019-12-31T23:59:59'::ts) = '2019-12-30T00:00:00'::ts
+date_trunc('HOUR'::str, '2019-12-31T23:59:59'::ts) = '2019-12-31T23:00:00'::ts
+date_trunc('HOUR'::str, '2020-06-15T00:00:00'::ts) = '2020-06-15T00:00:00'::ts
+date_trunc('MINUTE'::str, '2020-06-15T12:00:00'::ts) = '2020-06-15T12:00:00'::ts
+date_trunc('SECOND'::str, '2020-06-15T12:30:00'::ts) = '2020-06-15T12:30:00'::ts
+
+# negative_values: Negative number handling
+date_trunc('QUARTER'::str, '2020-04-01'::date) = '2020-04-01'::date
+date_trunc('QUARTER'::str, '2020-07-01'::date) = '2020-07-01'::date
+date_trunc('DAY'::str, '2020-02-29'::date) = '2020-02-29'::date
+date_trunc('MILLISECOND'::str, '2020-01-01T12:30:45.123456'::ts) = '2020-01-01T12:30:45.123'::ts
+date_trunc('MILLISECOND'::str, '2020-06-15T08:45:30.999999'::ts) = '2020-06-15T08:45:30.999'::ts
+date_trunc('MICROSECOND'::str, '2020-01-01T12:30:45.123456789'::ts) = '2020-01-01T12:30:45.123456'::ts
+

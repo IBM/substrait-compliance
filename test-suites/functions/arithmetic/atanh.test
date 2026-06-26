@@ -7,3 +7,38 @@ atanh(1.0::fp64) = inf::fp64
 atanh(0.009::fp64) = 0.009000243011810481::fp64
 atanh(-0.009::fp64) = -0.009000243011810481::fp64
 atanh(null::fp64) = null::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+atanh(-1.0::fp64) = -inf::fp64
+atanh(-1.0::fp32) = -inf::fp32
+atanh(1.5::fp64) = nan::fp64
+atanh(-1.5::fp64) = nan::fp64
+atanh(2.0::fp32) = nan::fp32
+atanh(-2.0::fp32) = nan::fp32
+atanh(nan::fp64) = nan::fp64
+atanh(nan::fp32) = nan::fp32
+atanh(inf::fp64) = nan::fp64
+atanh(-inf::fp64) = nan::fp64
+atanh(inf::fp32) = nan::fp32
+atanh(-inf::fp32) = nan::fp32
+
+# zero_handling: Zero and negative zero handling
+atanh(0.5::fp64) = 0.5493061443340548::fp64
+atanh(-0.5::fp64) = -0.5493061443340548::fp64
+atanh(0.5::fp32) = 0.54930615::fp32
+atanh(-0.5::fp32) = -0.54930615::fp32
+atanh(0.9999::fp64) = 4.951760157141521::fp64
+atanh(-0.9999::fp64) = -4.951760157141521::fp64
+atanh(0.999999::fp64) = 7.600902709541989::fp64
+atanh(-0.999999::fp64) = -7.600902709541989::fp64
+atanh(0.0::fp64) = 0.0::fp64
+atanh(0.9::fp32) = 1.4722195::fp32
+atanh(-0.9::fp32) = -1.4722195::fp32
+atanh(0.1::fp32) = 0.10033535::fp32
+

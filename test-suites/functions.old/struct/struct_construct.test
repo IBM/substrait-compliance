@@ -1,0 +1,24 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_struct.yaml'
+
+# basic: Basic struct construction
+struct_construct('name', 'John'::str, 'age', 30::i32) = {name: 'John', age: 30}::struct<name:str, age:i32>
+struct_construct('x', 10::i32, 'y', 20::i32) = {x: 10, y: 20}::struct<x:i32, y:i32>
+struct_construct('id', 1::i64, 'value', 100.5::fp64) = {id: 1, value: 100.5}::struct<id:i64, value:fp64>
+
+# single_field: Single field structs
+struct_construct('value', 42::i32) = {value: 42}::struct<value:i32>
+struct_construct('name', 'Alice'::str) = {name: 'Alice'}::struct<name:str>
+
+# null_handling: Structs with null fields
+struct_construct('name', 'Bob'::str, 'age', null::i32) = {name: 'Bob', age: null}::struct<name:str, age:i32>
+struct_construct('x', null::i32, 'y', null::i32) = {x: null, y: null}::struct<x:i32, y:i32>
+
+# nested: Nested structs
+struct_construct('person', struct_construct('name', 'Jane'::str, 'age', 25::i32), 'city', 'NYC'::str) = {person: {name: 'Jane', age: 25}, city: 'NYC'}::struct<person:struct<name:str, age:i32>, city:str>
+
+# mixed_types: Structs with mixed data types
+struct_construct('id', 1::i32, 'name', 'Product'::str, 'price', 99.99::fp64, 'available', true::bool) = {id: 1, name: 'Product', price: 99.99, available: true}::struct<id:i32, name:str, price:fp64, available:bool>
+
+# complex: Structs with arrays
+struct_construct('name', 'Team'::str, 'members', [1, 2, 3]::list<i32>) = {name: 'Team', members: [1, 2, 3]}::struct<name:str, members:list<i32>>

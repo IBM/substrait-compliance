@@ -1,250 +1,156 @@
-# Substrait Function-Level Compliance Tests
+# Substrait Function Test Suites
 
-This directory contains comprehensive function-level test cases for Substrait compliance testing.
+This directory contains comprehensive test suites for Substrait function implementations. These tests are designed to verify compliance with the Substrait specification across various query engines and implementations.
 
-## 📁 Directory Structure
+## Directory Structure
 
 ```
 functions/
-├── aggregate/          # Aggregate functions (COUNT, AVG, SUM, etc.) - 6 files
-├── arithmetic/         # Arithmetic operations (ADD, MULTIPLY, etc.) - 44 files
-├── array/              # Array operations and functions - 6 files
-├── boolean/            # Boolean logic (AND, OR, NOT, XOR) - 4 files
-├── cast/               # Type casting (CAST, TRY_CAST) - 2 files
-├── comparison/         # Comparison operators (=, <, >, BETWEEN) - 19 files
-├── conditional/        # Conditional logic (CASE, IF) - 2 files
-├── datetime/           # Date/time operations - 12 files
-├── geospatial/         # Geospatial functions (ST_*) - 4 files
-├── json/               # JSON operations - 2 files
-├── map/                # Map/dictionary operations - 3 files
-├── set/                # Set operations (UNION, INTERSECT) - 3 files
-├── string/             # String manipulation - 27 files
-├── struct/             # Struct/record operations - 2 files
-└── window/             # Window/analytic functions - 7 files
+├── aggregate/       # Aggregate functions (avg, count, sum, etc.)
+├── arithmetic/      # Arithmetic operations (add, subtract, multiply, etc.)
+├── array/          # Array manipulation functions
+├── cast/           # Type casting functions
+├── comparison/     # Comparison operators (equal, greater than, etc.)
+├── conditional/    # Conditional expressions (case, if-then-else)
+├── datetime/       # Date and time functions
+├── geospatial/     # Geospatial operations (st_area, st_distance, etc.)
+├── json/           # JSON processing functions
+├── map/            # Map/dictionary operations
+├── set/            # Set operations (union, intersect, except)
+├── string/         # String manipulation functions
+├── struct/         # Struct/record operations
+└── window/         # Window functions (rank, row_number, etc.)
 ```
 
-## 📊 Test Coverage Summary
+## Test File Format
 
-| Category | Files | Tests | Quality | Status |
-|----------|-------|-------|---------|--------|
-| **Aggregate** | 6 | ~166 | 🟢 High | ✅ Complete |
-| **Arithmetic** | 44 | ~300 | 🟢 High | ✅ Enhanced |
-| **Array** | 6 | ~120 | 🟢 High | ✅ Complete |
-| **Boolean** | 4 | ~200 | 🟢 High | ✅ Enhanced |
-| **Cast** | 2 | ~144 | 🟢 High | ✅ Complete |
-| **Comparison** | 19 | ~180 | 🟢 High | ✅ Enhanced |
-| **Conditional** | 2 | ~80 | 🟢 High | ✅ Complete |
-| **DateTime** | 12 | ~166 | 🟢 High | ✅ Enhanced |
-| **Geospatial** | 4 | ~100 | 🟢 High | ✅ Complete |
-| **JSON** | 2 | ~60 | 🟢 High | ✅ Complete |
-| **Map** | 3 | ~90 | 🟢 High | ✅ Complete |
-| **Set** | 3 | ~75 | 🟢 High | ✅ Complete |
-| **String** | 27 | ~250 | 🟢 High | ✅ Enhanced |
-| **Struct** | 2 | ~70 | 🟢 High | ✅ Complete |
-| **Window** | 7 | ~229 | 🟢 High | ✅ Complete |
-| **TOTAL** | **143** | **~2,230** | **🟢 95%+** | ✅ |
+Each test file follows the Substrait test format specification:
 
-> **Quality Assurance**: All tests have been enhanced with AI-powered quality checking using Claude, ensuring comprehensive edge case coverage, accurate expected results, and proper error handling.
-
-## 🎯 Test File Format
-
-Each `.test` file follows this format:
-
+### Header Section
 ```
 ### SUBSTRAIT_SCALAR_TEST: v1.0
-### SUBSTRAIT_INCLUDE: '/extensions/functions_arithmetic.yaml'
-
-# category_name: Description of test category
-function_call(arg1::type, arg2::type) [option:value] = expected_result::type
+### SUBSTRAIT_INCLUDE: '/extensions/functions_<category>.yaml'
 ```
 
-### Examples
+- `SUBSTRAIT_SCALAR_TEST` or `SUBSTRAIT_AGGREGATE_TEST`: Indicates the test type
+- `SUBSTRAIT_INCLUDE`: References the Substrait extension file defining the function
 
-**Scalar Function:**
+### Test Organization
+
+Tests are organized into semantic groups using comment headers:
+
+#### Original Test Groups
+- `basic`: Basic functionality without edge cases
+- `null_handling`: Null value behavior
+- `overflow`: Overflow and error handling
+- `types`: Different data type variations
+- `precision`: Floating point precision
+- And other function-specific categories
+
+#### Enhanced Test Groups
+Additional comprehensive test coverage organized by:
+
+- `edge_cases`: Boundary values and extreme inputs
+- `overflow_behavior`: Overflow and saturation behavior
+- `special_values`: Special floating point values (NaN, Infinity)
+- `null_handling_extended`: Extended null handling scenarios
+- `zero_handling`: Zero and negative zero handling
+- `precision`: Floating point precision and small values
+- `single_value`: Single value inputs
+- `empty_values`: Empty strings and collections
+- `negative_values`: Negative number handling
+- `type_coverage`: Various data type coverage
+- `unicode_handling`: Unicode and special characters
+- `whitespace_handling`: Whitespace and control characters
+- `mixed_magnitude`: Mixed magnitude values
+- `large_datasets`: Large input datasets
+- `additional_coverage`: Additional test coverage
+
+### Test Syntax
+
 ```
-add(5::i32, 3::i32) = 8::i32
-add(120::i8, 10::i8) [overflow:ERROR] = <!ERROR>
+function_name(input_args) = expected_output
+function_name(input_args) [option:VALUE] = expected_output
 ```
 
-**Aggregate Function:**
+**Examples:**
 ```
-count((1, 2, 3, 4, 5)::i32) = 5::i64
+abs(-5::i32) = 5::i32
+abs(-128::i8) [overflow:ERROR] = <!ERROR>
+concat('hello'::str, 'world'::str) = 'helloworld'::str
 avg((1, 2, 3)::i32) = 2.0::fp64
 ```
 
-**Window Function:**
-```
-row_number() OVER (ORDER BY value::i32) WITH ((1), (2), (3)) = (1, 2, 3)::i64
-lag(value::i32, 1) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20)) = (Null, 10)::i32
-```
+## Data Types
 
-**Type Casting:**
-```
-cast('42'::str, i32) = 42::i32
-try_cast('invalid'::str, i32) = null::i32
-```
+Common data types used in tests:
 
-## 🚀 Usage
+- **Integers**: `i8`, `i16`, `i32`, `i64` (signed), `u8`, `u16`, `u32`, `u64` (unsigned)
+- **Floating Point**: `fp32`, `fp64`
+- **String**: `str`
+- **Boolean**: `bool`
+- **Date/Time**: `date`, `time`, `ts` (timestamp), `tstz` (timestamp with timezone)
+- **Complex**: `list<T>`, `struct<...>`, `map<K,V>`
+- **Special Values**: `null`, `nan`, `inf`, `-inf`
 
-### Using Python SDK
+## Test Options
 
-```python
-from pathlib import Path
-from substrait_compliance.function_test_loader import FunctionTestSuiteLoader
-from substrait_compliance.runner import ComplianceRunner
+Some tests include options to specify behavior:
 
-# Load a category
-loader = FunctionTestSuiteLoader()
-suite = loader.load_category(Path("test-suites"), "aggregate")
+- `[overflow:ERROR]`: Should raise an error on overflow
+- `[overflow:SATURATE]`: Should saturate to max/min value
+- `[overflow:SILENT]`: Undefined behavior on overflow
+- `[null_handling:ACCEPT_NULLS]`: Propagate nulls
+- `[null_handling:IGNORE_NULLS]`: Skip null values
 
-# Run tests
-runner = ComplianceRunner(your_engine)
-report = runner.run_test_suite(suite)
+## Running Tests
 
-print(f"Pass Rate: {report.get_pass_rate()}%")
-```
+These test files are designed to be consumed by Substrait compliance testing frameworks. Refer to the main project documentation for instructions on running tests against specific query engines.
 
-### Load Specific Test File
+## Test Enhancement
 
-```python
-suite = loader.load_file(Path("test-suites/functions/aggregate/count.test"))
-report = runner.run_test_suite(suite)
-```
+The test suites have been enhanced with comprehensive coverage including:
 
-### Load All Function Tests
+- **3,381 additional test cases** across 136 function test files
+- Systematic coverage of edge cases, boundary conditions, and error scenarios
+- Unicode and internationalization testing
+- Precision and numerical stability testing
+- Comprehensive null handling scenarios
 
-```python
-categories = ["aggregate", "window", "cast", "boolean", "datetime"]
-for category in categories:
-    suite = loader.load_category(Path("test-suites"), category)
-    report = runner.run_test_suite(suite)
-    print(f"{category}: {report.get_pass_rate()}%")
-```
+## Contributing
 
-## 📖 Test Categories
+When adding new tests:
 
-### 1. Aggregate Functions
-Tests for SQL aggregate functions that operate on groups of rows:
-- `count` - Count rows
-- `count_distinct` - Count unique values
-- `avg` - Calculate average
-- `stddev` - Standard deviation
-- `variance` - Variance
-- `string_agg` - String aggregation
+1. Follow the existing test file format and naming conventions
+2. Group tests by semantic categories using comment headers
+3. Include clear, descriptive test cases
+4. Test both success and failure scenarios
+5. Document any special behavior or edge cases
+6. Ensure tests are deterministic and reproducible
 
-### 2. Window Functions
-Tests for window/analytic functions:
-- `row_number` - Sequential row numbering
-- `rank` - Ranking with gaps
-- `dense_rank` - Ranking without gaps
-- `lag` - Access previous row
-- `lead` - Access next row
-- `first_value` - First value in window
-- `last_value` - Last value in window
+### Test Categories Guidelines
 
-### 3. Type Casting
-Tests for type conversion functions:
-- `cast` - Type conversion with errors
-- `try_cast` - Safe type conversion (returns NULL on failure)
+- **basic**: Core functionality that should work in all implementations
+- **edge_cases**: Boundary values (min/max integers, very large/small floats)
+- **null_handling**: How functions behave with null inputs
+- **overflow**: Behavior when operations exceed type limits
+- **precision**: Floating point accuracy and rounding
+- **types**: Behavior across different data types
+- **special_values**: NaN, Infinity, and other special cases
 
-### 4. Boolean Functions (Enhanced)
-Enhanced tests for boolean logic:
-- `and` - Logical AND (52 tests)
-- `or` - Logical OR (52 tests)
-- `not` - Logical NOT (45 tests)
-- `xor` - Logical XOR (51 tests)
+## Metadata
 
-### 5. DateTime Functions (Enhanced)
-Enhanced tests for date/time operations:
-- `date_trunc` - Truncate dates (49 tests)
-- `date_diff` - Date differences (52 tests)
-- `current_date` - Current date (24 tests)
-- `current_timestamp` - Current timestamp (33 tests)
-- Plus existing: extract, add_datetime, subtract_datetime, etc.
+Test enhancement metadata is tracked in `enhancement_metadata.json`, which includes:
+- Files processed
+- Number of tests added per category
+- Test categorization statistics
 
-## 🎨 Test Categories
+## License
 
-Each test is categorized for better organization:
+These test suites are part of the Substrait project and follow the project's licensing terms.
 
-- `basic` - Basic functionality without edge cases
-- `null_handling` - NULL value handling
-- `overflow` - Overflow behavior
-- `edge_cases` - Edge case scenarios
-- `types` - Different data type handling
-- `errors` - Error conditions
-- `complex` - Complex scenarios
+## References
 
-## 🔧 Options
-
-Tests can specify options for behavior:
-
-- `[overflow:ERROR]` - Should raise error on overflow
-- `[overflow:SATURATE]` - Should saturate on overflow
-- `[overflow:SILENT]` - Undefined behavior on overflow
-- `[null_handling:ACCEPT_NULLS]` - Propagate NULLs
-- `[null_handling:IGNORE_NULLS]` - Ignore NULLs
-- `[rounding:TIE_TO_EVEN]` - Rounding mode
-
-## 📝 Adding New Tests
-
-To add new function tests:
-
-1. **Create .test file** in appropriate category directory
-2. **Follow the format** shown above
-3. **Add metadata** to category's metadata.yaml
-4. **Document** the function behavior
-5. **Include edge cases** and null handling
-
-Example:
-```bash
-# Create new test file
-touch test-suites/functions/aggregate/median.test
-
-# Edit the file with test cases
-# Update metadata.yaml
-```
-
-## 🎯 Benefits
-
-### For Engine Developers
-- **Granular testing** - Test individual functions
-- **Clear specifications** - Understand expected behavior
-- **Fast debugging** - Identify specific function issues
-- **Comprehensive coverage** - All edge cases included
-
-### For Framework Users
-- **Reference documentation** - Function behavior examples
-- **Compliance validation** - Verify Substrait support
-- **Gap analysis** - Identify missing functions
-- **Regression testing** - Detect breaking changes
-
-## 📚 Related Documentation
-
-- [Function Tests Implementation Guide](../../docs/FUNCTION_TESTS_IMPLEMENTATION.md)
-- [Python SDK Documentation](../../sdk/python/README.md)
-- [Demo Usage Guide](../../demo/DEMO_USAGE.md)
-
-## 🤝 Contributing
-
-To contribute new function tests:
-
-1. Review existing test format
-2. Create comprehensive test cases
-3. Include all edge cases
-4. Document expected behavior
-5. Update metadata files
-6. Submit pull request
-
-## 📊 Statistics
-
-- **Total Test Files**: 143
-- **Total Test Cases**: ~2,230
-- **Categories**: 15
-- **New Tests Added**: ~1,000+
-- **Enhanced Tests**: ~500+
-- **Quality Score**: 95%+ (AI-validated)
-- **Coverage**: Comprehensive across all major function categories
-
----
-
-**Made with ❤️ for the Substrait Community**
+- [Substrait Specification](https://substrait.io/)
+- [Substrait Extensions](https://github.com/substrait-io/substrait/tree/main/extensions)
+- [Test Format Specification](https://substrait.io/extensions/#testing-extensions)

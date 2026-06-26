@@ -14,3 +14,34 @@ bit_length(null::str) = null::i64
 # unicode: Examples with unicode characters as input
 bit_length('à'::str) = 16::i64
 bit_length('😄'::str) = 32::i64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# type_coverage: Various data type coverage
+bit_length('a\tb\nc'::str) = 48::i64
+bit_length('Hello\nWorld'::str) = 88::i64
+bit_length('\t\t\t'::str) = 24::i64
+bit_length('\r\n'::str) = 16::i64
+bit_length('line1\nline2\nline3'::str) = 144::i64
+bit_length('abc😄def'::str) = 88::i64
+bit_length('àéîôù'::str) = 80::i64
+bit_length('中文字符'::str) = 96::i64
+bit_length('한글문자'::str) = 96::i64
+bit_length('Привет'::str) = 96::i64
+bit_length('مرحبا'::str) = 80::i64
+bit_length('🏳️‍🌈'::str) = 112::i64
+bit_length('👨‍👩‍👧‍👦'::str) = 200::i64
+bit_length('é'::str) = 16::i64
+bit_length('é'::str) = 24::i64
+bit_length('\u0020\u00A0\u2003'::str) = 56::i64
+bit_length('  \t  \n  '::str) = 64::i64
+
+# unicode_handling: Unicode and special characters
+bit_length('Hello世界'::str) = 88::i64
+bit_length('Test🎉String'::str) = 112::i64
+bit_length('日本語テキスト'::str) = 168::i64
+

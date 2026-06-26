@@ -22,3 +22,44 @@ count_distinct(('hello', 'hello', 'world', 'world')::str) = 2::i64
 # types: Examples demonstrating behavior of different data types
 count_distinct((1::i8, 2::i8, 1::i8, 3::i8))::i8 = 3::i64
 count_distinct((1.5::fp32, 2.5::fp32, 1.5::fp32))::fp32 = 2::i64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+count_distinct((2147483647, -2147483648, 2147483647)::i32) = 2::i64
+count_distinct((32767, -32768, 32767, 0)::i16) = 3::i64
+count_distinct((127, -128, 127, -128, 0)::i8) = 3::i64
+
+# null_handling_extended: Extended null handling scenarios
+count_distinct((Null, 1, Null, 1)::i32) = 1::i64
+count_distinct((Null, Null, 1, 1, 2, 2)::i32) = 2::i64
+count_distinct((0, Null, 0, Null, 0)::i32) = 1::i64
+
+# zero_handling: Zero and negative zero handling
+count_distinct((0, 0, 0)::i32) = 1::i64
+count_distinct((-5, -5, 5, 5, 0)::i32) = 3::i64
+count_distinct((1.0, -1.0, 0.0, 1.0)::fp64) = 3::i64
+count_distinct((0.0, -0.0, 0.0)::fp64) = 1::i64
+count_distinct((-5.5, -5.5, 5.5, 5.5, 0.0)::fp64) = 3::i64
+count_distinct((0, 1, 2, 0, 3)::i32) = 4::i64
+count_distinct((0, 0, 0, 0)::i64) = 1::i64
+count_distinct((0.0, 1.0, 0.0, 2.0)::fp64) = 3::i64
+
+# empty_values: Empty strings and collections
+count_distinct(('', 'a', '', 'b')::str) = 3::i64
+count_distinct(('', '', '')::str) = 1::i64
+
+# negative_values: Negative number handling
+count_distinct((-1, -2, -3, -1)::i32) = 3::i64
+count_distinct((1.5, -2.5, 3.5, -2.5)::fp32) = 3::i64
+count_distinct((-1, -2, -3, -4, -5)::i32) = 5::i64
+count_distinct((-100, -200, -100, -300)::i64) = 3::i64
+count_distinct((-1.5, -2.5, -1.5, -3.5)::fp64) = 3::i64
+
+# type_coverage: Various data type coverage
+count_distinct(('test', 'Test', 'TEST')::str) = 3::i64
+

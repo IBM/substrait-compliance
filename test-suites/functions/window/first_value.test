@@ -30,3 +30,44 @@ first_value(value::i32) OVER (PARTITION BY category::str ORDER BY id::i32) WITH 
 # frame_clause: Examples with frame specifications
 first_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) WITH ((1, 10), (2, 20), (3, 30)) = (10, 10, 10)::i32
 first_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) WITH ((1, 10), (2, 20), (3, 30)) = (10, 20, 30)::i32
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+first_value(value::i32) OVER (ORDER BY id::i32) WITH ((1, 2147483647), (2, 2147483646), (3, -2147483648)) = (2147483647, 2147483647, 2147483647)::i32
+first_value(value::i32) OVER (ORDER BY id::i32) WITH ((1, 0), (2, 2147483647), (3, -2147483648)) = (0, 0, 0)::i32
+
+# null_handling_extended: Extended null handling scenarios
+first_value(value::i32 IGNORE NULLS) OVER (ORDER BY id::i32) WITH ((1, Null), (2, 20), (3, 30)) = (20, 20, 20)::i32
+first_value(value::i32 IGNORE NULLS) OVER (ORDER BY id::i32) WITH ((1, Null), (2, Null), (3, 30), (4, 40)) = (30, 30, 30, 30)::i32
+first_value(name::str IGNORE NULLS) OVER (PARTITION BY dept::str ORDER BY id::i32) WITH (('Sales', 1, Null), ('Sales', 2, 'Bob'), ('IT', 3, Null), ('IT', 4, 'Dave')) = ('Bob', 'Bob', 'Dave', 'Dave')::str
+first_value(value::i32 RESPECT NULLS) OVER (ORDER BY id::i32) WITH ((1, Null), (2, 20), (3, 30)) = (Null, Null, Null)::i32
+first_value(value::i32 RESPECT NULLS) OVER (PARTITION BY category::str ORDER BY id::i32) WITH (('A', 1, Null), ('A', 2, 20), ('B', 3, Null), ('B', 4, 40)) = (Null, Null, Null, Null)::i32
+first_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN 2 PRECEDING AND 1 PRECEDING) WITH ((1, 10), (2, 20), (3, 30), (4, 40)) = (Null, 10, 10, 20)::i32
+first_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN 1 FOLLOWING AND 2 FOLLOWING) WITH ((1, 10), (2, 20), (3, 30), (4, 40)) = (20, 30, 40, Null)::i32
+first_value(value::i32) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, Null)) = (10, 10, 10)::i32
+first_value(value::i32) OVER (PARTITION BY category::str ORDER BY id::i32) WITH (('A', 1, 10), ('A', 2, Null), ('B', 3, 30), ('B', 4, Null)) = (10, 10, 30, 30)::i32
+first_value(value::i32) OVER (ORDER BY id::i32) WITH ((1, Null), (2, Null), (3, Null)) = (Null, Null, Null)::i32
+first_value(value::i32 IGNORE NULLS) OVER (ORDER BY id::i32) WITH ((1, Null), (2, Null), (3, Null)) = (Null, Null, Null)::i32
+
+# zero_handling: Zero and negative zero handling
+first_value(value::fp64) OVER (ORDER BY id::i32) WITH ((1, -1.5), (2, -2.5), (3, 0.0)) = (-1.5, -1.5, -1.5)::fp64
+
+# empty_values: Empty strings and collections
+first_value(value::i32) OVER (ORDER BY id::i32) WITH () = ()::i32
+
+# negative_values: Negative number handling
+first_value(value::i32) OVER (ORDER BY id::i32) WITH ((1, -10), (2, -20), (3, -30)) = (-10, -10, -10)::i32
+first_value(value::i32) OVER (PARTITION BY category::str ORDER BY id::i32) WITH (('A', 1, -100), ('A', 2, -200), ('B', 3, 50)) = (-100, -100, 50)::i32
+
+# type_coverage: Various data type coverage
+first_value(value::i32) OVER (ORDER BY id::i32 RANGE BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) WITH ((1, 10), (2, 20), (3, 30)) = (10, 10, 10)::i32
+first_value(value::i32) OVER (PARTITION BY category::str ORDER BY id::i32 RANGE BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) WITH (('A', 1, 10), ('A', 2, 20), ('B', 3, 30)) = (10, 10, 30)::i32
+first_value(value::i32) OVER (ORDER BY category::str) WITH (('A', 10), ('A', 20), ('B', 30)) = (10, 10, 30)::i32
+first_value(value::i32) OVER (ORDER BY score::i32) WITH ((1, 100, 10), (2, 100, 20), (3, 200, 30)) = (10, 10, 30)::i32
+first_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN CURRENT ROW AND UNBOUNDED FOLLOWING) WITH ((1, 10), (2, 20), (3, 30)) = (10, 20, 30)::i32
+

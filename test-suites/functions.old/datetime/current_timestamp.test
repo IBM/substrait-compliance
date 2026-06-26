@@ -1,0 +1,34 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_datetime.yaml'
+
+# basic: Basic current timestamp function (returns current timestamp)
+# Note: These tests verify the function returns a valid timestamp type
+# The actual value will vary based on execution time
+current_timestamp() >= '2020-01-01T00:00:00'::ts
+current_timestamp() <= '2030-12-31T23:59:59'::ts
+
+# type_check: Verify return type is timestamp
+cast(current_timestamp(), str) != null::str
+
+# comparison: Current timestamp should be consistent within same transaction
+current_timestamp() = current_timestamp()
+
+# timestamp_arithmetic: Use current_timestamp in arithmetic operations
+add(current_timestamp(), 'PT1H'::iday) > current_timestamp()
+add(current_timestamp(), 'PT-1H'::iday) < current_timestamp()
+
+# extract_from_current: Extract components from current timestamp
+extract('YEAR'::str, current_timestamp()) >= 2020::i64
+extract('MONTH'::str, current_timestamp()) >= 1::i64
+extract('MONTH'::str, current_timestamp()) <= 12::i64
+extract('DAY'::str, current_timestamp()) >= 1::i64
+extract('DAY'::str, current_timestamp()) <= 31::i64
+extract('HOUR'::str, current_timestamp()) >= 0::i64
+extract('HOUR'::str, current_timestamp()) <= 23::i64
+extract('MINUTE'::str, current_timestamp()) >= 0::i64
+extract('MINUTE'::str, current_timestamp()) <= 59::i64
+extract('SECOND'::str, current_timestamp()) >= 0::i64
+extract('SECOND'::str, current_timestamp()) <= 59::i64
+
+# date_from_timestamp: Extract date from current timestamp
+date_trunc('DAY'::str, current_timestamp()) <= current_timestamp()

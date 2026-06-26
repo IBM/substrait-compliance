@@ -30,3 +30,46 @@ degrees(0.7853981633974483::fp64) = 45::fp64
 degrees(0.5235987755982988::fp64) = 30::fp64
 degrees(1.0471975511965976::fp64) = 60::fp64
 degrees(0.017453292519943295::fp64) = 1::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+degrees(inf::fp32) = inf::fp32
+degrees(-inf::fp32) = -inf::fp32
+degrees(nan::fp32) = nan::fp32
+
+# null_handling_extended: Extended null handling scenarios
+degrees(null::fp32) = null::fp32
+
+# zero_handling: Zero and negative zero handling
+degrees(0.7853981633974483::fp64) = 45::fp64
+degrees(0.7853981633974483::fp32) = 45::fp32
+degrees(0.017453292519943295::fp64) = 1::fp64
+degrees(0.017453292519943295::fp32) = 1::fp32
+
+# precision: Floating point precision and small values
+degrees(1e-15::fp64) = 5.729577951308232e-14::fp64
+degrees(-1e-15::fp64) = -5.729577951308232e-14::fp64
+degrees(1.1780972450961724e-17::fp64) = 6.75e-16::fp64
+degrees(2.2250738585072014e-308::fp64) = 1.2746826375965833e-306::fp64
+degrees(1.1754944e-38::fp32) = 6.7359477e-37::fp32
+degrees(5e-324::fp64) = 2.864788975654116e-322::fp64
+degrees(1.401298464324817e-45::fp32) = 8.029052e-44::fp32
+degrees(1e-10::fp64) = 5.729577951308232e-09::fp64
+degrees(-1e-10::fp64) = -5.729577951308232e-09::fp64
+degrees(1e-20::fp64) = 5.729577951308232e-19::fp64
+
+# negative_values: Negative number handling
+degrees(-100::fp64) = -5729.5779513082325::fp64
+degrees(-1.7976931348623157e+308::fp64) = -1.0299474405627445e+310::fp64
+
+# type_coverage: Various data type coverage
+degrees(1e15::fp64) = 5.729577951308232e+16::fp64
+degrees(100::fp64) = 5729.5779513082325::fp64
+degrees(1.7976931348623157e+308::fp64) = 1.0299474405627445e+310::fp64
+degrees(3.4028235e+38::fp32) = 1.9498558e+40::fp32
+

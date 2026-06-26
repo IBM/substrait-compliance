@@ -14,3 +14,37 @@ char_length(null::str) = null::i64
 # unicode: Examples with unicode characters as input
 char_length('à'::str) = 1::i64
 char_length('😄'::str) = 1::i64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# type_coverage: Various data type coverage
+char_length('\n'::str) = 1::i64
+char_length('\t'::str) = 1::i64
+char_length('\r'::str) = 1::i64
+char_length('abc\ndef'::str) = 7::i64
+char_length('line1\r\nline2'::str) = 12::i64
+char_length('\t\t\t'::str) = 3::i64
+char_length('hello world'::str) = 11::i64
+char_length('Hello😄World'::str) = 11::i64
+char_length('test_测试'::str) = 7::i64
+char_length('ABC123あいう'::str) = 9::i64
+char_length('你好'::str) = 2::i64
+char_length('こんにちは'::str) = 5::i64
+char_length('Привет'::str) = 6::i64
+char_length('مرحبا'::str) = 5::i64
+char_length('שלום'::str) = 4::i64
+char_length('🌍🌎🌏'::str) = 3::i64
+char_length('e\u0301'::str) = 2::i64
+char_length('👨‍👩‍👧‍👦'::str) = 7::i64
+char_length('\u200B'::str) = 1::i64
+char_length('test\u200Bword'::str) = 9::i64
+
+# unicode_handling: Unicode and special characters
+char_length('café'::str) = 4::i64
+char_length('café'::str) = 4::i64
+char_length('naïve'::str) = 5::i64
+

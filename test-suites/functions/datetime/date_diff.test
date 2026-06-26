@@ -49,3 +49,48 @@ date_diff('DAY'::str, '2021-02-28'::date, '2021-03-01'::date) = 1::i64
 # cross_year: Differences crossing year boundaries
 date_diff('DAY'::str, '2020-12-30'::date, '2021-01-02'::date) = 3::i64
 date_diff('MONTH'::str, '2020-11-15'::date, '2021-02-15'::date) = 3::i64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+date_diff(null::str, '2020-01-01'::date, '2020-01-02'::date) = null::i64
+date_diff('DAY'::str, null::date, '2020-01-02'::date) = null::i64
+date_diff('DAY'::str, '2020-01-01'::date, null::date) = null::i64
+date_diff(null::str, null::ts, null::ts) = null::i64
+
+# zero_handling: Zero and negative zero handling
+date_diff('DAY'::str, '2020-12-31T23:59:59'::ts, '2021-01-01T00:00:00'::ts) = 1::i64
+date_diff('HOUR'::str, '2020-12-31T23:59:59'::ts, '2021-01-01T00:00:00'::ts) = 1::i64
+date_diff('HOUR'::str, '2020-06-15T10:00:00'::ts, '2020-06-15T08:00:00'::ts) = -2::i64
+date_diff('MINUTE'::str, '2020-06-15T08:30:00'::ts, '2020-06-15T08:00:00'::ts) = -30::i64
+date_diff('SECOND'::str, '2020-06-15T08:00:30'::ts, '2020-06-15T08:00:00'::ts) = -30::i64
+date_diff('DAY'::str, '2020-01-01'::date, '2020-01-01'::date) = 0::i64
+date_diff('MONTH'::str, '2020-06-15'::date, '2020-06-15'::date) = 0::i64
+date_diff('YEAR'::str, '2020-01-01'::date, '2020-01-01'::date) = 0::i64
+date_diff('SECOND'::str, '2020-06-15T08:30:15'::ts, '2020-06-15T08:30:15'::ts) = 0::i64
+
+# negative_values: Negative number handling
+date_diff('WEEK'::str, '2020-01-01'::date, '2020-01-15'::date) = 2::i64
+date_diff('WEEK'::str, '2020-01-01'::ts, '2020-01-22'::ts) = 3::i64
+date_diff('QUARTER'::str, '2020-01-01'::date, '2020-10-01'::date) = 3::i64
+date_diff('QUARTER'::str, '2020-01-01'::date, '2021-01-01'::date) = 4::i64
+date_diff('YEAR'::str, '1970-01-01'::date, '2020-01-01'::date) = 50::i64
+date_diff('DAY'::str, '1970-01-01'::date, '1970-12-31'::date) = 364::i64
+date_diff('DAY'::str, '2020-01-01'::date, '2120-01-01'::date) = 36525::i64
+date_diff('MONTH'::str, '1970-01-01'::date, '2020-01-01'::date) = 600::i64
+date_diff('MONTH'::str, '2020-12-31'::date, '2021-01-01'::date) = 1::i64
+date_diff('YEAR'::str, '2020-12-31'::date, '2021-01-01'::date) = 1::i64
+date_diff('DAY'::str, '2020-02-29'::date, '2021-02-28'::date) = 365::i64
+date_diff('DAY'::str, '2020-01-01'::date, '2021-01-01'::date) = 366::i64
+date_diff('DAY'::str, '2019-01-01'::date, '2020-01-01'::date) = 365::i64
+date_diff('YEAR'::str, '2020-02-29'::date, '2024-02-29'::date) = 4::i64
+date_diff('MONTH'::str, '2020-01-31'::date, '2020-02-29'::date) = 1::i64
+date_diff('MONTH'::str, '2020-01-31'::date, '2020-03-31'::date) = 2::i64
+date_diff('DAY'::str, '2020-01-31'::date, '2020-02-01'::date) = 1::i64
+date_diff('DAY'::str, '2020-02-29'::date, '2020-03-01'::date) = 1::i64
+date_diff('WEEK'::str, '2020-02-01'::date, '2020-01-01'::date) = -4::i64
+

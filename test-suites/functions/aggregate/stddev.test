@@ -28,3 +28,44 @@ stddev((3.14)::fp64) = 0.0::fp64
 stddev((1::i8, 2::i8, 3::i8, 4::i8))::i8 = 1.118033988749895::fp64
 stddev((100::i16, 200::i16, 300::i16))::i16 = 81.64965809277261::fp64
 stddev((1.5::fp32, 2.5::fp32, 3.5::fp32))::fp32 = 0.8164965809277261::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+stddev((-2147483648, -2147483647, 0)::i32) = 1073741823.5::fp64
+stddev((-128, -64, 0, 64, 127)::i8) = 90.13878188659973::fp64
+stddev((-32768, -16384, 0, 16384, 32767)::i16) = 23170.475016419442::fp64
+
+# special_values: Special floating point values (NaN, Infinity)
+stddev((1.0, 2.0, Infinity)::fp64) = Infinity::fp64
+stddev((1.0, NaN, 3.0)::fp64) = NaN::fp64
+stddev((-Infinity, 1.0, 2.0)::fp64) = Infinity::fp64
+stddev((Infinity, -Infinity)::fp64) = NaN::fp64
+
+# zero_handling: Zero and negative zero handling
+stddev((0, 0, 0, 0)::i32) = 0.0::fp64
+stddev((0, 1, 2, 3)::i32) = 1.118033988749895::fp64
+stddev((0.0, 0.0, 0.0)::fp64) = 0.0::fp64
+
+# precision: Floating point precision and small values
+stddev((1e-100, 2e-100, 3e-100)::fp64) = 8.16496580927726e-101::fp64
+stddev((1e-50, 2e-50, 3e-50, 4e-50)::fp64) = 1.118033988749895e-50::fp64
+stddev((1.1, 2.2, 3.3, 4.4, 5.5, 6.6, 7.7, 8.8, 9.9, 10.1, 11.2, 12.3)::fp64) = 3.6332495807108003::fp64
+
+# negative_values: Negative number handling
+stddev((-100, -200, -300, -400)::i32) = 111.80339887498949::fp64
+stddev((-1000, -2000, -3000, -4000, -5000)::i64) = 1414.2135623730951::fp64
+
+# type_coverage: Various data type coverage
+stddev((2147483640, 2147483641, 2147483642, 2147483643, 2147483644)::i32) = 1.4142135623730951::fp64
+stddev((9223372036854775800, 9223372036854775801, 9223372036854775802, 9223372036854775803)::i64) = 1.118033988749895::fp64
+stddev((1, 2, 3, 4, 5, 6, 7, 8, 9, 10)::i32) = 2.8722813232690143::fp64
+stddev((100, 200, 300, 400, 500, 600, 700, 800, 900, 1000)::i64) = 287.22813232690143::fp64
+
+# mixed_magnitude: Mixed magnitude values
+stddev((1, 1000000)::i32) = 499999.5::fp64
+

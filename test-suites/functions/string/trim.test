@@ -14,3 +14,37 @@ trim(null::str, ' '::str) = null::str
 trim('aaaaabcccccaaa'::str, 'a'::str) [spaces_only:False] = 'bccccc'::str
 trim('defabcabcdef'::str, 'def'::str) [spaces_only:False] = 'abcabc'::str
 trim('abcdefcbaa'::str, 'abc'::str) [spaces_only:False] = 'def'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+trim('abc'::str, null::str) = null::str
+trim(null::str, null::str) = null::str
+
+# empty_values: Empty strings and collections
+trim('abc'::str, ''::str) = 'abc'::str
+
+# unicode_handling: Unicode and special characters
+trim('🎉hello🎉'::str, '🎉'::str) [spaces_only:False] = 'hello'::str
+trim('café'::str, 'é'::str) [spaces_only:False] = 'caf'::str
+trim('你好世界你好'::str, '你好'::str) [spaces_only:False] = '世界'::str
+
+# whitespace_handling: Whitespace and control characters
+trim('  \t\nabc\n\t  '::str, ' \t\n'::str) [spaces_only:False] = 'abc'::str
+trim('\r\n  abc  \r\n'::str, '\r\n '::str) [spaces_only:False] = 'abc'::str
+trim('  a b c  '::str, ' '::str) = 'a b c'::str
+
+# additional_coverage: Additional test coverage
+trim('abcdef'::str, 'xyz'::str) [spaces_only:False] = 'abcdef'::str
+trim('aaabaaacaaa'::str, 'a'::str) [spaces_only:False] = 'baaac'::str
+trim('xyzabcxyz'::str, 'xyz'::str) [spaces_only:False] = 'abc'::str
+trim('abcdefabc'::str, 'abc'::str) [spaces_only:False] = 'def'::str
+trim('123test321'::str, '123'::str) [spaces_only:False] = 'test321'::str
+trim('ééébonjouréée'::str, 'é'::str) [spaces_only:False] = 'bonjour'::str
+trim('aaabaaacaaa'::str, 'a'::str) [spaces_only:False] = 'baaac'::str
+trim('xxxhelloxworldxxx'::str, 'x'::str) [spaces_only:False] = 'helloxworld'::str
+

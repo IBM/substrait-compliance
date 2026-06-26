@@ -65,3 +65,63 @@ try_cast('-2.5e3'::str, fp64) = -2500.0::fp64
 # comparison_with_cast: Demonstrating difference from cast
 try_cast('invalid'::str, i32) = null::i32
 try_cast('999999999999'::str, i32) = null::i32
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+try_cast('-127'::str, i8) = -127::i8
+try_cast('-32768'::str, i16) = -32768::i16
+try_cast('2147483647'::str, i32) = 2147483647::i32
+try_cast('-2147483648'::str, i32) = -2147483648::i32
+try_cast('127'::str, i8) = 127::i8
+try_cast('-128'::str, i8) = -128::i8
+try_cast('32767'::str, i16) = 32767::i16
+try_cast('-32768'::str, i16) = -32768::i16
+try_cast('9223372036854775807'::str, i64) = 9223372036854775807::i64
+try_cast('-9223372036854775808'::str, i64) = -9223372036854775808::i64
+try_cast('255'::str, u8) = 255::u8
+try_cast('65535'::str, u16) = 65535::u16
+try_cast('4294967295'::str, u32) = 4294967295::u32
+try_cast('+127'::str, i8) = 127::i8
+try_cast('+255'::str, u8) = 255::u8
+
+# special_values: Special floating point values (NaN, Infinity)
+try_cast('inf'::str, fp32) = inf::fp32
+try_cast('nan'::str, fp32) = nan::fp32
+
+# null_handling_extended: Extended null handling scenarios
+try_cast('256'::str, u8) = null::u8
+try_cast('-1'::str, u8) = null::u8
+try_cast('65536'::str, u16) = null::u16
+try_cast('4294967296'::str, u32) = null::u32
+
+# zero_handling: Zero and negative zero handling
+try_cast('0'::str, u8) = 0::u8
+
+# precision: Floating point precision and small values
+try_cast('2.2250738585072014e-308'::str, fp64) = 2.2250738585072014e-308::fp64
+try_cast('1.5e-5'::str, fp64) = 1.5e-5::fp64
+
+# negative_values: Negative number handling
+try_cast('-42'::str, i32) = -42::i32
+try_cast('-1000'::str, i64) = -1000::i64
+try_cast('-2.5'::str, fp32) = -2.5::fp32
+try_cast('-1.7976931348623157e+308'::str, fp64) = -1.7976931348623157e+308::fp64
+try_cast('-2.5e3'::str, fp64) = -2.5e3::fp64
+
+# type_coverage: Various data type coverage
+try_cast('18446744073709551615'::str, u64) = 18446744073709551615::u64
+try_cast('+42'::str, i32) = 42::i32
+try_cast('+3.14'::str, fp64) = 3.14::fp64
+try_cast('3.14'::str, fp32) = 3.14::fp32
+try_cast('3.4028235e+38'::str, fp32) = 3.4028235e+38::fp32
+try_cast('1.7976931348623157e+308'::str, fp64) = 1.7976931348623157e+308::fp64
+
+# mixed_magnitude: Mixed magnitude values
+try_cast('1e10'::str, fp64) = 1e10::fp64
+try_cast('1E10'::str, fp64) = 1e10::fp64
+

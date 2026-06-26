@@ -7,3 +7,37 @@ concat_ws(''::str, 'Banana'::str, 'Apple'::str) = 'BananaApple'::str
 concat_ws(null::str, 'Banana'::str, 'Apple'::str, 'Melon'::str) = null::str
 concat_ws(','::str, null::str, 'Apple'::str, 'Melon'::str) = 'Apple,Melon'::str
 concat_ws(','::str, 'Apple'::str, null::str, 'Melon'::str) = 'Apple,Melon'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+concat_ws(','::str, null::str, null::str, null::str) = ''::str
+concat_ws('|'::str, 'A'::str, null::str, 'C'::str) = 'A|C'::str
+concat_ws(','::str, 'A'::str, null::str, 'C'::str, null::str, 'E'::str, null::str) = 'A,C,E'::str
+concat_ws(','::str, null::str, 'Middle'::str, null::str) = 'Middle'::str
+concat_ws(','::str, null::str, null::str, 'Last'::str) = 'Last'::str
+concat_ws(','::str, 'First'::str, null::str, null::str) = 'First'::str
+
+# empty_values: Empty strings and collections
+concat_ws(','::str, ''::str) = ''::str
+concat_ws(','::str, 'Apple'::str, ''::str, 'Melon'::str) = 'Apple,,Melon'::str
+concat_ws(','::str, ''::str, ''::str, ''::str) = ',,'::str
+concat_ws(','::str, ''::str, 'Apple'::str) = ',Apple'::str
+concat_ws(','::str) = ''::str
+
+# whitespace_handling: Whitespace and control characters
+concat_ws('\n'::str, 'Line1'::str, 'Line2'::str) = 'Line1\nLine2'::str
+
+# additional_coverage: Additional test coverage
+concat_ws(','::str, 'Single'::str) = 'Single'::str
+concat_ws(','::str, 'Apple'::str) = 'Apple'::str
+concat_ws(':::'::str, 'A'::str, 'B'::str, 'C'::str) = 'A:::B:::C'::str
+concat_ws(' - '::str, 'First'::str, 'Second'::str, 'Third'::str) = 'First - Second - Third'::str
+concat_ws(','::str, 'Value with, comma'::str, 'Another'::str) = 'Value with, comma,Another'::str
+concat_ws('|'::str, 'Has|pipe'::str, 'Normal'::str) = 'Has|pipe|Normal'::str
+concat_ws(','::str, 'A'::str, 'B'::str, 'C'::str, 'D'::str, 'E'::str, 'F'::str) = 'A,B,C,D,E,F'::str
+

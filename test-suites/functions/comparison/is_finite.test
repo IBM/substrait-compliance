@@ -8,3 +8,40 @@ is_finite(1000.000000000001::fp64) = true::bool
 is_finite(-inf::fp64) = false::bool
 is_finite(inf::fp64) = false::bool
 is_finite(null::fp64) = null::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+is_finite(nan::fp32) = false::bool
+is_finite(nan::fp64) = false::bool
+is_finite(-nan::fp32) = false::bool
+is_finite(-nan::fp64) = false::bool
+is_finite(-inf::fp32) = false::bool
+is_finite(inf::fp32) = false::bool
+
+# zero_handling: Zero and negative zero handling
+is_finite(-0.0::fp32) = true::bool
+is_finite(-0.0::fp64) = true::bool
+is_finite(-0.00001::fp32) = true::bool
+
+# precision: Floating point precision and small values
+is_finite(1.4e-45::fp32) = true::bool
+is_finite(-1.4e-45::fp32) = true::bool
+is_finite(5e-324::fp64) = true::bool
+is_finite(-5e-324::fp64) = true::bool
+
+# negative_values: Negative number handling
+is_finite(-1.5::fp32) = true::bool
+is_finite(-999.999::fp64) = true::bool
+is_finite(-3.4028235e38::fp32) = true::bool
+is_finite(-1.7976931348623157e308::fp64) = true::bool
+
+# type_coverage: Various data type coverage
+is_finite(3.4028235e38::fp32) = true::bool
+is_finite(1.7976931348623157e308::fp64) = true::bool
+is_finite(123.456::fp32) = true::bool
+

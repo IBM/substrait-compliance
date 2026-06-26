@@ -13,3 +13,39 @@ reverse(null::str) = null::str
 # unicode: Examples with unicode characters as input
 reverse('ææããa'::str) = 'aããææ'::str
 reverse('😔😄'::str) = '😄😔'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# unicode_handling: Unicode and special characters
+reverse('café'::str) = 'éfac'::str
+reverse('naïve'::str) = 'evïan'::str
+reverse('Hello世界'::str) = '界世olleH'::str
+reverse('test🎉123'::str) = '321🎉tset'::str
+reverse('café123☕'::str) = '☕321éfac'::str
+
+# whitespace_handling: Whitespace and control characters
+reverse('  '::str) = '  '::str
+reverse('\n\t\r'::str) = '\r\t\n'::str
+reverse('abc\ndef'::str) = 'fed\ncba'::str
+reverse('hello\tworld'::str) = 'dlrow\tolleh'::str
+
+# additional_coverage: Additional test coverage
+reverse('a'::str) = 'a'::str
+reverse('Z'::str) = 'Z'::str
+reverse('5'::str) = '5'::str
+reverse('123'::str) = '321'::str
+reverse('!@#$%'::str) = '%$#@!'::str
+reverse('123abc!@#'::str) = '#@!cba321'::str
+reverse('Hello World'::str) = 'dlroW olleH'::str
+reverse('Test123'::str) = '321tseT'::str
+reverse('ABC-def_123'::str) = '321_fed-CBA'::str
+reverse('résumé'::str) = 'émusér'::str
+reverse('e\u0301'::str) = '\u0301e'::str
+reverse('a\u0300b'::str) = 'b\u0300a'::str
+reverse('a👨‍👩‍👧‍👦b'::str) = 'b👨‍👩‍👧‍👦a'::str
+reverse('🏴󠁧󠁢󠁥󠁮󠁧󠁿test'::str) = 'tset🏴󠁧󠁢󠁥󠁮󠁧󠁿'::str
+

@@ -9,3 +9,32 @@ factorial(null::i32) = null::i32
 
 # overflow: Examples demonstrating overflow behavior
 factorial(1000000::i32) [overflow:ERROR] = <!ERROR>
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# overflow_behavior: Overflow and saturation behavior
+factorial(13::i32) [overflow:ERROR] = <!ERROR>
+factorial(21::i64) [overflow:ERROR] = <!ERROR>
+
+# null_handling_extended: Extended null handling scenarios
+factorial(null::i64) = null::i64
+
+# zero_handling: Zero and negative zero handling
+factorial(0::i64) = 1::i64
+
+# negative_values: Negative number handling
+factorial(-1::i32) [error] = <!ERROR>
+factorial(-5::i32) [error] = <!ERROR>
+factorial(-10::i64) [error] = <!ERROR>
+
+# type_coverage: Various data type coverage
+factorial(5::i32) = 120::i32
+factorial(10::i32) = 3628800::i32
+factorial(1::i64) = 1::i64
+factorial(5::i64) = 120::i64
+factorial(12::i32) = 479001600::i32
+

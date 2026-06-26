@@ -27,3 +27,49 @@ json_parse('{"unclosed": '::str) [error_handling:ERROR] = <!ERROR>
 # whitespace: JSON with whitespace
 json_parse('  {"name": "John"}  '::str) = {"name": "John"}::json
 json_parse('\n{\n  "key": "value"\n}\n'::str) = {"key": "value"}::json
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# zero_handling: Zero and negative zero handling
+json_parse('0'::str) = 0::json
+json_parse('0.0'::str) = 0.0::json
+json_parse('-0'::str) = -0::json
+
+# precision: Floating point precision and small values
+json_parse('-2.5e-3'::str) = -2.5e-3::json
+
+# empty_values: Empty strings and collections
+json_parse('""'::str) = ""::json
+json_parse(''::str) [error_handling:ERROR] = <!ERROR>
+
+# negative_values: Negative number handling
+json_parse('-123'::str) = -123::json
+
+# whitespace_handling: Whitespace and control characters
+json_parse('"line1\\nline2"'::str) = "line1\nline2"::json
+json_parse('"tab\\there"'::str) = "tab\there"::json
+
+# mixed_magnitude: Mixed magnitude values
+json_parse('1.23e10'::str) = 1.23e10::json
+
+# additional_coverage: Additional test coverage
+json_parse('false'::str) = false::json
+json_parse('3.14159'::str) = 3.14159::json
+json_parse('{}'::str) = {}::json
+json_parse('[]'::str) = []::json
+json_parse('"hello\"world"'::str) = "hello\"world"::json
+json_parse('"back\\\\slash"'::str) = "back\\slash"::json
+json_parse('"\\u0041\\u0042\\u0043"'::str) = "ABC"::json
+json_parse('"\\/"'::str) = "/"::json
+json_parse('{"trailing": "comma",}'::str) [error_handling:ERROR] = <!ERROR>
+json_parse('{"missing": quotes}'::str) [error_handling:ERROR] = <!ERROR>
+json_parse('[1, 2, 3,]'::str) [error_handling:ERROR] = <!ERROR>
+json_parse('{"wrong": ]'::str) [error_handling:ERROR] = <!ERROR>
+json_parse('{unquoted: "key"}'::str) [error_handling:ERROR] = <!ERROR>
+json_parse("{'single': 'quotes'}"::str) [error_handling:ERROR] = <!ERROR>
+json_parse('1e308'::str) = 1e308::json
+

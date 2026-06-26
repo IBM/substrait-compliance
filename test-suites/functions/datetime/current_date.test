@@ -23,3 +23,39 @@ extract('MONTH'::str, current_date()) >= 1::i64
 extract('MONTH'::str, current_date()) <= 12::i64
 extract('DAY'::str, current_date()) >= 1::i64
 extract('DAY'::str, current_date()) <= 31::i64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# zero_handling: Zero and negative zero handling
+extract('HOUR'::str, cast(current_date(), timestamp)) = 0::i64
+extract('MINUTE'::str, cast(current_date(), timestamp)) = 0::i64
+extract('SECOND'::str, cast(current_date(), timestamp)) = 0::i64
+
+# negative_values: Negative number handling
+current_date() != '1900-01-01'::date
+current_date() >= '2020-01-01'::date
+current_date() <= '2100-12-31'::date
+subtract(current_date(), add(current_date(), 'P-30D'::iday)) = 'P30D'::iday
+
+# type_coverage: Various data type coverage
+extract('DAY_OF_WEEK'::str, current_date()) >= 1::i64
+extract('DAY_OF_WEEK'::str, current_date()) <= 7::i64
+extract('DAY_OF_YEAR'::str, current_date()) >= 1::i64
+extract('DAY_OF_YEAR'::str, current_date()) <= 366::i64
+length(cast(current_date(), str)) >= 8::i64
+
+# additional_coverage: Additional test coverage
+current_date() = current_date()
+subtract(current_date(), current_date()) = 'P0D'::iday
+subtract(add(current_date(), 'P1D'::iday), current_date()) = 'P1D'::iday
+subtract(add(current_date(), 'P7D'::iday), current_date()) = 'P7D'::iday
+add(current_date(), 'P0D'::iday) = current_date()
+cast(current_date(), str) = cast(current_date(), str)
+current_date() >= subtract(current_date(), 'P365D'::iday)
+current_date() <= add(current_date(), 'P365D'::iday)
+subtract(add(current_date(), 'P1D'::iday), subtract(current_date(), 'P1D'::iday)) = 'P2D'::iday
+

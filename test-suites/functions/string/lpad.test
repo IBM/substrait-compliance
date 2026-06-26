@@ -11,3 +11,38 @@ lpad('abcdef'::str, 4::i32, ' '::str) = 'abcd'::str
 lpad('abcdef'::str, -1::i32, ' '::str) = ''::str
 lpad(null::str, 4::i32, ' '::str) = null::str
 lpad('abcdef'::str, 10::i32, null::str) = null::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+lpad('abcdef'::str, null::i32, 'x'::str) = null::str
+
+# zero_handling: Zero and negative zero handling
+lpad('abc'::str, 0::i32, 'x'::str) = ''::str
+
+# empty_values: Empty strings and collections
+lpad(''::str, 5::i32, 'x'::str) = 'xxxxx'::str
+
+# type_coverage: Various data type coverage
+lpad('abc'::str, 3::i32, 'x'::str) = 'abc'::str
+lpad('abc'::str, 1::i32, 'x'::str) = 'a'::str
+lpad('abcdef'::str, 2::i32, 'x'::str) = 'ab'::str
+lpad('hello world'::str, 5::i32, ' '::str) = 'hello'::str
+lpad('abc'::str, 10::i32, 'xyz'::str) = 'xyzxyzxabc'::str
+lpad('test'::str, 11::i32, '12'::str) = '1212121test'::str
+lpad('x'::str, 8::i32, 'abcd'::str) = 'abcdabcx'::str
+lpad('tab\ttab'::str, 10::i32, ' '::str) = '   tab\ttab'::str
+lpad('line\nbreak'::str, 15::i32, '-'::str) = '-----line\nbreak'::str
+lpad('a b'::str, 10::i32, '_'::str) = '_______a b'::str
+lpad('x'::str, 10000::i32, 'a'::str) = '<10000 character string starting with 9999 a's followed by x>'::str
+lpad('test'::str, 5000::i32, 'pad'::str) = '<5000 character string ending with test>'::str
+
+# unicode_handling: Unicode and special characters
+lpad('🎉🎊'::str, 5::i32, '😀'::str) = '😀😀😀🎉🎊'::str
+lpad('hello'::str, 10::i32, '🌟'::str) = '🌟🌟🌟🌟🌟hello'::str
+lpad('café'::str, 8::i32, 'é'::str) = 'éééécafé'::str
+

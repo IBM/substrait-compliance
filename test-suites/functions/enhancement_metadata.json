@@ -1,0 +1,1651 @@
+{
+  "processed_files": [
+    {
+      "filepath": "test-suites/functions/aggregate/avg.test",
+      "status": "processed",
+      "tests_reorganized": 34,
+      "categories": [
+        "special_values",
+        "edge_cases",
+        "zero_handling",
+        "single_value",
+        "null_handling_extended",
+        "precision",
+        "mixed_magnitude"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/aggregate/count.test",
+      "status": "processed",
+      "tests_reorganized": 24,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "edge_cases",
+        "single_value",
+        "negative_values",
+        "empty_values",
+        "unicode_handling",
+        "type_coverage",
+        "large_datasets",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/aggregate/count_distinct.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "zero_handling",
+        "negative_values",
+        "edge_cases",
+        "empty_values",
+        "type_coverage",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/aggregate/stddev.test",
+      "status": "processed",
+      "tests_reorganized": 20,
+      "categories": [
+        "type_coverage",
+        "mixed_magnitude",
+        "zero_handling",
+        "precision",
+        "special_values",
+        "edge_cases",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/aggregate/string_agg.test",
+      "status": "processed",
+      "tests_reorganized": 24,
+      "categories": [
+        "null_handling_extended",
+        "whitespace_handling",
+        "additional_coverage",
+        "unicode_handling",
+        "zero_handling",
+        "single_value"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/aggregate/variance.test",
+      "status": "processed",
+      "tests_reorganized": 29,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "mixed_magnitude",
+        "edge_cases",
+        "negative_values",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/abs.test",
+      "status": "processed",
+      "tests_reorganized": 31,
+      "categories": [
+        "zero_handling",
+        "overflow_behavior",
+        "special_values",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/acos.test",
+      "status": "processed",
+      "tests_reorganized": 18,
+      "categories": [
+        "zero_handling",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/acosh.test",
+      "status": "processed",
+      "tests_reorganized": 17,
+      "categories": [
+        "zero_handling",
+        "special_values",
+        "type_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/add.test",
+      "status": "processed",
+      "tests_reorganized": 50,
+      "categories": [
+        "null_handling_extended",
+        "zero_handling",
+        "negative_values",
+        "mixed_magnitude",
+        "overflow_behavior",
+        "special_values",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/asin.test",
+      "status": "processed",
+      "tests_reorganized": 24,
+      "categories": [
+        "zero_handling",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/asinh.test",
+      "status": "processed",
+      "tests_reorganized": 21,
+      "categories": [
+        "zero_handling",
+        "special_values",
+        "mixed_magnitude",
+        "precision",
+        "type_coverage",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/atan.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "type_coverage",
+        "negative_values",
+        "precision"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/atan2.test",
+      "status": "processed",
+      "tests_reorganized": 30,
+      "categories": [
+        "zero_handling",
+        "special_values",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/atanh.test",
+      "status": "processed",
+      "tests_reorganized": 24,
+      "categories": [
+        "special_values",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/bitwise_and.test",
+      "status": "processed",
+      "tests_reorganized": 21,
+      "categories": [
+        "edge_cases",
+        "negative_values",
+        "zero_handling",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/bitwise_not.test",
+      "status": "processed",
+      "tests_reorganized": 24,
+      "categories": [
+        "edge_cases",
+        "zero_handling",
+        "null_handling_extended",
+        "negative_values",
+        "mixed_magnitude"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/bitwise_or.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "zero_handling",
+        "edge_cases",
+        "negative_values",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/bitwise_xor.test",
+      "status": "processed",
+      "tests_reorganized": 37,
+      "categories": [
+        "edge_cases",
+        "zero_handling",
+        "null_handling_extended",
+        "negative_values",
+        "mixed_magnitude"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/ceil.test",
+      "status": "processed",
+      "tests_reorganized": 21,
+      "categories": [
+        "zero_handling",
+        "type_coverage",
+        "negative_values",
+        "precision",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/cos.test",
+      "status": "processed",
+      "tests_reorganized": 28,
+      "categories": [
+        "special_values",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/cosh.test",
+      "status": "processed",
+      "tests_reorganized": 27,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/degrees.test",
+      "status": "processed",
+      "tests_reorganized": 24,
+      "categories": [
+        "precision",
+        "type_coverage",
+        "negative_values",
+        "special_values",
+        "null_handling_extended",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/divide.test",
+      "status": "processed",
+      "tests_reorganized": 29,
+      "categories": [
+        "null_handling_extended",
+        "zero_handling",
+        "type_coverage",
+        "negative_values",
+        "special_values",
+        "overflow_behavior"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/exp.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "zero_handling",
+        "precision",
+        "special_values",
+        "type_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/factorial.test",
+      "status": "processed",
+      "tests_reorganized": 12,
+      "categories": [
+        "type_coverage",
+        "overflow_behavior",
+        "zero_handling",
+        "negative_values",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/floor.test",
+      "status": "processed",
+      "tests_reorganized": 17,
+      "categories": [
+        "type_coverage",
+        "negative_values",
+        "zero_handling",
+        "precision"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/ln.test",
+      "status": "processed",
+      "tests_reorganized": 18,
+      "categories": [
+        "special_values",
+        "precision",
+        "type_coverage",
+        "mixed_magnitude",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/log.test",
+      "status": "processed",
+      "tests_reorganized": 25,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "precision",
+        "type_coverage",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/log10.test",
+      "status": "processed",
+      "tests_reorganized": 21,
+      "categories": [
+        "precision",
+        "mixed_magnitude",
+        "type_coverage",
+        "special_values",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/max.test",
+      "status": "processed",
+      "tests_reorganized": 40,
+      "categories": [
+        "special_values",
+        "edge_cases",
+        "negative_values",
+        "single_value",
+        "zero_handling",
+        "type_coverage",
+        "mixed_magnitude"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/min.test",
+      "status": "processed",
+      "tests_reorganized": 28,
+      "categories": [
+        "special_values",
+        "single_value",
+        "edge_cases",
+        "zero_handling",
+        "type_coverage",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/mod.test",
+      "status": "processed",
+      "tests_reorganized": 33,
+      "categories": [
+        "zero_handling",
+        "edge_cases",
+        "special_values",
+        "mixed_magnitude",
+        "type_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/multiply.test",
+      "status": "processed",
+      "tests_reorganized": 40,
+      "categories": [
+        "null_handling_extended",
+        "edge_cases",
+        "zero_handling",
+        "type_coverage",
+        "negative_values",
+        "overflow_behavior"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/negate.test",
+      "status": "processed",
+      "tests_reorganized": 29,
+      "categories": [
+        "zero_handling",
+        "special_values",
+        "overflow_behavior",
+        "edge_cases",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/power.test",
+      "status": "processed",
+      "tests_reorganized": 41,
+      "categories": [
+        "null_handling_extended",
+        "zero_handling",
+        "special_values",
+        "negative_values",
+        "type_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/radians.test",
+      "status": "processed",
+      "tests_reorganized": 31,
+      "categories": [
+        "precision",
+        "zero_handling",
+        "type_coverage",
+        "negative_values",
+        "mixed_magnitude",
+        "special_values",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/round.test",
+      "status": "processed",
+      "tests_reorganized": 35,
+      "categories": [
+        "zero_handling",
+        "type_coverage",
+        "negative_values",
+        "mixed_magnitude",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/shift_left.test",
+      "status": "processed",
+      "tests_reorganized": 20,
+      "categories": [
+        "zero_handling",
+        "edge_cases",
+        "null_handling_extended",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/shift_right.test",
+      "status": "processed",
+      "tests_reorganized": 27,
+      "categories": [
+        "zero_handling",
+        "edge_cases",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/shift_right_unsigned.test",
+      "status": "processed",
+      "tests_reorganized": 21,
+      "categories": [
+        "edge_cases",
+        "zero_handling",
+        "null_handling_extended",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/sign.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "zero_handling",
+        "special_values",
+        "edge_cases",
+        "type_coverage",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/sin.test",
+      "status": "processed",
+      "tests_reorganized": 26,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/sinh.test",
+      "status": "processed",
+      "tests_reorganized": 21,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "type_coverage",
+        "negative_values",
+        "edge_cases",
+        "precision"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/sqrt.test",
+      "status": "processed",
+      "tests_reorganized": 27,
+      "categories": [
+        "zero_handling",
+        "type_coverage",
+        "special_values",
+        "precision",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/subtract.test",
+      "status": "processed",
+      "tests_reorganized": 34,
+      "categories": [
+        "null_handling_extended",
+        "zero_handling",
+        "overflow_behavior",
+        "type_coverage",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/sum.test",
+      "status": "processed",
+      "tests_reorganized": 26,
+      "categories": [
+        "special_values",
+        "edge_cases",
+        "overflow_behavior",
+        "zero_handling",
+        "single_value"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/tan.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "type_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/tanh.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "special_values",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/arithmetic/trunc.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "zero_handling",
+        "type_coverage",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/array/array_concat.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "edge_cases",
+        "zero_handling",
+        "negative_values",
+        "special_values",
+        "null_handling_extended",
+        "empty_values",
+        "whitespace_handling",
+        "additional_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/array/array_construct.test",
+      "status": "processed",
+      "tests_reorganized": 29,
+      "categories": [
+        "negative_values",
+        "zero_handling",
+        "edge_cases",
+        "special_values",
+        "precision",
+        "empty_values",
+        "unicode_handling",
+        "whitespace_handling",
+        "additional_coverage",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/array/array_contains.test",
+      "status": "processed",
+      "tests_reorganized": 20,
+      "categories": [
+        "type_coverage",
+        "additional_coverage",
+        "null_handling_extended",
+        "zero_handling",
+        "edge_cases",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/array/array_element.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "edge_cases",
+        "zero_handling",
+        "type_coverage",
+        "null_handling_extended",
+        "negative_values",
+        "empty_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/cast/try_cast.test",
+      "status": "processed",
+      "tests_reorganized": 37,
+      "categories": [
+        "negative_values",
+        "edge_cases",
+        "zero_handling",
+        "type_coverage",
+        "null_handling_extended",
+        "special_values",
+        "precision",
+        "mixed_magnitude"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/between.test",
+      "status": "processed",
+      "tests_reorganized": 43,
+      "categories": [
+        "edge_cases",
+        "zero_handling",
+        "type_coverage",
+        "special_values",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/coalesce.test",
+      "status": "processed",
+      "tests_reorganized": 34,
+      "categories": [
+        "null_handling_extended",
+        "type_coverage",
+        "additional_coverage",
+        "negative_values",
+        "special_values",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/equal.test",
+      "status": "processed",
+      "tests_reorganized": 23,
+      "categories": [
+        "zero_handling",
+        "edge_cases",
+        "type_coverage",
+        "special_values",
+        "precision",
+        "additional_coverage",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/gt.test",
+      "status": "processed",
+      "tests_reorganized": 41,
+      "categories": [
+        "edge_cases",
+        "zero_handling",
+        "negative_values",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/gte.test",
+      "status": "processed",
+      "tests_reorganized": 66,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "edge_cases",
+        "type_coverage",
+        "negative_values",
+        "mixed_magnitude"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_false.test",
+      "status": "processed",
+      "tests_reorganized": 12,
+      "categories": [
+        "null_handling_extended",
+        "additional_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_finite.test",
+      "status": "processed",
+      "tests_reorganized": 20,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "negative_values",
+        "type_coverage",
+        "precision"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_infinite.test",
+      "status": "processed",
+      "tests_reorganized": 10,
+      "categories": [
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_nan.test",
+      "status": "processed",
+      "tests_reorganized": 10,
+      "categories": [
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_not_distinct_from.test",
+      "status": "processed",
+      "tests_reorganized": 44,
+      "categories": [
+        "zero_handling",
+        "edge_cases",
+        "negative_values",
+        "type_coverage",
+        "null_handling_extended",
+        "additional_coverage",
+        "empty_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_not_false.test",
+      "status": "processed",
+      "tests_reorganized": 14,
+      "categories": [
+        "additional_coverage",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_not_null.test",
+      "status": "processed",
+      "tests_reorganized": 38,
+      "categories": [
+        "null_handling_extended",
+        "edge_cases",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_not_true.test",
+      "status": "processed",
+      "tests_reorganized": 11,
+      "categories": [
+        "additional_coverage",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_null.test",
+      "status": "processed",
+      "tests_reorganized": 48,
+      "categories": [
+        "null_handling_extended",
+        "edge_cases",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/is_true.test",
+      "status": "processed",
+      "tests_reorganized": 10,
+      "categories": [
+        "null_handling_extended",
+        "additional_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/lt.test",
+      "status": "processed",
+      "tests_reorganized": 46,
+      "categories": [
+        "zero_handling",
+        "edge_cases",
+        "special_values",
+        "negative_values",
+        "mixed_magnitude"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/lte.test",
+      "status": "processed",
+      "tests_reorganized": 41,
+      "categories": [
+        "special_values",
+        "zero_handling",
+        "edge_cases",
+        "negative_values",
+        "mixed_magnitude"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/not_equal.test",
+      "status": "processed",
+      "tests_reorganized": 37,
+      "categories": [
+        "zero_handling",
+        "edge_cases",
+        "negative_values",
+        "type_coverage",
+        "special_values",
+        "additional_coverage",
+        "empty_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/comparison/nullif.test",
+      "status": "processed",
+      "tests_reorganized": 49,
+      "categories": [
+        "null_handling_extended",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/conditional/case_when.test",
+      "status": "processed",
+      "tests_reorganized": 28,
+      "categories": [
+        "type_coverage",
+        "null_handling_extended",
+        "zero_handling",
+        "additional_coverage",
+        "edge_cases",
+        "negative_values",
+        "empty_values",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/conditional/if_then_else.test",
+      "status": "processed",
+      "tests_reorganized": 30,
+      "categories": [
+        "null_handling_extended",
+        "edge_cases",
+        "zero_handling",
+        "negative_values",
+        "special_values",
+        "empty_values",
+        "type_coverage",
+        "additional_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/add_datetime.test",
+      "status": "processed",
+      "tests_reorganized": 25,
+      "categories": [
+        "zero_handling",
+        "negative_values",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/add_intervals.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "additional_coverage",
+        "negative_values",
+        "null_handling_extended",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/current_date.test",
+      "status": "processed",
+      "tests_reorganized": 21,
+      "categories": [
+        "additional_coverage",
+        "negative_values",
+        "zero_handling",
+        "type_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/current_timestamp.test",
+      "status": "processed",
+      "tests_reorganized": 10,
+      "categories": [
+        "null_handling_extended",
+        "additional_coverage",
+        "negative_values",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/date_diff.test",
+      "status": "processed",
+      "tests_reorganized": 32,
+      "categories": [
+        "null_handling_extended",
+        "negative_values",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/date_trunc.test",
+      "status": "processed",
+      "tests_reorganized": 34,
+      "categories": [
+        "null_handling_extended",
+        "zero_handling",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/extract.test",
+      "status": "processed",
+      "tests_reorganized": 45,
+      "categories": [
+        "null_handling_extended",
+        "negative_values",
+        "zero_handling",
+        "type_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/gt_datetime.test",
+      "status": "processed",
+      "tests_reorganized": 25,
+      "categories": [
+        "negative_values",
+        "zero_handling",
+        "additional_coverage",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/gte_datetime.test",
+      "status": "processed",
+      "tests_reorganized": 21,
+      "categories": [
+        "negative_values",
+        "additional_coverage",
+        "null_handling_extended",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/lt_datetime.test",
+      "status": "processed",
+      "tests_reorganized": 23,
+      "categories": [
+        "negative_values",
+        "zero_handling",
+        "additional_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/lte_datetime.test",
+      "status": "processed",
+      "tests_reorganized": 33,
+      "categories": [
+        "negative_values",
+        "zero_handling",
+        "additional_coverage",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/datetime/subtract_datetime.test",
+      "status": "processed",
+      "tests_reorganized": 18,
+      "categories": [
+        "negative_values",
+        "zero_handling",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/geospatial/st_area.test",
+      "status": "processed",
+      "tests_reorganized": 14,
+      "categories": [
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/geospatial/st_contains.test",
+      "status": "processed",
+      "tests_reorganized": 16,
+      "categories": [
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/geospatial/st_distance.test",
+      "status": "processed",
+      "tests_reorganized": 18,
+      "categories": [
+        "zero_handling",
+        "precision",
+        "null_handling_extended",
+        "edge_cases",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/geospatial/st_intersects.test",
+      "status": "processed",
+      "tests_reorganized": 15,
+      "categories": [
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/json/json_extract.test",
+      "status": "processed",
+      "tests_reorganized": 31,
+      "categories": [
+        "null_handling_extended",
+        "empty_values",
+        "additional_coverage",
+        "whitespace_handling",
+        "zero_handling",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/json/json_parse.test",
+      "status": "processed",
+      "tests_reorganized": 25,
+      "categories": [
+        "additional_coverage",
+        "zero_handling",
+        "negative_values",
+        "mixed_magnitude",
+        "precision",
+        "empty_values",
+        "whitespace_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/map/map_construct.test",
+      "status": "processed",
+      "tests_reorganized": 23,
+      "categories": [
+        "null_handling_extended",
+        "additional_coverage",
+        "type_coverage",
+        "empty_values",
+        "edge_cases",
+        "zero_handling",
+        "negative_values",
+        "large_datasets",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/map/map_extract.test",
+      "status": "processed",
+      "tests_reorganized": 25,
+      "categories": [
+        "null_handling_extended",
+        "empty_values",
+        "additional_coverage",
+        "whitespace_handling",
+        "zero_handling",
+        "edge_cases",
+        "negative_values",
+        "special_values",
+        "type_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/map/map_keys.test",
+      "status": "processed",
+      "tests_reorganized": 13,
+      "categories": [
+        "empty_values",
+        "whitespace_handling",
+        "additional_coverage",
+        "null_handling_extended",
+        "zero_handling",
+        "edge_cases",
+        "large_datasets"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/set/except.test",
+      "status": "processed",
+      "tests_reorganized": 18,
+      "categories": [
+        "additional_coverage",
+        "null_handling_extended",
+        "negative_values",
+        "zero_handling",
+        "edge_cases",
+        "special_values",
+        "large_datasets"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/set/intersect.test",
+      "status": "processed",
+      "tests_reorganized": 20,
+      "categories": [
+        "additional_coverage",
+        "zero_handling",
+        "edge_cases",
+        "empty_values",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/set/union.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "additional_coverage",
+        "negative_values",
+        "zero_handling",
+        "edge_cases",
+        "special_values",
+        "null_handling_extended",
+        "large_datasets"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/bit_length.test",
+      "status": "processed",
+      "tests_reorganized": 20,
+      "categories": [
+        "type_coverage",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/char_length.test",
+      "status": "processed",
+      "tests_reorganized": 23,
+      "categories": [
+        "type_coverage",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/concat.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "empty_values",
+        "null_handling_extended",
+        "additional_coverage",
+        "unicode_handling",
+        "whitespace_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/concat_ws.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "empty_values",
+        "additional_coverage",
+        "null_handling_extended",
+        "whitespace_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/contains.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "null_handling_extended",
+        "empty_values",
+        "additional_coverage",
+        "whitespace_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/ends_with.test",
+      "status": "processed",
+      "tests_reorganized": 17,
+      "categories": [
+        "null_handling_extended",
+        "empty_values",
+        "additional_coverage",
+        "whitespace_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/left.test",
+      "status": "processed",
+      "tests_reorganized": 23,
+      "categories": [
+        "zero_handling",
+        "empty_values",
+        "edge_cases",
+        "type_coverage",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/like.test",
+      "status": "processed",
+      "tests_reorganized": 35,
+      "categories": [
+        "null_handling_extended",
+        "additional_coverage",
+        "empty_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/lower.test",
+      "status": "processed",
+      "tests_reorganized": 14,
+      "categories": [
+        "additional_coverage",
+        "whitespace_handling",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/lpad.test",
+      "status": "processed",
+      "tests_reorganized": 18,
+      "categories": [
+        "empty_values",
+        "zero_handling",
+        "type_coverage",
+        "null_handling_extended",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/ltrim.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "empty_values",
+        "whitespace_handling",
+        "additional_coverage",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/octet_length.test",
+      "status": "processed",
+      "tests_reorganized": 25,
+      "categories": [
+        "type_coverage",
+        "unicode_handling",
+        "zero_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/regexp_count_substring.test",
+      "status": "processed",
+      "tests_reorganized": 31,
+      "categories": [
+        "zero_handling",
+        "empty_values",
+        "type_coverage",
+        "unicode_handling",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/regexp_match_substring.test",
+      "status": "processed",
+      "tests_reorganized": 32,
+      "categories": [
+        "zero_handling",
+        "null_handling_extended",
+        "type_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/regexp_replace.test",
+      "status": "processed",
+      "tests_reorganized": 25,
+      "categories": [
+        "zero_handling",
+        "type_coverage",
+        "null_handling_extended",
+        "empty_values",
+        "additional_coverage"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/regexp_string_split.test",
+      "status": "processed",
+      "tests_reorganized": 24,
+      "categories": [
+        "null_handling_extended",
+        "empty_values",
+        "additional_coverage",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/repeat.test",
+      "status": "processed",
+      "tests_reorganized": 17,
+      "categories": [
+        "null_handling_extended",
+        "type_coverage",
+        "empty_values",
+        "zero_handling",
+        "unicode_handling",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/replace.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "empty_values",
+        "additional_coverage",
+        "whitespace_handling",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/reverse.test",
+      "status": "processed",
+      "tests_reorganized": 23,
+      "categories": [
+        "additional_coverage",
+        "whitespace_handling",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/right.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "zero_handling",
+        "empty_values",
+        "type_coverage",
+        "edge_cases",
+        "null_handling_extended",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/rpad.test",
+      "status": "processed",
+      "tests_reorganized": 13,
+      "categories": [
+        "empty_values",
+        "zero_handling",
+        "type_coverage",
+        "null_handling_extended",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/rtrim.test",
+      "status": "processed",
+      "tests_reorganized": 18,
+      "categories": [
+        "null_handling_extended",
+        "empty_values",
+        "whitespace_handling",
+        "additional_coverage",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/starts_with.test",
+      "status": "processed",
+      "tests_reorganized": 23,
+      "categories": [
+        "null_handling_extended",
+        "empty_values",
+        "additional_coverage",
+        "whitespace_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/string_split.test",
+      "status": "processed",
+      "tests_reorganized": 20,
+      "categories": [
+        "empty_values",
+        "additional_coverage",
+        "special_values",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/substring.test",
+      "status": "processed",
+      "tests_reorganized": 23,
+      "categories": [
+        "null_handling_extended",
+        "empty_values",
+        "zero_handling",
+        "type_coverage",
+        "negative_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/trim.test",
+      "status": "processed",
+      "tests_reorganized": 17,
+      "categories": [
+        "empty_values",
+        "null_handling_extended",
+        "additional_coverage",
+        "whitespace_handling",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/string/upper.test",
+      "status": "processed",
+      "tests_reorganized": 17,
+      "categories": [
+        "additional_coverage",
+        "whitespace_handling",
+        "unicode_handling"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/struct/struct_construct.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "additional_coverage",
+        "type_coverage",
+        "empty_values",
+        "unicode_handling",
+        "large_datasets",
+        "null_handling_extended"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/struct/struct_extract.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "additional_coverage",
+        "type_coverage",
+        "null_handling_extended",
+        "zero_handling",
+        "negative_values",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/window/dense_rank.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "null_handling_extended",
+        "zero_handling",
+        "large_datasets",
+        "type_coverage",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/window/first_value.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "null_handling_extended",
+        "type_coverage",
+        "negative_values",
+        "zero_handling",
+        "edge_cases",
+        "empty_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/window/lag.test",
+      "status": "processed",
+      "tests_reorganized": 22,
+      "categories": [
+        "negative_values",
+        "null_handling_extended",
+        "zero_handling",
+        "single_value",
+        "empty_values",
+        "edge_cases",
+        "special_values"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/window/last_value.test",
+      "status": "processed",
+      "tests_reorganized": 19,
+      "categories": [
+        "negative_values",
+        "zero_handling",
+        "edge_cases",
+        "type_coverage",
+        "null_handling_extended",
+        "single_value"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/window/lead.test",
+      "status": "processed",
+      "tests_reorganized": 15,
+      "categories": [
+        "null_handling_extended",
+        "zero_handling",
+        "type_coverage",
+        "empty_values",
+        "single_value"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/window/rank.test",
+      "status": "processed",
+      "tests_reorganized": 21,
+      "categories": [
+        "type_coverage",
+        "null_handling_extended",
+        "zero_handling",
+        "edge_cases"
+      ]
+    },
+    {
+      "filepath": "test-suites/functions/window/row_number.test",
+      "status": "processed",
+      "tests_reorganized": 17,
+      "categories": [
+        "null_handling_extended",
+        "type_coverage",
+        "zero_handling",
+        "edge_cases"
+      ]
+    }
+  ],
+  "total_files": 136,
+  "total_tests_reorganized": 3381,
+  "categories": {
+    "aggregate": {
+      "files": 6,
+      "tests": 153
+    },
+    "arithmetic": {
+      "files": 44,
+      "tests": 1140
+    },
+    "array": {
+      "files": 4,
+      "tests": 90
+    },
+    "cast": {
+      "files": 1,
+      "tests": 37
+    },
+    "comparison": {
+      "files": 19,
+      "tests": 597
+    },
+    "conditional": {
+      "files": 2,
+      "tests": 58
+    },
+    "datetime": {
+      "files": 12,
+      "tests": 309
+    },
+    "geospatial": {
+      "files": 4,
+      "tests": 63
+    },
+    "json": {
+      "files": 2,
+      "tests": 56
+    },
+    "map": {
+      "files": 3,
+      "tests": 61
+    },
+    "set": {
+      "files": 3,
+      "tests": 60
+    },
+    "string": {
+      "files": 27,
+      "tests": 581
+    },
+    "struct": {
+      "files": 2,
+      "tests": 38
+    },
+    "window": {
+      "files": 7,
+      "tests": 138
+    }
+  }
+}

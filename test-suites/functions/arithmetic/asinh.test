@@ -6,3 +6,43 @@ asinh(0.01::fp32) = 0.009999833340832886::fp32
 asinh(1.0::fp64) = 0.881373587019543::fp64
 asinh(0.0009::fp64) = 0.0008999998785000443::fp64
 asinh(null::fp64) = null::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+asinh(inf::fp32) = inf::fp32
+asinh(-inf::fp32) = -inf::fp32
+asinh(nan::fp32) = nan::fp32
+asinh(inf::fp64) = inf::fp64
+asinh(-inf::fp64) = -inf::fp64
+asinh(nan::fp64) = nan::fp64
+
+# null_handling_extended: Extended null handling scenarios
+asinh(null::fp32) = null::fp32
+
+# zero_handling: Zero and negative zero handling
+asinh(0.0::fp32) = 0.0::fp32
+asinh(0.0::fp64) = 0.0::fp64
+asinh(-0.0::fp32) = -0.0::fp32
+asinh(-0.0::fp64) = -0.0::fp64
+asinh(-0.01::fp32) = -0.009999833340832886::fp32
+asinh(-1.0::fp64) = -0.881373587019543::fp64
+asinh(-0.0009::fp64) = -0.0008999998785000443::fp64
+asinh(-10.0::fp64) = -2.99822295029797::fp64
+asinh(-100.0::fp32) = -5.298342365610589::fp32
+
+# precision: Floating point precision and small values
+asinh(1e-10::fp64) = 1e-10::fp64
+asinh(-1e-8::fp32) = -1e-8::fp32
+
+# type_coverage: Various data type coverage
+asinh(1e20::fp32) = 46.75172974982901::fp32
+
+# mixed_magnitude: Mixed magnitude values
+asinh(1e10::fp64) = 23.718998110500402::fp64
+asinh(-1e10::fp64) = -23.718998110500402::fp64
+

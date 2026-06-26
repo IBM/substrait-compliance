@@ -19,3 +19,63 @@ nullif(true::bool, null::bool) = true::bool
 nullif(null::bool, null::bool) = null::bool
 nullif(10::dec<38, 0>, null::dec<38, 0>) = 10::dec<38, 0>
 nullif(null::dec<38, 0>, null::dec<38, 0>) = null::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+nullif(-128::i8, -128::i8) = null::i8
+nullif(-32768::i16, -32768::i16) = null::i16
+nullif(127::i8, 127::i8) = null::i8
+nullif(-128::i8, -127::i8) = -128::i8
+nullif(32767::i16, 32767::i16) = null::i16
+nullif(-32768::i16, 0::i16) = -32768::i16
+nullif(2147483647::i32, 2147483647::i32) = null::i32
+nullif(-2147483648::i32, -2147483648::i32) = null::i32
+nullif(9223372036854775807::i64, 9223372036854775807::i64) = null::i64
+nullif(-9223372036854775808::i64, -9223372036854775808::i64) = null::i64
+
+# null_handling_extended: Extended null handling scenarios
+nullif(-5::i8, -5::i8) = null::i8
+nullif(-10::i8, 5::i8) = -10::i8
+nullif(-100::i32, -100::i32) = null::i32
+nullif(-50::i32, 25::i32) = -50::i32
+nullif(-1000::i64, -1000::i64) = null::i64
+nullif(-3.14::fp32, -3.14::fp32) = null::fp32
+nullif(-2.5::fp64, -2.5::fp64) = null::fp64
+nullif(0::i8, 0::i8) = null::i8
+nullif(0::i16, 5::i16) = 0::i16
+nullif(0::i32, 0::i32) = null::i32
+nullif(0::i64, 100::i64) = 0::i64
+nullif(0.0::fp32, 0.0::fp32) = null::fp32
+nullif(0.0::fp64, 1.0::fp64) = 0.0::fp64
+nullif(100::i32, 200::i32) = 100::i32
+nullif(500::i32, 500::i32) = null::i32
+nullif(1000::i64, 1000::i64) = null::i64
+nullif(5000::i64, 2500::i64) = 5000::i64
+nullif(null::i32, 100::i32) = null::i32
+nullif(200::i32, null::i32) = 200::i32
+nullif(null::i64, null::i64) = null::i64
+nullif(3.14::fp64, 2.71::fp64) = 3.14::fp64
+nullif(1.5::fp64, 1.5::fp64) = null::fp64
+nullif(123.456789::fp64, 123.456789::fp64) = null::fp64
+nullif(0.0::fp64, 0.0::fp64) = null::fp64
+nullif(null::fp64, 5.5::fp64) = null::fp64
+nullif(7.7::fp64, null::fp64) = 7.7::fp64
+nullif('hello'::string, 'world'::string) = 'hello'::string
+nullif('test'::string, 'test'::string) = null::string
+nullif(''::string, ''::string) = null::string
+nullif('abc'::string, ''::string) = 'abc'::string
+nullif(null::string, 'value'::string) = null::string
+nullif('data'::string, null::string) = 'data'::string
+nullif(null::string, null::string) = null::string
+nullif(10.5::dec<10, 1>, 10.5::dec<10, 1>) = null::dec<10, 1>
+nullif(100.25::dec<10, 2>, 50.75::dec<10, 2>) = 100.25::dec<10, 2>
+nullif(0.00::dec<5, 2>, 0.00::dec<5, 2>) = null::dec<5, 2>
+nullif(-25.5::dec<10, 1>, -25.5::dec<10, 1>) = null::dec<10, 1>
+nullif(null::dec<10, 2>, 5.55::dec<10, 2>) = null::dec<10, 2>
+nullif(null::dec<38, 0>, null::dec<38, 0>) = null::dec<38, 0>
+

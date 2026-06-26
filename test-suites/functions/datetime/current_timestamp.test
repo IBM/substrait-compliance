@@ -32,3 +32,28 @@ extract('SECOND'::str, current_timestamp()) <= 59::i64
 
 # date_from_timestamp: Extract date from current timestamp
 date_trunc('DAY'::str, current_timestamp()) <= current_timestamp()
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+current_timestamp() != null::ts
+
+# zero_handling: Zero and negative zero handling
+current_timestamp() >= '2020-01-01T00:00:00'::ts
+
+# negative_values: Negative number handling
+subtract(current_timestamp(), current_timestamp()) >= 'PT-1S'::iday
+current_timestamp() <= '2100-12-31T23:59:59'::ts
+
+# additional_coverage: Additional test coverage
+typeof(current_timestamp()) = 'timestamp'::str
+subtract(current_timestamp(), current_timestamp()) <= 'PT1S'::iday
+current_timestamp() >= current_timestamp()
+date_trunc('YEAR'::str, current_timestamp()) <= current_timestamp()
+date_trunc('MONTH'::str, current_timestamp()) <= current_timestamp()
+date_trunc('HOUR'::str, current_timestamp()) <= current_timestamp()
+

@@ -11,3 +11,39 @@ concat(null::str, 'abcd'::str) [null_handling:ACCEPT_NULLS] = null::str
 concat(null::str, 'abcd'::str) [null_handling:IGNORE_NULLS] = 'abcd'::str
 concat(null::str, null::str) [null_handling:ACCEPT_NULLS] = null::str
 concat(null::str, null::str) [null_handling:IGNORE_NULLS] = ''::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+concat(''::str, null::str) [null_handling:IGNORE_NULLS] = ''::str
+concat(null::str, ''::str) [null_handling:IGNORE_NULLS] = ''::str
+concat(''::str, null::str) [null_handling:ACCEPT_NULLS] = null::str
+concat('a'::str, null::str, 'b'::str) [null_handling:IGNORE_NULLS] = 'ab'::str
+concat('a'::str, null::str, 'b'::str) [null_handling:ACCEPT_NULLS] = null::str
+
+# empty_values: Empty strings and collections
+concat(''::str, 'abc'::str) = 'abc'::str
+concat('abc'::str, ''::str) = 'abc'::str
+concat(''::str, ''::str) = ''::str
+concat('one'::str, ''::str, 'two'::str) = 'onetwo'::str
+concat('quote"'::str, "apostrophe'"::str) = 'quote"apostrophe\''::str
+
+# unicode_handling: Unicode and special characters
+concat('unicode'::str, '🎉'::str) = 'unicode🎉'::str
+concat('Hello'::str, '世界'::str) = 'Hello世界'::str
+concat('emoji🔥'::str, '🌟test'::str) = 'emoji🔥🌟test'::str
+
+# whitespace_handling: Whitespace and control characters
+concat('line1\n'::str, 'line2'::str) = 'line1\nline2'::str
+concat('tab\t'::str, 'separated'::str) = 'tab\tseparated'::str
+
+# additional_coverage: Additional test coverage
+concat('abc'::str, 'def'::str, 'ghi'::str) = 'abcdefghi'::str
+concat('Hello'::str, ' '::str, 'World'::str) = 'Hello World'::str
+concat('a'::str, 'b'::str, 'c'::str, 'd'::str, 'e'::str) = 'abcde'::str
+concat('This is a longer string with more than fifty characters in it to test length handling'::str, ' and this is the continuation of that string'::str) = 'This is a longer string with more than fifty characters in it to test length handling and this is the continuation of that string'::str
+

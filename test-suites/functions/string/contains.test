@@ -14,3 +14,40 @@ contains('😊a😊b😊😊'::str, 'a😊b'::str) = true::bool
 contains('😊a😊b😊😊'::str, 'A😊B'::str) = false::bool
 contains('😊a😊b😊😊'::str, 'A😊B'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
 contains('😊a😊b😊😊'::str, 'a😊c'::str) = false::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+contains(null::str, 'abc'::str) = null::bool
+contains('abcdefg'::str, null::str) = null::bool
+contains(null::str, null::str) = null::bool
+
+# empty_values: Empty strings and collections
+contains(''::str, ''::str) = true::bool
+contains('abc'::str, ''::str) = true::bool
+contains(''::str, 'abc'::str) = false::bool
+contains('it\'s here'::str, '\''::str) = true::bool
+
+# whitespace_handling: Whitespace and control characters
+contains('hello\nworld'::str, '\n'::str) = true::bool
+contains('hello\tworld'::str, '\t'::str) = true::bool
+contains('path\\to\\file'::str, '\\'::str) = true::bool
+contains('  abc  '::str, '  abc'::str) = true::bool
+contains('   '::str, ' '::str) = true::bool
+
+# additional_coverage: Additional test coverage
+contains('abc'::str, 'abc'::str) = true::bool
+contains('abc'::str, 'ABC'::str) = false::bool
+contains('abc'::str, 'ABC'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+contains('abc'::str, 'abcdef'::str) = false::bool
+contains('a'::str, 'a'::str) = true::bool
+contains('abc'::str, 'x'::str) = false::bool
+contains('x'::str, 'xyz'::str) = false::bool
+contains('say "hello"'::str, '"'::str) = true::bool
+contains('abc def'::str, ' '::str) = true::bool
+contains('abc'::str, ' '::str) = false::bool
+

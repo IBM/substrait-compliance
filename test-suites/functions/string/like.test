@@ -10,3 +10,51 @@ like('abcdefg'::str, 'abc%'::str) = true::bool
 like('abcdefg'::str, '%efg'::str) = true::bool
 like('abcdefg'::str, '_bcdefg'::str) = true::bool
 like('abcdefg'::str, 'abc_efg'::str) = true::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+like(null::str, 'abc'::str) = null::bool
+like('abcdefg'::str, null::str) = null::bool
+like(null::str, null::str) = null::bool
+
+# empty_values: Empty strings and collections
+like(''::str, '%'::str) = true::bool
+like(''::str, ''::str) = true::bool
+like(''::str, 'abc'::str) = false::bool
+like('abc'::str, ''::str) = false::bool
+like(''::str, '_%'::str) = false::bool
+
+# additional_coverage: Additional test coverage
+like('abc%def'::str, 'abc\%def'::str) = true::bool
+like('abc_def'::str, 'abc\_def'::str) = true::bool
+like('abc\def'::str, 'abc\\def'::str) = true::bool
+like('abc%def'::str, 'abc%def'::str) = false::bool
+like('abc_def'::str, 'abc_def'::str) = false::bool
+like('abcdefg'::str, '%'::str) = true::bool
+like('a'::str, '_'::str) = true::bool
+like('ab'::str, '_'::str) = false::bool
+like('abcdefg'::str, '%b%d%f%'::str) = true::bool
+like('abcdefg'::str, '%_%_%'::str) = true::bool
+like('abcdefg'::str, '%%abc%%'::str) = true::bool
+like('abcdefg'::str, 'a%c%e%g'::str) = true::bool
+like('abcdefg'::str, '%x%'::str) = false::bool
+like('abcdefg'::str, '_______'::str) = true::bool
+like('abcdefg'::str, '________'::str) = false::bool
+like('abcdefg'::str, '______'::str) = false::bool
+like('a'::str, '_'::str) = true::bool
+like('abcdefg'::str, 'xyz%'::str) = false::bool
+like('abcdefg'::str, '%xyz'::str) = false::bool
+like('abcdefg'::str, 'abc_xyz'::str) = false::bool
+like('abcdefg'::str, '_bcdefgh'::str) = false::bool
+like('abcdefg'::str, 'ABCDEFG'::str) = false::bool
+like('abc123def'::str, 'abc%def'::str) = true::bool
+like('abc123def'::str, 'abc___def'::str) = true::bool
+like('abc123def'::str, 'abc____def'::str) = false::bool
+like('a1b2c3'::str, '__%__%__'::str) = true::bool
+like('abcabc'::str, '%abc%abc%'::str) = true::bool
+

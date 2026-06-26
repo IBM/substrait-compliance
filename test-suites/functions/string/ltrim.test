@@ -14,3 +14,37 @@ ltrim(null::str, ' '::str) = null::str
 ltrim('aaaaabc'::str, 'a'::str) [spaces_only:FALSE] = 'bc'::str
 ltrim('abcabcdef'::str, 'abc'::str) [spaces_only:FALSE] = 'def'::str
 ltrim('abccbadef'::str, 'abc'::str) [spaces_only:FALSE] = 'def'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# empty_values: Empty strings and collections
+ltrim('abc'::str, ''::str) [spaces_only:FALSE] = 'abc'::str
+ltrim('   abc'::str, ''::str) [spaces_only:FALSE] = '   abc'::str
+ltrim(''::str, ''::str) [spaces_only:FALSE] = ''::str
+ltrim('aaaa'::str, 'a'::str) [spaces_only:FALSE] = ''::str
+ltrim('     '::str, ' '::str) = ''::str
+ltrim('abcabc'::str, 'abc'::str) [spaces_only:FALSE] = ''::str
+
+# unicode_handling: Unicode and special characters
+ltrim('🎉🎉hello'::str, '🎉'::str) [spaces_only:FALSE] = 'hello'::str
+
+# whitespace_handling: Whitespace and control characters
+ltrim('   abc'::str, ' '::str) [spaces_only:TRUE] = 'abc'::str
+ltrim('\t\n  abc'::str, ' '::str) [spaces_only:TRUE] = '\t\n  abc'::str
+ltrim('\t\tabc'::str, '\t'::str) [spaces_only:FALSE] = 'abc'::str
+ltrim('\n\nabc'::str, '\n'::str) [spaces_only:FALSE] = 'abc'::str
+ltrim('\t\n abc'::str, ' '::str) [spaces_only:FALSE] = '\t\n abc'::str
+
+# additional_coverage: Additional test coverage
+ltrim('aaaaabc'::str, 'a'::str) [spaces_only:TRUE] = 'aaaaabc'::str
+ltrim('äääabc'::str, 'ä'::str) [spaces_only:FALSE] = 'abc'::str
+ltrim('你好你好world'::str, '你好'::str) [spaces_only:FALSE] = 'world'::str
+ltrim('bbbaaaccc'::str, 'abc'::str) [spaces_only:FALSE] = 'ccc'::str
+ltrim('aaabbbcccaaa'::str, 'a'::str) [spaces_only:FALSE] = 'bbbcccaaa'::str
+ltrim('ABCabc'::str, 'abc'::str) [spaces_only:FALSE] = 'ABCabc'::str
+ltrim('abcABC'::str, 'abc'::str) [spaces_only:FALSE] = 'ABC'::str
+

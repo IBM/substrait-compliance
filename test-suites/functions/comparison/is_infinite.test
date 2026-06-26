@@ -8,3 +8,22 @@ is_infinite(1000.000000000001::fp64) = false::bool
 is_infinite(-inf::fp64) = true::bool
 is_infinite(inf::fp64) = true::bool
 is_infinite(null::fp64) = null::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+is_infinite(nan::fp32) = false::bool
+is_infinite(nan::fp64) = false::bool
+is_infinite(-inf::fp32) = true::bool
+is_infinite(inf::fp32) = true::bool
+is_infinite(-0.0::fp32) = false::bool
+is_infinite(-0.0::fp64) = false::bool
+is_infinite(-1.5::fp32) = false::bool
+is_infinite(-1000.000000000001::fp64) = false::bool
+is_infinite(3.4028235e38::fp32) = false::bool
+is_infinite(1.7976931348623157e308::fp64) = false::bool
+

@@ -1,0 +1,30 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_array.yaml'
+
+# basic: Basic array element access (0-based indexing)
+array_element([1, 2, 3, 4, 5]::list<i32>, 0::i32) = 1::i32
+array_element([1, 2, 3, 4, 5]::list<i32>, 2::i32) = 3::i32
+array_element([1, 2, 3, 4, 5]::list<i32>, 4::i32) = 5::i32
+array_element(['a', 'b', 'c']::list<str>, 0::i32) = 'a'::str
+array_element(['a', 'b', 'c']::list<str>, 2::i32) = 'c'::str
+
+# negative_index: Negative indexing (from end)
+array_element([1, 2, 3, 4, 5]::list<i32>, -1::i32) = 5::i32
+array_element([1, 2, 3, 4, 5]::list<i32>, -2::i32) = 4::i32
+array_element([1, 2, 3, 4, 5]::list<i32>, -5::i32) = 1::i32
+array_element(['a', 'b', 'c']::list<str>, -1::i32) = 'c'::str
+
+# null_handling: Null elements and arrays
+array_element([1, null, 3]::list<i32>, 1::i32) = null::i32
+array_element(null::list<i32>, 0::i32) = null::i32
+array_element([1, 2, 3]::list<i32>, null::i32) = null::i32
+
+# out_of_bounds: Out of bounds access
+array_element([1, 2, 3]::list<i32>, 5::i32) = null::i32
+array_element([1, 2, 3]::list<i32>, -10::i32) = null::i32
+array_element([]::list<i32>, 0::i32) = null::i32
+
+# types: Different data types
+array_element([1.5, 2.5, 3.5]::list<fp64>, 1::i32) = 2.5::fp64
+array_element([true, false, true]::list<bool>, 0::i32) = true::bool
+array_element([100::i64, 200::i64, 300::i64]::list<i64>, 2::i32) = 300::i64

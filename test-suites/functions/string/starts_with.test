@@ -14,3 +14,41 @@ starts_with('😊a😊b😊😊'::str, '😊a'::str) = true::bool
 
 # multi_byte_characters case insensitivity: multi byte character comparison with case insensitivity
 starts_with('😊a😊b😊😊'::str, '😊A'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+starts_with(null::str, 'a'::str) = null::bool
+starts_with('abcd'::str, null::str) = null::bool
+starts_with(null::str, null::str) = null::bool
+
+# empty_values: Empty strings and collections
+starts_with(''::str, ''::str) = true::bool
+starts_with('abcd'::str, ''::str) = true::bool
+starts_with(''::str, 'a'::str) = false::bool
+starts_with(''::str, ''::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+
+# whitespace_handling: Whitespace and control characters
+starts_with('  abcd'::str, ' '::str) = true::bool
+starts_with('\tabcd'::str, '\t'::str) = true::bool
+starts_with('\nabcd'::str, '\n'::str) = true::bool
+starts_with('  '::str, ' '::str) = true::bool
+
+# additional_coverage: Additional test coverage
+starts_with('abc'::str, 'abcd'::str) = false::bool
+starts_with('abcd'::str, 'abcd'::str) = true::bool
+starts_with('a'::str, 'a'::str) = true::bool
+starts_with('!@#$%'::str, '!@'::str) = true::bool
+starts_with('123abc'::str, '123'::str) = true::bool
+starts_with('abc123'::str, '123'::str) = false::bool
+starts_with('ABC'::str, 'abc'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+starts_with('aBcD'::str, 'AbCd'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+starts_with('😊'::str, '😊'::str) = true::bool
+starts_with('😊'::str, '😊a'::str) = false::bool
+starts_with('ÄÖÜ'::str, 'Ä'::str) = true::bool
+starts_with('ÄÖÜ'::str, 'ä'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
+

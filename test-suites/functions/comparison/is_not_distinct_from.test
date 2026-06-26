@@ -12,3 +12,68 @@ is_not_distinct_from(null::i16, 1::i16) = false::bool
 is_not_distinct_from(null::i16, null::i16) = true::bool
 is_not_distinct_from(10::dec<38, 0>, null::dec<38, 0>) = false::bool
 is_not_distinct_from(null::dec<38, 0>, null::dec<38, 0>) = true::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+is_not_distinct_from(-32768::i16, -32768::i16) = true::bool
+is_not_distinct_from(32767::i16, 32767::i16) = true::bool
+is_not_distinct_from(-2147483648::i32, -2147483648::i32) = true::bool
+is_not_distinct_from(2147483647::i32, 2147483647::i32) = true::bool
+is_not_distinct_from(-9223372036854775808::i64, -9223372036854775808::i64) = true::bool
+is_not_distinct_from(9223372036854775807::i64, 9223372036854775807::i64) = true::bool
+
+# null_handling_extended: Extended null handling scenarios
+is_not_distinct_from(null::i32, null::i32) = true::bool
+is_not_distinct_from(null::i32, 1::i32) = false::bool
+is_not_distinct_from(null::i64, null::i64) = true::bool
+is_not_distinct_from(null::i64, 1::i64) = false::bool
+is_not_distinct_from(null::fp32, null::fp32) = true::bool
+is_not_distinct_from(null::fp32, 1.5::fp32) = false::bool
+is_not_distinct_from(null::fp64, null::fp64) = true::bool
+is_not_distinct_from(null::fp64, 1.5::fp64) = false::bool
+is_not_distinct_from(null::string, null::string) = true::bool
+is_not_distinct_from(null::string, 'abc'::string) = false::bool
+is_not_distinct_from(null::bool, null::bool) = true::bool
+is_not_distinct_from(null::bool, true::bool) = false::bool
+
+# zero_handling: Zero and negative zero handling
+is_not_distinct_from(0::i16, 0::i16) = true::bool
+is_not_distinct_from(0.0::fp64, -0.0::fp64) = true::bool
+is_not_distinct_from(0.00::dec<38, 2>, 0.00::dec<38, 2>) = true::bool
+is_not_distinct_from(0.0::dec<10, 1>, 0.0::dec<10, 1>) = true::bool
+
+# empty_values: Empty strings and collections
+is_not_distinct_from(''::string, ''::string) = true::bool
+
+# negative_values: Negative number handling
+is_not_distinct_from(-5::i16, -5::i16) = true::bool
+is_not_distinct_from(-5::i16, 5::i16) = false::bool
+is_not_distinct_from(-100::i32, -100::i32) = true::bool
+is_not_distinct_from(-1.75::dec<38, 2>, -1.75::dec<38, 2>) = true::bool
+is_not_distinct_from(-1.75::dec<38, 2>, 1.75::dec<38, 2>) = false::bool
+is_not_distinct_from(-999.99::dec<38, 2>, -999.99::dec<38, 2>) = true::bool
+
+# type_coverage: Various data type coverage
+is_not_distinct_from(1::i32, 1::i32) = true::bool
+is_not_distinct_from(2::i32, 1::i32) = false::bool
+is_not_distinct_from(1::i64, 1::i64) = true::bool
+is_not_distinct_from(2::i64, 1::i64) = false::bool
+is_not_distinct_from(1.5::fp32, 1.5::fp32) = true::bool
+is_not_distinct_from(1.5::fp32, 2.5::fp32) = false::bool
+is_not_distinct_from(1.5::fp64, 1.5::fp64) = true::bool
+is_not_distinct_from(1.5::fp64, 2.5::fp64) = false::bool
+
+# additional_coverage: Additional test coverage
+is_not_distinct_from('abc'::string, 'abc'::string) = true::bool
+is_not_distinct_from('abc'::string, 'ABC'::string) = false::bool
+is_not_distinct_from('abc'::string, 'def'::string) = false::bool
+is_not_distinct_from(true::bool, true::bool) = true::bool
+is_not_distinct_from(false::bool, false::bool) = true::bool
+is_not_distinct_from(true::bool, false::bool) = false::bool
+is_not_distinct_from(999.99::dec<38, 2>, 999.99::dec<38, 2>) = true::bool
+

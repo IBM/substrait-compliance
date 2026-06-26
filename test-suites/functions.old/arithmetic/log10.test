@@ -1,0 +1,29 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_arithmetic.yaml'
+
+# basic: Basic base-10 logarithm examples
+log10(10.0::fp64) = 1::fp64
+log10(100.0::fp64) = 2::fp64
+log10(1000.0::fp64) = 3::fp64
+log10(1.0::fp64) = 0::fp64
+log10(0.1::fp64) = -1::fp64
+log10(0.01::fp64) = -2::fp64
+
+# null_handling: Examples with null as input
+log10(null::fp64) = null::fp64
+
+# types: Examples with different numeric types
+log10(10.0::fp32) = 1::fp32
+log10(100.0::fp32) = 2::fp32
+
+# edge_cases: Special cases and errors
+log10(0.0::fp64) = -inf::fp64
+log10(-1.0::fp64) = nan::fp64
+log10(inf::fp64) = inf::fp64
+log10(nan::fp64) = nan::fp64
+
+# precision: Non-power-of-10 values
+log10(2.0::fp64) = 0.3010299956639812::fp64
+log10(5.0::fp64) = 0.6989700043360189::fp64
+log10(50.0::fp64) = 1.6989700043360189::fp64
+log10(500.0::fp64) = 2.6989700043360189::fp64

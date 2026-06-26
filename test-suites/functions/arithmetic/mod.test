@@ -35,3 +35,53 @@ mod(10.0::fp64, 0.0::fp64) = nan::fp64
 mod(inf::fp64, 3.0::fp64) = nan::fp64
 mod(10.0::fp64, inf::fp64) = 10.0::fp64
 mod(nan::fp64, 3.0::fp64) = nan::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+mod(-2147483648::i32, -1::i32) = 0::i32
+mod(-9223372036854775808::i64, -1::i64) = 0::i64
+mod(2147483647::i32, 1::i32) = 0::i32
+mod(9223372036854775807::i64, 1::i64) = 0::i64
+mod(-128::i8, -1::i8) = 0::i8
+mod(-32768::i16, -1::i16) = 0::i16
+mod(2147483647::i32, 2::i32) = 1::i32
+mod(-2147483648::i32, 2::i32) = 0::i32
+mod(9223372036854775807::i64, 3::i64) = 1::i64
+mod(-9223372036854775808::i64, 3::i64) = -2::i64
+mod(127::i8, 10::i8) = 7::i8
+mod(-128::i8, 10::i8) = -8::i8
+
+# special_values: Special floating point values (NaN, Infinity)
+mod(-inf::fp64, 3.0::fp64) = nan::fp64
+mod(0.0::fp64, 0.0::fp64) = nan::fp64
+mod(3.0::fp64, nan::fp64) = nan::fp64
+mod(10.0::fp32, nan::fp32) = nan::fp32
+mod(-inf::fp32, 2.0::fp32) = nan::fp32
+
+# zero_handling: Zero and negative zero handling
+mod(0::i32, 3::i32) = 0::i32
+mod(0::i64, 5::i64) = 0::i64
+mod(0::i8, 7::i8) = 0::i8
+mod(0::i16, 11::i16) = 0::i16
+mod(0.0::fp32, 3.0::fp32) = 0.0::fp32
+mod(0.0::fp64, 5.0::fp64) = 0.0::fp64
+mod(-10.5::fp64, 3.0::fp64) = -1.5::fp64
+mod(10.5::fp64, -3.0::fp64) = 1.5::fp64
+mod(-10.5::fp64, -3.0::fp64) = -1.5::fp64
+mod(-7.5::fp32, 2.5::fp32) = -0.0::fp32
+mod(7.5::fp32, -2.5::fp32) = 0.0::fp32
+mod(-0.0::fp64, 5.0::fp64) = -0.0::fp64
+
+# type_coverage: Various data type coverage
+mod(999999999::i32, 999999998::i32) = 1::i32
+
+# mixed_magnitude: Mixed magnitude values
+mod(1000000::i32, 7::i32) = 6::i32
+mod(1000000000::i64, 13::i64) = 4::i64
+mod(1000000000000::i64, 999999999999::i64) = 1::i64
+

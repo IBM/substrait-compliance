@@ -1,0 +1,31 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_conditional.yaml'
+
+# basic: Basic CASE WHEN expressions
+case_when(true::bool, 1::i32, 2::i32) = 1::i32
+case_when(false::bool, 1::i32, 2::i32) = 2::i32
+case_when(5::i32 > 3::i32, 'greater'::str, 'not greater'::str) = 'greater'::str
+case_when(5::i32 < 3::i32, 'less'::str, 'not less'::str) = 'not less'::str
+
+# multiple_conditions: Multiple WHEN clauses
+case_when(1::i32 = 1::i32, 'one'::str, 1::i32 = 2::i32, 'two'::str, 'other'::str) = 'one'::str
+case_when(1::i32 = 2::i32, 'two'::str, 1::i32 = 3::i32, 'three'::str, 'other'::str) = 'other'::str
+case_when(false::bool, 1::i32, false::bool, 2::i32, true::bool, 3::i32, 4::i32) = 3::i32
+
+# null_handling: CASE with null values
+case_when(null::bool, 1::i32, 2::i32) = 2::i32
+case_when(true::bool, null::i32, 2::i32) = null::i32
+case_when(false::bool, 1::i32, null::i32) = null::i32
+
+# types: Different data types
+case_when(true::bool, 1.5::fp64, 2.5::fp64) = 1.5::fp64
+case_when(false::bool, 100::i64, 200::i64) = 200::i64
+case_when(true::bool, true::bool, false::bool) = true::bool
+
+# nested: Nested CASE expressions
+case_when(true::bool, case_when(true::bool, 1::i32, 2::i32), 3::i32) = 1::i32
+case_when(false::bool, 1::i32, case_when(true::bool, 2::i32, 3::i32)) = 2::i32
+
+# range_checks: Range checking patterns
+case_when(10::i32 < 5::i32, 'low'::str, 10::i32 < 15::i32, 'medium'::str, 'high'::str) = 'medium'::str
+case_when(20::i32 < 5::i32, 'low'::str, 20::i32 < 15::i32, 'medium'::str, 'high'::str) = 'high'::str

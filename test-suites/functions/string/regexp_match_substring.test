@@ -52,3 +52,48 @@ regexp_match_substring('USD100'::str, '(?<=USD)\d{3}'::str) [lookaround:TRUE] = 
 # negative_lookbehind: Examples with negative lookbehind
 regexp_match_substring('JPY100'::str, '\d{3}(?<!USD\d{3})'::str, 1::i64, 1::i64, 0::i64) [lookaround:TRUE] = '100'::str
 regexp_match_substring('JPY100'::str, '\d{3}(?<!USD\d{3})'::str) [lookaround:TRUE] = '100'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+regexp_match_substring('abc'::str, 'a'::str, 1::i64, 5::i64, 0::i64) = null::str
+regexp_match_substring('abc'::str, 'a'::str, 10::i64, 1::i64, 0::i64) = null::str
+regexp_match_substring('abc'::str, '\d+'::str, 1::i64, 1::i64, 0::i64) = null::str
+regexp_match_substring('hello'::str, 'xyz'::str, 1::i64, 1::i64, 0::i64) = null::str
+regexp_match_substring('123'::str, '[a-z]+'::str, 1::i64, 1::i64, 0::i64) = null::str
+regexp_match_substring('hello world'::str, '^world'::str, 1::i64, 1::i64, 0::i64) = null::str
+regexp_match_substring('USD100'::str, '\d+(?=USD)'::str, 1::i64, 1::i64, 0::i64) = null::str
+regexp_match_substring('100USD'::str, '(?<=USD)\d+'::str, 1::i64, 1::i64, 0::i64) = null::str
+
+# zero_handling: Zero and negative zero handling
+regexp_match_substring('foobarboopzoo'::str, 'o{1,}'::str, 1::i64, 2::i64, 0::i64) = 'oo'::str
+regexp_match_substring('abcabcacb'::str, '[bc]'::str, 1::i64, 2::i64, 0::i64) = 'c'::str
+regexp_match_substring('abcabcacb'::str, '[bc]'::str, 1::i64, 3::i64, 0::i64) = 'b'::str
+regexp_match_substring('foobarboopzoo'::str, 'o{1,}'::str, 5::i64, 1::i64, 0::i64) = 'oo'::str
+regexp_match_substring('abcabcacb'::str, 'abc'::str, 4::i64, 1::i64, 0::i64) = 'abc'::str
+regexp_match_substring('hello world'::str, 'o'::str, 6::i64, 1::i64, 0::i64) = 'o'::str
+regexp_match_substring(''::str, 'a*'::str, 1::i64, 1::i64, 0::i64) = ''::str
+regexp_match_substring(''::str, '.*'::str, 1::i64, 1::i64, 0::i64) = ''::str
+regexp_match_substring('abc'::str, ''::str, 1::i64, 1::i64, 0::i64) = ''::str
+regexp_match_substring('hello world'::str, '^hello'::str, 1::i64, 1::i64, 0::i64) = 'hello'::str
+regexp_match_substring('hello world'::str, 'world$'::str, 1::i64, 1::i64, 0::i64) = 'world'::str
+regexp_match_substring('hello world'::str, '\bhello\b'::str, 1::i64, 1::i64, 0::i64) = 'hello'::str
+regexp_match_substring('hello world'::str, '\bworld\b'::str, 1::i64, 1::i64, 0::i64) = 'world'::str
+regexp_match_substring('100USD'::str, '\d+(?=USD)'::str, 1::i64, 1::i64, 0::i64) = '100'::str
+regexp_match_substring('USD100'::str, '(?<=USD)\d+'::str, 1::i64, 1::i64, 0::i64) = '100'::str
+
+# type_coverage: Various data type coverage
+regexp_match_substring('abc123def'::str, '([a-z]+)(\d+)'::str, 1::i64, 1::i64, 1::i64) = 'abc'::str
+regexp_match_substring('abc123def'::str, '([a-z]+)(\d+)'::str, 1::i64, 1::i64, 2::i64) = '123'::str
+regexp_match_substring('test@example.com'::str, '(\w+)@(\w+)\.(\w+)'::str, 1::i64, 1::i64, 1::i64) = 'test'::str
+regexp_match_substring('test@example.com'::str, '(\w+)@(\w+)\.(\w+)'::str, 1::i64, 1::i64, 2::i64) = 'example'::str
+regexp_match_substring('test@example.com'::str, '(\w+)@(\w+)\.(\w+)'::str, 1::i64, 1::i64, 3::i64) = 'com'::str
+regexp_match_substring('abc123def456ghi'::str, '([a-z]+)(\d+)'::str, 1::i64, 2::i64, 1::i64) = 'def'::str
+regexp_match_substring('abc123def456ghi'::str, '([a-z]+)(\d+)'::str, 1::i64, 2::i64, 2::i64) = '456'::str
+regexp_match_substring('abc123def456ghi'::str, '([a-z]+)(\d+)'::str, 4::i64, 1::i64, 1::i64) = 'def'::str
+regexp_match_substring('abc123def456ghi'::str, '([a-z]+)(\d+)'::str, 4::i64, 1::i64, 2::i64) = '456'::str
+

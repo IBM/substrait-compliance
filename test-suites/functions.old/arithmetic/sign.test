@@ -1,0 +1,36 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: '/extensions/functions_arithmetic.yaml'
+
+# basic: Basic sign function examples
+sign(5::i32) = 1::i32
+sign(-5::i32) = -1::i32
+sign(0::i32) = 0::i32
+sign(100::i64) = 1::i64
+sign(-100::i64) = -1::i64
+
+# floating_point: Floating point sign examples
+sign(3.14::fp64) = 1::fp64
+sign(-3.14::fp64) = -1::fp64
+sign(0.0::fp64) = 0::fp64
+sign(-0.0::fp64) = 0::fp64
+
+# null_handling: Examples with null as input
+sign(null::i32) = null::i32
+sign(null::fp64) = null::fp64
+
+# types: Examples with different numeric types
+sign(5::i8) = 1::i8
+sign(-5::i8) = -1::i8
+sign(1000::i16) = 1::i16
+sign(-1000::i16) = -1::i16
+sign(3.14::fp32) = 1::fp32
+sign(-3.14::fp32) = -1::fp32
+
+# edge_cases: Special floating point values
+sign(inf::fp64) = 1::fp64
+sign(-inf::fp64) = -1::fp64
+sign(nan::fp64) = nan::fp64
+
+# precision: Very small values
+sign(1e-10::fp64) = 1::fp64
+sign(-1e-10::fp64) = -1::fp64

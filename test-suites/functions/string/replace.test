@@ -10,3 +10,40 @@ replace('abc def ghi'::str, ' '::str, ','::str) = 'abc,def,ghi'::str
 replace('abcd'::str, null::str, ','::str) = null::str
 replace('abcd'::str, ' '::str, null::str) = null::str
 replace(null::str, ' '::str, ','::str) = null::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# empty_values: Empty strings and collections
+replace(''::str, 'a'::str, 'b'::str) = ''::str
+replace('abc'::str, 'b'::str, ''::str) = 'ac'::str
+replace('hello world'::str, ' '::str, ''::str) = 'helloworld'::str
+
+# unicode_handling: Unicode and special characters
+replace('café'::str, 'é'::str, 'e'::str) = 'cafe'::str
+replace('Hello世界'::str, '世界'::str, 'World'::str) = 'HelloWorld'::str
+
+# whitespace_handling: Whitespace and control characters
+replace('hello\nworld'::str, '\n'::str, ' '::str) = 'hello world'::str
+replace('a\tb\tc'::str, '\t'::str, ','::str) = 'a,b,c'::str
+replace('line1\r\nline2'::str, '\r\n'::str, '\n'::str) = 'line1\nline2'::str
+
+# additional_coverage: Additional test coverage
+replace('abc'::str, 'abc'::str, 'xyz'::str) = 'xyz'::str
+replace('a'::str, 'a'::str, 'b'::str) = 'b'::str
+replace('aaa'::str, 'aa'::str, 'b'::str) = 'ba'::str
+replace('ABC'::str, 'abc'::str, 'x'::str) = 'ABC'::str
+replace('AbCaBc'::str, 'abc'::str, 'x'::str) = 'AbCaBc'::str
+replace('hello'::str, 'HELLO'::str, 'hi'::str) = 'hello'::str
+replace('🙂🙃🙂'::str, '🙂'::str, '😀'::str) = '😀🙃😀'::str
+replace('aaabbbccc'::str, 'bb'::str, 'x'::str) = 'aaaxbccc'::str
+replace('aaaa'::str, 'aa'::str, 'b'::str) = 'bb'::str
+replace('abababab'::str, 'ab'::str, 'x'::str) = 'xxxx'::str
+replace('hello'::str, 'xyz'::str, 'abc'::str) = 'hello'::str
+replace('12345'::str, 'abc'::str, 'xyz'::str) = '12345'::str
+replace('abc'::str, 'b'::str, 'xyz'::str) = 'axyzc'::str
+replace('test'::str, 't'::str, 'TEST'::str) = 'TESTesTestEST'::str
+

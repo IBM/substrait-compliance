@@ -13,3 +13,30 @@ lower(null::str) = null::str
 # unicode: Examples with unicode characters as input
 lower('ÆÆÃÃA'::str) [full_unicode:TRUE] = 'ææããa'::str
 lower('😄'::str) = '😄'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# unicode_handling: Unicode and special characters
+lower('ΑΒΓΔ'::str) [full_unicode:TRUE] = 'αβγδ'::str
+
+# whitespace_handling: Whitespace and control characters
+lower('  ABC  '::str) = '  abc  '::str
+lower('\n\t\r'::str) = '\n\t\r'::str
+
+# additional_coverage: Additional test coverage
+lower('ABC123!@#'::str) = 'abc123!@#'::str
+lower('Hello World'::str) = 'hello world'::str
+lower('123'::str) = '123'::str
+lower('ÑOÑO'::str) [full_unicode:TRUE] = 'ñoño'::str
+lower('МОСКВА'::str) [full_unicode:TRUE] = 'москва'::str
+lower('ÆØÅÄÖ'::str) [full_unicode:TRUE] = 'æøåäö'::str
+lower('İSTANBUL'::str) [full_unicode:TRUE] = 'i̇stanbul'::str
+lower('ΣΣΣ'::str) [full_unicode:TRUE] = 'σσσ'::str
+lower('ABC123xyz!@#'::str) = 'abc123xyz!@#'::str
+lower('Test-Case_2024'::str) = 'test-case_2024'::str
+lower('Price: $100.50'::str) = 'price: $100.50'::str
+

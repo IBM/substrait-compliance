@@ -16,3 +16,50 @@ min(()::i16) = Null::i16
 min((2000000000, Null, 629000000, -100000000, Null, 987654321)::i64) = -100000000::i64
 min((Null, -inf, -1.5e+8, -1.5e+7, -1.5e+70)::fp64) = -inf::fp64
 min((1.5e+308, 1.5e+10, Null, -1.5e+7, Null)::fp64) = -1.5e+7::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+min((-128)::i8) = -128::i8
+min((127)::i8) = 127::i8
+min((-32768)::i16) = -32768::i16
+min((2147483647)::i32) = 2147483647::i32
+min((-128, 127)::i8) = -128::i8
+min((127, 126, -128)::i8) = -128::i8
+min((32767, -32768, 0)::i16) = -32768::i16
+min((2147483647, -2147483648, 0)::i32) = -2147483648::i32
+min((9223372036854775807, -9223372036854775808)::i64) = -9223372036854775808::i64
+min((-9223372036854775808, -9223372036854775808)::i64) = -9223372036854775808::i64
+min((Null, -128)::i8) = -128::i8
+min((Null, 9223372036854775807, -9223372036854775808)::i64) = -9223372036854775808::i64
+min((127, Null, -128, Null)::i8) = -128::i8
+
+# special_values: Special floating point values (NaN, Infinity)
+min((NaN, 1.0, 2.0)::fp32) = NaN::fp32
+min((1.0, NaN, 2.0)::fp64) = NaN::fp64
+min((NaN, NaN)::fp32) = NaN::fp32
+min((NaN, -inf, 5.0)::fp64) = NaN::fp64
+min((inf, NaN, -inf)::fp32) = NaN::fp32
+min((inf, -inf)::fp64) = -inf::fp64
+min((inf, inf, inf)::fp32) = inf::fp32
+min((-inf, -inf)::fp64) = -inf::fp64
+min((Null, inf, Null)::fp32) = inf::fp32
+
+# zero_handling: Zero and negative zero handling
+min((0, 0, 0)::i32) = 0::i32
+
+# single_value: Single value inputs
+min((5)::i32) = 5::i32
+min((3.14159)::fp32) = 3.14159::fp32
+
+# negative_values: Negative number handling
+min((-5, -5, -5)::i8) = -5::i8
+
+# type_coverage: Various data type coverage
+min((42, 42, 42, 42)::i16) = 42::i16
+min((3.14, 3.14)::fp64) = 3.14::fp64
+

@@ -34,3 +34,35 @@ lead(value::i32, 10, -1) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20)) = (-1, 
 
 # comparison_with_lag: Demonstrating lead vs lag behavior
 lead(value::i32, 1) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, 30)) = (20, 30, Null)::i32
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+lead(value::decimal, 1) OVER (ORDER BY id::i32) WITH ((1, 10.50), (2, 20.75), (3, 30.25)) = (20.75, 30.25, Null)::decimal
+lead(event_date::date, 1) OVER (ORDER BY id::i32) WITH ((1, '2023-01-01'), (2, '2023-01-02'), (3, '2023-01-03')) = ('2023-01-02', '2023-01-03', Null)::date
+lead(event_date::date, 2) OVER (ORDER BY id::i32) WITH ((1, '2023-01-01'), (2, '2023-01-02'), (3, '2023-01-03')) = ('2023-01-03', Null, Null)::date
+lead(event_time::timestamp, 1) OVER (ORDER BY id::i32) WITH ((1, '2023-01-01 10:00:00'), (2, '2023-01-01 11:00:00'), (3, '2023-01-01 12:00:00')) = ('2023-01-01 11:00:00', '2023-01-01 12:00:00', Null)::timestamp
+lead(flag::bool, 1) OVER (ORDER BY id::i32) WITH ((1, true), (2, false), (3, true)) = (false, true, Null)::bool
+lead(value::i32, 1) OVER (ORDER BY id::i32) WITH ((1, 10)) = (Null)::i32
+lead(value::i32, 1) OVER (ORDER BY id::i32 DESC) WITH ((1, 10), (2, 20), (3, 30)) = (20, 10, Null)::i32
+lead(value::i32, 2) OVER (ORDER BY id::i32 DESC) WITH ((1, 10), (2, 20), (3, 30), (4, 40)) = (20, 10, Null, Null)::i32
+lead(value::i32, 1, Null) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, 30)) = (20, 30, Null)::i32
+lead(value::str, 2, Null) OVER (ORDER BY id::i32) WITH ((1, 'A'), (2, 'B'), (3, 'C')) = ('C', Null, Null)::str
+lead(value::i32, 1) OVER (PARTITION BY category::str ORDER BY id::i32) WITH (('A', 1, 100), ('A', 2, 200), ('A', 3, 300), ('B', 4, 400), ('B', 5, 500), ('C', 6, 600)) = (200, 300, Null, 500, Null, Null)::i32
+
+# zero_handling: Zero and negative zero handling
+lead(value::decimal, 1, 0.00) OVER (ORDER BY id::i32) WITH ((1, 100.99), (2, 200.50)) = (200.50, 0.00)::decimal
+
+# single_value: Single value inputs
+lead(value::i32, 1, 99) OVER (ORDER BY id::i32) WITH ((1, 10)) = (99)::i32
+
+# empty_values: Empty strings and collections
+lead(value::i32, 1) OVER (ORDER BY id::i32) WITH () = ()::i32
+
+# type_coverage: Various data type coverage
+lead(flag::bool, 1, false) OVER (ORDER BY id::i32) WITH ((1, true), (2, false)) = (false, false)::bool
+

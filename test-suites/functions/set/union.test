@@ -26,3 +26,46 @@ union([true, false]::list<bool>, [false, true]::list<bool>) = [true, false]::lis
 
 # multiple: Union of multiple sets
 union([1, 2]::list<i32>, [3, 4]::list<i32>, [5, 6]::list<i32>) = [1, 2, 3, 4, 5, 6]::list<i32>
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+union([2147483647]::list<i32>, [2147483647, -2147483648]::list<i32>) = [2147483647, -2147483648]::list<i32>
+union([127, -128]::list<i8>, [-128, 0, 127]::list<i8>) = [127, -128, 0]::list<i8>
+
+# special_values: Special floating point values (NaN, Infinity)
+union([1.0, inf]::list<fp64>, [inf, 2.0]::list<fp64>) = [1.0, inf, 2.0]::list<fp64>
+union([-inf, 0.0]::list<fp64>, [0.0, inf]::list<fp64>) = [-inf, 0.0, inf]::list<fp64>
+union([NaN, 1.0]::list<fp64>, [2.0, NaN]::list<fp64>) = [NaN, 1.0, 2.0]::list<fp64>
+
+# null_handling_extended: Extended null handling scenarios
+union([null, null]::list<i32>, [null]::list<i32>) = [null]::list<i32>
+union([1, null, null, 2]::list<i32>, [2, null, 3]::list<i32>) = [1, null, 2, 3]::list<i32>
+union([null]::list<str>, [null, null]::list<str>) = [null]::list<str>
+
+# zero_handling: Zero and negative zero handling
+union([-1, 0, 1]::list<i32>, [1, 2, 3]::list<i32>) = [-1, 0, 1, 2, 3]::list<i32>
+union([-5.5, -2.5]::list<fp64>, [-2.5, 0.0, 2.5]::list<fp64>) = [-5.5, -2.5, 0.0, 2.5]::list<fp64>
+union([0]::list<i32>, [0, 0]::list<i32>) = [0]::list<i32>
+
+# negative_values: Negative number handling
+union([-1, -2, -3]::list<i32>, [-3, -4, -5]::list<i32>) = [-1, -2, -3, -4, -5]::list<i32>
+
+# large_datasets: Large input datasets
+union([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]::list<i32>, [11, 12, 13, 14, 15]::list<i32>) = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]::list<i32>
+union([1, 2, 3, 4, 5]::list<i32>, [3, 4, 5, 6, 7, 8, 9, 10]::list<i32>) = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]::list<i32>
+
+# additional_coverage: Additional test coverage
+union([3, 2, 1]::list<i32>, [1, 2, 3]::list<i32>) = [3, 2, 1]::list<i32>
+union([1, 2, 3]::list<i32>, [1, 2, 3]::list<i32>) = [1, 2, 3]::list<i32>
+union([5, 3, 1]::list<i32>, [2, 4, 6]::list<i32>) = [5, 3, 1, 2, 4, 6]::list<i32>
+union([1]::list<i32>, [2]::list<i32>) = [1, 2]::list<i32>
+union([1]::list<i32>, [1]::list<i32>) = [1]::list<i32>
+union(['x']::list<str>, ['y']::list<str>) = ['x', 'y']::list<str>
+union([1, 2, 3]::list<i32>, [2, 3, 4]::list<i32>, [3, 4, 5]::list<i32>) = [1, 2, 3, 4, 5]::list<i32>
+union(['a', 'b']::list<str>, ['b', 'c']::list<str>, ['c', 'd']::list<str>) = ['a', 'b', 'c', 'd']::list<str>
+

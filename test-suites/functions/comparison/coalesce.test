@@ -14,3 +14,56 @@ coalesce(null::dec<38, 0>, 2::dec<38, 0>) = 2::dec<38, 0>
 coalesce(null::dec<38, 0>, null::dec<38, 0>) = null::dec<38, 0>
 coalesce(2000000::dec<38, 0>, null::dec<38, 0>) = 2000000::dec<38, 0>
 coalesce(null::dec<38, 0>, 2000000::dec<38, 0>) = 2000000::dec<38, 0>
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+coalesce(-2147483648::i32, 0::i32) = -2147483648::i32
+coalesce(null::i32, 2147483647::i32) = 2147483647::i32
+coalesce(-9223372036854775808::i64, null::i64) = -9223372036854775808::i64
+coalesce(null::i8, -128::i8) = -128::i8
+coalesce(127::i8, null::i8) = 127::i8
+coalesce(null::i16, -32768::i16) = -32768::i16
+
+# special_values: Special floating point values (NaN, Infinity)
+coalesce(nan::fp32, 1.0::fp32) = nan::fp32
+coalesce(null::fp64, nan::fp64) = nan::fp64
+coalesce(null::fp32, null::fp32, nan::fp32) = nan::fp32
+coalesce(nan::fp64, nan::fp64, 5.5::fp64) = nan::fp64
+coalesce(-inf::fp64, null::fp64) = -inf::fp64
+
+# null_handling_extended: Extended null handling scenarios
+coalesce(null::i32, null::i32, 42::i32) = 42::i32
+coalesce(null::i64, null::i64, null::i64, 100::i64) = 100::i64
+coalesce(null::fp32, null::fp32, 3.14::fp32, 2.71::fp32) = 3.14::fp32
+coalesce(null::dec<38, 2>, null::dec<38, 2>, 99.99::dec<38, 2>) = 99.99::dec<38, 2>
+coalesce(null::i16, 100::i16, 200::i16, 300::i16) = 100::i16
+coalesce(null::string, null::string, 'hello'::string) = 'hello'::string
+coalesce(null::string, 'result'::string, 'unused'::string) = 'result'::string
+coalesce(null::string, null::string, null::string) = null::string
+coalesce(null::bool, true::bool) = true::bool
+coalesce(null::bool, null::bool, false::bool) = false::bool
+coalesce(null::date, '2024-01-01'::date) = '2024-01-01'::date
+coalesce(null::timestamp, '2024-01-01T00:00:00'::timestamp) = '2024-01-01T00:00:00'::timestamp
+coalesce(null::timestamp, null::timestamp, '2024-06-15T12:30:45'::timestamp) = '2024-06-15T12:30:45'::timestamp
+coalesce(null::dec<38, 5>, 123.45678::dec<38, 5>) = 123.45678::dec<38, 5>
+coalesce(99.999::dec<10, 3>, null::dec<10, 3>) = 99.999::dec<10, 3>
+coalesce(null::dec<20, 10>, -0.0000000001::dec<20, 10>) = -0.0000000001::dec<20, 10>
+coalesce(null::fp32, -999.999::fp32) = -999.999::fp32
+coalesce(null::dec<38, 4>, -12345.6789::dec<38, 4>) = -12345.6789::dec<38, 4>
+
+# negative_values: Negative number handling
+coalesce('2023-12-31'::date, '2024-01-01'::date) = '2023-12-31'::date
+coalesce(-1::i64, -2::i64) = -1::i64
+
+# type_coverage: Various data type coverage
+coalesce(1::i8, 2::i8, 3::i8, 4::i8) = 1::i8
+
+# additional_coverage: Additional test coverage
+coalesce('first'::string, 'second'::string) = 'first'::string
+coalesce(false::bool, true::bool) = false::bool
+

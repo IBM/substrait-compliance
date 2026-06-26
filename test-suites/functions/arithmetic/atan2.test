@@ -6,3 +6,46 @@ atan2(0.0::fp32, 0.0::fp32) = 0.0::fp32
 atan2(1.0::fp64, 1.0::fp64) = 0.7853981633974483::fp64
 atan2(0.009::fp64, 0.0008::fp64) = 1.482140444927459::fp64
 atan2(null::fp64, 0.0008::fp64) = null::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+atan2(inf::fp64, 1.0::fp64) = 1.5707963267948966::fp64
+atan2(-inf::fp64, 1.0::fp64) = -1.5707963267948966::fp64
+atan2(1.0::fp64, inf::fp64) = 0.0::fp64
+atan2(1.0::fp64, -inf::fp64) = 3.141592653589793::fp64
+atan2(inf::fp64, inf::fp64) = 0.7853981633974483::fp64
+atan2(inf::fp64, -inf::fp64) = 2.356194490192345::fp64
+atan2(-inf::fp64, inf::fp64) = -0.7853981633974483::fp64
+atan2(-inf::fp64, -inf::fp64) = -2.356194490192345::fp64
+atan2(nan::fp64, 1.0::fp64) = nan::fp64
+atan2(1.0::fp64, nan::fp64) = nan::fp64
+atan2(nan::fp64, nan::fp64) = nan::fp64
+atan2(inf::fp32, 1.0::fp32) = 1.5707964::fp32
+atan2(1.0::fp32, inf::fp32) = 0.0::fp32
+atan2(nan::fp32, 1.0::fp32) = nan::fp32
+
+# null_handling_extended: Extended null handling scenarios
+atan2(null::fp64, 1.0::fp64) = null::fp64
+atan2(null::fp64, null::fp64) = null::fp64
+atan2(null::fp32, 1.0::fp32) = null::fp32
+atan2(1.0::fp32, null::fp32) = null::fp32
+
+# zero_handling: Zero and negative zero handling
+atan2(-1.0::fp64, 1.0::fp64) = -0.7853981633974483::fp64
+atan2(-1.0::fp64, -1.0::fp64) = -2.356194490192345::fp64
+atan2(1.0::fp64, -1.0::fp64) = 2.356194490192345::fp64
+atan2(1.0::fp64, 0.0::fp64) = 1.5707963267948966::fp64
+atan2(-1.0::fp64, 0.0::fp64) = -1.5707963267948966::fp64
+atan2(0.0::fp64, -1.0::fp64) = 3.141592653589793::fp64
+atan2(-1.0::fp32, 1.0::fp32) = -0.7853982::fp32
+atan2(-1.0::fp32, -1.0::fp32) = -2.3561945::fp32
+atan2(1.0::fp32, -1.0::fp32) = 2.3561945::fp32
+atan2(-5.0::fp64, 3.0::fp64) = -1.0303768265243125::fp64
+atan2(5.0::fp64, -3.0::fp64) = 2.111215699912376::fp64
+atan2(-5.0::fp64, -3.0::fp64) = -2.111215699912376::fp64
+

@@ -10,3 +10,33 @@ acosh(null::fp64) = null::fp64
 acosh(0.01::fp32) [on_domain_error:ERROR] = <!ERROR>
 acosh(0.5::fp64) [on_domain_error:NAN] = nan::fp64
 acosh(0.5::fp32) [on_domain_error:NONE] = null::fp32
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+acosh(+inf::fp64) = +inf::fp64
+acosh(+inf::fp32) = +inf::fp32
+acosh(nan::fp64) = nan::fp64
+acosh(nan::fp32) = nan::fp32
+acosh(-1.0::fp64) [on_domain_error:NAN] = nan::fp64
+acosh(-1.0::fp32) [on_domain_error:NAN] = nan::fp32
+
+# zero_handling: Zero and negative zero handling
+acosh(1.0::fp32) = 0.0::fp32
+acosh(10.0005::fp32) = 2.9932730967481995::fp32
+acosh(2.0::fp32) = 1.3169578969248166::fp32
+acosh(1.0000001::fp64) = 0.0014142135094480515::fp64
+acosh(1.0000001::fp32) = 0.0014142135094480515::fp32
+acosh(1000000.0::fp64) = 14.508657738524219::fp64
+acosh(-1.0::fp64) [on_domain_error:ERROR] = <!ERROR>
+acosh(-1.0::fp32) [on_domain_error:ERROR] = <!ERROR>
+acosh(0.99::fp64) [on_domain_error:ERROR] = <!ERROR>
+acosh(0.99::fp32) [on_domain_error:ERROR] = <!ERROR>
+
+# type_coverage: Various data type coverage
+acosh(1.7976931348623157e308::fp64) = 709.782712893384::fp64
+

@@ -17,3 +17,61 @@ not_equal(null::dec<38, 2>, 2.50::dec<38, 2>) = null::bool
 not_equal(null::dec<38, 2>, null::dec<38, 2>) = null::bool
 not_equal(null::i16, 1::i16) = null::bool
 not_equal(null::i16, null::i16) = null::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+not_equal(-128::i8, 127::i8) = true::bool
+not_equal(-128::i8, -128::i8) = false::bool
+not_equal(127::i8, 127::i8) = false::bool
+not_equal(-32768::i16, 32767::i16) = true::bool
+not_equal(2147483647::i32, 2147483647::i32) = false::bool
+not_equal(-2147483648::i32, 2147483647::i32) = true::bool
+
+# special_values: Special floating point values (NaN, Infinity)
+not_equal(inf::fp32, inf::fp32) = false::bool
+not_equal(inf::fp32, -inf::fp32) = true::bool
+not_equal(-inf::fp32, -inf::fp32) = false::bool
+not_equal(nan::fp32, nan::fp32) = true::bool
+not_equal(nan::fp32, 1.0::fp32) = true::bool
+not_equal(1.0::fp32, nan::fp32) = true::bool
+not_equal(nan::fp64, nan::fp64) = true::bool
+not_equal(nan::fp64, 1.0::fp64) = true::bool
+not_equal(nan::fp64, inf::fp64) = true::bool
+
+# zero_handling: Zero and negative zero handling
+not_equal(0::i8, 0::i8) = false::bool
+not_equal(0::i16, 0::i16) = false::bool
+not_equal(0::i32, 0::i32) = false::bool
+not_equal(0::i64, 0::i64) = false::bool
+not_equal(0::i64, -0::i64) = false::bool
+not_equal(0.0::fp32, -0.0::fp32) = false::bool
+not_equal(0.0::fp64, -0.0::fp64) = false::bool
+
+# empty_values: Empty strings and collections
+not_equal(''::str, ''::str) = false::bool
+
+# negative_values: Negative number handling
+not_equal(-1::i8, 1::i8) = true::bool
+not_equal(-1::i16, 1::i16) = true::bool
+not_equal(-1::i32, 1::i32) = true::bool
+not_equal(-1::i64, 1::i64) = true::bool
+
+# type_coverage: Various data type coverage
+not_equal(1.5::fp32, 1.5::fp32) = false::bool
+not_equal(1.5::fp32, 2.5::fp32) = true::bool
+
+# additional_coverage: Additional test coverage
+not_equal(true::bool, true::bool) = false::bool
+not_equal(false::bool, false::bool) = false::bool
+not_equal(true::bool, false::bool) = true::bool
+not_equal(false::bool, true::bool) = true::bool
+not_equal('hello'::str, 'hello'::str) = false::bool
+not_equal('hello'::str, 'world'::str) = true::bool
+not_equal('Hello'::str, 'hello'::str) = true::bool
+not_equal('abc'::str, 'abcd'::str) = true::bool
+

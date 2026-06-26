@@ -21,3 +21,88 @@ gte(null::dec<38, 2>, null::dec<38, 2>) = null::bool
 gte(null::i16, 1::i16) = null::bool
 gte(2::i16, null::i16) = null::bool
 gte(null::i16, null::i16) = null::bool
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+gte(127::i8, 127::i8) = true::bool
+gte(127::i8, 126::i8) = true::bool
+gte(-128::i8, -127::i8) = false::bool
+gte(-128::i8, -128::i8) = true::bool
+gte(-128::i8, 127::i8) = false::bool
+gte(127::i8, -128::i8) = true::bool
+gte(32767::i16, 32766::i16) = true::bool
+gte(32767::i16, 32767::i16) = true::bool
+gte(-32768::i16, -32767::i16) = false::bool
+gte(-32768::i16, -32768::i16) = true::bool
+gte(-32768::i16, 32767::i16) = false::bool
+gte(32767::i16, -32768::i16) = true::bool
+gte(2147483647::i32, 2147483646::i32) = true::bool
+gte(2147483647::i32, 2147483647::i32) = true::bool
+gte(-2147483648::i32, -2147483647::i32) = false::bool
+gte(-2147483648::i32, -2147483648::i32) = true::bool
+gte(-2147483648::i32, 2147483647::i32) = false::bool
+gte(2147483647::i32, -2147483648::i32) = true::bool
+gte(9223372036854775807::i64, 9223372036854775806::i64) = true::bool
+gte(9223372036854775807::i64, 9223372036854775807::i64) = true::bool
+gte(-9223372036854775808::i64, -9223372036854775807::i64) = false::bool
+gte(-9223372036854775808::i64, -9223372036854775808::i64) = true::bool
+gte(-9223372036854775808::i64, 9223372036854775807::i64) = false::bool
+gte(9223372036854775807::i64, -9223372036854775808::i64) = true::bool
+
+# special_values: Special floating point values (NaN, Infinity)
+gte(nan::fp32, 1.0::fp32) = false::bool
+gte(1.0::fp32, nan::fp32) = false::bool
+gte(nan::fp32, nan::fp32) = false::bool
+gte(nan::fp64, 1.0::fp64) = false::bool
+gte(1.0::fp64, nan::fp64) = false::bool
+gte(nan::fp64, nan::fp64) = false::bool
+gte(nan::fp32, 0.0::fp32) = false::bool
+gte(nan::fp64, -inf::fp64) = false::bool
+gte(inf::fp32, inf::fp32) = true::bool
+gte(-inf::fp32, -inf::fp32) = true::bool
+gte(inf::fp32, 1.0::fp32) = true::bool
+gte(-inf::fp32, -1.0::fp32) = false::bool
+gte(1.0::fp32, inf::fp32) = false::bool
+gte(-1.0::fp32, -inf::fp32) = true::bool
+gte(inf::fp32, -inf::fp32) = true::bool
+gte(-inf::fp32, inf::fp32) = false::bool
+
+# zero_handling: Zero and negative zero handling
+gte(-0.0::fp32, 0.0::fp32) = true::bool
+gte(0.0::fp32, -0.0::fp32) = true::bool
+gte(-0.0::fp64, 0.0::fp64) = true::bool
+gte(0.0::fp64, -0.0::fp64) = true::bool
+gte(0.0::fp64, 0.0::fp64) = true::bool
+gte(0::i8, 0::i8) = true::bool
+gte(0::i16, 0::i16) = true::bool
+gte(0::i32, 0::i32) = true::bool
+gte(0::i64, 0::i64) = true::bool
+gte(0.0::fp32, 0.0::fp32) = true::bool
+gte(0.0::fp64, 0.0::fp64) = true::bool
+gte(0::i32, -1::i32) = true::bool
+gte(-1::i32, 0::i32) = false::bool
+
+# negative_values: Negative number handling
+gte(-1.5::fp64, -2.5::fp64) = true::bool
+gte(-2.5::fp64, -1.5::fp64) = false::bool
+gte(-1::i8, -2::i8) = true::bool
+gte(-2::i8, -1::i8) = false::bool
+gte(-100::i16, -200::i16) = true::bool
+gte(-200::i16, -100::i16) = false::bool
+
+# type_coverage: Various data type coverage
+gte(1.5::fp64, 1.5::fp64) = true::bool
+gte(2.5::fp64, 1.5::fp64) = true::bool
+gte(1.5::fp64, 2.5::fp64) = false::bool
+
+# mixed_magnitude: Mixed magnitude values
+gte(-1000000::i32, -2000000::i32) = true::bool
+gte(-2000000::i32, -1000000::i32) = false::bool
+gte(-1000000000000::i64, -2000000000000::i64) = true::bool
+gte(-2000000000000::i64, -1000000000000::i64) = false::bool
+

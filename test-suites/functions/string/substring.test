@@ -18,3 +18,43 @@ substring('abcdefg'::str, -1::i32, 2::i32) [negative_start:WRAP_FROM_END] = 'g':
 substring('abcdefg'::str, -2::i32, 1::i32) [negative_start:WRAP_FROM_END] = 'f'::str
 substring('abcdefg'::str, -1::i32, 2::i32) [negative_start:LEFT_OF_BEGINNING] = ''::str
 substring('abcdefg'::str, -1::i32, 3::i32) [negative_start:LEFT_OF_BEGINNING] = 'a'::str
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# null_handling_extended: Extended null handling scenarios
+substring(null::str, 1::i32, 5::i32) = null::str
+substring('abcdefg'::str, null::i32, 5::i32) = null::str
+substring('abcdefg'::str, 1::i32, null::i32) = null::str
+substring(null::str, null::i32, null::i32) = null::str
+
+# zero_handling: Zero and negative zero handling
+substring(''::str, 0::i32, 1::i32) = ''::str
+substring('abcdefg'::str, 0::i32, 3::i32) = 'abc'::str
+substring('abcdefg'::str, 0::i32, 1::i32) = 'a'::str
+substring('abcdefg'::str, 1::i32, 0::i32) = ''::str
+substring('abcdefg'::str, 3::i32, 0::i32) = ''::str
+
+# empty_values: Empty strings and collections
+substring(''::str, 1::i32, 5::i32) = ''::str
+substring('abcdefg'::str, 1::i32, -1::i32) = ''::str
+substring('abcdefg'::str, 3::i32, -2::i32) = ''::str
+substring('abcdefg'::str, -10::i32, 5::i32) [negative_start:LEFT_OF_BEGINNING] = ''::str
+
+# negative_values: Negative number handling
+substring('abcdefg'::str, -7::i32, 3::i32) [negative_start:WRAP_FROM_END] = 'abc'::str
+substring('abcdefg'::str, -3::i32, 2::i32) [negative_start:WRAP_FROM_END] = 'ef'::str
+
+# type_coverage: Various data type coverage
+substring('abcdefg'::str, 3::i32, 10::i32) = 'cdefg'::str
+substring('abcdefg'::str, 5::i32, 100::i32) = 'efg'::str
+substring('abcdefg'::str, 7::i32, 1::i32) = 'g'::str
+substring('a'::str, 1::i32, 1::i32) = 'a'::str
+substring('abcdefg'::str, 1::i32, 7::i32) = 'abcdefg'::str
+substring('😊😊😊'::str, 2::i32, 1::i32) = '😊'::str
+substring('abc😊def'::str, 3::i32, 3::i32) = 'c😊d'::str
+substring('中文测试'::str, 1::i32, 2::i32) = '中文'::str
+

@@ -10,3 +10,47 @@ sqrt(9223372036854775800::i64) = 3037000499.97605::fp64
 sqrt(null::i64) = null::fp64
 sqrt(6.25::fp32) = 2.5::fp32
 sqrt(2.0000007152557373046875::fp64) = 1.4142138152541635::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# edge_cases: Boundary values and extreme inputs
+sqrt(9223372036854775807::i64) = 3037000499.97605::fp64
+
+# special_values: Special floating point values (NaN, Infinity)
+sqrt(-1.0::fp32) [on_domain_error:NAN] = nan::fp32
+sqrt(-1.0::fp64) [on_domain_error:NAN] = nan::fp64
+sqrt(-100.0::fp32) [on_domain_error:NAN] = nan::fp32
+sqrt(-2.5::fp64) [on_domain_error:NAN] = nan::fp64
+sqrt(inf::fp32) = inf::fp32
+sqrt(inf::fp64) = inf::fp64
+sqrt(-inf::fp32) [on_domain_error:NAN] = nan::fp32
+sqrt(-inf::fp64) [on_domain_error:NAN] = nan::fp64
+sqrt(nan::fp32) = nan::fp32
+sqrt(nan::fp64) = nan::fp64
+
+# zero_handling: Zero and negative zero handling
+sqrt(0.0::fp32) = 0.0::fp32
+sqrt(0.0::fp64) = 0.0::fp64
+sqrt(1.0::fp32) = 1.0::fp32
+sqrt(1.0::fp64) = 1.0::fp64
+sqrt(4.0::fp32) = 2.0::fp32
+sqrt(9.0::fp64) = 3.0::fp64
+sqrt(0.0001::fp64) = 0.01::fp64
+
+# precision: Floating point precision and small values
+sqrt(1e-38::fp32) = 1e-19::fp32
+sqrt(1e-308::fp64) = 1e-154::fp64
+
+# type_coverage: Various data type coverage
+sqrt(1::i64) = 1::fp64
+sqrt(4::i64) = 2::fp64
+sqrt(16::i64) = 4::fp64
+sqrt(100::i64) = 10::fp64
+sqrt(144::i64) = 12::fp64
+sqrt(3.4028235e38::fp32) = 1.8446743e19::fp32
+sqrt(1.7976931348623157e308::fp64) = 1.3407807929942596e154::fp64
+

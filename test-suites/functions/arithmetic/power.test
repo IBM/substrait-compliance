@@ -9,3 +9,61 @@ power(13::i64, 10::i64) = 137858491849::i64
 
 # floating_exception: Examples demonstrating exceptional floating point cases
 power(1.5e+100::fp64, 1.5e+208::fp64) = inf::fp64
+
+
+# ============================================================================
+# ENHANCED TEST CASES
+# Additional test cases for comprehensive coverage
+# ============================================================================
+
+# special_values: Special floating point values (NaN, Infinity)
+power(0.0::fp64, -1.0::fp64) = inf::fp64
+power(0.0::fp32, -2.0::fp32) = inf::fp32
+power(-2.0::fp64, 0.5::fp64) = nan::fp64
+power(-8.0::fp32, 0.333::fp32) = nan::fp32
+power(-1.0::fp64, 2.5::fp64) = nan::fp64
+power(nan::fp64, 2.0::fp64) = nan::fp64
+power(2.0::fp64, nan::fp64) = nan::fp64
+power(inf::fp64, 2.0::fp64) = inf::fp64
+power(inf::fp64, -1.0::fp64) = 0.0::fp64
+power(2.0::fp32, inf::fp32) = inf::fp32
+power(0.5::fp64, inf::fp64) = 0.0::fp64
+power(inf::fp32, 0.0::fp32) = 1.0::fp32
+power(nan::fp32, 0.0::fp32) = 1.0::fp32
+
+# null_handling_extended: Extended null handling scenarios
+power(null::i64, 2::i64) = null::i64
+power(2::i64, null::i64) = null::i64
+power(null::fp32, 5.0::fp32) = null::fp32
+power(3.0::fp64, null::fp64) = null::fp64
+power(null::i64, null::i64) = null::i64
+
+# zero_handling: Zero and negative zero handling
+power(0::i64, 5::i64) = 0::i64
+power(0::i64, 1::i64) = 0::i64
+power(0.0::fp32, 3.0::fp32) = 0.0::fp32
+power(0.0::fp64, 10.0::fp64) = 0.0::fp64
+power(5::i64, 0::i64) = 1::i64
+power(100::i64, 0::i64) = 1::i64
+power(1.0::fp32, 1000.0::fp32) = 1.0::fp32
+power(42.5::fp64, 1.0::fp64) = 42.5::fp64
+power(0::i64, 0::i64) = 1::i64
+power(4.0::fp64, 0.5::fp64) = 2.0::fp64
+power(9.0::fp32, 0.5::fp32) = 3.0::fp32
+power(27.0::fp64, 0.333333333333::fp64) = 3.0::fp64
+power(16.0::fp64, 0.25::fp64) = 2.0::fp64
+power(100.0::fp32, 0.5::fp32) = 10.0::fp32
+power(2.0::fp64, -1074.0::fp64) = 0.0::fp64
+power(10.0::fp32, -45.0::fp32) = 0.0::fp32
+power(0.1::fp64, 308.0::fp64) = 0.0::fp64
+
+# negative_values: Negative number handling
+power(-1::i64, 3::i64) = -1::i64
+power(-1::i64, 2::i64) = 1::i64
+power(-2::i64, 3::i64) = -8::i64
+power(-2::i64, 4::i64) = 16::i64
+
+# type_coverage: Various data type coverage
+power(1::i64, 999::i64) = 1::i64
+power(7::i64, 1::i64) = 7::i64
+
