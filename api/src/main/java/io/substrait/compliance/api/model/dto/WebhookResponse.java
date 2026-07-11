@@ -26,4 +26,3 @@ public class WebhookResponse {
     private Instant updatedAt;
 }
 
-// Made with Bob

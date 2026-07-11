@@ -168,4 +168,3 @@ object TableData {
   def empty: TableData = new TableData()
 }
 
-// Made with Bob

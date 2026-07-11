@@ -101,5 +101,4 @@ describe('TableData', () => {
         });
     });
 });
-// Made with Bob
 //# sourceMappingURL=table-data.test.js.map

@@ -16,4 +16,3 @@ export { TestSuiteLoader, loadTestSuite, loadTestSuites } from './loader';
 // Runner
 export { ComplianceRunner, RunnerOptions, ResultComparator } from './runner';
 
-// Made with Bob

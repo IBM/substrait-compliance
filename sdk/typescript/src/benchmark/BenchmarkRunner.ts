@@ -280,4 +280,3 @@ export class BenchmarkRunner {
   }
 }
 
-// Made with Bob

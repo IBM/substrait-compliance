@@ -294,4 +294,3 @@ func QuickBenchmark(engine compliance.ComplianceEngine, operationName string, op
 	return runner.BenchmarkOperation(operationName, operation)
 }
 
-// Made with Bob

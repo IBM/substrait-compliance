@@ -179,4 +179,3 @@ namespace Substrait.Compliance
     }
 }
 
-// Made with Bob

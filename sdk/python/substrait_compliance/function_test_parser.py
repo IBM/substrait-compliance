@@ -247,4 +247,3 @@ def parse_expected_result(result_str: str) -> Dict[str, Any]:
     
     return {'value': result_str, 'type': 'unknown'}
 
-# Made with Bob

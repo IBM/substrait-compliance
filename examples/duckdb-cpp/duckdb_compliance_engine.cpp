@@ -371,4 +371,3 @@ std::string DuckDBComplianceEngine::base64Encode(
 
 } // namespace substrait::compliance
 
-// Made with Bob

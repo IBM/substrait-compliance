@@ -286,4 +286,3 @@ class WindowPlanGenerator(SubstraitPlanGenerator):
         
         return json.dumps(plan, indent=2).encode('utf-8')
 
-# Made with Bob

@@ -135,3 +135,13 @@ secret-scan-report.*
 # Internal/private documents not for public release
 demo/dashboard/TPCDS_INTEGRATION.md
 docs/CDMS2026_Decentralized_Compliance_Framework.md
+
+# Files and folders excluded from the public open source release
+test-suites-enhanced/
+SECURITY_SCAN_REPORT.md
+ROADMAP.md
+CHANGELOG.md
+SDK_TEST_SUITE_VERIFICATION.md
+RELEASE_CHECKLIST.md
+OPEN_SOURCE_RELEASE_REPORT.md
+REMAINING_LAUNCH_BLOCKERS.md

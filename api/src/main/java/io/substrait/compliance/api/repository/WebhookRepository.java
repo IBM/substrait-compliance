@@ -35,4 +35,3 @@ public interface WebhookRepository extends JpaRepository<WebhookEntity, Long> {
     
 }
 
-// Made with Bob

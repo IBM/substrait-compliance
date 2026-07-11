@@ -71,4 +71,3 @@ class ComplianceEngineSpec extends AsyncFlatSpec with Matchers {
   }
 }
 
-// Made with Bob

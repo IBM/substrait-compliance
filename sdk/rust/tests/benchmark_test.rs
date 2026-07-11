@@ -325,4 +325,3 @@ async fn test_benchmark_throughput_calculation() {
     assert!(result.throughput > 0.0);
 }
 
-// Made with Bob

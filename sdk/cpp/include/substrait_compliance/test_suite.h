@@ -169,4 +169,3 @@ inline TestSuitePtr make_test_suite(TestSuiteMetadata metadata = TestSuiteMetada
 
 } // namespace substrait::compliance
 
-// Made with Bob

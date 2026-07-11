@@ -168,4 +168,3 @@ func (r *ComplianceReport) countByStatus(status TestStatus) int {
 	return count
 }
 
-// Made with Bob

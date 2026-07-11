@@ -36,4 +36,3 @@ public class StringListConverter implements AttributeConverter<List<String>, Str
     }
 }
 
-// Made with Bob

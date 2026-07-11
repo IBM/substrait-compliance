@@ -416,4 +416,3 @@ Value VeloxComplianceEngine::extractValueFromVector(
 
 } // namespace substrait::compliance
 
-// Made with Bob

@@ -42,4 +42,3 @@ public class StringComparator implements TypeAwareComparator {
     }
 }
 
-// Made with Bob

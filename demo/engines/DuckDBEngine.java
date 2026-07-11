@@ -108,4 +108,3 @@ public class DuckDBEngine implements ComplianceEngine {
     }
 }
 
-// Made with Bob

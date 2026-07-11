@@ -371,4 +371,3 @@ public class CommunityReport {
   }
 }
 
-// Made with Bob

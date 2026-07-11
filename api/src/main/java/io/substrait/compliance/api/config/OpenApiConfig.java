@@ -62,4 +62,3 @@ public class OpenApiConfig {
     // Configuration is done via annotations
 }
 
-// Made with Bob

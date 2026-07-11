@@ -191,4 +191,3 @@ EnginePtr make_engine(Args&&... args) {
 
 } // namespace substrait::compliance
 
-// Made with Bob

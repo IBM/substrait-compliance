@@ -28,4 +28,3 @@ public class ComplianceApiApplication {
     }
 }
 
-// Made with Bob

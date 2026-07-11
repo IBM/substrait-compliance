@@ -19,4 +19,3 @@ constexpr int VERSION_PATCH = 0;
 
 } // namespace substrait::compliance
 
-// Made with Bob

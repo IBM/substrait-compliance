@@ -81,4 +81,3 @@ public interface ReportRepository extends JpaRepository<ReportEntity, Long> {
     BigDecimal getHighestScoreByTestSuite(@Param("testSuiteName") String testSuiteName);
 }
 
-// Made with Bob

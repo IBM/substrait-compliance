@@ -224,4 +224,3 @@ class CategoryTestSuiteLoader:
             metadata=metadata
         )
 
-# Made with Bob

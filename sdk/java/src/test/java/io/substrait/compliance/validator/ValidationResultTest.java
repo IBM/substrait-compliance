@@ -135,4 +135,3 @@ class ValidationResultTest {
     }
 }
 
-// Made with Bob

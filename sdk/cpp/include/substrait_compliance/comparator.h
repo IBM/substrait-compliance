@@ -208,4 +208,3 @@ public:
 
 } // namespace substrait::compliance
 
-// Made with Bob

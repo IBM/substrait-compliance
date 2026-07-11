@@ -85,4 +85,3 @@ if __name__ == "__main__":
         print("\n" + "=" * 70)
         print_test_cases_yaml(test_cases)
 
-# Made with Bob

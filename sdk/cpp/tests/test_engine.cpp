@@ -62,4 +62,3 @@ TEST(MockEngineTest, BasicInterface) {
     EXPECT_TRUE(caps.supports_relation("read"));
 }
 
-// Made with Bob

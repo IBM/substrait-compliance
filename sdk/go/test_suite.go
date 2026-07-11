@@ -112,4 +112,3 @@ func (s *TestSuite) FindTest(id string) *TestCase {
 	return nil
 }
 
-// Made with Bob

@@ -372,4 +372,3 @@ func (b *RunnerBuilder) Build() *ComplianceRunner {
 	return runner
 }
 
-// Made with Bob

@@ -236,4 +236,3 @@ fn print_table_data(data: &TableData) {
     }
 }
 
-// Made with Bob

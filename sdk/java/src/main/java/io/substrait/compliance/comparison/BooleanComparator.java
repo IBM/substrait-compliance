@@ -52,4 +52,3 @@ public class BooleanComparator implements TypeAwareComparator {
     }
 }
 
-// Made with Bob

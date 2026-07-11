@@ -115,4 +115,3 @@ public class SecurityHeadersConfig {
     }
 }
 
-// Made with Bob

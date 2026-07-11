@@ -162,4 +162,3 @@ public class ArithmeticTestResult {
     }
 }
 
-// Made with Bob

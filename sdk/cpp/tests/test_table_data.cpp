@@ -38,4 +38,3 @@ TEST(CellValueTest, IsNull) {
     EXPECT_FALSE(cell_value::is_null(int_val));
 }
 
-// Made with Bob

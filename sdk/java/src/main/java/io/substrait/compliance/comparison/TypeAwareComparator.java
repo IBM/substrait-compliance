@@ -29,4 +29,3 @@ public interface TypeAwareComparator {
     boolean supports(String type);
 }
 
-// Made with Bob

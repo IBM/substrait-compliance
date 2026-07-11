@@ -46,4 +46,3 @@ TEST(TypeAwareComparatorTest, IsNumericType) {
     EXPECT_FALSE(TypeAwareComparator::is_numeric_type("STRING"));
 }
 
-// Made with Bob

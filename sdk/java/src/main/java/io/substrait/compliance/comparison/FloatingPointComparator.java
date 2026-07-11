@@ -119,4 +119,3 @@ public class FloatingPointComparator implements TypeAwareComparator {
     }
 }
 
-// Made with Bob

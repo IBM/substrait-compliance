@@ -297,4 +297,3 @@ Throughput: {Throughput:F2} ops/sec
     }
 }
 
-// Made with Bob

@@ -172,4 +172,3 @@ object TestSuiteBuilder {
   def apply(name: String): TestSuiteBuilder = new TestSuiteBuilder(name)
 }
 
-// Made with Bob

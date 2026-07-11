@@ -201,4 +201,3 @@ if (require.main === module) {
 
 export { ExampleEngine };
 
-// Made with Bob

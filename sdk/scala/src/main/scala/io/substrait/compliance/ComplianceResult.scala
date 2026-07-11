@@ -221,4 +221,3 @@ object ComplianceResult {
   def empty: ComplianceResult = ComplianceResult(Seq.empty)
 }
 
-// Made with Bob

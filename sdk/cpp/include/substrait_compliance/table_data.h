@@ -158,4 +158,3 @@ using TableCollection = std::unordered_map<std::string, TableData>;
 
 } // namespace substrait::compliance
 
-// Made with Bob

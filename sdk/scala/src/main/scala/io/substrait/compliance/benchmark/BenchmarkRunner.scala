@@ -291,4 +291,3 @@ object BenchmarkRunner {
   }
 }
 
-// Made with Bob

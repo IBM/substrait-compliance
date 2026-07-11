@@ -149,4 +149,3 @@ inline TestSuitePtr load_test_suite(const std::filesystem::path& path) {
 
 } // namespace substrait::compliance
 
-// Made with Bob

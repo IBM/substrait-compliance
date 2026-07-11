@@ -231,4 +231,3 @@ class DuckDBComplianceEngine:
         if self.conn:
             self.conn.close()
 
-# Made with Bob

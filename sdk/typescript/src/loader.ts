@@ -127,4 +127,3 @@ export async function loadTestSuites(dirPath: string): Promise<TestSuite[]> {
   return loader.loadFromDirectory(dirPath);
 }
 
-// Made with Bob

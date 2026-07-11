@@ -46,4 +46,3 @@ public class JsonMapConverter implements AttributeConverter<Map<String, Object>,
     }
 }
 
-// Made with Bob

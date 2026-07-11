@@ -139,4 +139,3 @@ class FloatingPointComparatorTest {
     }
 }
 
-// Made with Bob

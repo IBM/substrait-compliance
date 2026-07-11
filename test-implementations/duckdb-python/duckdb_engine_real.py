@@ -333,4 +333,3 @@ class RealDuckDBComplianceEngine:
         if self.conn:
             self.conn.close()
 
-# Made with Bob

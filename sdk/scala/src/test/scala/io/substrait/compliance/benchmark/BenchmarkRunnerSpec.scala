@@ -152,4 +152,3 @@ class BenchmarkRunnerSpec extends AsyncFlatSpec with Matchers {
   }
 }
 
-// Made with Bob

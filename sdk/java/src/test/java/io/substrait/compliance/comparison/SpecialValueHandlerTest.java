@@ -111,4 +111,3 @@ class SpecialValueHandlerTest {
     }
 }
 
-// Made with Bob

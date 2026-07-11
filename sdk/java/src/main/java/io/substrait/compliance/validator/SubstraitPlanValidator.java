@@ -342,4 +342,3 @@ public class SubstraitPlanValidator {
 
 }
 
-// Made with Bob

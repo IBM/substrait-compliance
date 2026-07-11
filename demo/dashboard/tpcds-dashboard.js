@@ -588,4 +588,3 @@ function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Made with Bob

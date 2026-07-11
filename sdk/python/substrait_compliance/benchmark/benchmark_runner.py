@@ -241,4 +241,3 @@ class BenchmarkRunner:
         runner = BenchmarkRunner(engine, config)
         return runner.benchmark_operation(operation_name, operation)
 
-# Made with Bob

@@ -100,4 +100,3 @@ public class BenchmarkResult {
     }
 }
 
-// Made with Bob

@@ -39,4 +39,3 @@ public class WebhookEvent extends ApplicationEvent {
     }
 }
 
-// Made with Bob

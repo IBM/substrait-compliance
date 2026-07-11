@@ -72,4 +72,3 @@ public class StorageConfig {
   }
 }
 
-// Made with Bob

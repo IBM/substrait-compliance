@@ -115,4 +115,3 @@ func LoadTestSuite(path string) (*TestSuite, error) {
 	return loader.Load(path)
 }
 
-// Made with Bob

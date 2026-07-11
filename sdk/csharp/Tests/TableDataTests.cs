@@ -270,4 +270,3 @@ namespace Substrait.Compliance.Tests
     }
 }
 
-// Made with Bob

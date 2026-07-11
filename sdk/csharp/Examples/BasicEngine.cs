@@ -205,4 +205,3 @@ namespace Substrait.Compliance.Examples
     }
 }
 
-// Made with Bob

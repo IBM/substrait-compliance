@@ -65,4 +65,3 @@ TEST(TestStatusTest, ToString) {
     EXPECT_EQ(to_string(TestStatus::UNSUPPORTED), "UNSUPPORTED");
 }
 
-// Made with Bob
