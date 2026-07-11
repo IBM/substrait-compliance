@@ -1,287 +1,258 @@
-# Deployment Guide - Push to GitHub Enterprise
+# Deployment Guide
+
+This guide explains how to contribute to, fork, or push changes to the
+[IBM/substrait-compliance](https://github.com/IBM/substrait-compliance) repository on GitHub.
+
+---
 
 ## Prerequisites
 
-Before pushing to GitHub Enterprise (https://github.ibm.com), ensure you have:
+Before working with this repository, ensure you have:
 
-1. ✅ GitHub Enterprise account access
-2. ✅ SSH key configured or Personal Access Token
-3. ✅ Repository created on GitHub Enterprise (or will be created)
+1. A [GitHub account](https://github.com) with access to the IBM org (for direct contributors)
+   or your own account (for forks)
+2. Git installed locally (`git --version`)
+3. SSH key configured **or** a Personal Access Token for HTTPS authentication
 
 ---
 
-## Step-by-Step Deployment
+## Cloning the Repository
 
-### Step 1: Create Repository on GitHub Enterprise
-
-**Option A: Via Web UI**
-1. Go to https://github.ibm.com/rsinha
-2. Click "New repository"
-3. Repository name: `substrait-compliance` (or your preferred name)
-4. Description: "Decentralized Substrait Compliance Framework with Multi-Language SDKs"
-5. Visibility: Choose Public or Private
-6. **DO NOT** initialize with README, .gitignore, or license (we already have these)
-7. Click "Create repository"
-
-**Option B: Via GitHub CLI** (if available)
 ```bash
-gh repo create rsinha/substrait-compliance \
-  --description "Decentralized Substrait Compliance Framework" \
-  --public  # or --private
+# SSH (recommended)
+git clone git@github.com:IBM/substrait-compliance.git
+
+# HTTPS
+git clone https://github.com/IBM/substrait-compliance.git
+
+cd substrait-compliance
 ```
 
-### Step 2: Configure Git (if not already done)
+---
+
+## Setting Up Your Local Environment
 
 ```bash
-cd /Users/rsinha/substrait-compliance-private
-
-# Set your name and email
+# Configure your identity (if not already set globally)
 git config user.name "Your Name"
-git config user.email "your.email@ibm.com"
+git config user.email "your.email@example.com"
 ```
 
-### Step 3: Add All Files to Git
+---
+
+## Contributing Changes
+
+All contributions follow the standard GitHub fork-and-pull-request workflow.
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for full guidelines.
+
+### Step 1: Fork the Repository (external contributors)
+
+1. Go to [https://github.com/IBM/substrait-compliance](https://github.com/IBM/substrait-compliance)
+2. Click **Fork** (top-right)
+3. Clone your fork locally:
 
 ```bash
-cd /Users/rsinha/substrait-compliance-private
+git clone git@github.com:<your-username>/substrait-compliance.git
+cd substrait-compliance
+git remote add upstream git@github.com:IBM/substrait-compliance.git
+```
 
-# Add all files
+### Step 2: Create a Feature Branch
+
+```bash
+git checkout -b feature/your-feature-name
+```
+
+### Step 3: Make and Commit Changes
+
+```bash
 git add .
-
-# Check what will be committed
-git status
+git commit -m "feat: describe your change"
 ```
 
-### Step 4: Create Initial Commit
+### Step 4: Push and Open a Pull Request
 
 ```bash
-# Create initial commit
-git commit -m "Initial commit: Decentralized Substrait Compliance Framework
-
-- Complete multi-language SDKs (Java, Python, Rust)
-- TPC-H test suite with 22 queries
-- Example implementations (DuckDB, DataFusion)
-- Comprehensive CI/CD with GitHub Actions
-- Compliance leaderboard system
-- Full documentation and examples"
+# Push to your fork
+git push origin feature/your-feature-name
 ```
 
-### Step 5: Add Remote Repository
+Then open a pull request against `IBM/substrait-compliance:main` via the GitHub web UI.
 
-Replace `REPO_NAME` with your actual repository name:
+---
+
+## Authentication
+
+### SSH (Recommended)
+
+Generate a key if you don't have one:
 
 ```bash
-# Add GitHub Enterprise remote
-git remote add origin https://github.ibm.com/rsinha/REPO_NAME.git
-
-# Verify remote
-git remote -v
+ssh-keygen -t ed25519 -C "your.email@example.com"
 ```
 
-### Step 6: Push to GitHub Enterprise
+Add `~/.ssh/id_ed25519.pub` to your GitHub account at
+[https://github.com/settings/keys](https://github.com/settings/keys).
+
+Verify:
 
 ```bash
-# Push to main branch
-git push -u origin main
+ssh -T git@github.com
+# Expected: Hi <username>! You've successfully authenticated...
 ```
 
-**If you encounter authentication issues:**
+### HTTPS with a Personal Access Token
 
-**Option A: HTTPS with Personal Access Token**
+1. Go to [https://github.com/settings/tokens](https://github.com/settings/tokens)
+2. Click **Generate new token (classic)**
+3. Select scopes: `repo` (all), `workflow`
+4. Copy the token — use it as your password when git prompts for credentials
+
 ```bash
-# You'll be prompted for username and password
-# Username: your GitHub Enterprise username
-# Password: your Personal Access Token (not your password!)
-
-# To create a token:
-# 1. Go to https://github.ibm.com/settings/tokens
-# 2. Click "Generate new token"
-# 3. Select scopes: repo (all), workflow
-# 4. Copy the token and use it as password
-```
-
-**Option B: SSH (Recommended)**
-```bash
-# Change remote to SSH
-git remote set-url origin git@github.ibm.com:rsinha/REPO_NAME.git
-
-# Push
-git push -u origin main
+git remote set-url origin https://github.com/IBM/substrait-compliance.git
+# git will prompt for username (your GitHub handle) and password (the token)
 ```
 
 ---
 
-## Automated Deployment Script
+## Maintainer: Pushing Directly to the Repository
 
-I've created a script to automate this process. Run:
+Direct pushes to `main` are protected. All changes must go through a pull request.
+
+For maintainers cutting a release:
 
 ```bash
-cd /Users/rsinha/substrait-compliance-private
-chmod +x deploy-to-github.sh
-./deploy-to-github.sh
+# Tag a release
+git tag -a v1.0.0 -m "Release v1.0.0"
+git push origin v1.0.0
 ```
 
 ---
 
-## Post-Deployment Steps
+## Post-Push Repository Configuration
 
-### 1. Enable GitHub Actions
+After the initial push of a new repository the following settings should be applied
+by an IBM org admin at [https://github.com/IBM/substrait-compliance/settings](https://github.com/IBM/substrait-compliance/settings):
 
-1. Go to your repository on GitHub Enterprise
-2. Click "Settings" → "Actions" → "General"
-3. Enable "Allow all actions and reusable workflows"
-4. Click "Save"
+### Branch Protection (main)
 
-### 2. Configure Secrets (for Release Workflow)
+1. Settings → Branches → Add rule for `main`
+2. Enable:
+   - Require pull request reviews before merging
+   - Require status checks to pass before merging
+   - Require branches to be up to date before merging
+   - Do not allow force pushes
 
-Go to Settings → Secrets and variables → Actions → New repository secret
+### GitHub Actions
 
-Add these secrets (optional, only needed for automated releases):
-- `MAVEN_USERNAME` - Maven Central username
-- `MAVEN_PASSWORD` - Maven Central password
-- `SIGNING_KEY` - GPG signing key
-- `SIGNING_PASSWORD` - GPG signing password
-- `PYPI_API_TOKEN` - PyPI API token
-- `CARGO_REGISTRY_TOKEN` - crates.io API token
+1. Settings → Actions → General
+2. Select **Allow all actions and reusable workflows**
+3. Click **Save**
 
-### 3. Enable GitHub Pages (for Leaderboard)
+### Repository Secrets (for CI/CD release workflows)
 
-1. Go to Settings → Pages
-2. Source: "GitHub Actions"
-3. Click "Save"
+Settings → Secrets and variables → Actions → New repository secret
 
-### 4. Protect Main Branch (Recommended)
+| Secret | Purpose |
+|--------|---------|
+| `MAVEN_USERNAME` | Maven Central username |
+| `MAVEN_PASSWORD` | Maven Central password |
+| `SIGNING_KEY` | GPG signing key |
+| `SIGNING_PASSWORD` | GPG signing password |
+| `PYPI_API_TOKEN` | PyPI API token |
+| `CARGO_REGISTRY_TOKEN` | crates.io API token |
 
-1. Go to Settings → Branches
-2. Add branch protection rule for `main`
-3. Enable:
-   - Require pull request reviews
-   - Require status checks to pass
-   - Require branches to be up to date
+### GitHub Discussions
 
-### 5. Add Topics/Tags
+Settings → General → Features → Enable **Discussions**
 
-1. Go to repository main page
-2. Click gear icon next to "About"
-3. Add topics: `substrait`, `compliance`, `testing`, `query-engines`, `tpch`
+Suggested initial categories: Announcements, General, Q&A, Show and Tell, Feature Requests.
 
----
+### GitHub Pages (for Leaderboard)
 
-## Verify Deployment
+1. Settings → Pages
+2. Source: **GitHub Actions**
+3. Click **Save**
 
-After pushing, verify:
+### Repository Topics
 
-1. ✅ All files are visible on GitHub Enterprise
-2. ✅ README.md displays correctly
-3. ✅ GitHub Actions workflows are visible in "Actions" tab
-4. ✅ Directory structure is intact
+On the repository main page, click the gear icon next to **About** and add:
+`substrait`, `compliance`, `testing`, `query-engine`, `sql`
+
+### Private Vulnerability Reporting
+
+Settings → Security → Enable **Private vulnerability reporting**
 
 ---
 
 ## Troubleshooting
 
-### Issue: Authentication Failed
+### Authentication Failed
 
-**Solution:**
+Ensure you are using a Personal Access Token (not your GitHub password) for HTTPS,
+or that your SSH public key is registered at
+[https://github.com/settings/keys](https://github.com/settings/keys).
+
+### Large Files
+
 ```bash
-# Use Personal Access Token
-# Create token at: https://github.ibm.com/settings/tokens
-# Use token as password when prompted
-```
-
-### Issue: Large Files
-
-**Solution:**
-```bash
-# Check file sizes
+# Find files over 50 MB
 find . -type f -size +50M
 
-# If you have large files, consider Git LFS
+# Track large files with Git LFS if needed
 git lfs install
-git lfs track "*.bin"
-git lfs track "*.csv"
+git lfs track "*.bin" "*.csv"
 git add .gitattributes
-git commit -m "Add Git LFS tracking"
+git commit -m "chore: add Git LFS tracking"
 ```
 
-### Issue: Permission Denied
+### Permission Denied (SSH)
 
-**Solution:**
 ```bash
-# Verify SSH key
-ssh -T git@github.ibm.com
+# Check your key is loaded
+ssh-add -l
 
-# Or use HTTPS with token
-git remote set-url origin https://github.ibm.com/rsinha/REPO_NAME.git
+# Retest
+ssh -T git@github.com
 ```
 
 ---
 
-## Repository Structure After Deployment
+## Repository Structure
 
 ```
 substrait-compliance/
 ├── .github/
-│   └── workflows/
-│       ├── sdk-build-test.yml
-│       ├── release-publish.yml
-│       ├── test-suite-validation.yml
-│       ├── engine-compliance-template.yml
-│       ├── compliance-leaderboard.yml
-│       └── README.md
-├── sdk/
-│   ├── java/
-│   ├── python/
-│   └── rust/
-├── test-suites/
-│   └── tpch/
-├── examples/
-│   ├── duckdb-java/
-│   └── datafusion-python/
-├── scripts/
-│   └── generate_leaderboard.py
-├── docs/
+│   ├── workflows/         # CI/CD pipelines
+│   └── ISSUE_TEMPLATE/    # Bug, feature, and doc templates
+├── api/                   # Spring Boot REST API
+├── demo/                  # Interactive demo system and dashboard
+├── docs/                  # Documentation
+├── examples/              # Engine implementation examples
+├── scripts/               # Utility scripts
+├── sdk/                   # Multi-language SDKs (Java, Python, Rust, Go,
+│                          #   TypeScript, C#, Scala, C++)
+├── test-implementations/  # Reference test runners
+├── test-suites/           # Compliance test cases (TPC-H, TPC-DS, functions)
+├── CODE_OF_CONDUCT.md
+├── CONTRIBUTING.md
+├── GOVERNANCE.md
+├── LICENSE
+├── MAINTAINERS.md
+├── NOTICE
 ├── README.md
-├── CI_CD_IMPLEMENTATION.md
-├── IMPLEMENTATION_SUMMARY.md
-└── DEPLOYMENT_GUIDE.md (this file)
+└── SECURITY.md
 ```
-
----
-
-## Next Steps After Deployment
-
-1. **Share with Team**
-   - Add collaborators in Settings → Collaborators
-   - Share repository URL
-
-2. **Create First Release**
-   ```bash
-   git tag v1.0.0
-   git push origin v1.0.0
-   ```
-
-3. **Monitor CI/CD**
-   - Check Actions tab for workflow runs
-   - Review any failures
-
-4. **Update Documentation**
-   - Add repository URL to README
-   - Update links in documentation
-
-5. **Announce to Community**
-   - Share on Substrait mailing list
-   - Post on relevant forums
 
 ---
 
 ## Support
 
-For issues:
-- Check GitHub Enterprise documentation
-- Contact IBM GitHub Enterprise support
-- Review Git documentation
+- **Questions**: Open a [GitHub Discussion](https://github.com/IBM/substrait-compliance/discussions)
+- **Bugs**: Open a [GitHub Issue](https://github.com/IBM/substrait-compliance/issues)
+- **Security**: See [SECURITY.md](../SECURITY.md)
+- **Contributing**: See [CONTRIBUTING.md](../CONTRIBUTING.md)
 
 ---
 
-Last Updated: 2026-04-01
+Last Updated: June 26, 2026
