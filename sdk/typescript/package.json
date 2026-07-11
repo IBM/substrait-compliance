@@ -28,11 +28,11 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/substrait-io/substrait-compliance.git",
+    "url": "https://github.com/IBM/substrait-compliance.git",
     "directory": "sdk/typescript"
   },
   "dependencies": {
-    "js-yaml": "^4.1.0"
+    "js-yaml": "^4.3.0"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
