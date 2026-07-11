@@ -10,7 +10,14 @@ Interactive dashboard for visualizing compliance test results.
 - Engine leaderboard and detailed results
 - Visual charts and analytics
 
-### 2. **Function Tests Dashboard** (`function-tests.html`) 🆕
+### 2. **TPC-DS Tests Dashboard** (`tpcds-tests.html`) 🆕
+- View TPC-DS query-level compliance results
+- 99 queries testing complex analytical workloads
+- Decision Support benchmark scenarios
+- Engine leaderboard and detailed results
+- Visual charts and analytics
+
+### 3. **Function Tests Dashboard** (`function-tests.html`)
 - View function-level compliance results
 - 568 tests across 5 categories
 - Category breakdown per engine
@@ -21,9 +28,13 @@ Interactive dashboard for visualizing compliance test results.
 ### Step 1: Run the Tests
 
 ```bash
-# Run TPC-H tests (if available)
+# Run TPC-H tests
 cd ../runner
 ./run-demo.sh
+
+# Run TPC-DS tests
+cd ../runner
+./run-tpcds-tests.sh
 
 # Run Function tests
 cd ../runner
@@ -36,6 +47,7 @@ Open in your browser:
 ```bash
 # From the dashboard directory
 open index.html              # TPC-H dashboard
+open tpcds-tests.html        # TPC-DS dashboard
 open function-tests.html     # Function tests dashboard
 ```
 
@@ -52,15 +64,25 @@ python3 -m http.server 8000
 The dashboards read JSON files from the `../output/` directory:
 
 ### TPC-H Tests:
-- `MockDBEngine.json`
-- `FastDBEngine.json`
-- `CloudDBEngine.json`
+- `leaderboard.json`
+- `MockDBEngine-report.json`
+- `FastDBEngine-report.json`
+- `CloudDBEngine-report.json`
+
+### TPC-DS Tests:
+- `tpcds_leaderboard.json`
+- `MockDBEngine-tpcds-report.json`
+- `FastDBEngine-tpcds-report.json`
+- `CloudDBEngine-tpcds-report.json`
 
 ### Function Tests:
+- `function_tests_summary.json`
 - `MockDBEngine_function_tests.json`
 - `FastDBEngine_function_tests.json`
 - `CloudDBEngine_function_tests.json`
-- `function_tests_summary.json`
+
+### Cross-Suite Summary:
+- `summary.json` - Combined metrics for all test suites
 
 ## 🎨 Features
 
@@ -70,6 +92,14 @@ The dashboards read JSON files from the `../output/` directory:
 - ✅ Pass rate comparison charts
 - ✅ Detailed query results
 - ✅ Status badges
+
+### TPC-DS Dashboard
+- ✅ Leaderboard with rankings
+- ✅ 99 query results
+- ✅ Pass rate comparison charts
+- ✅ Detailed query results
+- ✅ Status badges
+- ✅ Cross-suite integration
 
 ### Function Tests Dashboard
 - ✅ Engine comparison table
@@ -81,9 +111,10 @@ The dashboards read JSON files from the `../output/` directory:
 
 ## 🔄 Navigation
 
-Both dashboards have navigation tabs at the top:
-- **TPC-H Tests** - Switch to query-level testing
-- **Function Tests** - Switch to function-level testing
+All dashboards have navigation tabs at the top:
+- **TPC-H Tests** - Switch to TPC-H query-level testing (22 queries)
+- **TPC-DS Tests** - Switch to TPC-DS query-level testing (99 queries)
+- **Function Tests** - Switch to function-level testing (568 tests)
 
 ## 📊 Understanding the Results
 
@@ -96,8 +127,20 @@ Both dashboards have navigation tabs at the top:
 | 🟠 Orange | 70-84% | Fair |
 | 🔴 Red | <70% | Needs Improvement |
 
-### Function Test Categories
+### Test Suite Overview
 
+#### TPC-H (22 queries)
+- Simple: 3 queries
+- Medium: 7 queries
+- Complex: 8 queries
+- Very Complex: 4 queries
+
+#### TPC-DS (99 queries)
+- Comprehensive decision support scenarios
+- Complex analytical workloads
+- Multi-table joins and aggregations
+
+#### Function Tests (568 tests)
 1. **Aggregate** (📊) - COUNT, AVG, SUM, etc.
 2. **Window** (🪟) - ROW_NUMBER, RANK, LAG, etc.
 3. **Cast** (🔄) - Type conversions
@@ -129,27 +172,31 @@ Both dashboards have navigation tabs at the top:
 
 ## 🎯 Example Workflow
 
-1. **Run Tests**
+1. **Run All Tests**
    ```bash
    cd demo/runner
-   ./run-function-tests-python.sh
+   ./run-demo.sh                    # TPC-H
+   ./run-tpcds-tests.sh             # TPC-DS
+   ./run-function-tests-python.sh   # Functions
    ```
 
 2. **View Results**
    ```bash
    cd ../dashboard
-   open function-tests.html
+   python3 -m http.server 8000
+   # Open http://localhost:8000/
    ```
 
 3. **Analyze**
-   - Compare engines
-   - Identify weak categories
-   - Drill down into specific functions
+   - Compare engines across all test suites
+   - Identify weak areas (queries, categories)
+   - Review cross-suite summary
+   - Drill down into specific tests
 
 4. **Iterate**
    - Fix identified issues
-   - Re-run tests
-   - Verify improvements
+   - Re-run affected tests
+   - Verify improvements in dashboard
 
 ## 🌐 Browser Compatibility
 

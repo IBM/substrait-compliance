@@ -131,7 +131,7 @@
         <header class="header">
             <div class="header-content">
                 <h1>🔬 Function-Level Compliance Testing</h1>
-                <p class="subtitle">Granular testing of individual Substrait functions</p>
+                <p class="subtitle">Granular testing of individual Substrait functions across all engines</p>
             </div>
             <div class="header-stats">
                 <div class="stat-card">
@@ -152,6 +152,7 @@
         <!-- Navigation -->
         <div class="nav-tabs">
             <button class="nav-tab" onclick="window.location.href='index.html'">TPC-H Tests</button>
+            <button class="nav-tab" onclick="window.location.href='tpcds-tests.html'">TPC-DS Tests</button>
             <button class="nav-tab active">Function Tests</button>
         </div>
 
@@ -162,7 +163,7 @@
                     <h2>🔀 Cross-Suite Summary</h2>
                 </div>
                 <div class="summary-grid" id="suiteSummaryGrid">
-                    <div class="loading">Loading combined TPC-H and function summary...</div>
+                    <div class="loading">Loading combined TPC-H, TPC-DS, and function summary...</div>
                 </div>
             </section>
 
@@ -272,12 +273,20 @@
                         <span class="detail-value">${Number(engine.tpch?.passRate || 0).toFixed(1)}%</span>
                     </div>
                     <div class="detail-row">
+                        <span class="detail-label">TPC-DS Pass Rate:</span>
+                        <span class="detail-value">${Number(engine.tpcds?.passRate || 0).toFixed(1)}%</span>
+                    </div>
+                    <div class="detail-row">
                         <span class="detail-label">Function Pass Rate:</span>
                         <span class="detail-value">${Number(engine.functions?.passRate || 0).toFixed(1)}%</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">TPC-H Tests:</span>
                         <span class="detail-value">${engine.tpch?.passed || 0}/${engine.tpch?.totalTests || 0}</span>
+                    </div>
+                    <div class="detail-row">
+                        <span class="detail-label">TPC-DS Tests:</span>
+                        <span class="detail-value">${engine.tpcds?.passed || 0}/${engine.tpcds?.totalTests || 0}</span>
                     </div>
                     <div class="detail-row">
                         <span class="detail-label">Function Tests:</span>
@@ -293,6 +302,7 @@
             
             functionTestData.engines.forEach(engine => {
                 const tpchMetrics = getTpchMetrics(engine.engine);
+                const tpcdsMetrics = getTpcdsMetrics(engine.engine);
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td><strong>${engine.engine}</strong></td>
@@ -301,7 +311,7 @@
                     <td style="color: #FF5722;">${engine.totalTests - engine.totalPassed}</td>
                     <td>${getPassRateBadge(engine.overallPassRate)}</td>
                 `;
-                row.title = `TPC-H: ${tpchMetrics.passed}/${tpchMetrics.totalTests} (${tpchMetrics.passRate.toFixed(1)}%) | Functions: ${engine.totalPassed}/${engine.totalTests} (${engine.overallPassRate.toFixed(1)}%)`;
+                row.title = `TPC-H: ${tpchMetrics.passed}/${tpchMetrics.totalTests} (${tpchMetrics.passRate.toFixed(1)}%) | TPC-DS: ${tpcdsMetrics.passed}/${tpcdsMetrics.totalTests} (${tpcdsMetrics.passRate.toFixed(1)}%) | Functions: ${engine.totalPassed}/${engine.totalTests} (${engine.overallPassRate.toFixed(1)}%)`;
                 tbody.appendChild(row);
             });
         }
@@ -417,6 +427,7 @@
             const engineNames = functionTestData.engines.map(e => e.engine);
             const functionRates = functionTestData.engines.map(e => e.overallPassRate);
             const tpchRates = functionTestData.engines.map(e => getTpchMetrics(e.engine).passRate);
+            const tpcdsRates = functionTestData.engines.map(e => getTpcdsMetrics(e.engine).passRate);
             
             new Chart(document.getElementById('engineChart'), {
                 type: 'bar',
@@ -435,6 +446,13 @@
                             data: tpchRates,
                             backgroundColor: 'rgba(33, 150, 243, 0.6)',
                             borderColor: 'rgba(33, 150, 243, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'TPC-DS Pass Rate (%)',
+                            data: tpcdsRates,
+                            backgroundColor: 'rgba(255, 152, 0, 0.6)',
+                            borderColor: 'rgba(255, 152, 0, 1)',
                             borderWidth: 1
                         }
                     ]
@@ -467,6 +485,24 @@
                 totalTests: Number(engineSummary.tpch.totalTests || 0),
                 passed: Number(engineSummary.tpch.passed || 0),
                 failed: Number(engineSummary.tpch.failed || 0)
+            };
+        }
+
+        function getTpcdsMetrics(engineName) {
+            if (!sharedSummaryData || !Array.isArray(sharedSummaryData.engines)) {
+                return { passRate: 0, totalTests: 0, passed: 0, failed: 0 };
+            }
+
+            const engineSummary = sharedSummaryData.engines.find(engine => engine.engineName === engineName);
+            if (!engineSummary || !engineSummary.tpcds) {
+                return { passRate: 0, totalTests: 0, passed: 0, failed: 0 };
+            }
+
+            return {
+                passRate: Number(engineSummary.tpcds.passRate || 0),
+                totalTests: Number(engineSummary.tpcds.totalTests || 0),
+                passed: Number(engineSummary.tpcds.passed || 0),
+                failed: Number(engineSummary.tpcds.failed || 0)
             };
         }
     </script>

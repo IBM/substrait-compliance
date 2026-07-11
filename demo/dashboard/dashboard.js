@@ -81,12 +81,20 @@ function updateSuiteSummary() {
                 <span class="detail-value">${Number(engine.tpch?.passRate || 0).toFixed(1)}%</span>
             </div>
             <div class="detail-row">
+                <span class="detail-label">TPC-DS Pass Rate:</span>
+                <span class="detail-value">${Number(engine.tpcds?.passRate || 0).toFixed(1)}%</span>
+            </div>
+            <div class="detail-row">
                 <span class="detail-label">Function Pass Rate:</span>
                 <span class="detail-value">${Number(engine.functions?.passRate || 0).toFixed(1)}%</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">TPC-H Tests:</span>
                 <span class="detail-value">${engine.tpch?.passed || 0}/${engine.tpch?.totalTests || 0}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">TPC-DS Tests:</span>
+                <span class="detail-value">${engine.tpcds?.passed || 0}/${engine.tpcds?.totalTests || 0}</span>
             </div>
             <div class="detail-row">
                 <span class="detail-label">Function Tests:</span>
@@ -179,7 +187,8 @@ function updatePassRateChart() {
     
     const engines = leaderboardData.engines;
     const labels = engines.map(e => e.engineName);
-    const data = engines.map(e => e.passRate);
+    const tpchData = engines.map(e => e.passRate);
+    const tpcdsData = engines.map(e => getTpcdsMetrics(e.engineName).passRate);
     const functionData = engines.map(e => getFunctionMetrics(e.engineName).passRate);
     const colors = engines.map(e => getChartColor(e.passRate));
     
@@ -194,9 +203,16 @@ function updatePassRateChart() {
             datasets: [
                 {
                     label: 'TPC-H Pass Rate (%)',
-                    data: data,
+                    data: tpchData,
                     backgroundColor: colors,
                     borderColor: colors.map(c => c.replace('0.7', '1')),
+                    borderWidth: 2
+                },
+                {
+                    label: 'TPC-DS Pass Rate (%)',
+                    data: tpcdsData,
+                    backgroundColor: 'rgba(255, 152, 0, 0.55)',
+                    borderColor: 'rgba(255, 152, 0, 1)',
                     borderWidth: 2
                 },
                 {
@@ -285,10 +301,12 @@ function updateDistributionChart() {
                     callbacks: {
                         label: function(context) {
                             const engine = engines[context.dataIndex];
+                            const tpcdsMetrics = getTpcdsMetrics(engine.engineName);
                             const functionMetrics = getFunctionMetrics(engine.engineName);
                             return [
                                 `${context.label}:`,
                                 `TPC-H Passed: ${engine.passed}/${engine.totalTests} (${engine.passRate.toFixed(1)}%)`,
+                                `TPC-DS Passed: ${tpcdsMetrics.passed}/${tpcdsMetrics.totalTests} (${tpcdsMetrics.passRate.toFixed(1)}%)`,
                                 `Function Passed: ${functionMetrics.passed}/${functionMetrics.totalTests} (${functionMetrics.passRate.toFixed(1)}%)`
                             ];
                         }
@@ -313,6 +331,7 @@ function updateDetailedResults() {
     leaderboardData.engines.forEach(engine => {
         const statusBadge = getStatusBadge(engine.passRate);
         const timestamp = new Date(engine.timestamp).toLocaleString();
+        const tpcdsMetrics = getTpcdsMetrics(engine.engineName);
         const functionMetrics = getFunctionMetrics(engine.engineName);
         const combinedPassRate = getCombinedPassRate(engine.engineName, engine.passRate);
         
@@ -332,8 +351,16 @@ function updateDetailedResults() {
                     <span class="detail-value text-success">${engine.passed}/${engine.totalTests}</span>
                 </div>
                 <div class="detail-row">
+                    <span class="detail-label">TPC-DS Pass Rate:</span>
+                    <span class="detail-value pass-rate">${tpcdsMetrics.passRate.toFixed(1)}%</span>
+                </div>
+                <div class="detail-row">
                     <span class="detail-label">Function Pass Rate:</span>
                     <span class="detail-value pass-rate">${functionMetrics.passRate.toFixed(1)}%</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">TPC-DS Tests:</span>
+                    <span class="detail-value text-success">${tpcdsMetrics.passed}/${tpcdsMetrics.totalTests}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Function Tests:</span>
@@ -346,6 +373,10 @@ function updateDetailedResults() {
                 <div class="detail-row">
                     <span class="detail-label">TPC-H Failures / Skips:</span>
                     <span class="detail-value"><span class="text-danger">${engine.failed}</span> / <span class="text-warning">${engine.skipped}</span></span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">TPC-DS Failures:</span>
+                    <span class="detail-value text-danger">${tpcdsMetrics.failed}</span>
                 </div>
                 <div class="detail-row">
                     <span class="detail-label">Function Failures:</span>
@@ -423,13 +454,42 @@ function getFunctionMetrics(engineName) {
     };
 }
 
-function getCombinedPassRate(engineName, tpchPassRate) {
-    const functionMetrics = getFunctionMetrics(engineName);
-    if (functionMetrics.totalTests === 0) {
-        return Number(tpchPassRate || 0);
+function getTpcdsMetrics(engineName) {
+    if (!sharedSummaryData || !Array.isArray(sharedSummaryData.engines)) {
+        return { passRate: 0, totalTests: 0, passed: 0, failed: 0 };
     }
     
-    return (Number(tpchPassRate || 0) + functionMetrics.passRate) / 2;
+    const engineSummary = sharedSummaryData.engines.find(engine => engine.engineName === engineName);
+    if (!engineSummary || !engineSummary.tpcds) {
+        return { passRate: 0, totalTests: 0, passed: 0, failed: 0 };
+    }
+    
+    return {
+        passRate: Number(engineSummary.tpcds.passRate || 0),
+        totalTests: Number(engineSummary.tpcds.totalTests || 0),
+        passed: Number(engineSummary.tpcds.passed || 0),
+        failed: Number(engineSummary.tpcds.failed || 0)
+    };
+}
+
+function getCombinedPassRate(engineName, tpchPassRate) {
+    const tpcdsMetrics = getTpcdsMetrics(engineName);
+    const functionMetrics = getFunctionMetrics(engineName);
+    
+    let count = 1;
+    let total = Number(tpchPassRate || 0);
+    
+    if (tpcdsMetrics.totalTests > 0) {
+        total += tpcdsMetrics.passRate;
+        count++;
+    }
+    
+    if (functionMetrics.totalTests > 0) {
+        total += functionMetrics.passRate;
+        count++;
+    }
+    
+    return total / count;
 }
 
 // Show error message
