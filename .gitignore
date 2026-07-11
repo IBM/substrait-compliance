@@ -132,3 +132,6 @@ trivy-report.*
 gitleaks-report.*
 secret-scan-report.*
 
+# Internal/private documents not for public release
+demo/dashboard/TPCDS_INTEGRATION.md
+docs/CDMS2026_Decentralized_Compliance_Framework.md

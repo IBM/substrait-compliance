@@ -251,6 +251,6 @@ For security-related questions or concerns:
 
 ---
 
-**Last Updated**: May 30, 2026
+**Last Updated**: June 26, 2026
 
 Thank you for helping keep the Substrait Compliance Framework and its users safe!

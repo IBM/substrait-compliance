@@ -361,6 +361,6 @@ For questions about governance:
 
 ---
 
-**Version**: 1.0  
-**Last Updated**: May 30, 2026  
-**Next Review**: May 30, 2027
+**Version**: 1.0
+**Last Updated**: June 26, 2026
+**Next Review**: June 26, 2027

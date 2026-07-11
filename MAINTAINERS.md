@@ -62,7 +62,7 @@ Maintainers who have stepped down but made significant contributions:
 
 | Name | GitHub | Period | Contributions |
 |------|--------|--------|---------------|
-| None yet | - | - | Emeritus maintainers will be listed here when applicable |
+| _No emeritus maintainers at this time_ | - | - | - |
 
 ## Committers
 
@@ -70,7 +70,7 @@ Committers have write access to the repository and help with day-to-day maintena
 
 | Name | GitHub | Focus Areas | Since |
 |------|--------|-------------|-------|
-| None yet | - | Additional committers will be listed here once formally approved | - |
+| _No committers at this time_ | - | - | - |
 
 ## Contact
 
@@ -85,6 +85,6 @@ We thank all contributors who have helped make this project possible. See the [C
 
 ---
 
-**Last Updated**: May 30, 2026
+**Last Updated**: June 26, 2026
 
 To update this file, submit a pull request with the proposed changes.
