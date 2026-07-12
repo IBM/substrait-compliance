@@ -33,7 +33,7 @@ The repository has excellent foundational work but requires completion of extern
 - ✅ **SECURITY.md** - Security policy with verified controls vs. operator-dependent controls clearly distinguished
 
 ### 3. Documentation Quality (VERY GOOD)
-- ✅ **README.md** - Comprehensive (1792 lines) with quick start, architecture, troubleshooting
+- ✅ **README.md** - Comprehensive (1,246 lines) with quick start, architecture, troubleshooting (reviewed and rewritten July 2026)
 - ✅ **CHANGELOG.md** - Properly formatted following Keep a Changelog
 - ✅ **ROADMAP.md** - Strategic roadmap with phases and timelines
 - ✅ **RELEASE_CHECKLIST.md** - Detailed release procedures with pre-release blockers identified
@@ -252,14 +252,19 @@ From SECURITY.md and RELEASE_CHECKLIST.md:
 ---
 
 ### 9. LOW PRIORITY - Documentation Consistency
-**Status:** ⚠️ **MINOR ISSUES**
+**Status:** 🟡 **MOSTLY RESOLVED** (July 2026)
 
-Minor inconsistencies found:
-- Some files reference `github.ibm.com`, others `github.com/substrait-io`
-- Version numbers need synchronization across SDK build files
-- Some placeholder text remains (e.g., "None yet" in MAINTAINERS.md emeritus section)
+**Completed:**
+- ✅ README.md fully reviewed and rewritten (accurate test counts, correct Java version, working links)
+- ✅ CONTRIBUTING.md, MAINTAINERS.md, SECURITY.md, CHANGELOG.md, ROADMAP.md all updated
+- ✅ OPEN_SOURCE_RELEASE_PLAN.md created as the single consolidated release reference
 
-**Action Required:** Global search and replace for consistency before launch.
+**Remaining (before launch):**
+- SDK READMEs (`sdk/cpp`, `sdk/csharp`, `sdk/go`, `sdk/scala`, `sdk/typescript`) still contain `substrait-io/substrait-compliance` placeholder URLs
+- `GOVERNANCE.md`, `api/API_USAGE.md`, `api/README.md`, `docs/API_IMPLEMENTATION.md` also need URL update
+- `api/build.gradle` version is `1.0.0-SNAPSHOT` — needs bumping before release tag
+
+**Action Required:** One URL-replace pass across SDK READMEs and docs once the final public repo URL is confirmed.
 
 ---
 

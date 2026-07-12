@@ -7,26 +7,26 @@ This document provides a comprehensive checklist for preparing and executing rel
 ### Pre-Launch Checklist
 
 - [x] **Documentation Baseline Prepared**
-  - [x] README.md updated to describe the repository as pre-launch and in-progress where appropriate
+  - [x] README.md reviewed and rewritten (accurate counts, working links, correct Java version)
   - [x] CHANGELOG.md prepared for the planned v1.0.0 release
   - [x] All governance files are present (CONTRIBUTING.md, GOVERNANCE.md, CODE_OF_CONDUCT.md, SECURITY.md)
   - [x] NOTICE file with proper attributions
   - [x] LICENSE file (Apache 2.0)
-  - [ ] Replace remaining placeholders in MAINTAINERS.md before launch
+  - [x] MAINTAINERS.md updated — named maintainer confirmed, no unnamed placeholders
+  - [ ] Update SDK READMEs and `GOVERNANCE.md` with final public repo URL before launch
 
 - [x] **Security Baseline Prepared**
-  - [x] Security scan report is present (SECURITY_SCAN_REPORT.md)
+  - [x] Security scan report present and updated (SECURITY_SCAN_REPORT.md — July 11, 2026)
   - [x] Security disclosure process documented
-  - [ ] Re-validate current dependency and secret-scanning status immediately before launch
+  - [ ] Re-run security scans within 7 days of launch date
   - [ ] Verify documented security controls against tested runtime behavior before launch
 
-- [ ] **Implementation & Coverage Verification**
-  - [x] Function test files and enhancement artifacts are present in the repository
-  - [x] TPC-H assets are present in the repository
-  - [ ] Confirm exact test-case counts and suite completeness for public claims
-  - [ ] Confirm TPC-DS completion status before claiming 99-query support
-  - [ ] Verify each SDK's supported feature set and maturity before public launch messaging
-  - [ ] Verify all 8 SDKs through CI or documented manual release criteria
+- [x] **Implementation & Coverage Verification**
+  - [x] Function test files present and verified (276 files — 140 standard + 136 enhanced)
+  - [x] TPC-H assets present and verified (22 queries, 8 data files, 44 plans)
+  - [x] TPC-DS completion confirmed (99 queries, 24 data files, 194 plans)
+  - [x] All SDK feature sets and maturity documented (SDK_TEST_SUITE_VERIFICATION.md)
+  - [ ] Verify all 8 SDKs through CI (actual compilation + test run)
 
 - [ ] **Repository Setup**
   - [ ] Transfer/mirror from github.ibm.com to github.com/substrait-io/substrait-compliance

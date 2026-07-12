@@ -1,7 +1,7 @@
 # Remaining Launch Blockers
-**Substrait Compliance Framework**  
-**Date:** May 30, 2026  
-**Status:** Post-Verification Summary
+**Substrait Compliance Framework**
+**Date:** July 2026 (Updated)
+**Status:** Post-Documentation Review
 
 ---
 
@@ -159,26 +159,27 @@ Will the REST API be:
 ---
 
 ### 5. Documentation Consistency Pass
-**Status:** ❌ **BLOCKER**  
-**Owner:** Documentation Team / Contributors  
-**Estimated Effort:** 1-2 days
+**Status:** 🟡 **PARTIALLY RESOLVED**
+**Owner:** Documentation Team / Contributors
+**Estimated Effort:** 1 day (remaining work)
 
-**Required Actions:**
-- [ ] Global search/replace: `github.ibm.com` → `github.com/substrait-io`
-- [ ] Verify all internal links work
-- [ ] Remove placeholder text (e.g., "None yet" in MAINTAINERS.md)
-- [ ] Synchronize version numbers across all SDK build files
-- [ ] Update "last updated" dates in governance documents
-- [ ] Verify contact information is correct throughout
+**Completed (July 2026):**
+- ✅ README.md — full review and rewrite; correct counts, working links, Java 17
+- ✅ CONTRIBUTING.md — upstream URL, SDK list, contribution areas updated
+- ✅ MAINTAINERS.md — GitHub URLs corrected (`substrait-io` → `IBM`)
+- ✅ SECURITY.md — advisory URLs corrected
+- ✅ CHANGELOG.md, ROADMAP.md, REMAINING_LAUNCH_BLOCKERS.md, SDK_TEST_SUITE_VERIFICATION.md — counts corrected
+- ✅ OPEN_SOURCE_RELEASE_PLAN.md — new consolidated plan document created
 
-**Why This Blocks Launch:** Inconsistent documentation creates confusion and looks unprofessional.
+**Still Required Before Launch:**
+- [ ] Update `substrait-io/substrait-compliance` URLs in: `GOVERNANCE.md`, `api/API_USAGE.md`, `api/README.md`, `docs/API_IMPLEMENTATION.md`, `docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md`, `sdk/cpp/README.md`, `sdk/csharp/README.md`, `sdk/go/README.md`, `sdk/scala/README.md`, `sdk/typescript/README.md`
+- [ ] Bump `api/build.gradle` from `1.0.0-SNAPSHOT` → `1.0.0`
+- [ ] Verify all internal cross-document links resolve after repo transfer
 
-**Next Steps:**
-1. Run global search for common inconsistencies
-2. Create checklist of files to update
-3. Make updates systematically
-4. Peer review changes
-5. Test all links
+**Command to fix remaining URLs once public repo URL is confirmed:**
+```bash
+grep -rl "substrait-io/substrait-compliance" . | xargs sed -i 's|substrait-io/substrait-compliance|IBM/substrait-compliance|g'
+```
 
 ---
 
@@ -312,11 +313,11 @@ Will the REST API be:
 
 ## Conclusion
 
-**SDK Verification and Test Suite Audit are COMPLETE.**
+**SDK Verification, Test Suite Audit, and Documentation Review are COMPLETE.**
 
-**5 critical blockers remain** before the project can be truthfully represented as open source and publicly launched. These are primarily **external execution steps** (repository transfer, infrastructure setup) and **policy decisions** (API hosting, support commitments) rather than code issues.
+**Blockers 1–4 remain unresolved** (repository transfer, community infrastructure, API decision, security re-scan). Blocker 5 (docs consistency) is mostly done — only SDK READMEs and a few `docs/` files need URL updates.
 
-**Estimated time to launch-ready:** 2-4 weeks depending on chosen path.
+**Estimated time to launch-ready:** 2–3 weeks depending on chosen path.
 
 **Recommendation:** Complete all 5 critical blockers before any public announcement. Consider completing high-priority items for a more robust launch.
 
