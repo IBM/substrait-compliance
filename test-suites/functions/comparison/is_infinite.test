@@ -9,12 +9,6 @@ is_infinite(-inf::fp64) = true::bool
 is_infinite(inf::fp64) = true::bool
 is_infinite(null::fp64) = null::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 is_infinite(nan::fp32) = false::bool
 is_infinite(nan::fp64) = false::bool

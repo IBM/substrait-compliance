@@ -11,12 +11,6 @@ sqrt(null::i64) = null::fp64
 sqrt(6.25::fp32) = 2.5::fp32
 sqrt(2.0000007152557373046875::fp64) = 1.4142138152541635::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 sqrt(9223372036854775807::i64) = 3037000499.97605::fp64
 

@@ -36,12 +36,6 @@ mod(inf::fp64, 3.0::fp64) = nan::fp64
 mod(10.0::fp64, inf::fp64) = 10.0::fp64
 mod(nan::fp64, 3.0::fp64) = nan::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 mod(-2147483648::i32, -1::i32) = 0::i32
 mod(-9223372036854775808::i64, -1::i64) = 0::i64

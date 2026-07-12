@@ -21,12 +21,6 @@ st_distance(st_point(-50.0::fp64, -50.0::fp64), st_point(50.0::fp64, 50.0::fp64)
 # precision: High precision distance calculations
 st_distance(st_point(0.0::fp64, 0.0::fp64), st_point(0.1::fp64, 0.1::fp64)) = 0.14142135623730951::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 st_distance(st_point(-2.0::fp64, 3.0::fp64), st_point(2.0::fp64, -3.0::fp64)) = 7.211102550927978::fp64
 

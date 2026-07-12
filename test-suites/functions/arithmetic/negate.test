@@ -18,12 +18,6 @@ negate(-128::i8) [overflow:ERROR] = <!ERROR>
 negate(-128::i8) [overflow:SATURATE] = 127::i8
 negate(-128::i8) [overflow:SILENT] = <!UNDEFINED>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 negate(127::i8) = -127::i8
 negate(32767::i16) = -32767::i16

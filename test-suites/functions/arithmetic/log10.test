@@ -28,12 +28,6 @@ log10(5.0::fp64) = 0.6989700043360189::fp64
 log10(50.0::fp64) = 1.6989700043360189::fp64
 log10(500.0::fp64) = 2.6989700043360189::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 log10(-inf::fp64) = nan::fp64
 log10(0.0::fp32) = -inf::fp32

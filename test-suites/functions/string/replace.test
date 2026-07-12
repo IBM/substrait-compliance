@@ -11,12 +11,6 @@ replace('abcd'::str, null::str, ','::str) = null::str
 replace('abcd'::str, ' '::str, null::str) = null::str
 replace(null::str, ' '::str, ','::str) = null::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # empty_values: Empty strings and collections
 replace(''::str, 'a'::str, 'b'::str) = ''::str
 replace('abc'::str, 'b'::str, ''::str) = 'ac'::str

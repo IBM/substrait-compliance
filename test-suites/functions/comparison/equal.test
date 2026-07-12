@@ -17,12 +17,6 @@ equal(null::i16, null::i16) = null::bool
 equal(7::dec<38, 0>, null::dec<38, 0>) = null::bool
 equal(null::dec<38, 0>, null::dec<38, 0>) = null::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 equal(-128::i8, -128::i8) = true::bool
 equal(127::i8, 127::i8) = true::bool

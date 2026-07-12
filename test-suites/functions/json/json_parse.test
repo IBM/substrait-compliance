@@ -28,12 +28,6 @@ json_parse('{"unclosed": '::str) [error_handling:ERROR] = <!ERROR>
 json_parse('  {"name": "John"}  '::str) = {"name": "John"}::json
 json_parse('\n{\n  "key": "value"\n}\n'::str) = {"key": "value"}::json
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # zero_handling: Zero and negative zero handling
 json_parse('0'::str) = 0::json
 json_parse('0.0'::str) = 0.0::json

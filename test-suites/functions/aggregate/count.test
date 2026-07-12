@@ -20,12 +20,6 @@ count((1000::i16, 2000::i16, 3000::i16))::i16 = 3::i64
 count((1.5::fp32, 2.5::fp32, 3.5::fp32))::fp32 = 3::i64
 count(('hello'::str, 'world'::str))::str = 2::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 count((127::i8, -128::i8, 0::i8)) = 3::i64
 count((32767::i16, -32768::i16)) = 2::i64

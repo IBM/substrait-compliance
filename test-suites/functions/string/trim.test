@@ -15,12 +15,6 @@ trim('aaaaabcccccaaa'::str, 'a'::str) [spaces_only:False] = 'bccccc'::str
 trim('defabcabcdef'::str, 'def'::str) [spaces_only:False] = 'abcabc'::str
 trim('abcdefcbaa'::str, 'abc'::str) [spaces_only:False] = 'def'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 trim('abc'::str, null::str) = null::str
 trim(null::str, null::str) = null::str

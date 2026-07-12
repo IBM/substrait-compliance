@@ -10,12 +10,6 @@ is_nan(inf::fp64) = false::bool
 is_nan(null::fp64) = null::bool
 is_nan(nan::fp64) = true::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 is_nan(nan::fp32) = true::bool
 is_nan(-inf::fp32) = false::bool

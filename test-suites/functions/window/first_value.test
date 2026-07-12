@@ -31,12 +31,6 @@ first_value(value::i32) OVER (PARTITION BY category::str ORDER BY id::i32) WITH 
 first_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) WITH ((1, 10), (2, 20), (3, 30)) = (10, 10, 10)::i32
 first_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) WITH ((1, 10), (2, 20), (3, 30)) = (10, 20, 30)::i32
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 first_value(value::i32) OVER (ORDER BY id::i32) WITH ((1, 2147483647), (2, 2147483646), (3, -2147483648)) = (2147483647, 2147483647, 2147483647)::i32
 first_value(value::i32) OVER (ORDER BY id::i32) WITH ((1, 0), (2, 2147483647), (3, -2147483648)) = (0, 0, 0)::i32

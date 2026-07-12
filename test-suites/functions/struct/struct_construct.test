@@ -23,12 +23,6 @@ struct_construct('id', 1::i32, 'name', 'Product'::str, 'price', 99.99::fp64, 'av
 # complex: Structs with arrays
 struct_construct('name', 'Team'::str, 'members', [1, 2, 3]::list<i32>) = {name: 'Team', members: [1, 2, 3]}::struct<name:str, members:list<i32>>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 struct_construct('a', null::str, 'b', null::i32, 'c', null::fp64, 'd', null::bool) = {a: null, b: null, c: null, d: null}::struct<a:str, b:i32, c:fp64, d:bool>
 struct_construct('outer', struct_construct('inner', null::i32), 'value', 100::i32) = {outer: {inner: null}, value: 100}::struct<outer:struct<inner:i32>, value:i32>

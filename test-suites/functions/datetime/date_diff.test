@@ -50,12 +50,6 @@ date_diff('DAY'::str, '2021-02-28'::date, '2021-03-01'::date) = 1::i64
 date_diff('DAY'::str, '2020-12-30'::date, '2021-01-02'::date) = 3::i64
 date_diff('MONTH'::str, '2020-11-15'::date, '2021-02-15'::date) = 3::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 date_diff(null::str, '2020-01-01'::date, '2020-01-02'::date) = null::i64
 date_diff('DAY'::str, null::date, '2020-01-02'::date) = null::i64

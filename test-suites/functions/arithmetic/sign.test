@@ -35,12 +35,6 @@ sign(nan::fp64) = nan::fp64
 sign(1e-10::fp64) = 1::fp64
 sign(-1e-10::fp64) = -1::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 sign(-128::i8) = -1::i8
 sign(127::i8) = 1::i8

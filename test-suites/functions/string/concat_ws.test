@@ -8,12 +8,6 @@ concat_ws(null::str, 'Banana'::str, 'Apple'::str, 'Melon'::str) = null::str
 concat_ws(','::str, null::str, 'Apple'::str, 'Melon'::str) = 'Apple,Melon'::str
 concat_ws(','::str, 'Apple'::str, null::str, 'Melon'::str) = 'Apple,Melon'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 concat_ws(','::str, null::str, null::str, null::str) = ''::str
 concat_ws('|'::str, 'A'::str, null::str, 'C'::str) = 'A|C'::str

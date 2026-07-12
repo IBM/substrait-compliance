@@ -7,12 +7,6 @@ acos(1.0::fp64) = 0.0::fp64
 acos(-0.0000009::fp64) = 1.5707972267948966::fp64
 acos(null::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 acos(1.1::fp64) = NaN::fp64
 acos(-1.1::fp64) = NaN::fp64

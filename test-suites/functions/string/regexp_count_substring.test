@@ -49,12 +49,6 @@ regexp_count_substring('USD100'::str, '(?<=USD)\d{3}'::str) [lookaround:TRUE] = 
 regexp_count_substring('JPY100JPY100'::str, '\d{3}(?<!USD\d{3})'::str, 1::i64) [lookaround:TRUE] = 2::i64
 regexp_count_substring('JPY100JPY100'::str, '\d{3}(?<!USD\d{3})'::str) [lookaround:TRUE] = 2::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # zero_handling: Zero and negative zero handling
 regexp_count_substring(''::str, 'a'::str, 1::i64) = 0::i64
 regexp_count_substring(''::str, 'a'::str) = 0::i64

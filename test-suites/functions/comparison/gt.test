@@ -20,12 +20,6 @@ gt(null::i16, null::i16) = null::bool
 gt(2::dec<38, 2>, null::dec<38, 2>) = null::bool
 gt(null::dec<38, 2>, null::dec<38, 2>) = null::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 gt(127::i8, 127::i8) = false::bool
 gt(127::i8, 126::i8) = true::bool

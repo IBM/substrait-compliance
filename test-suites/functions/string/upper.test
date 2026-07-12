@@ -14,12 +14,6 @@ upper(null::str) = null::str
 upper('ææããa'::str) [full_unicode:TRUE] = 'ÆÆÃÃA'::str
 upper('😄'::str) = '😄'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # unicode_handling: Unicode and special characters
 upper('café'::str) = 'CAFÉ'::str
 upper('Αθήνα'::str) [full_unicode:TRUE] = 'ΑΘΉΝΑ'::str

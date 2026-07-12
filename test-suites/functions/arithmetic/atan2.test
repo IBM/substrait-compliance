@@ -7,12 +7,6 @@ atan2(1.0::fp64, 1.0::fp64) = 0.7853981633974483::fp64
 atan2(0.009::fp64, 0.0008::fp64) = 1.482140444927459::fp64
 atan2(null::fp64, 0.0008::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 atan2(inf::fp64, 1.0::fp64) = 1.5707963267948966::fp64
 atan2(-inf::fp64, 1.0::fp64) = -1.5707963267948966::fp64

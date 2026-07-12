@@ -33,12 +33,6 @@ extract('SECOND'::str, current_timestamp()) <= 59::i64
 # date_from_timestamp: Extract date from current timestamp
 date_trunc('DAY'::str, current_timestamp()) <= current_timestamp()
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 current_timestamp() != null::ts
 

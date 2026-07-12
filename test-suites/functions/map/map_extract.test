@@ -22,12 +22,6 @@ map_extract({'flag1': true, 'flag2': false}::map<str, bool>, 'flag1'::str) = tru
 # complex: Maps with complex values
 map_extract({'list1': [1, 2, 3], 'list2': [4, 5, 6]}::map<str, list<i32>>, 'list1'::str) = [1, 2, 3]::list<i32>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 map_extract({-128: 'min_i8'}::map<i32, str>, -128::i32) = 'min_i8'::str
 map_extract({'neg': -2147483648}::map<str, i32>, 'neg'::str) = -2147483648::i32

@@ -26,12 +26,6 @@ add(4.5::fp32, 2.5000007152557373046875::fp32) [rounding:TIE_TO_EVEN] = 7.000000
 # types: Examples demonstrating behavior of different data types
 add(4.5::fp64, 2.5000007152557373046875::fp64) = 7.0000007152557373046875::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 add(127::i8, 0::i8) = 127::i8
 add(-128::i8, 0::i8) = -128::i8

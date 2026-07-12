@@ -15,12 +15,6 @@ ltrim('aaaaabc'::str, 'a'::str) [spaces_only:FALSE] = 'bc'::str
 ltrim('abcabcdef'::str, 'abc'::str) [spaces_only:FALSE] = 'def'::str
 ltrim('abccbadef'::str, 'abc'::str) [spaces_only:FALSE] = 'def'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # empty_values: Empty strings and collections
 ltrim('abc'::str, ''::str) [spaces_only:FALSE] = 'abc'::str
 ltrim('   abc'::str, ''::str) [spaces_only:FALSE] = '   abc'::str

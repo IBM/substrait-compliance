@@ -33,12 +33,6 @@ log(nan::fp64) = nan::fp64
 log(0.001::fp64) = -6.907755278982137::fp64
 log(1000.0::fp64) = 6.907755278982137::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 log(0.1353352832366127::fp64) = -2.0::fp64
 

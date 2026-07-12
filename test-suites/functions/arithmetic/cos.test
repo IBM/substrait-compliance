@@ -8,12 +8,6 @@ cos(7.0000009::fp64) = 0.7539016630550606::fp64
 cos(-7.00000095::fp64) = 0.7539016302056953::fp64
 cos(null::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 cos(nan::fp32) = nan::fp32
 cos(nan::fp64) = nan::fp64

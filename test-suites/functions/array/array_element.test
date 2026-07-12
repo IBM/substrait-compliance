@@ -29,12 +29,6 @@ array_element([1.5, 2.5, 3.5]::list<fp64>, 1::i32) = 2.5::fp64
 array_element([true, false, true]::list<bool>, 0::i32) = true::bool
 array_element([100::i64, 200::i64, 300::i64]::list<i64>, 2::i32) = 300::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 array_element([1, 2, 3]::list<i32>, 2147483647::i32) = null::i32
 array_element([1, 2, 3]::list<i32>, -2147483648::i32) = null::i32
@@ -68,4 +62,3 @@ array_element([['a', 'b'], ['c', 'd']]::list<list<str>>, 1::i32) = ['c', 'd']::l
 array_element([1::i8, 2::i8, 3::i8]::list<i8>, 1::i32) = 2::i8
 array_element([1.5::fp32, 2.5::fp32, 3.5::fp32]::list<fp32>, 1::i32) = 2.5::fp32
 array_element([' ', '  ', '   ']::list<str>, 1::i32) = '  '::str
-

@@ -27,12 +27,6 @@ rank() OVER (ORDER BY value::i32) WITH ((42)) = (1)::i64
 # all_same: Examples where all values are the same
 rank() OVER (ORDER BY value::i32) WITH ((5), (5), (5), (5)) = (1, 1, 1, 1)::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 rank() OVER (ORDER BY value::i32) WITH ((2147483645), (2147483646), (2147483647)) = (1, 2, 3)::i64
 rank() OVER (ORDER BY value::i32) WITH ((-2147483648), (-2147483647), (0), (2147483647)) = (1, 2, 3, 4)::i64

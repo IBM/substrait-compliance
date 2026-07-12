@@ -12,12 +12,6 @@ concat(null::str, 'abcd'::str) [null_handling:IGNORE_NULLS] = 'abcd'::str
 concat(null::str, null::str) [null_handling:ACCEPT_NULLS] = null::str
 concat(null::str, null::str) [null_handling:IGNORE_NULLS] = ''::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 concat(''::str, null::str) [null_handling:IGNORE_NULLS] = ''::str
 concat(null::str, ''::str) [null_handling:IGNORE_NULLS] = ''::str

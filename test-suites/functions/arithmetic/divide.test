@@ -19,12 +19,6 @@ divide(-128::i8, -1::i8) [overflow:SATURATE] = 127::i8
 divide(1.5e+208::fp64, 1.5e-200::fp64) = inf::fp64
 divide(1.5e+200::fp64, -1.5e-208::fp64) = -inf::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # overflow_behavior: Overflow and saturation behavior
 divide(-32768::i16, -1::i16) [overflow:ERROR] = <!ERROR>
 divide(-32768::i16, -1::i16) [overflow:SATURATE] = 32767::i16

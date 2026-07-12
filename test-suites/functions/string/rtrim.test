@@ -15,12 +15,6 @@ rtrim('aaaaabccccc'::str, 'c'::str) [spaces_only:FALSE] = 'aaaaab'::str
 rtrim('abcabcdef'::str, 'def'::str) [spaces_only:FALSE] = 'abcabc'::str
 rtrim('defabccba'::str, 'abc'::str) [spaces_only:FALSE] = 'def'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 rtrim('abc'::str, null::str) = null::str
 rtrim(null::str, null::str) = null::str

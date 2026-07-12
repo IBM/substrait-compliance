@@ -14,12 +14,6 @@ bitwise_and(-9223372036854775807::i64, 127::i64) = 1::i64
 bitwise_and(null::i64, 127::i64) = null::i64
 bitwise_and(127::i64, null::i64) = null::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 bitwise_and(-1::i8, 127::i8) = 127::i8
 bitwise_and(-128::i8, -128::i8) = -128::i8

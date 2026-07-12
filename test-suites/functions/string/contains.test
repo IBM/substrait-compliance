@@ -15,12 +15,6 @@ contains('😊a😊b😊😊'::str, 'A😊B'::str) = false::bool
 contains('😊a😊b😊😊'::str, 'A😊B'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
 contains('😊a😊b😊😊'::str, 'a😊c'::str) = false::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 contains(null::str, 'abc'::str) = null::bool
 contains('abcdefg'::str, null::str) = null::bool

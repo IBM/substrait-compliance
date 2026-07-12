@@ -15,12 +15,6 @@ bit_length(null::str) = null::i64
 bit_length('à'::str) = 16::i64
 bit_length('😄'::str) = 32::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # type_coverage: Various data type coverage
 bit_length('a\tb\nc'::str) = 48::i64
 bit_length('Hello\nWorld'::str) = 88::i64

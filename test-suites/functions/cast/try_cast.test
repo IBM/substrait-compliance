@@ -66,12 +66,6 @@ try_cast('-2.5e3'::str, fp64) = -2500.0::fp64
 try_cast('invalid'::str, i32) = null::i32
 try_cast('999999999999'::str, i32) = null::i32
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 try_cast('-127'::str, i8) = -127::i8
 try_cast('-32768'::str, i16) = -32768::i16

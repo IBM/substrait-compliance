@@ -8,12 +8,6 @@ is_null(7.823::dec<38, 3>) = false::bool
 is_null(null::i16) = true::bool
 is_null(null::dec<38, 3>) = true::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 is_null(127::i8) = false::bool
 is_null(-128::i8) = false::bool

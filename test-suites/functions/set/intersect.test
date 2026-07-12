@@ -28,12 +28,6 @@ intersect([true, false]::list<bool>, [false]::list<bool>) = [false]::list<bool>
 intersect([1, 2, 3]::list<i32>, [1, 2, 3]::list<i32>) = [1, 2, 3]::list<i32>
 intersect(['a', 'b']::list<str>, ['a', 'b']::list<str>) = ['a', 'b']::list<str>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 intersect([9223372036854775807, -9223372036854775808]::list<i64>, [9223372036854775807]::list<i64>) = [9223372036854775807]::list<i64>
 intersect([-2147483648, 0, 2147483647]::list<i32>, [-2147483648, 2147483647]::list<i32>) = [-2147483648, 2147483647]::list<i32>

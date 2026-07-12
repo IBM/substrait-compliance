@@ -15,12 +15,6 @@ coalesce(null::dec<38, 0>, null::dec<38, 0>) = null::dec<38, 0>
 coalesce(2000000::dec<38, 0>, null::dec<38, 0>) = 2000000::dec<38, 0>
 coalesce(null::dec<38, 0>, 2000000::dec<38, 0>) = 2000000::dec<38, 0>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 coalesce(-2147483648::i32, 0::i32) = -2147483648::i32
 coalesce(null::i32, 2147483647::i32) = 2147483647::i32
@@ -66,4 +60,3 @@ coalesce(1::i8, 2::i8, 3::i8, 4::i8) = 1::i8
 # additional_coverage: Additional test coverage
 coalesce('first'::string, 'second'::string) = 'first'::string
 coalesce(false::bool, true::bool) = false::bool
-

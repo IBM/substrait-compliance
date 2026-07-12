@@ -15,12 +15,6 @@ octet_length(null::str) = null::i64
 octet_length('à'::str) = 2::i64
 octet_length('😄'::str) = 4::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # zero_handling: Zero and negative zero handling
 octet_length('\0'::str) = 1::i64
 

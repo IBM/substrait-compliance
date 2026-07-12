@@ -15,12 +15,6 @@ char_length(null::str) = null::i64
 char_length('à'::str) = 1::i64
 char_length('😄'::str) = 1::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # type_coverage: Various data type coverage
 char_length('\n'::str) = 1::i64
 char_length('\t'::str) = 1::i64

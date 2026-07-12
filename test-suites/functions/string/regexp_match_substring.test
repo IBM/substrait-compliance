@@ -53,12 +53,6 @@ regexp_match_substring('USD100'::str, '(?<=USD)\d{3}'::str) [lookaround:TRUE] = 
 regexp_match_substring('JPY100'::str, '\d{3}(?<!USD\d{3})'::str, 1::i64, 1::i64, 0::i64) [lookaround:TRUE] = '100'::str
 regexp_match_substring('JPY100'::str, '\d{3}(?<!USD\d{3})'::str) [lookaround:TRUE] = '100'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 regexp_match_substring('abc'::str, 'a'::str, 1::i64, 5::i64, 0::i64) = null::str
 regexp_match_substring('abc'::str, 'a'::str, 10::i64, 1::i64, 0::i64) = null::str

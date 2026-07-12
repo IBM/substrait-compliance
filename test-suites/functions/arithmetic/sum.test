@@ -21,12 +21,6 @@ sum((Null, Null, Null)::i16) = Null::i64
 sum(()::i16) = Null::i64
 sum((200000, Null, 629000, -10000, 0, 987621)::i32) = 1806621::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 sum((127, 127)::i8) = 254::i64
 sum((-128, -128)::i8) = -256::i64

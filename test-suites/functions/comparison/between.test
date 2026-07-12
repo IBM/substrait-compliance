@@ -22,12 +22,6 @@ between(null::i8, 1::i8, 10::i8) = null::bool
 between(1::i64, null::i64, 10::i64) = null::bool
 between(1::i64, 1::i64, null::i64) = null::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 between(127::i8, -128::i8, 127::i8) = true::bool
 between(-128::i8, -128::i8, 127::i8) = true::bool
@@ -80,4 +74,3 @@ between(0::i16, 1::i16, 1000::i16) = false::bool
 
 # type_coverage: Various data type coverage
 between(5::i8, 5::i8, 5::i8) = true::bool
-

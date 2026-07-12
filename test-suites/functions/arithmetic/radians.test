@@ -31,12 +31,6 @@ radians(30::fp64) = 0.5235987755982988::fp64
 radians(60::fp64) = 1.0471975511965976::fp64
 radians(1::fp64) = 0.017453292519943295::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 radians(90.987654321::fp64) = 1.5880193625544395::fp64
 

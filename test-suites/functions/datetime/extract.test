@@ -30,12 +30,6 @@ extract('SECOND'::str, '01:02:03'::time) = 3::i64
 extract('MILLISECOND'::str, '01:02:03.155'::time) = 3155::i64
 extract('MICROSECOND'::str, '01:02:03.45'::time) = 3450000::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 extract('YEAR'::str, null::date) = null::i64
 extract(null::str, '2020-01-01'::date) = null::i64

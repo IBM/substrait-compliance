@@ -35,12 +35,6 @@ lead(value::i32, 10, -1) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20)) = (-1, 
 # comparison_with_lag: Demonstrating lead vs lag behavior
 lead(value::i32, 1) OVER (ORDER BY id::i32) WITH ((1, 10), (2, 20), (3, 30)) = (20, 30, Null)::i32
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 lead(value::decimal, 1) OVER (ORDER BY id::i32) WITH ((1, 10.50), (2, 20.75), (3, 30.25)) = (20.75, 30.25, Null)::decimal
 lead(event_date::date, 1) OVER (ORDER BY id::i32) WITH ((1, '2023-01-01'), (2, '2023-01-02'), (3, '2023-01-03')) = ('2023-01-02', '2023-01-03', Null)::date

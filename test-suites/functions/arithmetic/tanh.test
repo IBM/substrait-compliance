@@ -8,12 +8,6 @@ tanh(7.0000009::fp64) = 0.9999983369469382::fp64
 tanh(-7.0000009::fp64) = -0.9999983369469382::fp64
 tanh(null::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 tanh(nan::fp32) = nan::fp32
 tanh(nan::fp64) = nan::fp64

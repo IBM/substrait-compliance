@@ -24,12 +24,6 @@ map_construct('flag1'::str, true::bool, 'flag2'::str, false::bool) = {'flag1': t
 # complex: Maps with complex values
 map_construct('list1'::str, [1, 2, 3]::list<i32>, 'list2'::str, [4, 5, 6]::list<i32>) = {'list1': [1, 2, 3], 'list2': [4, 5, 6]}::map<str, list<i32>>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 map_construct(2147483647::i32, 'max'::str, -2147483648::i32, 'min'::str) = {2147483647: 'max', -2147483648: 'min'}::map<i32, str>
 map_construct(127::i8, 'max_i8'::str, -128::i8, 'min_i8'::str) = {127: 'max_i8', -128: 'min_i8'}::map<i8, str>

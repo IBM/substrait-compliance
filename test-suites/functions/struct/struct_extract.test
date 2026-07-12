@@ -22,12 +22,6 @@ struct_extract({id: 1, price: 99.99, available: true}::struct<id:i32, price:fp64
 # complex: Extracting arrays from structs
 struct_extract({name: 'Team', members: [1, 2, 3]}::struct<name:str, members:list<i32>>, 'members') = [1, 2, 3]::list<i32>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 struct_extract({big_int: 9223372036854775807}::struct<big_int:i64>, 'big_int') = 9223372036854775807::i64
 

@@ -20,12 +20,6 @@ subtract(-120::i8, 10::i8) [overflow:SILENT] = <!UNDEFINED>
 subtract(-1.5e+308::fp64, 1.5e+308::fp64) = -inf::fp64
 subtract(1.5e+308::fp64, -1.5e+308::fp64) = inf::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 subtract(126::i8, -1::i8) = 127::i8
 subtract(-127::i8, 1::i8) = -128::i8

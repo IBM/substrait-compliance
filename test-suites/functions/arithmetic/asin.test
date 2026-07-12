@@ -8,12 +8,6 @@ asin(0.009::fp64) = 0.009000121504428887::fp64
 asin(-0.009::fp64) = -0.009000121504428887::fp64
 asin(null::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 asin(1.1::fp32) = nan::fp32
 asin(1.1::fp64) = nan::fp64

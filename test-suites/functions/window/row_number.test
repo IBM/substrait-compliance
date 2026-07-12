@@ -23,12 +23,6 @@ row_number() OVER (ORDER BY value::i32) WITH () = ()::i64
 # single_value: Examples with single value
 row_number() OVER (ORDER BY value::i32) WITH ((42)) = (1)::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 row_number() OVER (ORDER BY value::i32) WITH ((2147483647), (2147483646), (-2147483648), (-2147483647)) = (3, 4, 1, 2)::i64
 row_number() OVER (PARTITION BY category::str ORDER BY value::i32 DESC) WITH (('A', 2147483647), ('A', -2147483648), ('B', 0)) = (1, 2, 1)::i64

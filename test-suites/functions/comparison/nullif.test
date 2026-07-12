@@ -20,12 +20,6 @@ nullif(null::bool, null::bool) = null::bool
 nullif(10::dec<38, 0>, null::dec<38, 0>) = 10::dec<38, 0>
 nullif(null::dec<38, 0>, null::dec<38, 0>) = null::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 nullif(-128::i8, -128::i8) = null::i8
 nullif(-32768::i16, -32768::i16) = null::i16

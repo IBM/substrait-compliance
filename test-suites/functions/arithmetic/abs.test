@@ -17,12 +17,6 @@ abs(-128::i8) [overflow:ERROR] = <!ERROR>
 abs(-128::i8) [overflow:SATURATE] = 127::i8
 abs(-128::i8) [overflow:SILENT] = <!UNDEFINED>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 abs(127::i8) = 127::i8
 abs(32767::i16) = 32767::i16

@@ -8,12 +8,6 @@ cosh(7.0000009::fp64) = 548.3175286399451::fp64
 cosh(-7.00000095::fp64) = 548.3175560557769::fp64
 cosh(null::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 cosh(0.5::fp64) = 1.1276259652063807::fp64
 

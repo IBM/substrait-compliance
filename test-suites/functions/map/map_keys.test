@@ -20,12 +20,6 @@ map_keys(null::map<str, str>) = null::list<str>
 map_keys({1: 1.5, 2: 2.5, 3: 3.5}::map<i64, fp64>) = [1, 2, 3]::list<i64>
 map_keys({100: true, 200: false}::map<i32, bool>) = [100, 200]::list<i32>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 map_keys({-2147483648: 'min_i32', 2147483647: 'max_i32'}::map<i32, str>) = [-2147483648, 2147483647]::list<i32>
 map_keys({9223372036854775807: 'max_i64', -9223372036854775808: 'min_i64'}::map<i64, str>) = [9223372036854775807, -9223372036854775808]::list<i64>

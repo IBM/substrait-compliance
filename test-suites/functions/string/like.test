@@ -11,12 +11,6 @@ like('abcdefg'::str, '%efg'::str) = true::bool
 like('abcdefg'::str, '_bcdefg'::str) = true::bool
 like('abcdefg'::str, 'abc_efg'::str) = true::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 like(null::str, 'abc'::str) = null::bool
 like('abcdefg'::str, null::str) = null::bool

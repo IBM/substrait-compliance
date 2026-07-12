@@ -24,12 +24,6 @@ extract('MONTH'::str, current_date()) <= 12::i64
 extract('DAY'::str, current_date()) >= 1::i64
 extract('DAY'::str, current_date()) <= 31::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # zero_handling: Zero and negative zero handling
 extract('HOUR'::str, cast(current_date(), timestamp)) = 0::i64
 extract('MINUTE'::str, cast(current_date(), timestamp)) = 0::i64

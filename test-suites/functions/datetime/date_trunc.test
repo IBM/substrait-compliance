@@ -47,12 +47,6 @@ date_trunc('MONTH'::str, null::date) = null::date
 date_trunc('YEAR'::str, '2000-01-01T00:00:00'::ts) = '2000-01-01T00:00:00'::ts
 date_trunc('MONTH'::str, '2020-02-29T12:00:00'::ts) = '2020-02-01T00:00:00'::ts
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 date_trunc(null::str, '2020-01-01T12:30:45'::ts) = null::ts
 date_trunc('YEAR'::str, null::ts) = null::ts

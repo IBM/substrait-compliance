@@ -10,12 +10,6 @@ factorial(null::i32) = null::i32
 # overflow: Examples demonstrating overflow behavior
 factorial(1000000::i32) [overflow:ERROR] = <!ERROR>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # overflow_behavior: Overflow and saturation behavior
 factorial(13::i32) [overflow:ERROR] = <!ERROR>
 factorial(21::i64) [overflow:ERROR] = <!ERROR>

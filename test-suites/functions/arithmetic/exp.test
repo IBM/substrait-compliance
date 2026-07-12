@@ -10,12 +10,6 @@ exp(0.0::fp64) = 1.0::fp64
 exp(null::fp64) = null::fp64
 exp(1000::i64) = inf::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 exp(nan::fp64) = nan::fp64
 exp(inf::fp64) = inf::fp64

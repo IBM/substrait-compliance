@@ -30,12 +30,6 @@ string_agg(('1', '2', '3')::str, ' -> '::str) = '1 -> 2 -> 3'::str
 string_agg(('', 'b', '')::str, ','::str) = ',b,'::str
 string_agg(('a', '', 'c')::str, ','::str) = 'a,,c'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 string_agg(('a', 'b', 'c')::str, Null::str) = Null::str
 string_agg((Null, 'a', Null, 'b', Null)::str, ','::str) = 'a,b'::str

@@ -29,12 +29,6 @@ except([true, false]::list<bool>, [false]::list<bool>) = [true]::list<bool>
 except([1, 2, 3]::list<i32>, [1, 2, 3]::list<i32>) = []::list<i32>
 except(['a', 'b']::list<str>, ['a', 'b']::list<str>) = []::list<str>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 except([2147483647, 2147483646]::list<i32>, [2147483646]::list<i32>) = [2147483647]::list<i32>
 except([-2147483648, -2147483647]::list<i32>, [-2147483647]::list<i32>) = [-2147483648]::list<i32>

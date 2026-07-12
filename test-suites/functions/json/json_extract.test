@@ -26,12 +26,6 @@ json_extract('{"flag": true}'::str, '$.flag'::str) = 'true'::str
 json_extract('{"value": 3.14}'::str, '$.value'::str) = '3.14'::str
 json_extract('{"text": "hello world"}'::str, '$.text'::str) = 'hello world'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 json_extract('{invalid json'::str, '$.name'::str) = null::str
 json_extract('{"name": "John"'::str, '$.name'::str) = null::str

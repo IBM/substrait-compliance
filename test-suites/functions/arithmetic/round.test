@@ -32,12 +32,6 @@ round(inf::fp64) = inf::fp64
 round(-inf::fp64) = -inf::fp64
 round(nan::fp64) = nan::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 round(inf::fp64, 5::i32) = inf::fp64
 round(-inf::fp64, 5::i32) = -inf::fp64

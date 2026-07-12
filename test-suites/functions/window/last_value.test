@@ -32,12 +32,6 @@ last_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN UNBOUNDED PRECEDING A
 last_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) WITH ((1, 10), (2, 20), (3, 30)) = (10, 20, 30)::i32
 last_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN CURRENT ROW AND 1 FOLLOWING) WITH ((1, 10), (2, 20), (3, 30)) = (20, 30, 30)::i32
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 last_value(value::i32) OVER (ORDER BY id::i32 ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING) WITH ((1, 2147483647), (2, -2147483648)) = (-2147483648, -2147483648)::i32
 

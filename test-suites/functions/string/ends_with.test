@@ -15,12 +15,6 @@ ends_with('😊a😊b😊😊'::str, 'b😊😊'::str) = true::bool
 # multi_byte_characters case insensitivity: multi byte character comparison with case insensitivity
 ends_with('😊a😊b😊😊'::str, 'B😊😊'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 ends_with(null::str, 'a'::str) = null::bool
 ends_with('abcd'::str, null::str) = null::bool

@@ -8,12 +8,6 @@ atan(7.01::fp64) = 1.4290989925795292::fp64
 atan(-7.01::fp64) = -1.4290989925795292::fp64
 atan(null::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 atan(inf::fp32) = 1.5707963267948966::fp32
 atan(-inf::fp32) = -1.5707963267948966::fp32

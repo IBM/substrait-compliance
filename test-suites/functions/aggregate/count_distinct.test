@@ -23,12 +23,6 @@ count_distinct(('hello', 'hello', 'world', 'world')::str) = 2::i64
 count_distinct((1::i8, 2::i8, 1::i8, 3::i8))::i8 = 3::i64
 count_distinct((1.5::fp32, 2.5::fp32, 1.5::fp32))::fp32 = 2::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 count_distinct((2147483647, -2147483648, 2147483647)::i32) = 2::i64
 count_distinct((32767, -32768, 32767, 0)::i16) = 3::i64

@@ -14,12 +14,6 @@ subtract('2020-12-31'::date, 'P5M'::iyear) = '2020-07-31'::date
 # null_input: examples with null args or return
 subtract(null::date, 'P5D'::iday) = null::date
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 subtract(null::ts, null::iday) = null::ts
 subtract('2020-12-31'::date, null::iyear) = null::date

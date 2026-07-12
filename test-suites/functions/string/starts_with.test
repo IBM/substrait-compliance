@@ -15,12 +15,6 @@ starts_with('😊a😊b😊😊'::str, '😊a'::str) = true::bool
 # multi_byte_characters case insensitivity: multi byte character comparison with case insensitivity
 starts_with('😊a😊b😊😊'::str, '😊A'::str) [case_sensitivity:CASE_INSENSITIVE] = true::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 starts_with(null::str, 'a'::str) = null::bool
 starts_with('abcd'::str, null::str) = null::bool

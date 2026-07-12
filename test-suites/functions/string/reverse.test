@@ -14,12 +14,6 @@ reverse(null::str) = null::str
 reverse('ææããa'::str) = 'aããææ'::str
 reverse('😔😄'::str) = '😄😔'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # unicode_handling: Unicode and special characters
 reverse('café'::str) = 'éfac'::str
 reverse('naïve'::str) = 'evïan'::str

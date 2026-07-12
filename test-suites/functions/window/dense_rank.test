@@ -30,12 +30,6 @@ dense_rank() OVER (ORDER BY value::i32) WITH ((5), (5), (5), (5)) = (1, 1, 1, 1)
 # comparison: Demonstrating difference from rank
 dense_rank() OVER (ORDER BY value::i32) WITH ((1), (1), (1), (2), (3), (3)) = (1, 1, 1, 2, 3, 3)::i64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 dense_rank() OVER (ORDER BY value::i32) WITH ((-2147483648), (0), (2147483647)) = (1, 2, 3)::i64
 dense_rank() OVER (ORDER BY value::i32) WITH ((2147483647), (2147483647), (-2147483648)) = (2, 2, 1)::i64

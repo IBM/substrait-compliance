@@ -6,12 +6,6 @@ is_false(true::bool) = false::bool
 is_false(false::bool) = true::bool
 is_false(null::bool) = false::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 is_false(null::bool) = false::bool
 is_false(is_false(null::bool)) = true::bool

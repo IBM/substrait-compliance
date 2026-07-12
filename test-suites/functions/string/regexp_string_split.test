@@ -38,12 +38,6 @@ regexp_string_split('USD100'::str, '(?<=USD)\d{3}'::str) [lookaround:TRUE] = ['U
 # negative_lookbehind: Examples with negative lookbehind
 regexp_string_split('JPY100'::str, '\d{3}(?<!USD\d{3})'::str) [lookaround:TRUE] = ['JPY', '']::list<str>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 regexp_string_split(null::str, 'pattern'::str) = null::list<str>
 regexp_string_split('text'::str, null::str) = null::list<str>

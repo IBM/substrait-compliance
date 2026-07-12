@@ -27,12 +27,6 @@ ln(0.5::fp64) = -0.6931471805599453::fp64
 ln(0.1::fp64) = -2.302585092994046::fp64
 ln(100.0::fp64) = 4.605170185988092::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 ln(0.0::fp32) = -inf::fp32
 ln(-1.0::fp32) = nan::fp32

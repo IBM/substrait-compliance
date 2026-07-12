@@ -13,12 +13,6 @@ left('abcdef'::str, null::i32) = null::str
 left('ææããa'::str, 2::i32) = 'ææ'::str
 left('😔😄😔😄'::str, 2::i32) = '😔😄'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 left('abc'::str, 2147483647::i32) = 'abc'::str
 

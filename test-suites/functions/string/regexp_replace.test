@@ -75,12 +75,6 @@ regexp_replace('USD100'::str, '(?<=USD)\d{3}'::str, '999'::str) [lookaround:TRUE
 regexp_replace('JPY100'::str, '\d{3}(?<!USD\d{3})'::str, '999'::str, 1::i64, 0::i64) [lookaround:TRUE] = 'JPY999'::str
 regexp_replace('JPY100'::str, '\d{3}(?<!USD\d{3})'::str, '999'::str) [lookaround:TRUE] = 'JPY999'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 regexp_replace('test'::str, 'e'::str, null::str, 1::i64, 0::i64) = null::str
 regexp_replace('hello'::str, 'l'::str, null::str, 0::i64, 0::i64) = null::str

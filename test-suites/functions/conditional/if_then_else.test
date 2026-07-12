@@ -29,12 +29,6 @@ if_then_else(10::i32 != 10::i32, 'not equal'::str, 'equal'::str) = 'equal'::str
 if_then_else(10::i32 > 5::i32, 'greater'::str, 'not greater'::str) = 'greater'::str
 if_then_else(10::i32 < 5::i32, 'less'::str, 'not less'::str) = 'not less'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 if_then_else(true::bool, 9223372036854775807::i64, 0::i64) = 9223372036854775807::i64
 if_then_else(false::bool, 0::i64, -9223372036854775808::i64) = -9223372036854775808::i64

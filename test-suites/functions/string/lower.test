@@ -14,12 +14,6 @@ lower(null::str) = null::str
 lower('ÆÆÃÃA'::str) [full_unicode:TRUE] = 'ææããa'::str
 lower('😄'::str) = '😄'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # unicode_handling: Unicode and special characters
 lower('ΑΒΓΔ'::str) [full_unicode:TRUE] = 'αβγδ'::str
 

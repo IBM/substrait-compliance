@@ -8,12 +8,6 @@ atanh(0.009::fp64) = 0.009000243011810481::fp64
 atanh(-0.009::fp64) = -0.009000243011810481::fp64
 atanh(null::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 atanh(-1.0::fp64) = -inf::fp64
 atanh(-1.0::fp32) = -inf::fp32

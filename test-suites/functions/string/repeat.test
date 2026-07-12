@@ -11,12 +11,6 @@ repeat(''::str, 2::i64) = ''::str
 # null_input: Examples with null as input
 repeat(null::str, 2::i64) = null::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 repeat(''::str, 9223372036854775807::i64) = ''::str
 repeat('a'::str, 2147483647::i64) = 'aaa...'::str  # Large but potentially feasible

@@ -18,12 +18,6 @@ not_equal(null::dec<38, 2>, null::dec<38, 2>) = null::bool
 not_equal(null::i16, 1::i16) = null::bool
 not_equal(null::i16, null::i16) = null::bool
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 not_equal(-128::i8, 127::i8) = true::bool
 not_equal(-128::i8, -128::i8) = false::bool

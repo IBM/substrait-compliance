@@ -31,12 +31,6 @@ degrees(0.5235987755982988::fp64) = 30::fp64
 degrees(1.0471975511965976::fp64) = 60::fp64
 degrees(0.017453292519943295::fp64) = 1::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 degrees(inf::fp32) = inf::fp32
 degrees(-inf::fp32) = -inf::fp32

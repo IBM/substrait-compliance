@@ -8,12 +8,6 @@ string_split('bacad'::str, 'a'::str) = ['b', 'c', 'd']::list<str>
 string_split('a b c d'::str, ' '::str) = ['a', 'b', 'c', 'd']::list<str>
 string_split('a b c d'::str, null::str) = ['a b c d']::list<str>
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 string_split('banana'::str, 'a'::str) = ['b', 'n', 'n', '']::list<str>
 

@@ -19,12 +19,6 @@ substring('abcdefg'::str, -2::i32, 1::i32) [negative_start:WRAP_FROM_END] = 'f':
 substring('abcdefg'::str, -1::i32, 2::i32) [negative_start:LEFT_OF_BEGINNING] = ''::str
 substring('abcdefg'::str, -1::i32, 3::i32) [negative_start:LEFT_OF_BEGINNING] = 'a'::str
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # null_handling_extended: Extended null handling scenarios
 substring(null::str, 1::i32, 5::i32) = null::str
 substring('abcdefg'::str, null::i32, 5::i32) = null::str

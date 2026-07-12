@@ -10,12 +10,6 @@ power(13::i64, 10::i64) = 137858491849::i64
 # floating_exception: Examples demonstrating exceptional floating point cases
 power(1.5e+100::fp64, 1.5e+208::fp64) = inf::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 power(0.0::fp64, -1.0::fp64) = inf::fp64
 power(0.0::fp32, -2.0::fp32) = inf::fp32

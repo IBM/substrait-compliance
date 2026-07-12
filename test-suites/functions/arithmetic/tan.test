@@ -8,12 +8,6 @@ tan(7.01::fp64) = 0.8891974677731088::fp64
 tan(-7.01::fp64) = -0.8891974677731088::fp64
 tan(null::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # special_values: Special floating point values (NaN, Infinity)
 tan(nan::fp32) = nan::fp32
 tan(nan::fp64) = nan::fp64

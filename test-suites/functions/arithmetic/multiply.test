@@ -23,12 +23,6 @@ multiply(1.5e+100::fp64, -1.5e+208::fp64) = -inf::fp64
 # types: Examples demonstrating behavior of different data types
 multiply(4.5::fp64, 2.5000007152557373046875::fp64) = 11.250003218650818::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 multiply(0::i8, 127::i8) = 0::i8
 multiply(0::i8, -128::i8) = 0::i8

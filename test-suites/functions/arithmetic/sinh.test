@@ -8,12 +8,6 @@ sinh(7.0000009::fp64) = 548.3166167588001::fp64
 sinh(-7.0000009::fp64) = -548.3166167588001::fp64
 sinh(null::fp64) = null::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 sinh(89.0::fp32) = 2.3012729e+38::fp32
 sinh(-89.0::fp32) = -2.3012729e+38::fp32

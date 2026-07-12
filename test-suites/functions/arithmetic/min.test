@@ -17,12 +17,6 @@ min((2000000000, Null, 629000000, -100000000, Null, 987654321)::i64) = -10000000
 min((Null, -inf, -1.5e+8, -1.5e+7, -1.5e+70)::fp64) = -inf::fp64
 min((1.5e+308, 1.5e+10, Null, -1.5e+7, Null)::fp64) = -1.5e+7::fp64
 
-
-# ============================================================================
-# ENHANCED TEST CASES
-# Additional test cases for comprehensive coverage
-# ============================================================================
-
 # edge_cases: Boundary values and extreme inputs
 min((-128)::i8) = -128::i8
 min((127)::i8) = 127::i8
