@@ -38,7 +38,7 @@ This project adheres to a Code of Conduct that all contributors are expected to 
    ```
 3. **Add upstream remote**:
    ```bash
-   git remote add upstream https://github.com/substrait-io/substrait-compliance.git
+   git remote add upstream https://github.com/IBM/substrait-compliance.git
    ```
 4. **Build the project**:
    ```bash
@@ -57,12 +57,13 @@ We welcome contributions in the following areas:
 
 1. **Test Suite Development**
    - Add new test cases to existing suites
-   - Create new test suites (TPC-DS, SSB, etc.)
+   - Add test cases to existing suites (TPC-H, TPC-DS, Functions)
+   - Create new test suites (SSB, etc.)
    - Improve test coverage for edge cases
    - Enhance test quality and documentation
 
 2. **SDK Development**
-   - Improve existing SDKs (Java, Python, Rust)
+   - Improve existing SDKs (Java, Python, Rust, Go, C++, TypeScript, C#, Scala)
    - Add new language SDKs
    - Fix bugs and improve performance
    - Enhance documentation and examples

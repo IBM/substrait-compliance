@@ -37,7 +37,7 @@ This demo is **not** intended to serve as:
 
 ### Prerequisites
 
-- ✅ Java 11 or higher
+- ✅ Java 17 or higher
 - ✅ Python 3.8+ (for web server)
 - ✅ Web browser
 

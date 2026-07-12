@@ -74,14 +74,14 @@ Committers have write access to the repository and help with day-to-day maintena
 
 ## Contact
 
-- **General Questions**: Open a [GitHub Discussion](https://github.com/substrait-io/substrait-compliance/discussions)
+- **General Questions**: Open a [GitHub Discussion](https://github.com/IBM/substrait-compliance/discussions)
 - **Security Issues**: See [SECURITY.md](SECURITY.md)
 - **Code of Conduct**: conduct@substrait.io
 - **Mailing List**: substrait-dev@googlegroups.com
 
 ## Acknowledgments
 
-We thank all contributors who have helped make this project possible. See the [Contributors page](https://github.com/substrait-io/substrait-compliance/graphs/contributors) for a complete list.
+We thank all contributors who have helped make this project possible. See the [Contributors page](https://github.com/IBM/substrait-compliance/graphs/contributors) for a complete list.
 
 ---
 
