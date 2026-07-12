@@ -1,0 +1,47 @@
+# .oss-gitignore
+#
+# Machine-readable exclude list for pushes to the public open source repository:
+#   https://github.com/IBM/substrait-compliance
+#
+# This file is NOT a standard .gitignore — it does not affect the private
+# main repository at github.ibm.com/rsinha/substrait-compliance.
+#
+# Usage when pushing to the public remote:
+#   git push public main
+#   (files listed here are tracked in the private repo but absent from
+#    the public repo because they were removed via `git rm --cached` and
+#    are listed here so the intent is explicit and auditable)
+#
+# To add a new exclusion:
+#   1. Add the path below with a comment explaining why.
+#   2. Run: git rm --cached -r <path>
+#   3. Update OSS_EXCLUDE.md with the same entry.
+#   4. Commit both files together.
+#
+# Last updated: July 11, 2026
+
+# Enhanced test suites (internal quality-improvement artefacts)
+test-suites-enhanced/
+
+# Legacy / superseded test suite snapshot
+test-suites/functions.old/
+
+# Quality analysis reports (internal tooling output)
+quality_reports/
+
+# Internal release and planning documents
+ROADMAP.md
+CHANGELOG.md
+SDK_TEST_SUITE_VERIFICATION.md
+REMAINING_LAUNCH_BLOCKERS.md
+RELEASE_CHECKLIST.md
+OPEN_SOURCE_RELEASE_REPORT.md
+
+# Internal security audit report
+SECURITY_SCAN_REPORT.md
+
+# Private documents (on disk only, already gitignored in .gitignore)
+demo/dashboard/TPCDS_INTEGRATION.md
+docs/CDMS2026_Decentralized_Compliance_Framework.md
+# This manifest itself (internal document)
+OSS_EXCLUDE.md
