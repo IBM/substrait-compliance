@@ -1,9 +1,9 @@
 # Substrait Compliance Framework
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)](https://github.com/substrait-io/substrait-compliance/actions)
-[![Release](https://img.shields.io/github/v/release/substrait-io/substrait-compliance)](https://github.com/substrait-io/substrait-compliance/releases)
-[![Contributors](https://img.shields.io/github/contributors/substrait-io/substrait-compliance)](https://github.com/substrait-io/substrait-compliance/graphs/contributors)
+[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)](https://github.com/IBM/substrait-compliance/actions)
+[![Release](https://img.shields.io/github/v/release/IBM/substrait-compliance)](https://github.com/IBM/substrait-compliance/releases)
+[![Contributors](https://img.shields.io/github/contributors/IBM/substrait-compliance)](https://github.com/IBM/substrait-compliance/graphs/contributors)
 
 > **A decentralized compliance testing framework for Substrait implementations**
 
@@ -98,7 +98,7 @@ Experience the framework in action before integrating your own engine:
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/substrait-io/substrait-compliance.git
+git clone https://github.com/IBM/substrait-compliance.git
 cd substrait-compliance
 
 # 2. Run the demo (generates mock compliance reports)
@@ -241,13 +241,13 @@ go test ./...
 
 # Expected output:
 # PASS
-# ok      github.com/substrait-io/substrait-compliance/sdk/go
+# ok      github.com/IBM/substrait-compliance/sdk/go
 ```
 
 **Verify Installation:**
 ```bash
-go list -m github.com/substrait-io/substrait-compliance/sdk/go
-# Should see: github.com/substrait-io/substrait-compliance/sdk/go v1.0.0
+go list -m github.com/IBM/substrait-compliance/sdk/go
+# Should see: github.com/IBM/substrait-compliance/sdk/go v1.0.0
 ```
 </details>
 
@@ -1402,8 +1402,8 @@ If you're still experiencing issues:
    ```
 
 4. **Report Issues**
-   - 🐛 [GitHub Issues](https://github.com/substrait-io/substrait-compliance/issues)
-   - 💬 [GitHub Discussions](https://github.com/substrait-io/substrait-compliance/discussions)
+   - 🐛 [GitHub Issues](https://github.com/IBM/substrait-compliance/issues)
+   - 💬 [GitHub Discussions](https://github.com/IBM/substrait-compliance/discussions)
 
 ---
 
@@ -1732,8 +1732,8 @@ This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENS
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/substrait-io/substrait-compliance/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/substrait-io/substrait-compliance/discussions)
+- **Issues**: [GitHub Issues](https://github.com/IBM/substrait-compliance/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/IBM/substrait-compliance/discussions)
 - **Documentation**: [docs/](docs/)
 - **Mailing List**: substrait-dev@googlegroups.com
 - **Slack**: #substrait-compliance (join at [substrait.io](https://substrait.io/))
