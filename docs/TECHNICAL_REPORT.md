@@ -35,11 +35,10 @@ The **Substrait Compliance Framework** is a comprehensive, decentralized testing
 
 | Achievement | Description | Impact |
 |------------|-------------|---------|
-| **Multi-Language SDK** | Java, Python, and Rust implementations | Supports diverse engine ecosystems |
-| **Comprehensive Test Coverage** | 22 TPC-H queries + 143 function test files (~2,230 test cases) | Industry-standard benchmarking |
-| **AI-Enhanced Quality** | 95%+ quality score with Claude-powered validation | Ensures test accuracy and completeness |
-| **REST API Infrastructure** | Full-featured API with authentication | Centralized result sharing |
-| **Automated CI/CD** | 11 GitHub Actions workflows | Continuous validation |
+| **Multi-Language SDK** | Java, Python, Rust, Go, C++, TypeScript, C#, Scala (8 languages) | Supports diverse engine ecosystems |
+| **Comprehensive Test Coverage** | 22 TPC-H queries + 99 TPC-DS queries + 140 function test files (5,041 assertions) | Industry-standard benchmarking |
+| **REST API Infrastructure** | Full-featured Spring Boot API with authentication | Centralized result sharing |
+| **Automated CI/CD** | 13 GitHub Actions workflows | Continuous validation |
 | **Interactive Demo** | Real-time dashboard and visualization | Easy adoption and exploration |
 | **Decentralized Model** | Engine-owned compliance testing | Community-driven validation |
 
@@ -47,9 +46,8 @@ The **Substrait Compliance Framework** is a comprehensive, decentralized testing
 
 ```
 ✅ Core Framework: Production Ready
-✅ SDK Implementation: Complete (3 languages)
-✅ Test Suites: Complete (143 function test files, ~2,230 test cases + 22 TPC-H queries)
-✅ Test Quality: AI-enhanced with 95%+ quality score
+✅ SDK Implementation: Complete (8 languages)
+✅ Test Suites: Complete (140 function test files, 5,041 assertions + 22 TPC-H queries + 99 TPC-DS queries)
 ✅ REST API: Deployed and operational
 ✅ CI/CD Pipeline: Fully automated
 ✅ Documentation: Comprehensive
@@ -58,12 +56,11 @@ The **Substrait Compliance Framework** is a comprehensive, decentralized testing
 
 ### 🎯 Key Metrics
 
-- **Total Test Files:** 143 function test files (~2,230 test cases) + 22 TPC-H queries
-- **Test Categories:** 15 comprehensive function categories
-- **Test Quality Score:** 95%+ (AI-validated with Claude)
-- **SDK Languages:** 3 (Java, Python, Rust)
+- **Total Test Files:** 140 function test files (5,041 assertions) + 22 TPC-H queries + 99 TPC-DS queries
+- **Test Categories:** 14 function categories
+- **SDK Languages:** 8 (Java, Python, Rust, Go, C++, TypeScript, C#, Scala)
 - **API Endpoints:** 15+ RESTful endpoints
-- **CI/CD Workflows:** 11 automated workflows
+- **CI/CD Workflows:** 13 automated workflows
 - **Documentation Files:** 47 comprehensive guides
 - **Code Coverage:** Multi-tier validation system
 
@@ -108,20 +105,20 @@ The Substrait Compliance Framework implements a **decentralized architecture** w
 ### 🔧 Core Components
 
 #### 1. **Test Suite Repository**
-- **Location:** `test-suites/` and `test-suites-enhanced/`
+- **Location:** `test-suites/`
 - **Purpose:** Centralized test definitions
 - **Content:** TPC-H queries and function-level tests
 - **Format:** YAML-based test specifications
 
 #### 2. **Multi-Language SDKs**
-- **Location:** `sdk/java/`, `sdk/python/`, `sdk/rust/`
+- **Location:** `sdk/java/`, `sdk/python/`, `sdk/rust/`, `sdk/go/`, `sdk/cpp/`, `sdk/typescript/`, `sdk/csharp/`, `sdk/scala/`
 - **Purpose:** Engine integration libraries
 - **Features:** Test execution, result validation, API submission
 
 #### 3. **REST API Service**
 - **Location:** `api/`
 - **Purpose:** Result aggregation and leaderboard
-- **Technology:** FastAPI (Python), PostgreSQL
+- **Technology:** Spring Boot (Java), PostgreSQL
 - **Deployment:** Docker containers with Kubernetes support
 
 #### 4. **CI/CD Infrastructure**
@@ -138,8 +135,8 @@ The Substrait Compliance Framework implements a **decentralized architecture** w
 
 | Layer | Technologies | Purpose |
 |-------|-------------|---------|
-| **SDKs** | Java 11+, Python 3.8+, Rust 1.70+ | Engine integration |
-| **API** | FastAPI, PostgreSQL, SQLAlchemy | Result management |
+| **SDKs** | Java 17+, Python 3.8+, Rust 1.70+, Go 1.21+, C++17, Node.js, .NET 6+, Scala 2.13 | Engine integration |
+| **API** | Spring Boot (Java), PostgreSQL | Result management |
 | **Testing** | JUnit, pytest, cargo test | Quality assurance |
 | **CI/CD** | GitHub Actions, Docker | Automation |
 | **Demo** | Python, Streamlit, Plotly | Visualization |

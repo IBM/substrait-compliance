@@ -107,16 +107,6 @@ Some tests include options to specify behavior:
 
 These test files are designed to be consumed by Substrait compliance testing frameworks. Refer to the main project documentation for instructions on running tests against specific query engines.
 
-## Test Enhancement
-
-The test suites have been enhanced with comprehensive coverage including:
-
-- **3,381 additional test cases** across 136 function test files
-- Systematic coverage of edge cases, boundary conditions, and error scenarios
-- Unicode and internationalization testing
-- Precision and numerical stability testing
-- Comprehensive null handling scenarios
-
 ## Contributing
 
 When adding new tests:

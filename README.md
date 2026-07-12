@@ -539,7 +539,7 @@ See [.github/workflows/README.md](.github/workflows/README.md) for details.
 ## 🧪 Test Suites
 
 > **📚 Detailed Documentation:**
-> - [test-suites/functions/README.md](test-suites/functions/README.md) — Function tests (276 files: 140 standard + 136 enhanced, ~4,000+ test cases)
+> - [test-suites/functions/README.md](test-suites/functions/README.md) — Function tests (140 files, 5,041 test assertions, 14 categories)
 > - [test-suites/tpch/README.md](test-suites/tpch/README.md) — TPC-H benchmark (22 queries)
 > - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) — TPC-DS benchmark (99 queries)
 
@@ -617,13 +617,9 @@ ls -la plans/  # 194 Substrait plan files
 
 > **📚 See [test-suites/tpcds/README.md](test-suites/tpcds/README.md) for complete TPC-DS documentation**
 
-### Function Tests (276 Files Total)
+### Function Tests (140 Files, 5,041 Assertions)
 
-The framework includes **two function test suite collections**:
-
-#### Standard Test Suite (`test-suites/functions/` — 140 files)
-
-Core function coverage across 14 categories:
+The function test suite covers 14 semantic categories with 5,041 individual test assertions:
 
 ```
 aggregate/     (6 files)  — count, avg, stddev, variance, etc.
@@ -642,42 +638,15 @@ struct/        (2 files)  — struct operations
 window/        (7 files)  — row_number, rank, lag, lead, etc.
 ```
 
-#### Enhanced Test Suite (`test-suites-enhanced/functions/` — 136 files)
-
-Extended coverage across the same 14 categories with additional test cases and quality improvements:
-
-```
-aggregate/     (6 files)  — count, count_distinct, avg, sum, stddev, variance
-arithmetic/    (44 files) — comprehensive math operations
-array/         (4 files)  — array_construct, array_element, array_concat, array_contains
-cast/          (1 file)   — try_cast with error handling
-comparison/    (19 files) — complete comparison operations
-conditional/   (2 files)  — case_when, if_then_else
-datetime/      (12 files) — extensive date/time operations
-geospatial/    (4 files)  — spatial operations
-json/          (2 files)  — json_extract, json_parse
-map/           (3 files)  — map_construct, map_extract, map_keys
-set/           (3 files)  — union, intersect, except
-string/        (27 files) — comprehensive string manipulation
-struct/        (2 files)  — struct_construct, struct_extract
-window/        (7 files)  — ranking and navigation functions
-```
-
 **Running Function Tests (Python):**
 ```python
 from substrait_compliance import YamlTestSuiteLoader, ComplianceRunner
 
 loader = YamlTestSuiteLoader()
-
-# Standard suite
 suite = loader.load("test-suites/functions/arithmetic/metadata.yaml")
 runner = ComplianceRunner(my_engine)
 report = runner.run_test_suite(suite)
 print(f"Arithmetic Functions: {report.passed_count}/{report.total_count} passed")
-
-# Enhanced suite
-enhanced_suite = loader.load("test-suites-enhanced/functions/arithmetic/metadata.yaml")
-enhanced_report = runner.run_test_suite(enhanced_suite)
 ```
 
 ### Running Specific Tests
@@ -731,12 +700,10 @@ substrait-compliance/
 │   ├── typescript/                # TypeScript/Node.js, npm
 │   ├── csharp/                    # C#/.NET 6+, dotnet
 │   └── scala/                     # Scala 2.13, sbt
-├── 🧪 test-suites/                # Standard test suites
-│   ├── functions/                 # 140 function test files (14 categories)
+├── 🧪 test-suites/                # Test suites
+│   ├── functions/                 # 140 function test files, 5,041 assertions (14 categories)
 │   ├── tpch/                      # TPC-H (22 queries, 8 data files, 44 plans)
 │   └── tpcds/                     # TPC-DS (99 queries, 24 data files, 194 plans)
-├── 🧪 test-suites-enhanced/       # Enhanced test suites (136 files)
-│   └── functions/                 # Same 14 categories, additional test cases
 ├── 💡 examples/                   # Real-world integration examples
 │   ├── datafusion-python/         # DataFusion integration (Python)
 │   ├── datafusion-rust/           # DataFusion integration (Rust)
@@ -769,8 +736,7 @@ substrait-compliance/
 **Key Directories for Developers:**
 - 🎯 **`demo/`** — Run the interactive demo first to see the framework in action
 - 📚 **`sdk/`** — 8 SDKs: C++, C#, Go, Java, Python, Rust, Scala, TypeScript
-- 🧪 **`test-suites/`** — 140 standard function tests + TPC-H + TPC-DS benchmarks
-- 🧪 **`test-suites-enhanced/`** — 136 enhanced function tests with additional coverage
+- 🧪 **`test-suites/`** — 140 function test files (5,041 assertions) + TPC-H + TPC-DS benchmarks
 - 💡 **`examples/`** — Real integration examples with DuckDB, DataFusion, and Velox
 
 ---
@@ -1192,9 +1158,8 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 |--------|-------|
 | **SDKs** | 8 (Java, Python, Rust, Go, C++, TypeScript, C#, Scala) |
 | **Test Suites** | 3 (TPC-H, TPC-DS, Functions) |
-| **Standard Function Test Files** | 140 (14 categories) |
-| **Enhanced Function Test Files** | 136 (14 categories) |
-| **Function Test Cases** | ~4,000+ individual test cases |
+| **Function Test Files** | 140 (14 categories) |
+| **Function Test Assertions** | 5,041 individual test cases |
 | **TPC-H Queries** | 22 |
 | **TPC-DS Queries** | 99 |
 | **TPC-H Data Rows** | 86,805 (scale factor 0.01) |

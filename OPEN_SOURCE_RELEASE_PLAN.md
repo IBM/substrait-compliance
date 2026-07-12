@@ -40,7 +40,7 @@ The codebase is **feature-complete and documentation-complete** for a v1.0.0 rel
 ### ✅ Code & Content
 
 - **8 SDK implementations** — Java, Python, Rust, Go, C++, TypeScript, C#, Scala (all at v1.0.0, verified May 30, 2026)
-- **Test suites** — 276 function test files (140 standard + 136 enhanced), TPC-H (22 queries), TPC-DS (99 queries, 194 plans)
+- **Test suites** — 140 function test files (5,041 assertions across 14 categories), TPC-H (22 queries), TPC-DS (99 queries, 194 plans)
 - **Reference examples** — DuckDB (Java + C++), DataFusion (Python + Rust), Velox (C++)
 - **REST API** — Spring Boot implementation with JWT auth, report submission, webhooks, leaderboard
 - **Interactive demo** — Mock engines, HTML/JS dashboard, shell runners

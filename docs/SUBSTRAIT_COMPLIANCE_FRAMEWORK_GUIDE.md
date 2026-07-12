@@ -205,7 +205,7 @@ Developer                SDK              Engine           Test Suite        Run
 │  │  • Data Mining (9)                                       │  │
 │  └──────────────────────────────────────────────────────────┘  │
 │  ┌──────────────────────────────────────────────────────────┐  │
-│  │  Function Tests (279 Files, 2,230+ Tests)               │  │
+│  │  Function Tests (140 Files, 5,041 Assertions)           │  │
 │  │  • Aggregate, Arithmetic, String, DateTime, Window      │  │
 │  │  • Comparison, Boolean, Cast, Array, Map, Set, etc.     │  │
 │  └──────────────────────────────────────────────────────────┘  │
