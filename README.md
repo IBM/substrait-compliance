@@ -13,8 +13,8 @@ Enable database engines to self-certify their Substrait compliance through stand
 
 ## 📑 Table of Contents
 
-- [Prerequisites](#-prerequisites)
 - [Overview](#-overview)
+- [Prerequisites](#-prerequisites)
 - [5-Minute Quick Start](#-5-minute-quick-start)
 - [Test Your Own Engine](#-test-your-own-engine)
 - [Test Suites](#-test-suites)
@@ -26,41 +26,6 @@ Enable database engines to self-certify their Substrait compliance through stand
 - [Troubleshooting](#-troubleshooting)
 - [Contributing](#-contributing)
 - [Key Documentation](#-key-documentation)
-
----
-
-## 🔧 SDK Notes
-
-This repository includes SDKs and examples across multiple languages. Support level, feature parity, and verification status may vary by SDK and release.
-
-Recent documentation and compatibility updates include:
-
-- **Rust SDK**: Updated [`benchmark_example.rs`](sdk/rust/examples/benchmark_example.rs) to use the current instance-method benchmark pattern
-- **Go SDK**: Cleaned up [`go.mod`](sdk/go/go.mod) and refreshed module metadata
-- **Scala SDK**: Introduced [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) to separate engine execution from test results
-- **C++ SDK**: Expanded setup guidance in [`README.md`](sdk/cpp/README.md)
-- **TypeScript SDK**: Improved package configuration and troubleshooting guidance in [`README.md`](sdk/typescript/README.md)
-
-For current build and test status, rely on repository CI results and per-SDK documentation.
-
----
-
-## 🔧 Prerequisites
-
-Before you begin, ensure you have:
-
-- ✅ **Java 17+** — Check with `java -version`
-- ✅ **Python 3.8+** — Check with `python3 --version` (optional, for Python SDK/demo)
-- ✅ **Rust 1.70+** — Check with `rustc --version` (optional, for Rust SDK)
-- ✅ **Git** — For cloning the repository
-- ✅ **Web Browser** — For viewing the interactive dashboard
-
-**Quick Verification:**
-```bash
-java -version     # Should show 17 or higher
-python3 --version # Should show 3.8 or higher
-git --version     # Any recent version
-```
 
 ---
 
@@ -83,6 +48,41 @@ The Substrait Compliance Framework transforms how query engines validate their S
 - 🌐 **REST API** — Spring Boot API implementation for programmatic access (pre-release)
 - 📊 **Interactive Demo** — Live dashboard with mock engines, query drill-down, and complexity filtering
 - 🏆 **Leaderboard Support** — Report aggregation and leaderboard generation
+
+---
+
+## 🔧 Prerequisites
+
+Before you begin, ensure you have:
+
+- ✅ **Java 17+** — Check with `java -version`
+- ✅ **Python 3.8+** — Check with `python3 --version` (optional, for Python SDK/demo)
+- ✅ **Rust 1.70+** — Check with `rustc --version` (optional, for Rust SDK)
+- ✅ **Git** — For cloning the repository
+- ✅ **Web Browser** — For viewing the interactive dashboard
+
+**Quick Verification:**
+```bash
+java -version     # Should show 17 or higher
+python3 --version # Should show 3.8 or higher
+git --version     # Any recent version
+```
+
+---
+
+## 🔧 SDK Notes
+
+This repository includes SDKs and examples across multiple languages. Support level, feature parity, and verification status may vary by SDK and release.
+
+Recent documentation and compatibility updates include:
+
+- **Rust SDK**: Updated [`benchmark_example.rs`](sdk/rust/examples/benchmark_example.rs) to use the current instance-method benchmark pattern
+- **Go SDK**: Cleaned up [`go.mod`](sdk/go/go.mod) and refreshed module metadata
+- **Scala SDK**: Introduced [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) to separate engine execution from test results
+- **C++ SDK**: Expanded setup guidance in [`README.md`](sdk/cpp/README.md)
+- **TypeScript SDK**: Improved package configuration and troubleshooting guidance in [`README.md`](sdk/typescript/README.md)
+
+For current build and test status, rely on repository CI results and per-SDK documentation.
 
 ---
 
