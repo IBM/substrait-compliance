@@ -1,13 +1,13 @@
 # Test Implementations
 
-This directory contains test implementations of the Substrait Compliance Framework using various query engines. These implementations are for **demonstration and testing purposes only** and can be safely deleted without affecting the core framework.
+This directory contains reference implementations of the Substrait Compliance Framework using various query engines. They demonstrate how to integrate the framework with a real engine and serve as starting points for engine developers.
 
 ## Purpose
 
-These test implementations serve to:
+These implementations serve to:
 1. Demonstrate how to implement the `ComplianceEngine` interface
 2. Validate that the SDK interfaces work correctly
-3. Provide examples for engine developers
+3. Provide concrete examples for engine developers
 4. Test the framework with real query engines
 
 ## Available Implementations
@@ -16,52 +16,34 @@ These test implementations serve to:
 - **Location**: `duckdb-python/`
 - **Language**: Python
 - **Engine**: DuckDB in-process analytical database
-- **Status**: Demonstration implementation
-- **Features**: 
-  - Complete ComplianceEngine interface implementation
+- **Status**: Reference implementation
+- **Features**:
+  - Complete `ComplianceEngine` interface implementation
   - Basic plan validation
   - Example test runner
   - Simple usage examples
 
-## Important Notes
+## Scope
 
-⚠️ **These implementations are NOT part of the core framework**
+These implementations live outside the core SDK and API modules. They are intentionally lightweight — focused on showing the integration pattern rather than covering every edge case. They are not endorsed as production-ready engine adapters.
 
-- They are isolated in this directory
-- They can be deleted at any time
-- They do not affect the core SDK functionality
-- They are for testing and demonstration only
+## Adding New Implementations
 
-## Adding New Test Implementations
-
-To add a new test implementation:
+To contribute a new engine implementation:
 
 1. Create a new directory: `test-implementations/<engine-name>-<language>/`
-2. Implement the ComplianceEngine interface for your chosen SDK
-3. Add a README.md explaining the implementation
-4. Include examples and test runners
-5. Add a .gitignore file
-
-## Cleanup
-
-To remove all test implementations:
-
-```bash
-rm -rf test-implementations/
-```
-
-To remove a specific implementation:
-
-```bash
-rm -rf test-implementations/duckdb-python/
-```
+2. Implement the `ComplianceEngine` interface using your chosen SDK
+3. Add a `README.md` explaining the implementation and how to run it
+4. Include examples and a test runner
+5. Add a `.gitignore` for build artifacts
+6. Submit a pull request
 
 ## Contributing
 
-If you create a test implementation that might be useful to others:
-1. Ensure it's well-documented
-2. Include clear examples
-3. Add it to this README
-4. Submit a pull request
+If you create an implementation that would be useful to others:
+1. Ensure it is well-documented
+2. Include clear usage examples
+3. Add it to the **Available Implementations** table above
+4. Submit a pull request against `IBM/substrait-compliance:main`
 
-Remember: These are **examples only** and not production-ready code.
+For general contribution guidelines see [`CONTRIBUTING.md`](../CONTRIBUTING.md).
