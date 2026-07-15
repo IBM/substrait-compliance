@@ -44,5 +44,6 @@ SECURITY_SCAN_REPORT.md
 # Private documents (on disk only, already gitignored in .gitignore)
 demo/dashboard/TPCDS_INTEGRATION.md
 docs/CDMS2026_Decentralized_Compliance_Framework.md
+docs/decentralized-substrait-compliance-paper.md
 # This manifest itself (internal document)
 OSS_EXCLUDE.md
