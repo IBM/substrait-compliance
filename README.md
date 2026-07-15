@@ -134,7 +134,7 @@ Substrait Compliance Framework - Demo
 ```
 
 **What You'll See in the Dashboard:**
-- 🥇 **Leaderboard** — Rankings with medals (FastDB 🥇, MockDB 🥈, CloudDB 🥉)
+- 🥇 **Leaderboard** — Rankings with medals and fidelity tier badges (VERIFIED / EDGE / BASIC / NONE)
 - 📊 **Visual Charts** — Bar chart and doughnut chart showing pass rates
 - 📈 **Detailed Statistics** — Per-engine breakdowns and test case results
 - 🔍 **Query Drill-Down** — Click any engine to see detailed query-level results
@@ -698,7 +698,7 @@ substrait-compliance/
 │   ├── go/                        # Go 1.21+, modules
 │   ├── cpp/                       # C++17, CMake 3.15+
 │   ├── typescript/                # TypeScript/Node.js, npm
-│   ├── csharp/                    # C#/.NET 6+, dotnet
+│   ├── csharp/                    # C#/.NET 10+, dotnet
 │   └── scala/                     # Scala 2.13, sbt
 ├── 🧪 test-suites/                # Test suites
 │   ├── functions/                 # 140 function test files, 5,041 assertions (14 categories)
@@ -802,7 +802,7 @@ substrait-compliance/
 - **Docs**: [sdk/typescript/README.md](sdk/typescript/README.md)
 
 ### C# SDK
-- **Runtime**: .NET 6+  |  **Build**: dotnet  |  **Tests**: 12 unit tests
+- **Runtime**: .NET 10+  |  **Build**: dotnet  |  **Tests**: 12 unit tests
 - **Docs**: [sdk/csharp/README.md](sdk/csharp/README.md)
 
 ### Scala SDK
@@ -1015,18 +1015,18 @@ cd sdk/rust && cargo build --release && cargo test  # 6 passed
 
 ## 📈 Compliance Leaderboard
 
-Aggregated results show compliance status across engines:
-
-| Rank | Engine | Version | Pass Rate | Queries Passed |
-|------|--------|---------|-----------|----------------|
-| 🥇 | DataFusion | 35.0.0 | 95.5% | 21/22 |
-| 🥈 | DuckDB | 0.10.0 | 90.9% | 20/22 |
-| 🥉 | Spark | 3.5.0 | 86.4% | 19/22 |
+Run the demo to generate leaderboard data from the included mock engines, then view it in the interactive dashboard. Results include fidelity tier badges (VERIFIED / EDGE / BASIC / NONE) assigned per category from corpus pass rates.
 
 Generate and view the leaderboard:
 ```bash
+cd demo && ./runner/run-demo.sh
+cd dashboard && python3 -m http.server 8080
+# Open http://localhost:8080
+```
+
+To generate a standalone leaderboard JSON from existing reports:
+```bash
 python3 scripts/generate_leaderboard.py
-cd demo/dashboard && python3 -m http.server 8080
 ```
 
 ---
@@ -1086,7 +1086,7 @@ curl http://localhost:8080/api/v1/leaderboard
 - [scripts/README.md](scripts/README.md) — Scripts documentation
 - [scripts/TEST_ENHANCEMENT_GUIDE.md](scripts/TEST_ENHANCEMENT_GUIDE.md) — Test enhancement workflow
 - [.github/workflows/README.md](.github/workflows/README.md) — CI/CD workflow documentation
-- [CHANGELOG.md](CHANGELOG.md) — Version history
+- [CHANGELOG.md](https://github.com/IBM/substrait-compliance/releases) — Version history (published via GitHub Releases)
 
 ### 🤝 Contributing
 - [CONTRIBUTING.md](CONTRIBUTING.md) — Contribution guidelines
