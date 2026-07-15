@@ -281,7 +281,7 @@ dotnet test
 
 **Verify Installation:**
 ```bash
-ls -la bin/Debug/net6.0/
+ls -la bin/Debug/net10.0/
 # Should see: Substrait.Compliance.dll and related files
 ```
 </details>
