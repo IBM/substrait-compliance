@@ -19,8 +19,8 @@ This guide covers the complete implementation of the REST API, from initial setu
 
 ### Prerequisites
 
-- Java 11+
-- Gradle 7.x
+- Java 17+
+- Gradle 7.x+
 - PostgreSQL 15
 - Podman/Docker
 - Git
@@ -221,10 +221,10 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       
-      - name: Set up JDK 11
+      - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
       
       - name: Build with Gradle
@@ -288,7 +288,7 @@ jobs:
 
 ```bash
 # Clone repository
-git clone https://github.com/substrait-io/substrait-compliance.git
+git clone https://github.com/IBM/substrait-compliance.git
 cd substrait-compliance
 
 # Build SDK

@@ -72,110 +72,80 @@ auto result = runner.run_benchmark("My Benchmark", operations);
 std::cout << result.summary();
 ```
 
-### 🔄 Go SDK (To Be Implemented)
-**Recommended Location**: `sdk/go/benchmark/`
+### ✅ Go SDK (Complete)
+**Location**: `sdk/go/benchmark/`
 
-**Suggested Implementation**:
+**Files**:
+- `benchmark_runner.go` — Core benchmarking engine with goroutine-based parallel execution
+
+**Usage**:
 ```go
-// benchmark_runner.go
-type BenchmarkRunner struct {
-    engine ComplianceEngine
-    config BenchmarkConfig
-}
-
-func (r *BenchmarkRunner) RunBenchmark(name string, ops []Operation) BenchmarkResult {
-    // Use time.Now() for timing
-    // Use runtime.MemStats for memory tracking
-    // Use goroutines for parallel execution
-}
+runner := benchmark.NewBenchmarkRunner(engine, benchmark.DefaultConfig())
+result := runner.RunBenchmark("My Benchmark", operations)
+fmt.Println(result.Summary())
 ```
 
-**Key Go Features to Use**:
-- `time.Duration` for timing
+**Key Features**:
+- `time.Duration` for high-resolution timing
 - `runtime.MemStats` for memory profiling
 - Goroutines for parallel benchmarks
 - `testing.B` integration for standard Go benchmarks
 
-### 🔄 TypeScript SDK (To Be Implemented)
-**Recommended Location**: `sdk/typescript/src/benchmark/`
+### ✅ TypeScript SDK (Complete)
+**Location**: `sdk/typescript/src/benchmark/`
 
-**Suggested Implementation**:
+**Files**:
+- `BenchmarkRunner.ts` — Core benchmarking engine with async/await support
+
+**Usage**:
 ```typescript
-// BenchmarkRunner.ts
-export class BenchmarkRunner {
-  constructor(
-    private engine: ComplianceEngine,
-    private config: BenchmarkConfig
-  ) {}
-
-  async runBenchmark(
-    name: string,
-    operations: Array<[string, () => Promise<any>]>
-  ): Promise<BenchmarkResult> {
-    // Use performance.now() for high-resolution timing
-    // Use process.memoryUsage() for memory tracking
-  }
-}
+const runner = new BenchmarkRunner(engine, { warmupRuns: 5, measurementRuns: 100 });
+const result = await runner.runBenchmark('My Benchmark', operations);
+console.log(result.summary());
 ```
 
-**Key TypeScript Features to Use**:
+**Key Features**:
 - `performance.now()` for high-resolution timing
 - `process.memoryUsage()` for Node.js memory tracking
 - `Promise.all()` for parallel execution
 - Jest integration for testing
 
-### 🔄 C#/.NET SDK (To Be Implemented)
-**Recommended Location**: `sdk/csharp/Substrait.Compliance/Benchmark/`
+### ✅ C#/.NET SDK (Complete)
+**Location**: `sdk/csharp/Substrait.Compliance/Benchmark/`
 
-**Suggested Implementation**:
+**Files**:
+- `BenchmarkRunner.cs` — Core benchmarking engine with async support
+
+**Usage**:
 ```csharp
-// BenchmarkRunner.cs
-public class BenchmarkRunner
-{
-    public async Task<BenchmarkResult> RunBenchmarkAsync(
-        string benchmarkName,
-        IEnumerable<(string, Func<Task>)> operations)
-    {
-        // Use Stopwatch for timing
-        // Use GC.GetTotalMemory() for memory tracking
-        // Use Task.WhenAll() for parallel execution
-    }
-}
+var runner = new BenchmarkRunner(engine, new BenchmarkConfig { WarmupRuns = 5 });
+var result = await runner.RunBenchmarkAsync("My Benchmark", operations);
+Console.WriteLine(result.Summary());
 ```
 
-**Key C# Features to Use**:
+**Key Features**:
 - `System.Diagnostics.Stopwatch` for timing
 - `GC.GetTotalMemory()` for memory tracking
 - `Task.WhenAll()` for parallel execution
-- BenchmarkDotNet integration for advanced benchmarking
 
-### 🔄 Python SDK (To Be Implemented)
-**Recommended Location**: `sdk/python/substrait_compliance/benchmark/`
+### ✅ Python SDK (Complete)
+**Location**: `sdk/python/substrait_compliance/benchmark/`
 
-**Suggested Implementation**:
+**Files**:
+- `benchmark_runner.py` — Core benchmarking engine
+
+**Usage**:
 ```python
-# benchmark_runner.py
-class BenchmarkRunner:
-    def __init__(self, engine: ComplianceEngine, config: BenchmarkConfig):
-        self.engine = engine
-        self.config = config
-    
-    def run_benchmark(
-        self,
-        benchmark_name: str,
-        operations: List[Tuple[str, Callable]]
-    ) -> BenchmarkResult:
-        # Use time.perf_counter() for timing
-        # Use tracemalloc for memory tracking
-        # Use asyncio for async operations
+runner = BenchmarkRunner(engine, BenchmarkConfig(warmup_runs=5, measurement_runs=100))
+result = runner.run_benchmark("My Benchmark", operations)
+print(result.summary())
 ```
 
-**Key Python Features to Use**:
+**Key Features**:
 - `time.perf_counter()` for high-resolution timing
 - `tracemalloc` for memory profiling
 - `asyncio` for async operations
 - `multiprocessing` for parallel execution
-- Integration with `pytest-benchmark`
 
 ### ✅ Rust SDK (Complete)
 **Location**: `sdk/rust/src/benchmark/mod.rs`

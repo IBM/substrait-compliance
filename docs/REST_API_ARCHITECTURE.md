@@ -270,7 +270,7 @@ graph TB
     subgraph "Container Orchestration"
         subgraph "API Container"
             APP[Spring Boot App]
-            JVM[JVM 11]
+            JVM[JVM 21]
         end
 
         subgraph "Database Container"

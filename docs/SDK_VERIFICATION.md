@@ -38,7 +38,7 @@ This script will:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   1. Python SDK
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ PASSED: Build successful, 15 tests passed
+✓ PASSED: Build successful, 6 tests passed
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Overall Statistics:
@@ -281,7 +281,7 @@ Each SDK is tested against multiple versions:
 | C++ | g++, clang++ |
 | Go | 1.20, 1.21, 1.22 |
 | TypeScript | Node 18, 20, 21 |
-| C# | .NET 6.0, 7.0, 8.0 |
+| C# | .NET 8.0, 9.0, 10.0 |
 | Scala | 2.13, 3.3 |
 
 ### Coverage Reports
@@ -513,7 +513,7 @@ go mod verify
 ### C# SDK
 
 **Requirements:**
-- .NET 6.0+
+- .NET 10+
 
 **Key Files:**
 - `*.csproj` - Project file

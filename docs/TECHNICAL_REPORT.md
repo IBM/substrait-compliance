@@ -1,9 +1,9 @@
 # Substrait Compliance Framework
 ## Comprehensive Technical Report
 
-**Version:** 1.0.0  
-**Date:** April 25, 2026  
-**Status:** Production Ready 🚀
+**Version:** 1.0.0
+**Date:** July 2026
+**Status:** Pre-Release — feature-complete, awaiting public launch
 
 ---
 
@@ -45,10 +45,10 @@ The **Substrait Compliance Framework** is a comprehensive, decentralized testing
 ### 📊 Current Status
 
 ```
-✅ Core Framework: Production Ready
+✅ Core Framework: Complete
 ✅ SDK Implementation: Complete (8 languages)
 ✅ Test Suites: Complete (140 function test files, 5,041 assertions + 22 TPC-H queries + 99 TPC-DS queries)
-✅ REST API: Deployed and operational
+🟡 REST API: Reference implementation complete — deployment pending
 ✅ CI/CD Pipeline: Fully automated
 ✅ Documentation: Comprehensive
 ✅ Demo System: Interactive and functional
@@ -135,7 +135,7 @@ The Substrait Compliance Framework implements a **decentralized architecture** w
 
 | Layer | Technologies | Purpose |
 |-------|-------------|---------|
-| **SDKs** | Java 17+, Python 3.8+, Rust 1.70+, Go 1.21+, C++17, Node.js, .NET 6+, Scala 2.13 | Engine integration |
+| **SDKs** | Java 17+, Python 3.8+, Rust 1.70+, Go 1.21+, C++17, Node.js, .NET 10+, Scala 2.13 | Engine integration |
 | **API** | Spring Boot (Java), PostgreSQL | Result management |
 | **Testing** | JUnit, pytest, cargo test | Quality assurance |
 | **CI/CD** | GitHub Actions, Docker | Automation |

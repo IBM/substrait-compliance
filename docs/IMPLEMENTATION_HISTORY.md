@@ -132,7 +132,7 @@ Comprehensive implementation of function test suites covering all Substrait func
 ### Test Quality Metrics
 
 ```
-Total Test Cases: 850+
+Total Test Cases: 5,041 assertions across 140 test files
 Coverage by Category:
 - Arithmetic: 95%
 - String: 92%
@@ -406,7 +406,6 @@ Special thanks to all contributors who made these implementations possible:
 
 - [REST API Guide](REST_API_GUIDE.md)
 - [API Implementation Guide](API_IMPLEMENTATION.md)
-- [CI/CD Documentation](CI_CD_IMPLEMENTATION.md)
 - [Contributing Guide](../CONTRIBUTING.md)
 
 ---

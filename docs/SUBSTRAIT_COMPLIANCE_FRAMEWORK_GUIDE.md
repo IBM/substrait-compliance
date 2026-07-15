@@ -1,7 +1,7 @@
 # Substrait Compliance Framework - Complete Guide
 
-**Version:** 1.0  
-**Last Updated:** June 11, 2026  
+**Version:** 1.0
+**Last Updated:** July 2026
 **Status:** Pre-Launch Documentation
 
 ---
@@ -31,7 +31,7 @@ The **Substrait Compliance Framework** is a decentralized testing ecosystem that
 
 - 🔄 **Decentralized Testing**: Engines test themselves without central bottlenecks
 - 🌐 **8 SDK Implementations**: Java, Python, Rust, C++, Go, TypeScript, C#, Scala
-- 📦 **2,351+ Test Cases**: TPC-H (22), TPC-DS (99), Function Tests (2,230+)
+- 📦 **5,041+ Test Cases**: TPC-H (22), TPC-DS (99), Function Tests (5,041 assertions)
 - ⚡ **Performance Benchmarking**: Built-in execution time tracking
 - 🤖 **CI/CD Ready**: GitHub Actions workflows included
 - 🌐 **REST API**: Spring Boot API for report submission
@@ -110,7 +110,7 @@ The Substrait Compliance Framework transforms how query engines validate their S
 
 ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
 │ Query Engine │─────▶│     SDK      │─────▶│ Test Suites  │
-│              │      │  (8 langs)   │      │  (2,351+)    │
+│              │      │  (8 langs)   │      │  (5,041+)    │
 └──────────────┘      └──────────────┘      └──────────────┘
        │                     │                      │
        │                     ▼                      │
@@ -244,18 +244,18 @@ For the complete document with all code examples, detailed test suite informatio
 ## 📚 Quick Reference
 
 ### Key Statistics
-- **Total Test Cases**: 2,351+
+- **Total Test Cases**: 5,041+ (function assertions) + 22 TPC-H + 99 TPC-DS
 - **SDK Languages**: 8 (Java, Python, Rust, C++, Go, TypeScript, C#, Scala)
-- **Function Categories**: 15
-- **Quality Score**: 95%+
+- **Function Categories**: 14
+- **Function Test Files**: 140
 
 ### Getting Started
 ```bash
 # Clone repository
-git clone https://github.com/substrait-io/substrait-compliance.git
+git clone https://github.com/IBM/substrait-compliance.git
 
 # Try interactive demo
-cd demo && ./start_demo.sh
+cd demo && ./runner/run-simple-demo.sh
 
 # Implement your engine (choose SDK)
 cd sdk/java  # or python, rust, etc.
@@ -264,7 +264,6 @@ cd sdk/java  # or python, rust, etc.
 ### Documentation Links
 - Main README: [`README.md`](../README.md)
 - Contributing: [`CONTRIBUTING.md`](../CONTRIBUTING.md)
-- Roadmap: [`ROADMAP.md`](../ROADMAP.md)
 - Function Tests: [`test-suites/functions/README.md`](../test-suites/functions/README.md)
 
 ---

@@ -25,12 +25,12 @@ The Substrait Compliance REST API enables programmatic access to compliance test
 
 | Component | Technology | Version |
 |-----------|-----------|---------|
-| Framework | Spring Boot | 2.7.14 |
-| Language | Java | 11+ |
+| Framework | Spring Boot | 2.7.x (reference impl) |
+| Language | Java | 17+ |
 | Database | PostgreSQL | 15 |
 | Authentication | JWT | - |
-| Build Tool | Gradle | 7.x |
-| Containerization | Podman | - |
+| Build Tool | Gradle | 7.x+ |
+| Containerization | Podman / Docker | - |
 | API Documentation | OpenAPI/Swagger | 3.0 |
 
 ### Key Features
