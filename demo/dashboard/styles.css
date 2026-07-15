@@ -238,12 +238,12 @@ tr:hover {
 }
 
 .status-badge.good {
-    background: #fff9c4;
-    color: #f57f17;
+    background: #e3f2fd;
+    color: #1565c0;
 }
 
 .status-badge.fair {
-    background: #ffe0b2;
+    background: #fff8e1;
     color: #e65100;
 }
 
@@ -251,6 +251,12 @@ tr:hover {
     background: #ffebee;
     color: var(--danger-color);
 }
+
+/* Fidelity tier modifier — overrides background/color when a tier-* class is present */
+.status-badge.tier-verified { background: #4CAF50; color: #fff; }
+.status-badge.tier-edge     { background: #2196F3; color: #fff; }
+.status-badge.tier-basic    { background: #FFC107; color: #333; }
+.status-badge.tier-none     { background: #F44336; color: #fff; }
 
 /* Charts */
 .charts-grid {

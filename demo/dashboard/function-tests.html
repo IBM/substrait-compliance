@@ -119,10 +119,20 @@
             font-weight: 600;
             font-size: 14px;
         }
-        .pass-rate-excellent { background: #4CAF50; color: white; }
-        .pass-rate-good { background: #8BC34A; color: white; }
-        .pass-rate-fair { background: #FFC107; color: white; }
-        .pass-rate-poor { background: #FF5722; color: white; }
+        .tier-verified { background: #4CAF50; color: white; }
+        .tier-edge     { background: #2196F3; color: white; }
+        .tier-basic    { background: #FFC107; color: #333;  }
+        .tier-none     { background: #FF5722; color: white; }
+        .tier-chip {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
     </style>
 </head>
 <body>
@@ -316,13 +326,17 @@
             });
         }
 
+        // Map pass rate to fidelity tier (VERIFIED ≥95%, EDGE 80–94%, BASIC 60–79%, NONE <60%)
+        function getTier(rate) {
+            if (rate >= 95) return 'verified';
+            if (rate >= 80) return 'edge';
+            if (rate >= 60) return 'basic';
+            return 'none';
+        }
+
         function getPassRateBadge(rate) {
-            let className = 'pass-rate-poor';
-            if (rate >= 95) className = 'pass-rate-excellent';
-            else if (rate >= 85) className = 'pass-rate-good';
-            else if (rate >= 70) className = 'pass-rate-fair';
-            
-            return `<span class="pass-rate-badge ${className}">${rate.toFixed(1)}%</span>`;
+            const tier = getTier(rate);
+            return `<span class="pass-rate-badge tier-${tier}">${rate.toFixed(1)}% <strong>${tier.toUpperCase()}</strong></span>`;
         }
 
         function populateEngineSelect() {
@@ -360,10 +374,13 @@
             };
             
             Object.entries(engine.categories).forEach(([category, stats]) => {
+                const tier = getTier(stats.passRate);
                 const card = document.createElement('div');
                 card.className = 'category-card';
                 card.innerHTML = `
-                    <h3>${categoryIcons[category] || '📦'} ${category.charAt(0).toUpperCase() + category.slice(1)}</h3>
+                    <h3>${categoryIcons[category] || '📦'} ${category.charAt(0).toUpperCase() + category.slice(1)}
+                        <span class="tier-chip tier-${tier}">${tier.toUpperCase()}</span>
+                    </h3>
                     <div class="category-stats">
                         <div class="stat-box">
                             <div class="label">Total</div>

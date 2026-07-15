@@ -97,23 +97,23 @@
 
             <!-- Legend Section -->
             <section class="section legend-section">
-                <h3>📖 Status Legend</h3>
+                <h3>📖 Fidelity Tier Legend</h3>
                 <div class="legend-grid">
                     <div class="legend-item">
-                        <span class="status-badge excellent">🟢</span>
-                        <span>Excellent (≥95%)</span>
+                        <span class="status-badge excellent tier-verified">VERIFIED</span>
+                        <span>≥95% — passes full category including overflow &amp; cross-type cases</span>
                     </div>
                     <div class="legend-item">
-                        <span class="status-badge good">🟡</span>
-                        <span>Good (85-94%)</span>
+                        <span class="status-badge good tier-edge">EDGE</span>
+                        <span>80–94% — passes nominal inputs and standard edge cases (nulls, boundaries)</span>
                     </div>
                     <div class="legend-item">
-                        <span class="status-badge fair">🟠</span>
-                        <span>Fair (70-84%)</span>
+                        <span class="status-badge fair tier-basic">BASIC</span>
+                        <span>60–79% — passes nominal inputs; null, boundary, or overflow cases may fail</span>
                     </div>
                     <div class="legend-item">
-                        <span class="status-badge poor">🔴</span>
-                        <span>Needs Improvement (<70%)</span>
+                        <span class="status-badge poor tier-none">NONE</span>
+                        <span>&lt;60% — not supported or category is skipped</span>
                     </div>
                 </div>
             </section>

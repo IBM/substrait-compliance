@@ -403,36 +403,34 @@ function getRankEmoji(rank) {
     }
 }
 
-// Helper function to get status badge HTML
-function getStatusBadge(passRate) {
-    let className, emoji, text;
-    
-    if (passRate >= 95) {
-        className = 'excellent';
-        emoji = '🟢';
-        text = 'Excellent';
-    } else if (passRate >= 85) {
-        className = 'good';
-        emoji = '🟡';
-        text = 'Good';
-    } else if (passRate >= 70) {
-        className = 'fair';
-        emoji = '🟠';
-        text = 'Fair';
-    } else {
-        className = 'poor';
-        emoji = '🔴';
-        text = 'Needs Work';
-    }
-    
-    return `<span class="status-badge ${className}">${emoji} ${text}</span>`;
+// Derive fidelity tier from a pass rate (matches Table 1 of the compliance paper).
+// VERIFIED ≥ 95 %, EDGE 80–94 %, BASIC 60–79 %, NONE < 60 %
+function getTier(passRate) {
+    if (passRate >= 95) return 'verified';
+    if (passRate >= 80) return 'edge';
+    if (passRate >= 60) return 'basic';
+    return 'none';
 }
 
-// Helper function to get chart color based on pass rate
+// Helper function to get status badge HTML (uses fidelity tiers)
+function getStatusBadge(passRate) {
+    const tier = getTier(passRate);
+    const map = {
+        verified: { className: 'excellent', label: 'VERIFIED' },
+        edge:     { className: 'good',      label: 'EDGE'     },
+        basic:    { className: 'fair',      label: 'BASIC'    },
+        none:     { className: 'poor',      label: 'NONE'     }
+    };
+    const { className, label } = map[tier];
+    return `<span class="status-badge ${className} tier-${tier}">${label}</span>`;
+}
+
+// Helper function to get chart color based on fidelity tier
 function getChartColor(passRate) {
-    if (passRate >= 95) return 'rgba(76, 175, 80, 0.7)';
-    if (passRate >= 85) return 'rgba(255, 193, 7, 0.7)';
-    if (passRate >= 70) return 'rgba(255, 152, 0, 0.7)';
+    const tier = getTier(passRate);
+    if (tier === 'verified') return 'rgba(76, 175, 80, 0.7)';
+    if (tier === 'edge')     return 'rgba(33, 150, 243, 0.7)';
+    if (tier === 'basic')    return 'rgba(255, 193, 7, 0.7)';
     return 'rgba(244, 67, 54, 0.7)';
 }
 
@@ -762,6 +760,7 @@ if (typeof module !== 'undefined' && module.exports) {
         loadData,
         updateDashboard,
         getRankEmoji,
+        getTier,
         getStatusBadge,
         getChartColor
     };
