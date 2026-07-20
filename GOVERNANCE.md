@@ -298,22 +298,22 @@ Handled according to [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md):
 
 ### Public Channels
 
-- **GitHub Issues**: Bug reports, feature requests
-- **GitHub Discussions**: General questions, proposals, announcements
-- **Mailing List**: substrait-dev@googlegroups.com
-- **Slack**: #substrait-compliance channel
+- **GitHub Issues**: Bug reports, feature requests — [github.com/IBM/substrait-compliance/issues](https://github.com/IBM/substrait-compliance/issues)
+- **GitHub Discussions**: General questions, proposals, announcements — [github.com/IBM/substrait-compliance/discussions](https://github.com/IBM/substrait-compliance/discussions)
+- **Mailing List**: TBD
+- **Slack**: TBD
 
 ### Private Channels
 
-- **Maintainer Meetings**: Monthly video calls (notes published)
-- **Security Issues**: security@substrait.io
-- **Code of Conduct**: conduct@substrait.io
+- **Maintainer Meetings**: TBD (see [Meetings](#meetings) below)
+- **Security Issues**: [security@substrait.io](mailto:security@substrait.io) — see [SECURITY.md](SECURITY.md)
+- **Code of Conduct**: [conduct@substrait.io](mailto:conduct@substrait.io)
 
 ## Meetings
 
 ### Maintainer Meetings
 
-- **Frequency**: Monthly, first Tuesday at 10:00 AM Pacific
+- **Frequency**: TBD
 - **Format**: Video call, recorded and published
 - **Agenda**: Posted 48 hours in advance in GitHub Discussions
 - **Notes**: Published within 48 hours after meeting
@@ -330,7 +330,7 @@ Handled according to [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md):
 
 ### Repository Access
 
-- **Public Repository**: github.com/substrait-io/substrait-compliance
+- **Public Repository**: [github.com/IBM/substrait-compliance](https://github.com/IBM/substrait-compliance)
 - **Branch Protection**: main branch requires reviews and passing CI
 - **Committer Access**: Write access to repository
 - **Maintainer Access**: Admin access to repository and infrastructure
@@ -355,8 +355,9 @@ This governance model is inspired by:
 ## Contact
 
 For questions about governance:
-- Open a discussion in [GitHub Discussions](https://github.com/substrait-io/substrait-compliance/discussions)
-- Email maintainers: See [MAINTAINERS.md](MAINTAINERS.md)
+- Open a discussion in [GitHub Discussions](https://github.com/IBM/substrait-compliance/discussions)
+- Email the Project Lead: [ranjan.sinha@gmail.com](mailto:ranjan.sinha@gmail.com)
+- See [MAINTAINERS.md](MAINTAINERS.md) for the full maintainer list
 - Join community calls
 
 ---

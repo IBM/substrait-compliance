@@ -39,7 +39,7 @@ Until additional maintainers are formally added to the table above, release exec
 
 ## Maintainer Meetings
 
-- **Frequency**: Bi-weekly
+- **Frequency**: TBD
 - **Format**: Video call (recorded and shared publicly)
 - **Agenda**: Posted in GitHub Discussions 48 hours before meeting
 - **Notes**: Published in GitHub Discussions after meeting
@@ -75,9 +75,10 @@ Committers have write access to the repository and help with day-to-day maintena
 ## Contact
 
 - **General Questions**: Open a [GitHub Discussion](https://github.com/IBM/substrait-compliance/discussions)
+- **Project Lead**: [ranjan.sinha@gmail.com](mailto:ranjan.sinha@gmail.com)
 - **Security Issues**: See [SECURITY.md](SECURITY.md)
-- **Code of Conduct**: conduct@substrait.io
-- **Mailing List**: substrait-dev@googlegroups.com
+- **Code of Conduct**: [conduct@substrait.io](mailto:conduct@substrait.io)
+- **Mailing List**: TBD
 
 ## Acknowledgments
 
