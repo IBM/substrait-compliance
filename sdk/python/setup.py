@@ -7,7 +7,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="substrait-compliance",
-    version="1.0.0",
+    version="0.1.0",
     author="Substrait Community",
     description="Decentralized compliance testing SDK for Substrait engines",
     long_description=long_description,
