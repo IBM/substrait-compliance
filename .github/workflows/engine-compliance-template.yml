@@ -40,11 +40,25 @@ jobs:
       - name: Get latest versions
         id: get-versions
         run: |
-          # Get latest SDK version from GitHub releases
-          SDK_VERSION=$(curl -s https://api.github.com/repos/substrait-io/compliance/releases/latest | jq -r .tag_name | sed 's/v//')
+          # Resolve the latest compliance SDK version from GitHub releases.
+          # If COMPLIANCE_SDK_VERSION is already set to a non-empty value in the
+          # env block above, that value is used directly and the API is skipped.
+          if [ -n "${{ env.COMPLIANCE_SDK_VERSION }}" ]; then
+            SDK_VERSION="${{ env.COMPLIANCE_SDK_VERSION }}"
+            echo "📦 Using pinned Compliance SDK version: $SDK_VERSION"
+          else
+            API_RESPONSE=$(curl -sf https://api.github.com/repos/IBM/substrait-compliance/releases/latest || true)
+            SDK_VERSION=$(echo "$API_RESPONSE" | jq -r '.tag_name // empty' | sed 's/^v//')
+            if [ -z "$SDK_VERSION" ]; then
+              echo "::error::Could not resolve the compliance SDK version from GitHub releases."
+              echo "::error::Either no release exists yet, or the GitHub API request failed."
+              echo "::error::Set COMPLIANCE_SDK_VERSION explicitly in the env block of this workflow to fix this."
+              exit 1
+            fi
+            echo "📦 Resolved Compliance SDK version from releases: $SDK_VERSION"
+          fi
           echo "sdk-version=$SDK_VERSION" >> $GITHUB_OUTPUT
           echo "test-suite-version=$SDK_VERSION" >> $GITHUB_OUTPUT
-          echo "📦 Using Compliance SDK version: $SDK_VERSION"
 
   download-compliance-assets:
     name: Download Compliance Assets
