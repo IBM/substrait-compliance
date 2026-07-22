@@ -37,15 +37,5 @@ updates:
       prefix: "chore(deps)"
       include: "scope"
 
-  # Docker
-  - package-ecosystem: "docker"
-    directory: "/api"
-    schedule:
-      interval: "weekly"
-      day: "monday"
-    open-pull-requests-limit: 5
-    commit-message:
-      prefix: "chore(deps)"
-      include: "scope"
 
 # Made with Bob
