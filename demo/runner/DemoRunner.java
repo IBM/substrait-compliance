@@ -86,7 +86,7 @@ public class DemoRunner {
             System.out.println("Next steps:");
             System.out.println("  1. View reports in: " + OUTPUT_DIR + "/");
             System.out.println("  2. Open dashboard: demo/dashboard/index.html");
-            System.out.println("  3. Or run: python -m http.server 8000 (from dashboard dir)");
+            System.out.println("  3. Or run: python -m http.server 8080 (from dashboard dir)");
             
         } catch (Exception e) {
             System.err.println("❌ Demo failed: " + e.getMessage());
