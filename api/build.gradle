@@ -45,7 +45,7 @@ dependencies {
     implementation 'com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0'
     
     // Caching
-    implementation 'com.github.ben-manes.caffeine:caffeine:3.1.8'
+    implementation 'com.github.ben-manes.caffeine:caffeine:3.2.4'
     
     // OpenAPI/Swagger
     implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
