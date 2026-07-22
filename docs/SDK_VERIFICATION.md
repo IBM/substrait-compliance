@@ -297,7 +297,7 @@ Coverage reports are automatically uploaded to Codecov:
 ```
 
 **View Coverage:**
-- Visit: `https://codecov.io/gh/YOUR_ORG/substrait-compliance`
+- Visit: `https://codecov.io/gh/IBM/substrait-compliance`
 - Check per-SDK coverage
 - View coverage trends over time
 
@@ -306,7 +306,7 @@ Coverage reports are automatically uploaded to Codecov:
 Add to README.md:
 
 ```markdown
-[![SDK Verification](https://github.com/YOUR_ORG/substrait-compliance/actions/workflows/sdk-verification.yml/badge.svg)](https://github.com/YOUR_ORG/substrait-compliance/actions/workflows/sdk-verification.yml)
+[![SDK Verification](https://github.com/IBM/substrait-compliance/actions/workflows/sdk-verification.yml/badge.svg)](https://github.com/IBM/substrait-compliance/actions/workflows/sdk-verification.yml)
 ```
 
 ## Troubleshooting
