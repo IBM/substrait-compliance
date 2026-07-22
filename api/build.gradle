@@ -51,7 +51,7 @@ dependencies {
     implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
     
     // Flyway for migrations
-    implementation 'org.flywaydb:flyway-core:9.22.3'
+    implementation 'org.flywaydb:flyway-core:13.0.0'
 
     
     // Lombok (optional, for reducing boilerplate)
