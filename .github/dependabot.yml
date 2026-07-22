@@ -10,6 +10,9 @@ updates:
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
+    groups:
+      actions-all:
+        patterns: ["*"]
 
   # Gradle (API module)
   - package-ecosystem: "gradle"
@@ -17,13 +20,30 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
+    groups:
+      api-minor-and-patch:
+        update-types: ["minor", "patch"]
     ignore:
-      # Ignore major version updates for stable dependencies
-      - dependency-name: "org.springframework.boot:*"
+      # Majors that are deliberate migration projects, not routine bumps
+      - dependency-name: "org.springframework.boot*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.flywaydb*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.testcontainers*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "org.junit*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "com.google.protobuf*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "gradle*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "io.github.bucket4j*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "io.jsonwebtoken*"
         update-types: ["version-update:semver-major"]
 
   # Gradle (SDK module)
@@ -32,10 +52,19 @@ updates:
     schedule:
       interval: "weekly"
       day: "monday"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 5
     commit-message:
       prefix: "chore(deps)"
       include: "scope"
-
-
-# Made with Bob
+    groups:
+      sdk-minor-and-patch:
+        update-types: ["minor", "patch"]
+    ignore:
+      - dependency-name: "org.junit*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "com.google.protobuf*"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "io.substrait*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      - dependency-name: "gradle*"
+        update-types: ["version-update:semver-major"]
