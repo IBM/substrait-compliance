@@ -52,7 +52,7 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "To view the dashboard:"
     echo "  1. Open: demo/dashboard/index.html"
-    echo "  2. Or run: cd dashboard && python -m http.server 8000"
+    echo "  2. Or run: cd dashboard && python -m http.server 8080"
     echo ""
 else
     echo ""
