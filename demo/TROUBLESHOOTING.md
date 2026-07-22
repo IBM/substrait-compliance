@@ -104,12 +104,16 @@ export JAVA_HOME=$(/usr/libexec/java_home -v 11)
 ```
 Error: Could not find SDK classes
 ```
+or
+```
+No Java SDK jars found. Expected build output in ../sdk/java/build/libs
+```
 
 **Solution:**
 ```bash
-# Build SDK first
+# Build SDK classes and jars
 cd ../sdk/java
-./gradlew build
+./gradlew test jar
 
 # Return to demo
 cd ../../demo

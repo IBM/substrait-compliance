@@ -35,7 +35,7 @@ echo ""
 echo -e "${BLUE}🔧 Step 2: Building and validating Java SDK...${NC}"
 (
     cd ../sdk/java
-    ./gradlew test
+    ./gradlew test jar
 )
 
 echo -e "${GREEN}✅ Java SDK validated successfully${NC}"

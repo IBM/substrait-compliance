@@ -504,14 +504,17 @@ chmod +x runner/run-simple-demo.sh
 
 ### Compilation Errors
 
-**Problem**: Java compilation fails
+**Problem**: Java compilation fails, or the demo reports `No Java SDK jars found`
 
 **Solution**:
 ```bash
-# Ensure SDK is built first
+# Build SDK classes and jars first
 cd ../sdk/java
-./gradlew build
+./gradlew test jar
 cd ../../demo
+
+# Re-run the demo
+./runner/run-simple-demo.sh
 ```
 
 ### Reports Not Generated
