@@ -26,6 +26,7 @@ public class DemoRunner {
         System.out.println("=".repeat(80));
         System.out.println("Substrait Compliance Framework - Demo");
         System.out.println("=".repeat(80));
+        System.out.println("Note: all engine results below are from deterministic simulated demo engines.");
         System.out.println();
         
         try {

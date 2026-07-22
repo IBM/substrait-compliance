@@ -52,34 +52,26 @@ cd demo
 ```
 
 **Expected Output:**
-```
+```text
 ================================================================================
 Substrait Compliance Framework - Demo
 ================================================================================
+Note: all engine results below are from deterministic simulated demo engines.
 
 📦 Loading TPC-H test suite...
 ✅ Loaded test suite: tpch
    Total test cases: 22
 
 🔧 Testing: MockDB v1.0.0
-   ✅ Passed: 22/22 (100.0%)
-   💾 Report saved: output/mockdb-report.json
-
+...
 🔧 Testing: FastDB v2.5.0
-   ✅ Passed: 22/22 (100.0%)
-   💾 Report saved: output/fastdb-report.json
-
+...
 🔧 Testing: CloudDB v3.1.0
-   ✅ Passed: 22/22 (100.0%)
-   💾 Report saved: output/clouddb-report.json
-
+...
 🔧 Testing: DuckDB v0.10.0
-   ✅ Passed: 22/22 (100.0%)
-   💾 Report saved: output/duckdb-report.json
-
+...
 🔧 Testing: PostgreSQL v16.0
-   ✅ Passed: 22/22 (100.0%)
-   💾 Report saved: output/postgresql-report.json
+...
 
 📈 Generating leaderboard...
    💾 Leaderboard saved: output/leaderboard.json
@@ -130,7 +122,7 @@ http://localhost:8080
 
 ## Demo Overview
 
-The demo runs five deterministic demo engines (MockDB, FastDB, CloudDB, DuckDB, and PostgreSQL) against the framework-backed TPC-H suite and publishes the generated results to a web dashboard.
+The demo runs five deterministic simulated demo engines (MockDB, FastDB, CloudDB, DuckDB, and PostgreSQL) against the framework-backed TPC-H suite and publishes the generated results to a web dashboard.
 
 All five engines in this directory are demo adapters with deterministic behavior. They are useful for validating the framework flow and dashboard rendering, but they are not evidence of certified behavior for upstream database products.
 

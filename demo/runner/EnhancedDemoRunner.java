@@ -35,19 +35,19 @@ public class EnhancedDemoRunner {
             
             System.out.println("Phase 1-3: Validation & Comparison");
             System.out.println("-".repeat(80));
-            reports.add(runEngineTests("MockDB", "1.0.0", 0.854));
+            reports.add(runEngineTests("MockDB", "1.0.0", 19));
             System.out.println();
             
-            reports.add(runEngineTests("FastDB", "2.5.0", 0.955));
+            reports.add(runEngineTests("FastDB", "2.5.0", 21));
             System.out.println();
             
-            reports.add(runEngineTests("CloudDB", "3.1.0", 0.773));
+            reports.add(runEngineTests("CloudDB", "3.1.0", 17));
             System.out.println();
             
-            reports.add(runEngineTests("DuckDB", "0.10.2", 0.932));
+            reports.add(runEngineTests("DuckDB", "0.10.2", 21));
             System.out.println();
             
-            reports.add(runEngineTests("PostgreSQL", "16.2", 0.891));
+            reports.add(runEngineTests("PostgreSQL", "16.2", 20));
             System.out.println();
             
             // Phase 4-6: Analysis & Categorization
@@ -106,13 +106,13 @@ public class EnhancedDemoRunner {
         new File(DASHBOARD_DATA_DIR).mkdirs();
     }
     
-    private static MockEngineReport runEngineTests(String engineName, String version, double passRate) {
-        System.out.println("🔧 Testing: " + engineName + " v" + version);
+    private static MockEngineReport runEngineTests(String engineName, String version, int passed) {
+        System.out.println("🔧 Testing: " + engineName + " v" + version + " (simulated demo engine)");
         
         int totalTests = 22; // TPC-H queries
-        int passed = (int) Math.round(totalTests * passRate);
         int failed = totalTests - passed;
         int skipped = 0;
+        double passRate = (double) passed / totalTests;
         
         // Simulate validation
         System.out.println("   ✓ Validating Substrait plans...");
