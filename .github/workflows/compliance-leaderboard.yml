@@ -20,39 +20,20 @@ jobs:
       - name: Create reports directory
         run: mkdir -p compliance-reports
       
-      - name: Fetch DuckDB compliance report
-        continue-on-error: true
+      - name: Load MockDB demo report
         run: |
-          # Fetch from DuckDB repository
-          curl -L "https://api.github.com/repos/duckdb/duckdb/actions/artifacts" \
-            -H "Accept: application/vnd.github+json" \
-            -o duckdb-artifacts.json
-          
-          # Extract latest compliance report artifact
-          # This is a placeholder - actual implementation would download the artifact
-          echo '{"engineName":"DuckDB","engineVersion":"0.10.0","passRate":90.9,"passed":20,"failed":2,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z"}' \
-            > compliance-reports/duckdb.json
-      
-      - name: Fetch DataFusion compliance report
-        continue-on-error: true
+          echo '{"engineName":"MockDB","engineVersion":"1.0.0","passRate":85.4,"passed":19,"failed":3,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z","demo":true}' \
+            > compliance-reports/mockdb.json
+
+      - name: Load FastDB demo report
         run: |
-          # Fetch from DataFusion repository
-          echo '{"engineName":"DataFusion","engineVersion":"35.0.0","passRate":95.5,"passed":21,"failed":1,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z"}' \
-            > compliance-reports/datafusion.json
-      
-      - name: Fetch Spark compliance report
-        continue-on-error: true
+          echo '{"engineName":"FastDB","engineVersion":"1.0.0","passRate":95.5,"passed":21,"failed":1,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z","demo":true}' \
+            > compliance-reports/fastdb.json
+
+      - name: Load CloudDB demo report
         run: |
-          # Fetch from Spark repository
-          echo '{"engineName":"Spark","engineVersion":"3.5.0","passRate":86.4,"passed":19,"failed":3,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z"}' \
-            > compliance-reports/spark.json
-      
-      - name: Fetch Presto compliance report
-        continue-on-error: true
-        run: |
-          # Fetch from Presto repository
-          echo '{"engineName":"Presto","engineVersion":"0.280","passRate":77.3,"passed":17,"failed":5,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z"}' \
-            > compliance-reports/presto.json
+          echo '{"engineName":"CloudDB","engineVersion":"1.0.0","passRate":77.3,"passed":17,"failed":5,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z","demo":true}' \
+            > compliance-reports/clouddb.json
       
       - name: Upload collected reports
         uses: actions/upload-artifact@v4
@@ -215,7 +196,7 @@ jobs:
           <body>
               <div class="container">
                   <h1>🏆 Substrait Compliance Leaderboard</h1>
-                  <p>Real-time compliance status for Substrait-enabled query engines.</p>
+                  <p>⚠️ <strong>Demo data</strong> — results below are from mock engines included in the framework. Real engine submissions will replace this data as engines integrate with the test suite.</p>
                   <div id="leaderboard">Loading...</div>
                   <div class="footer">
                       <p>Last updated: <span id="last-updated"></span></p>
@@ -319,7 +300,7 @@ jobs:
           fi
           
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "🔗 [View Full Leaderboard](https://substrait-io.github.io/compliance/)" >> $GITHUB_STEP_SUMMARY
+          echo "🔗 [View Full Leaderboard](https://IBM.github.io/substrait-compliance/)" >> $GITHUB_STEP_SUMMARY
 
   summary:
     name: Workflow Summary
