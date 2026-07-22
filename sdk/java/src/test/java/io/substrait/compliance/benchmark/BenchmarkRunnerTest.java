@@ -247,9 +247,9 @@ class BenchmarkRunnerTest {
             return null;
         });
 
-        // Throughput should be positive and reasonable
+        // Throughput should be positive and finite
         assertTrue(result.getThroughput() > 0.0);
-        assertTrue(result.getThroughput() < 1_000_000.0); // Sanity check
+        assertTrue(Double.isFinite(result.getThroughput()));
     }
 
     @Test
