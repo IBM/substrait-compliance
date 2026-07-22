@@ -376,19 +376,19 @@ function getStatusBadge(passRate) {
     if (passRate >= 95) {
         className = 'excellent';
         emoji = '🟢';
-        text = 'Excellent';
-    } else if (passRate >= 85) {
+        text = 'VERIFIED';
+    } else if (passRate >= 80) {
         className = 'good';
-        emoji = '🟡';
-        text = 'Good';
-    } else if (passRate >= 70) {
+        emoji = '🔵';
+        text = 'EDGE';
+    } else if (passRate >= 60) {
         className = 'fair';
-        emoji = '🟠';
-        text = 'Fair';
+        emoji = '🟡';
+        text = 'BASIC';
     } else {
         className = 'poor';
         emoji = '🔴';
-        text = 'Needs Work';
+        text = 'NONE';
     }
     
     return `<span class="status-badge ${className}">${emoji} ${text}</span>`;

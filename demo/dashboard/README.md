@@ -122,10 +122,10 @@ All dashboards have navigation tabs at the top:
 
 | Color | Range | Meaning |
 |-------|-------|---------|
-| 🟢 Green | ≥95% | Excellent |
-| 🟡 Yellow | 85-94% | Good |
-| 🟠 Orange | 70-84% | Fair |
-| 🔴 Red | <70% | Needs Improvement |
+| 🟢 Green | ≥95% | VERIFIED |
+| 🔵 Blue | 80-94% | EDGE |
+| 🟡 Yellow | 60-79% | BASIC |
+| 🔴 Red | <60% | NONE |
 
 ### Test Suite Overview
 

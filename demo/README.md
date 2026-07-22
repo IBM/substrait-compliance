@@ -184,7 +184,7 @@ If you want to adapt this demo for a public showcase, staging environment, or do
 ### 1. Leaderboard View
 - **Real-time Rankings**: Engines ranked by pass rate
 - **Key Metrics**: Pass rate, tests passed/failed/skipped
-- **Status Indicators**: Visual badges (Excellent 🟢, Good 🟡, Fair 🟠, Needs Work 🔴)
+- **Status Indicators**: Visual badges (VERIFIED 🟢, EDGE 🔵, BASIC 🟡, NONE 🔴)
 - **Interactive Rows**: Click any engine row to view detailed results
 
 ### 2. Query-Level Drill-Down ✨

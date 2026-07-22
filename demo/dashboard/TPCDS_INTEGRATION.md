@@ -152,7 +152,7 @@ All three dashboards are interconnected via navigation tabs.
 - 99 query results display
 - Engine ranking and leaderboard
 - Detailed query modal with execution times
-- Status badges (Excellent, Good, Fair, Needs Work)
+- Status badges (VERIFIED, EDGE, BASIC, NONE)
 - Auto-refresh every 30 seconds
 
 ### Visual Analytics

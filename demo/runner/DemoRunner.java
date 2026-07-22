@@ -184,10 +184,10 @@ public class DemoRunner {
     }
     
     private static String getStatusEmoji(double passRate) {
-        if (passRate >= 95) return "🟢 Excellent";
-        if (passRate >= 85) return "🟡 Good";
-        if (passRate >= 70) return "🟠 Fair";
-        return "🔴 Needs Work";
+        if (passRate >= 95) return "🟢 VERIFIED";
+        if (passRate >= 80) return "🔵 EDGE";
+        if (passRate >= 60) return "🟡 BASIC";
+        return "🔴 NONE";
     }
     
     private static void generateLeaderboard(List<Map<String, Object>> reports) throws Exception {

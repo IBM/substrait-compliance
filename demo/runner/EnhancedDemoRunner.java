@@ -431,10 +431,10 @@ public class EnhancedDemoRunner {
     }
     
     private static String getStatusEmoji(double passRate) {
-        if (passRate >= 0.95) return "🟢 Excellent";
-        if (passRate >= 0.85) return "🟡 Good";
-        if (passRate >= 0.70) return "🟠 Fair";
-        return "🔴 Needs Work";
+        if (passRate >= 0.95) return "🟢 VERIFIED";
+        if (passRate >= 0.80) return "🔵 EDGE";
+        if (passRate >= 0.60) return "🟡 BASIC";
+        return "🔴 NONE";
     }
     
     private static void saveJson(File file, Map<String, Object> data) throws IOException {

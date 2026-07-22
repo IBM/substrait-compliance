@@ -52,10 +52,10 @@ python3 -m http.server 8080
 - Interactive rows (clickable)
 
 **Status Badges:**
-- 🟢 **Excellent** (95%+): Production-ready
-- 🟡 **Good** (85-94%): Minor issues
-- 🟠 **Fair** (70-84%): Needs improvement
-- 🔴 **Needs Work** (<70%): Significant gaps
+- 🟢 **VERIFIED** (95%+): Meets the highest fidelity tier
+- 🔵 **EDGE** (80-94%): Strong coverage with some gaps
+- 🟡 **BASIC** (60-79%): Foundational coverage only
+- 🔴 **NONE** (<60%): Significant gaps remain
 
 **How to use:**
 - Click any engine row to see detailed results
@@ -139,10 +139,10 @@ Summary updates: "3 queries shown" instead of "22 queries shown"
 - Interactive hover tooltips
 
 **Color Coding:**
-- Green: 95%+ (Excellent)
-- Yellow: 85-94% (Good)
-- Orange: 70-84% (Fair)
-- Red: <70% (Needs Work)
+- Green: 95%+ (VERIFIED)
+- Blue: 80-94% (EDGE)
+- Yellow: 60-79% (BASIC)
+- Red: <60% (NONE)
 
 ### 5. Detailed Results Cards
 
