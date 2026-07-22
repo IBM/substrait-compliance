@@ -48,7 +48,7 @@ dependencies {
     implementation 'com.github.ben-manes.caffeine:caffeine:3.2.4'
     
     // OpenAPI/Swagger
-    implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+    implementation 'org.springdoc:springdoc-openapi-ui:1.8.0'
     
     // Flyway for migrations
     implementation 'org.flywaydb:flyway-core:9.22.3'
