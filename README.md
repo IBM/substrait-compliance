@@ -109,6 +109,20 @@ python3 -m http.server 8080
 # 4. Open in your browser: http://localhost:8080
 ```
 
+### Cold-start validation
+
+Use this sequence to verify the public repo from a fresh clone:
+
+```bash
+# From repository root
+cd demo
+./runner/run-simple-demo.sh
+./runner/run-enhanced-demo.sh
+cd ..
+```
+
+For full SDK build verification, use the ordered checklist in [`docs/SDK_VERIFICATION.md`](docs/SDK_VERIFICATION.md).
+
 **Expected Output:**
 ```text
 ================================================================================

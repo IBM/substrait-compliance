@@ -50,6 +50,66 @@ Overall Statistics:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 ```
 
+## Manual Cold-Start Validation
+
+Use the following ordered checklist from a fresh clone to verify the demo runs and SDK builds.
+
+```bash
+git clone https://github.com/IBM/substrait-compliance.git
+cd substrait-compliance
+
+cd demo
+./runner/run-simple-demo.sh
+./runner/run-enhanced-demo.sh
+cd ..
+
+cd sdk/java
+./gradlew test jar
+cd ../..
+
+cd sdk/python
+python3 -m venv .venv
+source .venv/bin/activate
+pip install --index-url https://pypi.org/simple/ -r requirements.txt
+pip install --index-url https://pypi.org/simple/ -r requirements-dev.txt
+pytest
+deactivate
+cd ../..
+
+cd sdk/go
+go test ./...
+cd ../..
+
+cd sdk/typescript
+npm install
+npm test
+npm run build
+cd ../..
+
+cd sdk/rust
+cargo test
+cd ../..
+
+cd sdk/csharp
+dotnet test
+cd ../..
+
+cd sdk/scala
+sbt test
+cd ../..
+
+cd sdk/cpp
+cmake -S . -B build
+cmake --build build
+ctest --test-dir build --output-on-failure
+cd ../..
+```
+
+Expected outcomes:
+- the demo scripts complete successfully and generate dashboard data
+- each SDK command completes without compilation or test failures
+- any C++ failure involving standard headers such as `cstddef` should be treated first as a local toolchain issue and rechecked after fixing the machine toolchain
+
 ## Automated Verification
 
 ### GitHub Actions CI/CD
