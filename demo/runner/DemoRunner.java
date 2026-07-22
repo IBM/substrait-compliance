@@ -74,6 +74,7 @@ public class DemoRunner {
             System.out.println("=".repeat(80));
             System.out.println("📊 Demo Summary");
             System.out.println("=".repeat(80));
+            System.out.println("Note: summary table reflects deterministic simulated demo engines, not upstream engine benchmarks.");
             printSummary(allReports);
             
             // Generate leaderboard
