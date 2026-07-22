@@ -1,14 +1,14 @@
 # Engine Compliance Template
-# 
-# This is a template workflow that engine developers can copy to their repositories
-# to automatically run Substrait compliance tests in their CI/CD pipeline.
+#
+# Copy this file to your repository's .github/workflows/ directory to run
+# Substrait compliance tests automatically in your CI/CD pipeline.
 #
 # Instructions:
 # 1. Copy this file to your repository's .github/workflows/ directory
-# 2. Update the ENGINE_NAME and ENGINE_IMPLEMENTATION variables
-# 3. Modify the build and test steps for your engine
+# 2. Update ENGINE_NAME, ENGINE_VERSION, and COMPLIANCE_SDK_VERSION below
+# 3. Customize the build-engine and implement-compliance-engine job steps
 # 4. Set up secrets if needed (e.g., for publishing results)
-# 5. Adjust the compliance threshold as needed
+# 5. Adjust COMPLIANCE_THRESHOLD as needed
 
 name: Substrait Compliance
 
@@ -19,19 +19,20 @@ on:
   workflow_dispatch:
 
 env:
-  ENGINE_NAME: "YourEngine"  # CHANGE THIS: e.g., "DuckDB", "DataFusion", "Spark"
-  ENGINE_VERSION: "1.0.0"    # CHANGE THIS: Your engine version
-  COMPLIANCE_THRESHOLD: 80   # Minimum pass rate (%) to pass CI
-  COMPLIANCE_SDK_VERSION: "0.1.0"  # Substrait Compliance SDK version
+  ENGINE_NAME: "YourEngine"       # CHANGE THIS: e.g., "DuckDB", "DataFusion", "Spark"
+  ENGINE_VERSION: "1.0.0"         # CHANGE THIS: Your engine version
+  COMPLIANCE_THRESHOLD: 80        # Minimum pass rate (%) to pass CI
+  COMPLIANCE_SDK_VERSION: "0.1.0" # Pin to a released tag of IBM/substrait-compliance
 
 jobs:
   setup:
     name: Setup Compliance Environment
     runs-on: ubuntu-latest
+    # Guard: never run the placeholder template inside the framework repo itself
+    if: github.repository != 'IBM/substrait-compliance'
     outputs:
       sdk-version: ${{ steps.get-versions.outputs.sdk-version }}
-      test-suite-version: ${{ steps.get-versions.outputs.test-suite-version }}
-    
+
     steps:
       - name: Get latest versions
         id: get-versions
@@ -54,36 +55,40 @@ jobs:
             echo "📦 Resolved Compliance SDK version from releases: $SDK_VERSION"
           fi
           echo "sdk-version=$SDK_VERSION" >> $GITHUB_OUTPUT
-          echo "test-suite-version=$SDK_VERSION" >> $GITHUB_OUTPUT
 
   download-compliance-assets:
-    name: Download Compliance Assets
+    name: Prepare Compliance Assets
     runs-on: ubuntu-latest
     needs: setup
-    
+    # Guard: never run the placeholder template inside the framework repo itself
+    if: github.repository != 'IBM/substrait-compliance'
+
     steps:
-      - name: Download Java SDK
-        run: |
-          wget https://github.com/IBM/substrait-compliance/releases/download/v${{ needs.setup.outputs.sdk-version }}/substrait-compliance-java-${{ needs.setup.outputs.sdk-version }}.jar \
-            -O substrait-compliance.jar
+      - name: Checkout compliance framework at pinned version
+        uses: actions/checkout@v4
+        with:
+          repository: IBM/substrait-compliance
+          ref: v${{ needs.setup.outputs.sdk-version }}
+          path: substrait-compliance
 
-      - name: Download TPC-H Test Suite
-        run: |
-          wget https://github.com/IBM/substrait-compliance/releases/download/v${{ needs.setup.outputs.test-suite-version }}/tpch-test-suite-${{ needs.setup.outputs.test-suite-version }}.zip \
-            -O tpch-test-suite.zip
-          unzip tpch-test-suite.zip -d tpch-test-suite
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
 
-      - name: Download checksums
+      - name: Build Java SDK
         run: |
-          wget https://github.com/IBM/substrait-compliance/releases/download/v${{ needs.setup.outputs.test-suite-version }}/tpch-checksums-${{ needs.setup.outputs.test-suite-version }}.txt \
-            -O tpch-checksums.txt
-      
-      - name: Verify checksums
+          cd substrait-compliance/sdk/java
+          ./gradlew --no-daemon build -x test
+          cp build/libs/substrait-compliance-sdk-*.jar ../../../substrait-compliance.jar
+
+      - name: Package TPC-H test suite
         run: |
-          cd tpch-test-suite
-          sha256sum -c ../tpch-checksums.txt
-          echo "✅ Checksums verified"
-      
+          cp -r substrait-compliance/test-suites/tpch tpch-test-suite
+          echo "✅ Test suite prepared from tag v${{ needs.setup.outputs.sdk-version }}"
+          ls tpch-test-suite
+
       - name: Upload compliance assets
         uses: actions/upload-artifact@v4
         with:
@@ -91,11 +96,12 @@ jobs:
           path: |
             substrait-compliance.jar
             tpch-test-suite/
-            tpch-checksums.txt
 
   build-engine:
     name: Build Engine
     runs-on: ubuntu-latest
+    # Guard: never run the placeholder template inside the framework repo itself
+    if: github.repository != 'IBM/substrait-compliance'
     
     steps:
       - name: Checkout engine code
@@ -142,6 +148,8 @@ jobs:
     name: Implement Compliance Engine
     runs-on: ubuntu-latest
     needs: [build-engine, download-compliance-assets]
+    # Guard: never run the placeholder template inside the framework repo itself
+    if: github.repository != 'IBM/substrait-compliance'
     
     steps:
       - name: Checkout engine code
