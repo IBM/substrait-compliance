@@ -43,6 +43,8 @@ updates:
         update-types: ["version-update:semver-major"]
       - dependency-name: "io.github.bucket4j*"
         update-types: ["version-update:semver-major"]
+      - dependency-name: "com.github.vladimir-bukhtoyarov*"
+        update-types: ["version-update:semver-major"]
       - dependency-name: "io.jsonwebtoken*"
         update-types: ["version-update:semver-major"]
 
