@@ -195,7 +195,7 @@ Add `-v` only if you intentionally want to remove database volumes.
 
 ## Deployment Option 3: Manual Container Run
 
-Use this path when validating the built container image directly.
+Use this path when validating the built container image directly. The container build in [`api/Containerfile`](api/Containerfile) uses JDK 17 for the builder image and Java 17 for the runtime image to match the application's class version requirements.
 
 ### Step 1: Build the image
 

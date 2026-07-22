@@ -2,7 +2,7 @@
 # Optimized for Podman but compatible with Docker
 
 # Stage 1: Build
-FROM gradle:8.5-jdk11 AS builder
+FROM gradle:8.14-jdk17 AS builder
 
 WORKDIR /build
 
@@ -22,7 +22,7 @@ COPY api/src api/src
 RUN gradle :api:bootJar --no-daemon
 
 # Stage 2: Runtime
-FROM eclipse-temurin:11-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 
 # Install curl for healthcheck
 RUN apk add --no-cache curl
