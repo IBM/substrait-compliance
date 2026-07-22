@@ -39,7 +39,7 @@ public class JwtTokenProvider {
     
     /**
      * Generates a JWT token for the given username and scopes.
-     * 
+     *
      * @param username the username to include in the token
      * @param scopes the permission scopes for the user
      * @return the generated JWT token
@@ -49,11 +49,11 @@ public class JwtTokenProvider {
         Date expiryDate = new Date(now.getTime() + expiration);
         
         String token = Jwts.builder()
-                .setSubject(username)
+                .subject(username)
                 .claim("scopes", scopes)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(key, SignatureAlgorithm.HS256)
+                .issuedAt(now)
+                .expiration(expiryDate)
+                .signWith(key, Jwts.SIG.HS256)
                 .compact();
         
         log.debug("Generated JWT token for user: {}", username);
@@ -62,18 +62,18 @@ public class JwtTokenProvider {
     
     /**
      * Validates and parses a JWT token.
-     * 
+     *
      * @param token the JWT token to validate
      * @return the claims from the token
      * @throws JwtException if the token is invalid
      */
     public Claims validateToken(String token) {
         try {
-            Claims claims = Jwts.parserBuilder()
-                    .setSigningKey(key)
+            Claims claims = Jwts.parser()
+                    .verifyWith(key)
                     .build()
-                    .parseClaimsJws(token)
-                    .getBody();
+                    .parseSignedClaims(token)
+                    .getPayload();
             
             log.debug("Successfully validated token for user: {}", claims.getSubject());
             return claims;
@@ -97,7 +97,7 @@ public class JwtTokenProvider {
     
     /**
      * Extracts the username from a JWT token.
-     * 
+     *
      * @param token the JWT token
      * @return the username
      */
@@ -108,7 +108,7 @@ public class JwtTokenProvider {
     
     /**
      * Extracts the scopes from a JWT token.
-     * 
+     *
      * @param token the JWT token
      * @return the list of scopes
      */
@@ -120,7 +120,7 @@ public class JwtTokenProvider {
     
     /**
      * Checks if a token is expired.
-     * 
+     *
      * @param token the JWT token
      * @return true if the token is expired
      */
@@ -133,4 +133,3 @@ public class JwtTokenProvider {
         }
     }
 }
-
