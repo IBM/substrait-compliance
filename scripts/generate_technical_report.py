@@ -9,7 +9,7 @@ Requirements:
     pip install litellm
 
 Usage:
-    python scripts/generate_technical_report.py --output docs/TECHNICAL_REPORT.md
+    python scripts/generate_technical_report.py --output docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md
     
     # With custom model
     python scripts/generate_technical_report.py --model claude-3-5-sonnet-20241022 --output report.md
@@ -371,8 +371,8 @@ def main():
     parser.add_argument(
         "--output",
         type=Path,
-        default=Path("docs/TECHNICAL_REPORT.md"),
-        help="Output file path (default: docs/TECHNICAL_REPORT.md)"
+        default=Path("docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md"),
+        help="Output file path (default: docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md)"
     )
     parser.add_argument(
         "--model",

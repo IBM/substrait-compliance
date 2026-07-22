@@ -81,7 +81,8 @@ jobs:
         run: |
           cd substrait-compliance/sdk/java
           ./gradlew --no-daemon build -x test
-          cp build/libs/substrait-compliance-sdk-*.jar ../../../substrait-compliance.jar
+          ls build/libs/
+          cp build/libs/substrait-compliance-*.jar ../../../substrait-compliance.jar
 
       - name: Package TPC-H test suite
         run: |
@@ -112,7 +113,7 @@ jobs:
         run: |
           # Example for Java-based engine
           # sudo apt-get update
-          # sudo apt-get install -y openjdk-11-jdk
+          # sudo apt-get install -y openjdk-17-jdk
           
           # Example for Python-based engine
           # python -m pip install --upgrade pip

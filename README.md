@@ -110,22 +110,17 @@ python3 -m http.server 8080
 ```
 
 **Expected Output:**
-```
+```text
 ================================================================================
 Substrait Compliance Framework - Demo
 ================================================================================
 
 🔧 Testing: MockDB v1.0.0
-   ✅ Passed: 19/22 (86.4%)
-   💾 Report saved: output/mockdb-report.json
-
+...
 🔧 Testing: FastDB v2.5.0
-   ✅ Passed: 21/22 (95.5%)
-   💾 Report saved: output/fastdb-report.json
-
+...
 🔧 Testing: CloudDB v3.1.0
-   ✅ Passed: 17/22 (77.3%)
-   💾 Report saved: output/clouddb-report.json
+...
 
 📈 Generating leaderboard...
    💾 Dashboard data updated: dashboard/data/leaderboard.json
@@ -730,7 +725,7 @@ substrait-compliance/
     ├── DEPLOYMENT_GUIDE.md
     ├── PERFORMANCE_BENCHMARKING.md
     ├── SDK_VERIFICATION.md
-    └── TECHNICAL_REPORT.md
+    └── SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md
 ```
 
 **Key Directories for Developers:**
@@ -1040,7 +1035,10 @@ A Spring Boot REST API provides programmatic access to compliance results.
 ```bash
 # Start with Docker Compose
 cd api
-docker-compose up -d
+docker-compose up -d postgres
+
+# In a separate terminal, start the API application
+./gradlew bootRun
 
 # Access the API
 curl http://localhost:8080/api/v1/leaderboard
@@ -1082,7 +1080,7 @@ curl http://localhost:8080/api/v1/leaderboard
 ### 🔧 Development & Quality
 - [docs/PERFORMANCE_BENCHMARKING.md](docs/PERFORMANCE_BENCHMARKING.md) — Benchmarking guide
 - [docs/SDK_VERIFICATION.md](docs/SDK_VERIFICATION.md) — SDK verification guide
-- [docs/TECHNICAL_REPORT.md](docs/TECHNICAL_REPORT.md) — Comprehensive technical report
+- [docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md](docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md) — Comprehensive technical guide
 - [scripts/README.md](scripts/README.md) — Scripts documentation
 - [scripts/TEST_ENHANCEMENT_GUIDE.md](scripts/TEST_ENHANCEMENT_GUIDE.md) — Test enhancement workflow
 - [.github/workflows/README.md](.github/workflows/README.md) — CI/CD workflow documentation

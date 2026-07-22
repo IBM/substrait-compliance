@@ -8,9 +8,9 @@ It is written for the current **pre-release** state of the Substrait Compliance 
 
 This guide applies to:
 
-- the API module in [`api`](api)
-- containerized deployment using [`api/Containerfile`](api/Containerfile)
-- local or staging-style deployment using [`api/docker-compose.yml`](api/docker-compose.yml)
+- the API module in [`api`](../api)
+- containerized deployment using [`api/Containerfile`](../api/Containerfile)
+- local or staging-style deployment using [`api/docker-compose.yml`](../api/docker-compose.yml)
 - repository-level validation and release workflows that materially affect shipped artifacts
 
 ## Current Security Posture
@@ -21,7 +21,7 @@ The repository contains meaningful security-related implementation and validatio
 - **operator-owned deployment controls**
 - **future hardening work not yet claimed as guaranteed**
 
-For the authoritative support boundary, see [`SECURITY.md`](SECURITY.md).
+For the authoritative support boundary, see [`SECURITY.md`](../SECURITY.md).
 
 ## Verified Repository Controls
 
@@ -46,8 +46,8 @@ The API expects JWT secrets from environment configuration rather than source-co
 Operator checks:
 
 ```bash
-grep -n "JWT_SECRET" api/docker-compose.yml
-grep -n "JWT_SECRET" api/src/main/resources/application.yml
+grep -n "JWT_SECRET" ../api/docker-compose.yml
+grep -n "JWT_SECRET" ../api/src/main/resources/application.yml
 ```
 
 Expected result:
@@ -74,8 +74,8 @@ Repository workflows validate build and packaging behavior for claimed SDK and r
 
 Relevant workflow files:
 
-- [`.github/workflows/sdk-build-test.yml`](.github/workflows/sdk-build-test.yml)
-- [`.github/workflows/release-publish.yml`](.github/workflows/release-publish.yml)
+- [`.github/workflows/sdk-build-test.yml`](../.github/workflows/sdk-build-test.yml)
+- [`.github/workflows/release-publish.yml`](../.github/workflows/release-publish.yml)
 
 These workflows improve confidence in shipped artifacts, but they do not by themselves create a staffed security operations program.
 
@@ -85,7 +85,7 @@ Webhook payload signing uses canonical JSON serialization before HMAC generation
 
 Relevant implementation:
 
-- [`api/src/main/java/io/substrait/compliance/api/service/WebhookDeliveryService.java`](api/src/main/java/io/substrait/compliance/api/service/WebhookDeliveryService.java)
+- [`api/src/main/java/io/substrait/compliance/api/service/WebhookDeliveryService.java`](../api/src/main/java/io/substrait/compliance/api/service/WebhookDeliveryService.java)
 
 ## Operator-Owned Controls
 
@@ -171,7 +171,7 @@ export DB_PASSWORD="$(openssl rand -base64 24)"
 
 ### Step 2: Start the supported deployment path
 
-Use one of the procedures in [`api/DEPLOYMENT.md`](api/DEPLOYMENT.md).
+Use one of the procedures in [`api/DEPLOYMENT.md`](../api/DEPLOYMENT.md).
 
 ### Step 3: Validate startup
 
@@ -283,8 +283,8 @@ Current incident handling is maintainer-driven and best effort.
 
 ### Current ownership
 
-- security triage owner: maintainer of record listed in [`MAINTAINERS.md`](MAINTAINERS.md)
-- escalation path: maintainer review through the channels described in [`SECURITY.md`](SECURITY.md)
+- security triage owner: maintainer of record listed in [`MAINTAINERS.md`](../MAINTAINERS.md)
+- escalation path: maintainer review through the channels described in [`SECURITY.md`](../SECURITY.md)
 
 ### Current limitations
 
@@ -342,11 +342,11 @@ This guide does not claim that the repository currently provides:
 
 ## Related Documents
 
-- [`SECURITY.md`](SECURITY.md)
-- [`api/README.md`](api/README.md)
-- [`api/DEPLOYMENT.md`](api/DEPLOYMENT.md)
-- [`api/API_USAGE.md`](api/API_USAGE.md)
-- [`MAINTAINERS.md`](MAINTAINERS.md)
+- [`SECURITY.md`](../SECURITY.md)
+- [`api/README.md`](../api/README.md)
+- [`api/DEPLOYMENT.md`](../api/DEPLOYMENT.md)
+- [`api/API_USAGE.md`](../api/API_USAGE.md)
+- [`MAINTAINERS.md`](../MAINTAINERS.md)
 
 ---
 

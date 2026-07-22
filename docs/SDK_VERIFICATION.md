@@ -286,20 +286,7 @@ Each SDK is tested against multiple versions:
 
 ### Coverage Reports
 
-Coverage reports are automatically uploaded to Codecov:
-
-```yaml
-- name: Upload coverage
-  uses: codecov/codecov-action@v3
-  with:
-    file: ./coverage.xml
-    flags: python
-```
-
-**View Coverage:**
-- Visit: `https://codecov.io/gh/IBM/substrait-compliance`
-- Check per-SDK coverage
-- View coverage trends over time
+Codecov can be added as an optional future integration if hosted coverage publishing is needed.
 
 ### Build Badges
 

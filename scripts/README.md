@@ -196,7 +196,7 @@ Creates comprehensive technical reports from test results.
 ```bash
 python scripts/generate_technical_report.py \
   --input quality_reports/ \
-  --output docs/TECHNICAL_REPORT.md
+  --output docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md
 ```
 
 **Generate Leaderboard:**
@@ -359,7 +359,7 @@ bash scripts/enhance_all_categories.sh string
 # Generate technical report
 python scripts/generate_technical_report.py \
   --input quality_reports/ \
-  --output docs/TECHNICAL_REPORT.md
+  --output docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md
 
 # Generate leaderboard
 python scripts/generate_leaderboard.py \
