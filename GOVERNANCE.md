@@ -237,7 +237,7 @@ Examples: Events, communications, partnerships
 5. **Final Release**: After 3-7 day RC period with no critical issues
 6. **Announcement**: Posted to all community channels
 
-See [RELEASE_CHECKLIST.md](RELEASE_CHECKLIST.md) for detailed steps.
+See the maintainers' release checklist and publication workflow documentation for detailed release steps.
 
 ### Release Authority
 

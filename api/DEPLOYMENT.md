@@ -301,7 +301,7 @@ SQL
 
 ### Validate Flyway migrations
 
-From [`api`](api):
+From the [`api`](../api) directory:
 
 ```bash
 ./gradlew flywayInfo
@@ -520,10 +520,10 @@ This deployment guide intentionally does not claim:
 
 ## Related Documents
 
-- [`api/README.md`](api/README.md)
-- [`api/API_USAGE.md`](api/API_USAGE.md)
-- [`SECURITY.md`](SECURITY.md)
-- [`docs/SECURITY_HARDENING_GUIDE.md`](docs/SECURITY_HARDENING_GUIDE.md)
+- [`api/README.md`](README.md)
+- [`api/API_USAGE.md`](API_USAGE.md)
+- [`SECURITY.md`](../SECURITY.md)
+- [`docs/SECURITY_HARDENING_GUIDE.md`](../docs/SECURITY_HARDENING_GUIDE.md)
 
 ---
 
