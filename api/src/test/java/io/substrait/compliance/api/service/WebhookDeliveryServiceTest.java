@@ -25,6 +25,9 @@ class WebhookDeliveryServiceTest {
     
     @Mock
     private WebhookRepository webhookRepository;
+
+    @Mock
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     
     @Mock
     private EntityManager entityManager;
@@ -36,7 +39,7 @@ class WebhookDeliveryServiceTest {
     
     @BeforeEach
     void setUp() {
-        webhookDeliveryService = new WebhookDeliveryService(webhookRepository);
+        webhookDeliveryService = new WebhookDeliveryService(webhookRepository, objectMapper);
         ReflectionTestUtils.setField(webhookDeliveryService, "entityManager", entityManager);
         ReflectionTestUtils.setField(webhookDeliveryService, "deliveryEnabled", true);
         ReflectionTestUtils.setField(webhookDeliveryService, "deliveryTimeout", 5000);
