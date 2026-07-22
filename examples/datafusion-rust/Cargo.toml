@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Substrait Compliance Contributors"]
 description = "DataFusion reference implementation for Substrait compliance testing"
 license = "Apache-2.0"
-repository = "https://github.com/substrait-io/substrait-compliance"
+repository = "https://github.com/IBM/substrait-compliance"
 
 [dependencies]
 datafusion = "35.0"
