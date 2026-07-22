@@ -5,8 +5,8 @@ scale_factor: 0.01
 total_rows: 288000
 
 # TPC-DS is a decision support benchmark with 99 queries
-# This initial implementation includes the first 5 queries as a foundation
-# Additional queries will be added incrementally
+# This release includes 5 queries (q01–q05) with full plan coverage (binary + JSON)
+# Additional queries will be added incrementally in future releases
 
 testCases:
   - id: "q01"
@@ -271,7 +271,7 @@ notes:
   - "TPC-DS is more complex than TPC-H with 99 queries vs 22"
   - "Focuses on decision support and business intelligence scenarios"
   - "Includes multi-channel retail analysis (store, catalog, web)"
-  - "This initial release includes 5 representative queries"
+  - "v0.1.0 includes 5 queries (q01–q05) with complete Substrait plan coverage"
   - "Full 99-query suite will be added in future releases"
   - "Data generation requires TPC-DS tools from tpc.org"
   - "Scale factor 0.01 is suitable for testing and development"

@@ -598,7 +598,7 @@ Complete TPC-DS (Decision Support) benchmark for complex analytical workloads:
 | Component | Details |
 |-----------|---------|
 | **Queries** | 99 (query01.sql – query99.sql) |
-| **Substrait Plans** | 194 (97 JSON + 97 binary) |
+| **Substrait Plans** | 198 (99 JSON + 99 binary) |
 | **Data Tables** | 24 CSV files (multi-channel retail schema) |
 | **Plan Formats** | Binary (.bin) + JSON (.json) |
 
@@ -612,7 +612,7 @@ Complete TPC-DS (Decision Support) benchmark for complex analytical workloads:
 cd test-suites/tpcds
 cat metadata.yaml
 ls -la data/   # 24 CSV files
-ls -la plans/  # 194 Substrait plan files
+ls -la plans/  # 198 Substrait plan files
 ```
 
 > **📚 See [test-suites/tpcds/README.md](test-suites/tpcds/README.md) for complete TPC-DS documentation**
@@ -703,7 +703,7 @@ substrait-compliance/
 ├── 🧪 test-suites/                # Test suites
 │   ├── functions/                 # 140 function test files, 5,041 assertions (14 categories)
 │   ├── tpch/                      # TPC-H (22 queries, 8 data files, 44 plans)
-│   └── tpcds/                     # TPC-DS (99 queries, 24 data files, 194 plans)
+│   └── tpcds/                     # TPC-DS (99 queries, 24 data files, 198 plans)
 ├── 💡 examples/                   # Real-world integration examples
 │   ├── datafusion-python/         # DataFusion integration (Python)
 │   ├── datafusion-rust/           # DataFusion integration (Rust)
