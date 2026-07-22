@@ -18,10 +18,10 @@ jobs:
         with:
           fetch-depth: 0  # Full history for better analysis
       
-      - name: Setup Java 11
+      - name: Setup Java 17
         uses: actions/setup-java@v4
         with:
-          java-version: '11'
+          java-version: '17'
           distribution: 'temurin'
           cache: 'gradle'
       
