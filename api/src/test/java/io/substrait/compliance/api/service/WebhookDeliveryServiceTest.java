@@ -186,14 +186,16 @@ class WebhookDeliveryServiceTest {
         Map<String, Object> payload = new HashMap<>();
         payload.put("test", "value");
         String secret = "test-secret";
-        
+
+        when(objectMapper.writeValueAsString(payload)).thenReturn("{\"test\":\"value\"}");
+
         // When - using reflection to test private method
         java.lang.reflect.Method method = WebhookDeliveryService.class.getDeclaredMethod(
             "generateSignature", Map.class, String.class
         );
         method.setAccessible(true);
         String signature = (String) method.invoke(webhookDeliveryService, payload, secret);
-        
+
         // Then
         assert signature != null;
         assert !signature.isEmpty();
