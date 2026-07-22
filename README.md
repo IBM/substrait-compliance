@@ -1164,7 +1164,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 | **TPC-DS Queries** | 99 |
 | **TPC-H Data Rows** | 86,805 (scale factor 0.01) |
 | **TPC-DS Data Tables** | 24 |
-| **CI/CD Workflows** | 13 |
+| **CI/CD Workflows** | 12 |
 | **Example Implementations** | 5 (DuckDB Java/C++, DataFusion Python/Rust, Velox C++) |
 | **REST API Endpoints** | 10+ |
 
