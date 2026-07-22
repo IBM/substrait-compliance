@@ -2,7 +2,7 @@
 # Optimized for Podman but compatible with Docker
 
 # Stage 1: Build
-FROM gradle:8.5-jdk11 AS builder
+FROM gradle:8.14-jdk11 AS builder
 
 WORKDIR /build
 
