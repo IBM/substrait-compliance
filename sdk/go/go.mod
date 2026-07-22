@@ -1,4 +1,4 @@
-module github.com/substrait-io/substrait-compliance/sdk/go
+module github.com/IBM/substrait-compliance/sdk/go
 
 go 1.21
 

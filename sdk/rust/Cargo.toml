@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["Substrait Community"]
 description = "Decentralized compliance testing SDK for Substrait engines"
 license = "Apache-2.0"
-repository = "https://github.com/substrait-io/substrait-compliance"
+repository = "https://github.com/IBM/substrait-compliance"
 keywords = ["substrait", "compliance", "testing", "query"]
 categories = ["development-tools::testing"]
 

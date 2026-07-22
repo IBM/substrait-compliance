@@ -300,12 +300,12 @@ Handled according to [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md):
 
 - **GitHub Issues**: Bug reports, feature requests — [github.com/IBM/substrait-compliance/issues](https://github.com/IBM/substrait-compliance/issues)
 - **GitHub Discussions**: General questions, proposals, announcements — [github.com/IBM/substrait-compliance/discussions](https://github.com/IBM/substrait-compliance/discussions)
-- **Mailing List**: TBD
-- **Slack**: TBD
+- **Mailing List**: To be announced post-launch
+- **Slack**: To be announced post-launch
 
 ### Private Channels
 
-- **Maintainer Meetings**: TBD (see [Meetings](#meetings) below)
+- **Maintainer Meetings**: To be announced post-launch (see [Meetings](#meetings) below)
 - **Security Issues**: [security@substrait.io](mailto:security@substrait.io) — see [SECURITY.md](SECURITY.md)
 - **Code of Conduct**: [conduct@substrait.io](mailto:conduct@substrait.io)
 
@@ -313,7 +313,7 @@ Handled according to [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md):
 
 ### Maintainer Meetings
 
-- **Frequency**: TBD
+- **Frequency**: To be announced post-launch
 - **Format**: Video call, recorded and published
 - **Agenda**: Posted 48 hours in advance in GitHub Discussions
 - **Notes**: Published within 48 hours after meeting

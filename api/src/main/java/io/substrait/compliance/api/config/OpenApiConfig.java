@@ -33,7 +33,7 @@ import org.springframework.context.annotation.Configuration;
         contact = @Contact(
             name = "Substrait Compliance Team",
             email = "compliance@substrait.io",
-            url = "https://github.com/substrait-io/substrait-compliance"
+            url = "https://github.com/IBM/substrait-compliance"
         ),
         license = @License(
             name = "Apache 2.0",

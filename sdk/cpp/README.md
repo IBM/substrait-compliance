@@ -77,7 +77,7 @@ cd vcpkg
 
 ```bash
 # Clone the repository
-git clone https://github.com/substrait-io/substrait-compliance.git
+git clone https://github.com/IBM/substrait-compliance.git
 cd substrait-compliance/sdk/cpp
 
 # Create build directory
@@ -103,7 +103,7 @@ sudo ninja install
 
 ```powershell
 # Clone the repository
-git clone https://github.com/substrait-io/substrait-compliance.git
+git clone https://github.com/IBM/substrait-compliance.git
 cd substrait-compliance\sdk\cpp
 
 # Create build directory
@@ -536,6 +536,6 @@ Apache License 2.0
 
 ## Support
 
-- GitHub Issues: https://github.com/substrait-io/substrait-compliance/issues
+- GitHub Issues: https://github.com/IBM/substrait-compliance/issues
 - Documentation: https://substrait.io/compliance
 - Slack: #substrait-compliance

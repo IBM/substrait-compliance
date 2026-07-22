@@ -16,7 +16,7 @@ import org.springframework.scheduling.annotation.EnableAsync;
  *   <li>Authentication and authorization</li>
  * </ul>
  * 
- * @see <a href="https://github.com/substrait-io/substrait-compliance">Substrait Compliance Framework</a>
+ * @see <a href="https://github.com/IBM/substrait-compliance">Substrait Compliance Framework</a>
  */
 @SpringBootApplication
 @EnableCaching

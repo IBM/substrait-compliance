@@ -10,7 +10,7 @@ description := "Scala SDK for implementing and testing Substrait compliance in q
 
 licenses := Seq("Apache-2.0" -> url("http://www.apache.org/licenses/LICENSE-2.0"))
 
-homepage := Some(url("https://github.com/substrait-io/substrait-compliance"))
+homepage := Some(url("https://github.com/IBM/substrait-compliance"))
 
 // Dependencies
 libraryDependencies ++= Seq(

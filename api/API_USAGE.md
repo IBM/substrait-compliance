@@ -749,7 +749,7 @@ report = get_report_cached(123, cache_key)
 ## Support
 
 - **API Documentation**: http://localhost:8080/swagger-ui.html
-- **GitHub Issues**: https://github.com/substrait-io/substrait-compliance
+- **GitHub Issues**: https://github.com/IBM/substrait-compliance
 - **Email**: support@substrait.io
 
 ---

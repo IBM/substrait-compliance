@@ -8,7 +8,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/substrait-io/substrait-compliance/sdk/go"
+	"github.com/IBM/substrait-compliance/sdk/go"
 )
 
 // OperationMetrics represents performance metrics for a single operation

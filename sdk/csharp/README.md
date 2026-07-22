@@ -483,5 +483,5 @@ Apache License 2.0 - See [LICENSE](../../LICENSE) for details.
 ## Support
 
 - 📖 [Documentation](https://substrait.io)
-- 💬 [Discussions](https://github.com/substrait-io/substrait-compliance/discussions)
-- 🐛 [Issue Tracker](https://github.com/substrait-io/substrait-compliance/issues)
+- 💬 [Discussions](https://github.com/IBM/substrait-compliance/discussions)
+- 🐛 [Issue Tracker](https://github.com/IBM/substrait-compliance/issues)

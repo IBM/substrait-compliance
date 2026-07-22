@@ -39,7 +39,7 @@ Until additional maintainers are formally added to the table above, release exec
 
 ## Maintainer Meetings
 
-- **Frequency**: TBD
+- **Frequency**: To be announced post-launch
 - **Format**: Video call (recorded and shared publicly)
 - **Agenda**: Posted in GitHub Discussions 48 hours before meeting
 - **Notes**: Published in GitHub Discussions after meeting
@@ -78,7 +78,7 @@ Committers have write access to the repository and help with day-to-day maintena
 - **Project Lead**: [ranjan.sinha@gmail.com](mailto:ranjan.sinha@gmail.com)
 - **Security Issues**: See [SECURITY.md](SECURITY.md)
 - **Code of Conduct**: [conduct@substrait.io](mailto:conduct@substrait.io)
-- **Mailing List**: TBD
+- **Mailing List**: To be announced post-launch
 
 ## Acknowledgments
 

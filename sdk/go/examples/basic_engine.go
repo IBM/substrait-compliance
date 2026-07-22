@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	compliance "github.com/substrait-io/substrait-compliance/sdk/go"
+	compliance "github.com/IBM/substrait-compliance/sdk/go"
 )
 
 // BasicEngine is a simple example implementation

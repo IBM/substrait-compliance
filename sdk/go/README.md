@@ -20,7 +20,7 @@ Go SDK for decentralized Substrait compliance testing with built-in concurrency 
 ## Installation
 
 ```bash
-go get github.com/substrait-io/substrait-compliance/sdk/go
+go get github.com/IBM/substrait-compliance/sdk/go
 ```
 
 ## Quick Start
@@ -33,7 +33,7 @@ import (
     "fmt"
     "log"
     
-    compliance "github.com/substrait-io/substrait-compliance/sdk/go"
+    compliance "github.com/IBM/substrait-compliance/sdk/go"
 )
 
 // 1. Implement the ComplianceEngine interface
@@ -148,7 +148,7 @@ module myengine
 go 1.21
 
 require (
-    github.com/substrait-io/substrait-compliance/sdk/go v1.0.0
+    github.com/IBM/substrait-compliance/sdk/go v0.1.0
 )
 ```
 
@@ -367,6 +367,6 @@ Apache License 2.0
 
 ## Support
 
-- GitHub Issues: https://github.com/substrait-io/substrait-compliance/issues
+- GitHub Issues: https://github.com/IBM/substrait-compliance/issues
 - Documentation: https://substrait.io/compliance
 - Slack: #substrait-compliance

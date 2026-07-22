@@ -12,7 +12,7 @@ setup(
     description="Decentralized compliance testing SDK for Substrait engines",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/substrait-io/substrait-compliance",
+    url="https://github.com/IBM/substrait-compliance",
     packages=find_packages(),
     classifiers=[
         "Development Status :: 4 - Beta",
