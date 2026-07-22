@@ -7,12 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [0.1.0] - 2025-07-14
+## [0.1.0] - 2026-07-21
 
 ### Highlights
 
 - **8 Language SDKs in-repo**: Java, Python, Rust, Go, C++, TypeScript, C#, and Scala
-- **276 Function Test Files**: 140 standard + 136 enhanced, across 14 categories
+- **140 Function Test Files**: 5,041 test assertions across 14 categories
 - **TPC-H Benchmark**: 22 queries included for testing and benchmarking
 - **REST API Implementation**: Spring Boot API included in the repository as pre-release functionality
 - **Interactive Demo**: Dashboard and mock-engine demo for evaluation and walkthroughs
@@ -65,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Complete query implementations
   - Sample data generation
   - Performance benchmarking
-- **Function Tests** - 276 test files across 14 categories
+- **Function Tests** - 140 test files, 5,041 assertions across 14 categories
   - Arithmetic operations (48 functions)
   - String operations (25 functions)
   - Comparison operations (15 functions)
@@ -76,10 +76,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Map operations (3 functions)
   - Set operations (3 functions)
   - Cast operations (1 function)
-- **Enhanced Test Suite** - 136 additional test files
-  - Extended coverage for complex scenarios
-  - Edge case testing
-  - Performance-focused tests
 
 ### Fixed - SDK Improvements
 - **Rust SDK** - Fixed benchmark API mismatches

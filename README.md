@@ -2,7 +2,7 @@
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)](https://github.com/IBM/substrait-compliance/actions)
-[![Release](https://img.shields.io/github/v/release/IBM/substrait-compliance)](https://github.com/IBM/substrait-compliance/releases)
+[![Release](https://img.shields.io/github/v/release/IBM/substrait-compliance?include_prereleases)](https://github.com/IBM/substrait-compliance/releases)
 [![Contributors](https://img.shields.io/github/contributors/IBM/substrait-compliance)](https://github.com/IBM/substrait-compliance/graphs/contributors)
 
 > **A decentralized compliance testing framework for Substrait implementations**
@@ -1086,7 +1086,7 @@ curl http://localhost:8080/api/v1/leaderboard
 - [scripts/README.md](scripts/README.md) — Scripts documentation
 - [scripts/TEST_ENHANCEMENT_GUIDE.md](scripts/TEST_ENHANCEMENT_GUIDE.md) — Test enhancement workflow
 - [.github/workflows/README.md](.github/workflows/README.md) — CI/CD workflow documentation
-- [CHANGELOG.md](https://github.com/IBM/substrait-compliance/releases) — Version history (published via GitHub Releases)
+- [CHANGELOG.md](CHANGELOG.md) — Version history
 
 ### 🤝 Contributing
 - [CONTRIBUTING.md](CONTRIBUTING.md) — Contribution guidelines
