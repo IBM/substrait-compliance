@@ -68,18 +68,18 @@ jobs:
     steps:
       - name: Download Java SDK
         run: |
-          wget https://github.com/substrait-io/compliance/releases/download/v${{ needs.setup.outputs.sdk-version }}/substrait-compliance-java-${{ needs.setup.outputs.sdk-version }}.jar \
+          wget https://github.com/IBM/substrait-compliance/releases/download/v${{ needs.setup.outputs.sdk-version }}/substrait-compliance-java-${{ needs.setup.outputs.sdk-version }}.jar \
             -O substrait-compliance.jar
-      
+
       - name: Download TPC-H Test Suite
         run: |
-          wget https://github.com/substrait-io/compliance/releases/download/v${{ needs.setup.outputs.test-suite-version }}/tpch-test-suite-${{ needs.setup.outputs.test-suite-version }}.zip \
+          wget https://github.com/IBM/substrait-compliance/releases/download/v${{ needs.setup.outputs.test-suite-version }}/tpch-test-suite-${{ needs.setup.outputs.test-suite-version }}.zip \
             -O tpch-test-suite.zip
           unzip tpch-test-suite.zip -d tpch-test-suite
-      
+
       - name: Download checksums
         run: |
-          wget https://github.com/substrait-io/compliance/releases/download/v${{ needs.setup.outputs.test-suite-version }}/tpch-checksums-${{ needs.setup.outputs.test-suite-version }}.txt \
+          wget https://github.com/IBM/substrait-compliance/releases/download/v${{ needs.setup.outputs.test-suite-version }}/tpch-checksums-${{ needs.setup.outputs.test-suite-version }}.txt \
             -O tpch-checksums.txt
       
       - name: Verify checksums
@@ -170,7 +170,7 @@ jobs:
           # - Python: examples/datafusion-python/
           
           echo "⚠️ CUSTOMIZE THIS: Implement ComplianceEngine for your engine"
-          echo "See: https://github.com/substrait-io/compliance/tree/main/examples"
+          echo "See: https://github.com/IBM/substrait-compliance/tree/main/examples"
       
       - name: Build compliance implementation
         run: |
