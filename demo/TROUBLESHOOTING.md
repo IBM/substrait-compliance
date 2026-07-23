@@ -75,27 +75,50 @@ chmod +x runner/run-simple-demo.sh
 bash runner/run-simple-demo.sh
 ```
 
-### Issue: Java Version Not Supported
+### Issue: Java Version Too Old
 
-**Symptom:**
+**Symptoms:**
+
+Gradle build fails immediately:
 ```
-Error: Java version 8 is not supported
-Requires Java 11 or higher
+Dependency requires at least JVM runtime version 17. This build uses a Java 8 JVM.
 ```
+
+Direct `javac` compilation fails with missing symbols:
+```
+cannot find symbol: method repeat(int)     — String.repeat() requires Java 11+
+cannot find symbol: method readString(Path) — Files.readString() requires Java 11+
+cannot find symbol: method of(...)          — Map.of() with >5 args requires Java 9+
+```
+
+**Cause:** Java 17 is the minimum. The SDK's Gradle build (`sdk/java/build.gradle`)
+declares `languageVersion = JavaLanguageVersion.of(17)`, and the `foojay-resolver`
+Gradle plugin also refuses to load on anything below Java 17. Both runner scripts
+now detect this upfront and print install instructions.
 
 **Solution:**
 ```bash
 # Check current Java version
 java -version
 
-# Install Java 11+ (macOS with Homebrew)
-brew install openjdk@11
+# Install Java 17+ — macOS (Homebrew)
+brew install openjdk@17
+export JAVA_HOME=$(brew --prefix openjdk@17)
+export PATH="$JAVA_HOME/bin:$PATH"
 
-# Install Java 11+ (Ubuntu/Debian)
-sudo apt-get install openjdk-11-jdk
+# Install Java 17+ — macOS (SDKMAN, manages multiple JDKs)
+sdk install java 17.0.11-tem
+sdk use java 17.0.11-tem
 
-# Set JAVA_HOME
-export JAVA_HOME=$(/usr/libexec/java_home -v 11)
+# Install Java 17+ — Ubuntu/Debian
+sudo apt-get install openjdk-17-jdk
+
+# Install Java 17+ — RHEL/Fedora
+sudo dnf install java-17-openjdk
+
+# Verify, then re-run
+java -version   # must show 17 or higher
+cd demo && ./runner/run-simple-demo.sh
 ```
 
 ### Issue: SDK Build Fails

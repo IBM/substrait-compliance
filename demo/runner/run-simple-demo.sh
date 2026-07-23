@@ -24,6 +24,25 @@ if [ ! -f "README.md" ] || [ ! -d "runner" ]; then
     exit 1
 fi
 
+# Check Java version — 17+ required by the SDK Gradle build and demo runner
+JAVA_MAJOR=$(java -version 2>&1 | awk -F[\"._] '/version/ { print ($2 == "1" ? $3 : $2) }')
+if [ -z "$JAVA_MAJOR" ] || [ "$JAVA_MAJOR" -lt 17 ]; then
+    echo -e "${RED}❌ Java 17 or higher is required.${NC}"
+    echo "   Detected: $(java -version 2>&1 | head -1)"
+    echo ""
+    echo "   Install options:"
+    echo "     macOS (Homebrew):  brew install openjdk@17"
+    echo "                        export JAVA_HOME=\$(brew --prefix openjdk@17)"
+    echo "     macOS (SDKMAN):    sdk install java 17.0.11-tem && sdk use java 17.0.11-tem"
+    echo "     Ubuntu/Debian:     sudo apt-get install openjdk-17-jdk"
+    echo "     RHEL/Fedora:       sudo dnf install java-17-openjdk"
+    echo ""
+    echo "   After installing, update your PATH and re-run:"
+    echo "     export PATH=\"\$JAVA_HOME/bin:\$PATH\""
+    echo "     java -version   # should show 17 or higher"
+    exit 1
+fi
+
 # Step 1: Create output directories
 echo -e "${BLUE}📁 Step 1: Creating output directories...${NC}"
 mkdir -p output
