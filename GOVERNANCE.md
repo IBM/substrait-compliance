@@ -260,7 +260,7 @@ See the maintainers' release checklist and publication workflow documentation fo
 
 Handled according to [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md):
 
-1. Report to conduct@substrait.io
+1. Report to rsinha@us.ibm.com
 2. Maintainers review privately
 3. Decision made within 7 days
 4. Actions may include warning, temporary ban, or permanent ban
@@ -306,8 +306,8 @@ Handled according to [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md):
 ### Private Channels
 
 - **Maintainer Meetings**: To be announced post-launch (see [Meetings](#meetings) below)
-- **Security Issues**: [security@substrait.io](mailto:security@substrait.io) — see [SECURITY.md](SECURITY.md)
-- **Code of Conduct**: [conduct@substrait.io](mailto:conduct@substrait.io)
+- **Security Issues**: [rsinha@us.ibm.com](mailto:rsinha@us.ibm.com) — see [SECURITY.md](SECURITY.md)
+- **Code of Conduct**: [rsinha@us.ibm.com](mailto:rsinha@us.ibm.com)
 
 ## Meetings
 
@@ -356,7 +356,7 @@ This governance model is inspired by:
 
 For questions about governance:
 - Open a discussion in [GitHub Discussions](https://github.com/IBM/substrait-compliance/discussions)
-- Email the Project Lead: [ranjan.sinha@gmail.com](mailto:ranjan.sinha@gmail.com)
+- Email the Project Lead: [rsinha@us.ibm.com](mailto:rsinha@us.ibm.com)
 - See [MAINTAINERS.md](MAINTAINERS.md) for the full maintainer list
 - Join community calls
 

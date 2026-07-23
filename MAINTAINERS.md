@@ -75,9 +75,9 @@ Committers have write access to the repository and help with day-to-day maintena
 ## Contact
 
 - **General Questions**: Open a [GitHub Discussion](https://github.com/IBM/substrait-compliance/discussions)
-- **Project Lead**: [ranjan.sinha@gmail.com](mailto:ranjan.sinha@gmail.com)
+- **Project Lead**: [rsinha@us.ibm.com](mailto:rsinha@us.ibm.com)
 - **Security Issues**: See [SECURITY.md](SECURITY.md)
-- **Code of Conduct**: [conduct@substrait.io](mailto:conduct@substrait.io)
+- **Code of Conduct**: [rsinha@us.ibm.com](mailto:rsinha@us.ibm.com)
 - **Mailing List**: To be announced post-launch
 
 ## Acknowledgments

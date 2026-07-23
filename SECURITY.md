@@ -23,8 +23,8 @@ We take the security of the Substrait Compliance Framework seriously. If you bel
 
 Instead, please report them via email to:
 
-- **Primary Contact**: [ranjan.sinha@gmail.com](mailto:ranjan.sinha@gmail.com)
-- **Secondary Contact**: [security@substrait.io](mailto:security@substrait.io)
+- **Primary Contact**: [rsinha@us.ibm.com](mailto:rsinha@us.ibm.com)
+- **Secondary Contact**: [rsinha@us.ibm.com](mailto:rsinha@us.ibm.com)
 - **Alternative**: Open a [GitHub Security Advisory](https://github.com/IBM/substrait-compliance/security/advisories/new)
 
 ### What to Include
@@ -247,8 +247,8 @@ Stay informed about security updates:
 
 For security-related questions or concerns:
 
-- **Primary Email**: [ranjan.sinha@gmail.com](mailto:ranjan.sinha@gmail.com)
-- **Secondary Email**: [security@substrait.io](mailto:security@substrait.io)
+- **Primary Email**: [rsinha@us.ibm.com](mailto:rsinha@us.ibm.com)
+- **Secondary Email**: [rsinha@us.ibm.com](mailto:rsinha@us.ibm.com)
 - **GitHub**: [Security Advisories](https://github.com/IBM/substrait-compliance/security/advisories)
 
 ---
