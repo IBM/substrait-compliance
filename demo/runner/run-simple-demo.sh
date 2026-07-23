@@ -47,17 +47,29 @@ mkdir -p build
 
 SDK_JARS=$(find ../sdk/java/build/libs -maxdepth 1 -name "*.jar" | tr '\n' ':')
 SDK_CLASSES="../sdk/java/build/classes/java/main"
-SUBSTRAIT_CORE_JAR=$(find /Users/rsinha/.gradle/caches/modules-2/files-2.1/io.substrait/core/0.80.0 -name "core-0.80.0.jar" | head -1)
-PROTOBUF_JAVA_JAR=$(find /Users/rsinha/.gradle/caches/modules-2/files-2.1/com.google.protobuf/protobuf-java -name "protobuf-java-*.jar" ! -name "*-sources.jar" | sort | tail -1)
-JACKSON_DATABIND_JAR=$(find /Users/rsinha/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-databind -name "jackson-databind-*.jar" ! -name "*-sources.jar" | sort | tail -1)
-JACKSON_CORE_JAR=$(find /Users/rsinha/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-core -name "jackson-core-*.jar" ! -name "*-sources.jar" | sort | tail -1)
-JACKSON_ANNOTATIONS_JAR=$(find /Users/rsinha/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.core/jackson-annotations -name "jackson-annotations-*.jar" ! -name "*-sources.jar" | sort | tail -1)
-JACKSON_YAML_JAR=$(find /Users/rsinha/.gradle/caches/modules-2/files-2.1/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml -name "jackson-dataformat-yaml-*.jar" ! -name "*-sources.jar" | sort | tail -1)
-SNAKEYAML_JAR=$(find /Users/rsinha/.gradle/caches/modules-2/files-2.1/org.yaml/snakeyaml -name "snakeyaml-*.jar" ! -name "*-sources.jar" | sort | tail -1)
+GRADLE_CACHE="${GRADLE_USER_HOME:-${HOME}/.gradle}/caches/modules-2/files-2.1"
+SUBSTRAIT_CORE_JAR=$(find "${GRADLE_CACHE}/io.substrait/core" -name "core-*.jar" ! -name "*-sources.jar" | sort | tail -1)
+PROTOBUF_JAVA_JAR=$(find "${GRADLE_CACHE}/com.google.protobuf/protobuf-java" -name "protobuf-java-*.jar" ! -name "*-sources.jar" | sort | tail -1)
+JACKSON_DATABIND_JAR=$(find "${GRADLE_CACHE}/com.fasterxml.jackson.core/jackson-databind" -name "jackson-databind-*.jar" ! -name "*-sources.jar" | sort | tail -1)
+JACKSON_CORE_JAR=$(find "${GRADLE_CACHE}/com.fasterxml.jackson.core/jackson-core" -name "jackson-core-*.jar" ! -name "*-sources.jar" | sort | tail -1)
+JACKSON_ANNOTATIONS_JAR=$(find "${GRADLE_CACHE}/com.fasterxml.jackson.core/jackson-annotations" -name "jackson-annotations-*.jar" ! -name "*-sources.jar" | sort | tail -1)
+JACKSON_YAML_JAR=$(find "${GRADLE_CACHE}/com.fasterxml.jackson.dataformat/jackson-dataformat-yaml" -name "jackson-dataformat-yaml-*.jar" ! -name "*-sources.jar" | sort | tail -1)
+SNAKEYAML_JAR=$(find "${GRADLE_CACHE}/org.yaml/snakeyaml" -name "snakeyaml-*.jar" ! -name "*-sources.jar" | sort | tail -1)
 if [ -z "$SDK_JARS" ]; then
     echo -e "${RED}❌ No Java SDK jars found. Expected build output in ../sdk/java/build/libs${NC}"
     exit 1
 fi
+
+MISSING_JARS=0
+for JAR_VAR in SUBSTRAIT_CORE_JAR PROTOBUF_JAVA_JAR JACKSON_DATABIND_JAR JACKSON_CORE_JAR JACKSON_ANNOTATIONS_JAR JACKSON_YAML_JAR SNAKEYAML_JAR; do
+    JAR_PATH="${!JAR_VAR}"
+    if [ -z "$JAR_PATH" ]; then
+        echo -e "${RED}❌ Could not locate dependency jar for ${JAR_VAR} under ${GRADLE_CACHE}${NC}"
+        echo "   Run './gradlew test jar' in sdk/java first to populate the Gradle cache."
+        MISSING_JARS=1
+    fi
+done
+if [ "$MISSING_JARS" -eq 1 ]; then exit 1; fi
 
 DEMO_CLASSPATH="${SDK_CLASSES}:${SDK_JARS}:${SUBSTRAIT_CORE_JAR}:${PROTOBUF_JAVA_JAR}:${JACKSON_DATABIND_JAR}:${JACKSON_CORE_JAR}:${JACKSON_ANNOTATIONS_JAR}:${JACKSON_YAML_JAR}:${SNAKEYAML_JAR}"
 if [ ! -d "${SDK_CLASSES}" ]; then
