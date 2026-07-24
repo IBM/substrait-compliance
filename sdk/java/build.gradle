@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'com.gradleup.shadow' version '8.3.6'
 }
 
 group = 'io.substrait'
@@ -40,6 +41,13 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+// Fat jar containing all runtime dependencies — used by the demo script
+// so it needs no knowledge of the Gradle cache layout.
+shadowJar {
+    archiveClassifier = 'all'
+    mergeServiceFiles()
 }
 
 tasks.withType(Javadoc) {
