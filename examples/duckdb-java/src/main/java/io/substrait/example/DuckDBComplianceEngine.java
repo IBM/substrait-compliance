@@ -154,8 +154,21 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
     }
     
     private TableData executeSubstraitPlan(Plan plan) throws SQLException {
-        // In real implementation, would use DuckDB's Substrait execution
-        // For this example, return empty result
+        // STUB — returns empty output. Replace this body with real execution.
+        //
+        // Option A (planned): use DuckDB's native Substrait support via JDBC:
+        //
+        //   byte[] planBytes = plan.toByteArray();
+        //   String encoded = Base64.getEncoder().encodeToString(planBytes);
+        //   try (PreparedStatement ps = connection.prepareStatement(
+        //           "SELECT * FROM substrait('" + encoded + "')")) {
+        //       ResultSet rs = ps.executeQuery();
+        //       return resultSetToTableData(rs);
+        //   }
+        //
+        // Until Option A is implemented the runner will compare this empty
+        // TableData against the expected output and mark every test FAILED,
+        // which is the honest result for an unimplemented engine.
         return new TableData(
             Collections.emptyList(),
             Collections.emptyList(),

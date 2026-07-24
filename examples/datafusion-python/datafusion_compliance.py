@@ -128,9 +128,23 @@ class DataFusionComplianceEngine(ComplianceEngine):
             pass
     
     def _execute_substrait_plan(self, plan_bytes: bytes) -> Optional[TableData]:
-        """Execute Substrait plan and return results."""
-        # In real implementation, would execute plan and convert results
-        # For this example, return empty result
+        """Execute Substrait plan and return results.
+
+        STUB — returns None. Replace this body with real execution.
+
+        Option A (planned): use DataFusion's native Substrait consumer:
+
+            from datafusion import SessionContext
+            import datafusion_substrait
+            ctx = SessionContext()
+            plan = datafusion_substrait.substrait.serde.deserialize_bytes(plan_bytes)
+            df = datafusion_substrait.substrait.consumer.from_substrait_plan(ctx, plan)
+            return arrow_batches_to_table_data(df.collect())
+
+        Until Option A is implemented the runner will compare None against the
+        expected output and mark every test FAILED, which is the honest result
+        for an unimplemented engine.
+        """
         return None
     
     def _validate_substrait_plan(self, plan_bytes: bytes) -> bool:

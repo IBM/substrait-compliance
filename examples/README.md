@@ -1,16 +1,24 @@
 # Substrait Compliance Examples
 
-Production-ready reference implementations demonstrating how to integrate popular query engines with the Substrait compliance framework.
+Structural reference implementations showing how to wire a query engine into
+the compliance framework. Each example implements the full `ComplianceEngine`
+interface — data loading, plan validation, and the `executePlan` / `execute_plan`
+method — but the plan-execution body is currently a stub returning empty output
+(see the `STUB` comment in each file). A run against TPC-H will therefore show
+0% pass rate until Option A (real engine execution) is implemented.
+
+The five working demo engines in [`demo/engines/`](../demo/engines/) demonstrate
+the full round-trip (load → execute → compare → report) and are the current
+proof that the framework works end-to-end.
 
 ## Reference Implementations
 
 ### 1. DuckDB (C++)
 **Location:** `duckdb-cpp/`
 
-Production-ready DuckDB integration using native Substrait support:
+DuckDB integration skeleton using native Substrait support:
 - Native Substrait extension usage
-- Complete API coverage with error handling
-- Efficient SQL-based data loading
+- SQL-based data loading
 - Type mapping between Substrait and DuckDB
 - Base64 encoding for binary plans
 
@@ -48,18 +56,11 @@ java -cp "../../sdk/java/build/libs/*:." io.substrait.example.DuckDBComplianceEx
 ### 3. DataFusion (Rust)
 **Location:** `datafusion-rust/`
 
-Production-ready Apache DataFusion integration with async execution:
-- Native Substrait consumer
-- Zero-copy Arrow-based processing
+Apache DataFusion integration skeleton with async execution:
+- Native Substrait consumer (stub — not yet called)
+- Arrow-based processing structure
 - Async/await with Tokio runtime
 - Type-safe Rust implementation
-- Comprehensive error handling
-
-**Features:**
-- 40+ supported functions
-- Vectorized columnar execution
-- All Substrait types including complex types
-- Direct plan execution via `from_substrait_plan()`
 
 **Build & Run:**
 ```bash
@@ -87,19 +88,11 @@ python datafusion_compliance.py
 ### 5. Velox (C++)
 **Location:** `velox-cpp/`
 
-Production-ready Meta Velox integration with vectorized execution:
-- Velox's SubstraitVeloxPlanConverter
-- Vectorized columnar processing
-- Presto SQL function library
-- Advanced memory management
-- Production-scale performance
-
-**Features:**
-- 60+ supported functions
-- SIMD vectorization
-- All Substrait types including complex types
-- Memory pooling and zero-copy operations
-- Battle-tested at Meta scale
+Velox integration skeleton with vectorized execution structure:
+- Velox's SubstraitVeloxPlanConverter (stub — not yet called)
+- Columnar processing structure
+- Presto SQL function library wiring
+- Memory management scaffolding
 
 **Build & Run:**
 ```bash
@@ -116,10 +109,7 @@ make -j$(nproc)
 | **Language** | C++17 | Rust 2021 | C++17 |
 | **Execution** | SQL-based | Vectorized | Vectorized |
 | **Memory** | In-memory | Arrow columnar | Custom pools |
-| **Functions** | 40+ | 40+ | 60+ |
-| **Performance** | Excellent | Very Good | Excellent |
-| **Complexity** | Low | Medium | High |
-| **Production** | Yes | Growing | Meta scale |
+| **Stub status** | executePlan stub | execute_plan stub | executePlan stub |
 | **Build Time** | Fast | Medium | Slow |
 | **Dependencies** | Minimal | Moderate | Many |
 
@@ -214,7 +204,7 @@ Framework aggregates results across all tests:
 - **Comprehensive:** Full function coverage
 - **Transparent:** See exactly what's being tested
 - **Reproducible:** Deterministic test cases
-- **Production-Ready:** Battle-tested implementations
+- **Structural template:** Full interface wiring without the engine execution stub filled in
 
 ## Performance Tips
 

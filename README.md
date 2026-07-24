@@ -534,29 +534,33 @@ public class MyEngine : IComplianceEngine
 
 ### Step 3: Run Against Test Suites
 
-**Java example (DuckDB integration):**
+**Java example (DuckDB — structural template):**
 ```bash
 cd examples/duckdb-java
-./gradlew run
+./compile.sh
+java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.0-all.jar" \
+    io.substrait.example.DuckDBComplianceExample
 
-# Expected output:
-# Loading TPC-H test suite...
-# Running 22 test cases...
-# ✅ Passed: 20/22 (90.9%)
-# Report saved: output/duckdb-report.json
+# Expected output (stub — executePlan not yet implemented):
+# Loaded test suite: add
+# Test cases: N
+# Compliance Score: 0.0%   ← honest result until Option A is wired in
 ```
 
-**Python example (DataFusion integration):**
+**Python example (DataFusion — structural template):**
 ```bash
 cd examples/datafusion-python
+source ../../sdk/python/venv/bin/activate   # or your own venv
 python datafusion_compliance.py
 
-# Expected output:
-# Loading TPC-H test suite...
-# Running 22 test cases...
-# ✅ Passed: 21/22 (95.5%)
-# Report saved: output/datafusion-report.json
+# Expected output (stub — _execute_substrait_plan returns None):
+# Loaded test suite: tpch
+# Test cases: 22
+# Pass Rate: 0.0%   ← honest result until Option A is wired in
 ```
+
+> For a working end-to-end round-trip (load → execute → compare → report),
+> see the five demo engines in [`demo/engines/`](demo/engines/).
 
 **Programmatic usage (Java):**
 ```java
@@ -785,7 +789,7 @@ substrait-compliance/
 │   ├── functions/                 # 140 function test files, 5,041 assertions (14 categories)
 │   ├── tpch/                      # TPC-H (22 queries, 8 data files, 44 plans)
 │   └── tpcds/                     # TPC-DS (99 queries, 24 data files, 198 plans)
-├── 💡 examples/                   # Real-world integration examples
+├── 💡 examples/                   # Structural integration templates (executePlan stubs — see examples/README.md)
 │   ├── datafusion-python/         # DataFusion integration (Python)
 │   ├── datafusion-rust/           # DataFusion integration (Rust)
 │   ├── duckdb-cpp/                # DuckDB integration (C++)
@@ -1200,12 +1204,19 @@ cd sdk/rust && cargo build --release && cargo test
 
 ### Running Examples
 
-**DuckDB (Java):**
+> **Note:** The examples in `examples/` are structural templates. The
+> `executePlan` / `execute_plan` body is a stub that returns empty output —
+> pass rate will be 0% until the real engine execution is wired in (Option A).
+> For a working demo, use [`demo/runner/run-simple-demo.sh`](demo/runner/run-simple-demo.sh).
+
+**DuckDB (Java — structural template):**
 ```bash
-cd examples/duckdb-java && ./gradlew run
+cd examples/duckdb-java && ./compile.sh
+java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.0-all.jar" \
+    io.substrait.example.DuckDBComplianceExample
 ```
 
-**DataFusion (Python):**
+**DataFusion (Python — structural template):**
 ```bash
 cd examples/datafusion-python && python datafusion_compliance.py
 ```
