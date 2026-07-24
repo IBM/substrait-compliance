@@ -70,21 +70,28 @@ class ComplianceRunner:
                 test_case.input_data
             )
             
-            # If expected output provided, compare
-            if test_case.expected_output and result.output_data:
-                if not self._compare_results(
-                    result.output_data,
-                    test_case.expected_output
-                ):
-                    result.status = TestStatus.FAILED
-                    result.error_message = "Output mismatch"
-            
             # Calculate execution time
             end_time = datetime.now()
             result.execution_time_ms = int(
                 (end_time - start_time).total_seconds() * 1000
             )
-            
+
+            # If no expected output is present we cannot verify correctness —
+            # return SKIPPED rather than PASSED so the result is honest.
+            if not test_case.expected_output:
+                return ComplianceResult(
+                    test_id=test_case.id,
+                    status=TestStatus.SKIPPED,
+                    error_message="No expected output — cannot verify correctness",
+                    execution_time_ms=result.execution_time_ms,
+                )
+
+            # Expected output present — compare and report accordingly
+            if result.output_data:
+                if not self._compare_results(result.output_data, test_case.expected_output):
+                    result.status = TestStatus.FAILED
+                    result.error_message = "Output mismatch"
+
             return result
             
         except Exception as e:

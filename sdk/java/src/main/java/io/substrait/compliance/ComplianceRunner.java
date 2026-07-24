@@ -83,22 +83,25 @@ public class ComplianceRunner {
                     result.getErrorMessage(), duration);
             }
             
-            // Compare results if expected output provided
-            if (testCase.getExpectedOutput() != null) {
-                boolean matches = compareResults(
-                    testCase.getExpectedOutput(),
-                    result.getOutputData()
-                );
-                
-                if (matches) {
-                    return TestResult.passed(testCase.getId(), duration);
-                } else {
-                    return TestResult.failed(testCase.getId(), 
-                        "Output mismatch", duration);
-                }
+            // Compare results against expected output.
+            // If no expected output is present we cannot verify correctness —
+            // return SKIPPED rather than PASSED so the result is honest.
+            if (testCase.getExpectedOutput() == null) {
+                return TestResult.skipped(testCase.getId(),
+                    "No expected output — cannot verify correctness");
             }
-            
-            return TestResult.passed(testCase.getId(), duration);
+
+            boolean matches = compareResults(
+                testCase.getExpectedOutput(),
+                result.getOutputData()
+            );
+
+            if (matches) {
+                return TestResult.passed(testCase.getId(), duration);
+            } else {
+                return TestResult.failed(testCase.getId(),
+                    "Output mismatch", duration);
+            }
             
         } catch (Exception e) {
             return TestResult.failed(testCase.getId(), 

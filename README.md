@@ -350,19 +350,20 @@ ls -la target/release/
 ```java
 public class MyEngine implements ComplianceEngine {
     @Override
-    public EngineInfo getInfo() {
+    public EngineInfo getEngineInfo() {
         return new EngineInfo("MyEngine", "1.0.0", "MyCompany");
     }
 
     @Override
-    public ComplianceResult executePlan(byte[] planBytes, Map<String, TableData> inputData) {
+    public ComplianceResult executePlan(Plan plan, Map<String, TableData> inputData)
+            throws ComplianceException {
         // Load data into your engine
         loadInputData(inputData);
 
-        // Execute Substrait plan
-        TableData output = executeSubstraitPlan(planBytes);
+        // Execute the Substrait plan (Plan is a parsed protobuf object)
+        TableData output = executeSubstraitPlan(plan);
 
-        return new ComplianceResult("test-id", TestStatus.PASSED, output, null, 0);
+        return ComplianceResult.success(output, 0);
     }
 }
 ```
@@ -669,7 +670,7 @@ TestCase q1 = suite.getTestCases().stream()
     .findFirst()
     .orElseThrow();
 
-ComplianceResult result = myEngine.executePlan(q1.getPlanBytes(), q1.getInputData());
+ComplianceResult result = myEngine.executePlan(q1.getPlan(), q1.getInputData());
 System.out.println("Q1 Status: " + result.getStatus());
 ```
 
