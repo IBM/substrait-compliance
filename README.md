@@ -611,7 +611,7 @@ Complete TPC-H benchmark at scale factor 0.01. **Result correctness is fully ver
 | **Data Size** | ~10.6 MB |
 | **Plan Formats** | Binary (.bin) + JSON (.json) |
 | **Complexity Levels** | SIMPLE, MEDIUM, COMPLEX, VERY_COMPLEX |
-| **Expected Outputs** | ✅ All 22 present (`expected/q01.csv` – `q22.csv`) |
+| **Expected Outputs** | ✅ All 22 present (`expected/q01.csv` – `q22.csv`) — [typed-header format](test-suites/tpch/README.md#expected-output-file-format) |
 
 **Query Complexity Breakdown:**
 - **SIMPLE** (3 queries): Q1, Q6, Q14 — Single table, basic aggregations
@@ -668,7 +668,7 @@ TPC-DS (Decision Support) benchmark plans and data for complex analytical worklo
 | **Substrait Plans** | 194 (97 JSON + 97 binary) |
 | **Data Tables** | 24 CSV files (multi-channel retail schema) |
 | **Plan Formats** | Binary (.bin) + JSON (.json) |
-| **Expected Outputs** | ❌ Not yet available |
+| **Expected Outputs** | ❌ Not yet available — see [typed-header format](test-suites/tpch/README.md#expected-output-file-format) when contributing |
 
 **Key Query Categories:**
 - Customer behavior and profitability analysis
