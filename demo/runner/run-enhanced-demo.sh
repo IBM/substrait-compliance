@@ -34,13 +34,34 @@ fi
 
 # Clean previous outputs
 echo "🧹 Cleaning previous outputs..."
-rm -rf output/storage output/analytics output/reproductions
-mkdir -p output/storage output/analytics output/reproductions
+rm -rf output/storage output/analytics output/reproductions build
+mkdir -p output/storage output/analytics output/reproductions build
 
-# Compile the enhanced demo
+# Build the SDK fat jar (also runs tests)
+echo ""
+echo "🔧 Building Java SDK..."
+(
+    cd ../sdk/java
+    ./gradlew test shadowJar --quiet
+)
+echo "✅ Java SDK built successfully"
+
+FAT_JAR=$(find ../sdk/java/build/libs -maxdepth 1 -name "*-all.jar" | sort | tail -1)
+if [ -z "$FAT_JAR" ]; then
+    echo "❌ Fat jar not found — run './gradlew shadowJar' in sdk/java first"
+    exit 1
+fi
+
+# Compile the enhanced demo against the fat jar
 echo ""
 echo "🔨 Compiling enhanced demo..."
-javac -d . runner/EnhancedDemoRunner.java
+javac -proc:none -cp "${FAT_JAR}" -d build \
+    engines/MockDBEngine.java \
+    engines/FastDBEngine.java \
+    engines/CloudDBEngine.java \
+    engines/DuckDBEngine.java \
+    engines/PostgreSQLEngine.java \
+    runner/EnhancedDemoRunner.java
 
 if [ $? -ne 0 ]; then
     echo "❌ Compilation failed!"
@@ -53,7 +74,7 @@ echo "✅ Compilation successful!"
 echo ""
 echo "🚀 Running enhanced demo..."
 echo ""
-java EnhancedDemoRunner
+java -cp "build:${FAT_JAR}" io.substrait.demo.runner.EnhancedDemoRunner
 
 # Check if demo succeeded
 if [ $? -eq 0 ]; then

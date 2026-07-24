@@ -213,7 +213,10 @@ public class DemoRunner {
             Map<String, Object> report = reports.get(i);
             Map<String, Object> engineData = new LinkedHashMap<>();
             engineData.put("rank", i + 1);
+            // "name" is the dashboard-facing key; "engineName" kept for back-compat
+            engineData.put("name", report.get("engineName"));
             engineData.put("engineName", report.get("engineName"));
+            engineData.put("version", report.get("engineVersion"));
             engineData.put("engineVersion", report.get("engineVersion"));
             engineData.put("passRate", report.get("passRate"));
             engineData.put("passed", report.get("passed"));
