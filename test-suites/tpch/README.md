@@ -7,6 +7,7 @@ This test suite contains 22 TPC-H queries for Substrait compliance testing.
 - **Scale Factor:** 0.01 (~86K rows total)
 - **Version:** 1.0.0
 - **Queries:** 22 (Q1-Q22)
+- **Result verification:** ✅ Full — all 22 expected output files are present
 
 ## Structure
 
@@ -14,17 +15,24 @@ This test suite contains 22 TPC-H queries for Substrait compliance testing.
 tpch/
 ├── metadata.yaml          # Test suite definition
 ├── plans/
-│   ├── q01.bin           # Binary Substrait plans
+│   ├── q01.bin           # Binary Substrait plans (44 files: q01–q22)
 │   ├── q01.json          # JSON Substrait plans
 │   └── ...
 ├── data/
 │   ├── lineitem.csv      # Input data (60,175 rows)
 │   ├── orders.csv        # Input data (15,000 rows)
-│   └── ...
-└── expected/
-    ├── q01.csv           # Expected output
-    └── ...
+│   └── ...              # 8 CSV files total
+└── expected/             # ✅ Reference outputs for all 22 queries
+    ├── q01.csv           # Pipe-delimited, header row included
+    └── ...              # q01.csv – q22.csv
 ```
+
+When your engine runs TPC-H tests against the compliance runner, each query
+result is compared against the corresponding file in `expected/`. A `PASSED`
+result means the engine produced the correct answer. A `FAILED` result means
+output was produced but did not match. A `SKIPPED` result is not expected for
+this suite — if you see it, the expected files are missing from your checkout
+(run `git status test-suites/tpch/expected/` to check).
 
 ## Usage
 
@@ -61,13 +69,23 @@ report = runner.run_test_suite(suite)
 
 All data files are in CSV format with headers:
 
-- `region.csv` - 5 rows
-- `nation.csv` - 25 rows
-- `part.csv` - 2,000 rows
-- `supplier.csv` - 100 rows
-- `partsupp.csv` - 8,000 rows
-- `customer.csv` - 1,500 rows
-- `orders.csv` - 15,000 rows
-- `lineitem.csv` - 60,175 rows
+| File | Rows |
+|------|------|
+| `region.csv` | 5 |
+| `nation.csv` | 25 |
+| `part.csv` | 2,000 |
+| `supplier.csv` | 100 |
+| `partsupp.csv` | 8,000 |
+| `customer.csv` | 1,500 |
+| `orders.csv` | 15,000 |
+| `lineitem.csv` | 60,175 |
 
 **Total:** ~86,630 rows
+
+## Expected Outputs
+
+All 22 expected output files are present in `expected/` (pipe-delimited CSV,
+header row on line 1). They were generated from the same input data at scale
+factor 0.01 and serve as the reference for correctness comparison.
+
+**Status:** ✅ Complete — result correctness is fully verifiable for all 22 queries.

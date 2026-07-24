@@ -601,7 +601,7 @@ See [.github/workflows/README.md](.github/workflows/README.md) for details.
 
 ### TPC-H Benchmark (22 Queries)
 
-Complete TPC-H benchmark at scale factor 0.01:
+Complete TPC-H benchmark at scale factor 0.01. **Result correctness is fully verifiable** — all 22 expected output files are committed and compared on every test run.
 
 | Component | Details |
 |-----------|---------|
@@ -611,6 +611,7 @@ Complete TPC-H benchmark at scale factor 0.01:
 | **Data Size** | ~10.6 MB |
 | **Plan Formats** | Binary (.bin) + JSON (.json) |
 | **Complexity Levels** | SIMPLE, MEDIUM, COMPLEX, VERY_COMPLEX |
+| **Expected Outputs** | ✅ All 22 present (`expected/q01.csv` – `q22.csv`) |
 
 **Query Complexity Breakdown:**
 - **SIMPLE** (3 queries): Q1, Q6, Q14 — Single table, basic aggregations
@@ -631,6 +632,9 @@ ls -la data/
 
 # View Substrait plans (44 files: q01.bin, q01.json … q22.bin, q22.json)
 ls -la plans/
+
+# View reference expected outputs (all 22 queries)
+ls -la expected/
 ```
 
 **Running TPC-H tests (Java):**
