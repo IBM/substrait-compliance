@@ -222,15 +222,16 @@ ls -la build/libs/
 <summary><b>Python SDK (Pythonic Interface)</b></summary>
 
 ```bash
-# Install the SDK
+# Install the SDK and dev dependencies
 cd sdk/python
-pip install -e .
+python3 -m venv venv && source venv/bin/activate
+./install-dev.sh   # sets index to PyPI, seeds build tools, installs editable
 
 # Run tests to verify
 pytest
 
 # Expected output:
-# 8 passed ✅
+# 6 passed ✅
 ```
 
 **Verify Installation:**
@@ -997,8 +998,7 @@ cd sdk/java
 # Python: reinstall
 cd sdk/python
 pip uninstall substrait-compliance -y
-pip install --upgrade pip setuptools wheel
-pip install -e .
+./install-dev.sh   # re-seeds build tools and reinstalls from PyPI
 
 # Rust: clean rebuild
 cd sdk/rust
@@ -1017,7 +1017,8 @@ git pull origin main
 #### "Module not found" errors (Python)
 ```bash
 cd sdk/python
-pip install -e ".[dev]"
+source venv/bin/activate   # activate the venv created during install
+./install-dev.sh           # re-installs from PyPI if needed
 python3 -c "import substrait_compliance; print('OK')"
 ```
 
@@ -1081,7 +1082,7 @@ curl -s http://localhost:8080 | grep -q "Substrait Compliance" && echo "OK"
 
 # 6. SDK build (pick at least one)
 cd sdk/java && ./gradlew build test    # BUILD SUCCESSFUL, 12 tests
-cd sdk/python && pip install -e . && pytest  # 8 passed
+cd sdk/python && python3 -m venv venv && source venv/bin/activate && ./install-dev.sh && pytest  # 6 passed
 cd sdk/rust && cargo build --release && cargo test  # 6 passed
 ```
 
@@ -1189,7 +1190,7 @@ cd sdk/java && ./gradlew build test
 
 **Python SDK:**
 ```bash
-cd sdk/python && pip install -e .[dev] && pytest
+cd sdk/python && python3 -m venv venv && source venv/bin/activate && ./install-dev.sh && pytest
 ```
 
 **Rust SDK:**

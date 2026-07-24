@@ -5,8 +5,16 @@ Python SDK for decentralized Substrait compliance testing.
 ## Installation
 
 ```bash
-pip install substrait-compliance
+pip install substrait-compliance   # once published to PyPI
 ```
+
+> **Installing from source?** Use [`install-dev.sh`](install-dev.sh) — it
+> ensures the correct package index is used regardless of local pip
+> configuration:
+> ```bash
+> python3 -m venv venv && source venv/bin/activate
+> ./install-dev.sh
+> ```
 
 ## Quick Start
 
@@ -114,11 +122,15 @@ Load test suites from YAML:
 ## Development
 
 ```bash
-# Install dev dependencies
-pip install -e ".[dev]"
+# Create a virtual environment and install everything via install-dev.sh
+# (this sets the package index to PyPI before installing, which avoids
+# failures on machines with a non-public pip mirror configured)
+python3 -m venv venv
+source venv/bin/activate
+./install-dev.sh        # seeds pip/setuptools/wheel then installs -e ".[dev]"
 
 # Run tests
-pytest
+pytest tests/ -v
 
 # Format code
 black substrait_compliance/

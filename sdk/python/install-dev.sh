@@ -3,9 +3,10 @@
 #
 # Why this script exists:
 #   pip reads a global/user pip.conf before every install. On machines
-#   configured to use a corporate mirror (e.g. IBM Artifactory) the PEP 517
+#   configured to use a private or corporate package mirror the PEP 517
 #   build-backend bootstrap subprocess hits that mirror — and fails if the
-#   machine is off VPN or the mirror is unreachable.
+#   mirror is unreachable (e.g. off VPN, or in a CI environment without
+#   network access to the mirror).
 #
 #   PIP_INDEX_URL overrides pip.conf for all subprocesses pip spawns.
 #   We export it before every pip call so the build-backend bootstrap,
