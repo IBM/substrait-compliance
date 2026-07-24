@@ -56,6 +56,7 @@ fi
 echo ""
 echo "🔨 Compiling enhanced demo..."
 javac -proc:none -cp "${FAT_JAR}" -d build \
+    engines/DemoEngineBase.java \
     engines/MockDBEngine.java \
     engines/FastDBEngine.java \
     engines/CloudDBEngine.java \

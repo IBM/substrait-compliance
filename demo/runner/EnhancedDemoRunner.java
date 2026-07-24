@@ -55,7 +55,7 @@ public class EnhancedDemoRunner {
 
             TestSuite testSuite = loader.load(suitePath);
 
-            List<ComplianceEngine> engines = Arrays.asList(
+            List<ComplianceEngine> engines = Arrays.<ComplianceEngine>asList(
                     new MockDBEngine(),
                     new FastDBEngine(),
                     new CloudDBEngine(),
@@ -309,10 +309,11 @@ public class EnhancedDemoRunner {
             Map<String, Object> r = sorted.get(i);
             String medal = i < medals.length ? medals[i] : "  ";
             double rate  = ((Number) r.get("passRate")).doubleValue();
-            String badge = rate >= 95 ? "🟢 VERIFIED" : rate >= 80 ? "🔵 EDGE"
-                         : rate >= 60 ? "🟡 BASIC" : "🔴 NONE";
-            System.out.printf("%s %-12s %-10s %-12.1f%% %s%n",
-                    medal, r.get("name"), r.get("version"), rate, badge);
+            String badge = rate >= 90 ? "🟢 VERIFIED" : rate >= 70 ? "🔵 EDGE"
+                         : rate >= 50 ? "🟡 BASIC" : "🔴 NONE";
+            String rateStr = String.format("%.1f%%", rate);
+            System.out.printf("%s %-12s %-10s %-12s %s%n",
+                    medal, r.get("name"), r.get("version"), rateStr, badge);
         }
     }
 }
