@@ -1,4 +1,4 @@
-n_name|revenue
+n_name:string|revenue:double
 VIETNAM|1000926.6999
 CHINA|740210.757
 JAPAN|660651.2424999999

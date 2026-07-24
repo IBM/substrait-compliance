@@ -1,4 +1,4 @@
-c_count|custdist
+c_count:integer|custdist:integer
 0|500
 10|69
 9|66

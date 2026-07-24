@@ -1,4 +1,4 @@
-c_custkey|c_name|revenue|c_acctbal|n_name|c_address|c_phone|c_comment
+c_custkey:integer|c_name:string|revenue:double|c_acctbal:double|n_name:string|c_address:string|c_phone:string|c_comment:string
 679|Customer#000000679|378211.32519999996|1394.44|IRAN|jhLZlG1fRiSE0 wDLOCguVB96dH6a5|20-146-696-9508|oys. furiously silent pinto beans
 1201|Customer#000001201|374331.53400000004|5165.39|IRAN|gLo85h4Cst5ckn40ZKR6403KjW26YCWAFZsq d|20-825-400-1187|r foxes boost blithely final accounts. furiously silent ideas unwind. blithely even dependencies wake slyly; sly
 422|Customer#000000422|366451.0126|-272.14|INDONESIA|rtds1qwEinDWYhyIbRusRgXBDxGJraP,C,S zDwA|19-299-247-2444| are carefully. slyly regular requests hag

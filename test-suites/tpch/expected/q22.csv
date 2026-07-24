@@ -1,4 +1,4 @@
-cntrycode|numcust|totacctbal
+cntrycode:integer|numcust:integer|totacctbal:double
 13|10|75359.29
 17|8|62288.98
 18|14|111072.44999999998

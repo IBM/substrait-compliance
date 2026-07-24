@@ -1,4 +1,4 @@
-ps_partkey|value
+ps_partkey:integer|value:double
 1376|13271249.89
 788|9498648.06
 1071|9388264.4

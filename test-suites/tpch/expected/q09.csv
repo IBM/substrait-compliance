@@ -1,4 +1,4 @@
-nation|o_year|sum_profit
+nation:string|o_year:integer|sum_profit:double
 ALGERIA|1998|97864.5682
 ALGERIA|1997|368231.6695
 ALGERIA|1996|196525.80459999997

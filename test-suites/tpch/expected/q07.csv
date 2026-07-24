@@ -1,4 +1,4 @@
-supp_nation|cust_nation|l_year|revenue
+supp_nation:string|cust_nation:string|l_year:integer|revenue:double
 FRANCE|GERMANY|1995|268068.5774
 FRANCE|GERMANY|1996|303862.29800000007
 GERMANY|FRANCE|1995|621159.4881999999

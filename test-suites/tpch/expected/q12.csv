@@ -1,3 +1,3 @@
-l_shipmode|high_line_count|low_line_count
+l_shipmode:string|high_line_count:integer|low_line_count:integer
 MAIL|64|86
 SHIP|61|96

@@ -1,4 +1,4 @@
-o_orderpriority|order_count
+o_orderpriority:string|order_count:integer
 1-URGENT|93
 2-HIGH|103
 3-MEDIUM|109

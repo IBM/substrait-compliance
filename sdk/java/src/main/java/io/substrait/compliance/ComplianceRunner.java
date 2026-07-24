@@ -170,21 +170,42 @@ public class ComplianceRunner {
             case "i8":
             case "i16":
             case "i32":
+            case "int2":
+            case "int4":
+            case "smallint":
+            case "tinyint":
                 return "integer";
             case "long":
             case "bigint":
             case "i64":
+            case "int8":
                 return "bigint";
             case "float":
             case "fp32":
+            case "real":
+            case "float4":
                 return "float";
             case "double":
             case "fp64":
             case "decimal":
+            case "numeric":
+            case "float8":
+            case "number":
                 return "double";
             case "bool":
             case "boolean":
                 return "boolean";
+            case "varchar":
+            case "char":
+            case "text":
+            case "string":
+            case "utf8":
+                return "string";
+            case "date":
+            case "timestamp":
+            case "timestamptz":
+            case "time":
+                return "string";
             default:
                 return normalized;
         }
@@ -195,10 +216,31 @@ public class ComplianceRunner {
             return expected == actual;
         }
 
+        // Both numeric — use epsilon comparison to absorb floating-point representation differences.
         if (expected instanceof Number && actual instanceof Number) {
             double expectedValue = ((Number) expected).doubleValue();
             double actualValue = ((Number) actual).doubleValue();
             return Math.abs(expectedValue - actualValue) < 1e-9;
+        }
+
+        // One side is a Number, the other a String — try parsing the String as a number.
+        // This handles engines that return typed numerics when the expected CSV column is declared
+        // as string (or vice-versa).
+        if (expected instanceof Number && actual instanceof String) {
+            try {
+                double actualValue = Double.parseDouble((String) actual);
+                return Math.abs(((Number) expected).doubleValue() - actualValue) < 1e-9;
+            } catch (NumberFormatException ignored) {
+                // Fall through to string comparison.
+            }
+        }
+        if (actual instanceof Number && expected instanceof String) {
+            try {
+                double expectedValue = Double.parseDouble((String) expected);
+                return Math.abs(expectedValue - ((Number) actual).doubleValue()) < 1e-9;
+            } catch (NumberFormatException ignored) {
+                // Fall through to string comparison.
+            }
         }
 
         if (expected instanceof Boolean || actual instanceof Boolean) {

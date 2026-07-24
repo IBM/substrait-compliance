@@ -1,4 +1,4 @@
-l_orderkey|revenue|o_orderdate|o_shippriority
+l_orderkey:integer|revenue:double|o_orderdate:string|o_shippriority:integer
 47714|267010.58939999994|1995-03-11|0
 22276|266351.5562|1995-01-29|0
 32965|263768.3414|1995-02-25|0
