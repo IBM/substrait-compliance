@@ -344,6 +344,28 @@ ls -la target/release/
 
 ### Step 2: Implement ComplianceEngine
 
+#### Interface quick-reference
+
+Every SDK exposes the same four required operations plus optional lifecycle hooks. The table below shows the exact names and signatures by language — use it as your checklist before writing any code.
+
+| | Java | Python | TypeScript | Rust | Go | C# |
+|---|---|---|---|---|---|---|
+| **Plan arg type** | `Plan` (parsed protobuf) | `bytes` | `Uint8Array` | `&[u8]` | `[]byte` | `byte[]` |
+| **Execution model** | Synchronous | Synchronous | `async`/`Promise` | Synchronous | `context.Context` | `async Task` |
+| **Get metadata** | `getEngineInfo()` | `get_info()` | `getInfo()` | `get_info()` | `GetInfo()` | `GetInfo()` |
+| **Get capabilities** | `getCapabilities()` | `get_capabilities()` | `getCapabilities()` | `get_capabilities()` | `GetCapabilities()` | `GetCapabilities()` |
+| **Execute plan** | `executePlan(Plan, Map<String,TableData>)` | `execute_plan(bytes, Dict[str,TableData])` | `executePlan(Uint8Array, Map<string,TableData>)` | `execute_plan(&[u8], &HashMap<String,TableData>)` | `ExecutePlan(ctx, []byte, map[string]*TableData)` | `ExecutePlanAsync(byte[], IReadOnlyDictionary<string,TableData>)` |
+| **Validate plan** | `validatePlan(Plan)` | `validate_plan(bytes)` | `validatePlan(Uint8Array)` | `validate_plan(&[u8])` | `ValidatePlan(ctx, []byte)` | `ValidatePlanAsync(byte[])` |
+| **Lifecycle init** | `initialize()` *(default no-op)* | — | `initialize?()` *(optional)* | — | `Initialize(ctx)` | `InitializeAsync()` *(default no-op)* |
+| **Lifecycle cleanup** | `cleanup()` *(default no-op)* | — | `shutdown?()` *(optional)* | — | `Shutdown(ctx)` | `ShutdownAsync()` *(default no-op)* |
+
+**Key differences to be aware of:**
+
+- **Java** receives a fully-parsed `io.substrait.proto.Plan` object — the SDK deserializes the protobuf before calling your engine. All other SDKs receive raw bytes and you deserialize inside `execute_plan` / `executePlan`.
+- **TypeScript** runner supports optional parallel execution (`RunnerOptions.parallel`). All other SDK runners execute tests sequentially.
+- **Go** passes a `context.Context` through every call — use it for cancellation and deadlines.
+- **Lifecycle**: `initialize` is called once before the first test in a suite; `cleanup`/`shutdown` once after the last. They are not called per-test. You may keep open connections across test cases within a suite, but the engine must be stateless between test case executions (input data is passed fresh each time).
+
 <details>
 <summary><b>Java Example</b></summary>
 
@@ -603,14 +625,22 @@ System.out.println("  Pass Rate: " + report.getPassRate() + "%");
 
 ### TPC-DS Benchmark (99 Queries)
 
-Complete TPC-DS (Decision Support) benchmark for complex analytical workloads:
+> ⚠️ **Structural validation only — result correctness not yet verifiable.**
+> The `expected/` directory contains no output files. Running TPC-DS tests
+> currently verifies that your engine can parse and execute the Substrait plans
+> without crashing; it does **not** verify that the results are correct. Tests
+> without expected output are reported as `SKIPPED` by the runner. Expected
+> outputs will be added in a future release (see [item 7 in ROADMAP.md](ROADMAP.md)).
+
+TPC-DS (Decision Support) benchmark plans and data for complex analytical workloads:
 
 | Component | Details |
 |-----------|---------|
 | **Queries** | 99 (query01.sql – query99.sql) |
-| **Substrait Plans** | 198 (99 JSON + 99 binary) |
+| **Substrait Plans** | 194 (97 JSON + 97 binary) |
 | **Data Tables** | 24 CSV files (multi-channel retail schema) |
 | **Plan Formats** | Binary (.bin) + JSON (.json) |
+| **Expected Outputs** | ❌ Not yet available |
 
 **Key Query Categories:**
 - Customer behavior and profitability analysis
@@ -621,8 +651,9 @@ Complete TPC-DS (Decision Support) benchmark for complex analytical workloads:
 ```bash
 cd test-suites/tpcds
 cat metadata.yaml
-ls -la data/   # 24 CSV files
-ls -la plans/  # 198 Substrait plan files
+ls -la data/      # 24 CSV files
+ls -la plans/     # 194 Substrait plan files
+ls -la expected/  # empty — no expected outputs yet
 ```
 
 > **📚 See [test-suites/tpcds/README.md](test-suites/tpcds/README.md) for complete TPC-DS documentation**

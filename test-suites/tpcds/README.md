@@ -107,8 +107,8 @@ test-suites/tpcds/
 │   ├── q03.bin
 │   ├── q03.json
 │   └── ... (through q99.bin/json)
-└── expected/              # Expected query results (to be added)
-    └── .gitkeep
+└── expected/              # ⚠️  Empty — expected query results not yet available
+    └── .gitkeep           #     Tests run as SKIPPED until outputs are added
 ```
 
 ## Data Files
@@ -245,12 +245,18 @@ print(f"TPC-DS Pass Rate: {report.pass_rate}%")
 
 ## Expected Results
 
-Expected results are provided in CSV format in the `expected/` directory. Results should match:
-
-- **Column order**: As specified in query
-- **Row order**: As specified by ORDER BY clause
-- **Precision**: Decimal values to 2 places
-- **Null handling**: Consistent with SQL standard
+> ⚠️ **Not yet available.** The `expected/` directory contains only a `.gitkeep` placeholder.
+> Running TPC-DS tests currently verifies structural plan execution (parse and run without error);
+> result correctness cannot be checked until reference outputs are added.
+> Tests without an expected output file are reported as `SKIPPED` by the compliance runner.
+>
+> When expected outputs are added they will be CSV files matching this format:
+> - **Column order**: As specified in the query
+> - **Row order**: As specified by `ORDER BY` clause
+> - **Precision**: Decimal values to 2 places
+> - **Null handling**: Consistent with SQL standard
+>
+> See [ROADMAP.md](../../ROADMAP.md) for the planned timeline.
 
 ## Compliance Scoring
 
@@ -313,6 +319,6 @@ For questions or issues:
 
 ---
 
-**Status**: Complete Release (99 queries, 24 data tables, 194 plan files)
+**Status**: Plans and data complete (99 queries, 24 data tables, 194 plan files) — expected outputs pending
 **Version**: 2.0.0
 **Last Updated**: 2026-05-22
