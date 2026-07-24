@@ -123,27 +123,38 @@ cd ..
 
 For full SDK build verification, use the ordered checklist in [`docs/SDK_VERIFICATION.md`](docs/SDK_VERIFICATION.md).
 
-**Expected Output:**
+**Expected output (abridged):**
 ```text
-================================================================================
-Substrait Compliance Framework - Demo
-================================================================================
+📦 Loading TPC-H test suite...
+✅ Loaded test suite: tpch
+   Total test cases: 22
 
 🔧 Testing: MockDB v1.0.0
-...
-🔧 Testing: FastDB v2.5.0
-...
-🔧 Testing: CloudDB v3.1.0
-...
+   ✅ Passed: 22  ❌ Failed: 0   📊 Pass Rate: 100.0%
 
-📈 Generating leaderboard...
-   💾 Dashboard data updated: dashboard/data/leaderboard.json
+🔧 Testing: FastDB v2.5.0
+   ✅ Passed: 21  ❌ Failed: 1   📊 Pass Rate: 95.5%
+
+🔧 Testing: CloudDB v3.1.0
+   ✅ Passed: 17  ❌ Failed: 5   📊 Pass Rate: 77.3%
+
+🔧 Testing: DuckDB v0.10.0
+   ✅ Passed: 14  ⏭️  Skipped: 8  📊 Pass Rate: 63.6%
+
+🔧 Testing: PostgreSQL v16.0
+   ✅ Passed: 14  ⏭️  Skipped: 8  📊 Pass Rate: 63.6%
+
+🥇 MockDB       1.0.0   100.0%  🟢 VERIFIED
+🥈 FastDB       2.5.0    95.5%  🟢 VERIFIED
+🥉 CloudDB      3.1.0    77.3%  🔵 EDGE
+🥉 DuckDB       0.10.0   63.6%  🟡 BASIC
+🥉 PostgreSQL   16.0     63.6%  🟡 BASIC
 
 ✅ Demo completed successfully!
 ```
 
 **What You'll See in the Dashboard:**
-- 🥇 **Leaderboard** — Rankings with medals and fidelity tier badges (VERIFIED / EDGE / BASIC / NONE)
+- 🥇 **Leaderboard** — Rankings with medals and tier badges (VERIFIED / EDGE / BASIC)
 - 📊 **Visual Charts** — Bar chart and doughnut chart showing pass rates
 - 📈 **Detailed Statistics** — Per-engine breakdowns and test case results
 - 🔍 **Query Drill-Down** — Click any engine to see detailed query-level results
@@ -152,7 +163,7 @@ Substrait Compliance Framework - Demo
 **Troubleshooting:**
 - If port 8080 is in use: `python3 -m http.server 8081`
 - If permission denied: `chmod +x demo/runner/run-simple-demo.sh`
-- Dashboard shows "Failed to load": Ensure demo ran successfully first
+- Dashboard shows "Failed to load": ensure the demo ran successfully first
 
 ---
 
@@ -1058,10 +1069,10 @@ ls -la test-suites/tpch/plans/        # 44 files
 
 # 3. Demo execution
 cd demo && ./runner/run-simple-demo.sh
-# Expected: MockDB, FastDB, CloudDB tested; "Demo completed successfully!"
+# Expected: 5 engines tested; summary shows 100%/95.5%/77.3%/63.6%/63.6%; "Demo completed successfully!"
 
 # 4. Report generation
-ls -la demo/output/   # mockdb/fastdb/clouddb-report.json + leaderboard.json
+ls -la demo/output/   # mockdb/fastdb/clouddb/duckdb/postgresql-report.json + leaderboard.json
 cat demo/output/leaderboard.json | python3 -m json.tool
 
 # 5. Dashboard
@@ -1077,18 +1088,18 @@ cd sdk/rust && cargo build --release && cargo test  # 6 passed
 **Success Criteria:**
 - ✅ All prerequisites installed (Java 17+, Python 3.8+)
 - ✅ Demo runs without errors; reports generated in `demo/output/`
-- ✅ Dashboard accessible at `http://localhost:8080`; shows 3 engines
+- ✅ Dashboard accessible at `http://localhost:8080`; shows 5 engines
 - ✅ At least one SDK builds and its tests pass
 
 ---
 
 ## 📈 Compliance Leaderboard
 
-Run the demo to generate leaderboard data from the included mock engines, then view it in the interactive dashboard. Results include fidelity tier badges (VERIFIED / EDGE / BASIC / NONE) assigned per category from corpus pass rates.
+Run the demo to generate leaderboard data from the five demo engines, then view it in the interactive dashboard. Results include fidelity tier badges (VERIFIED ≥ 90% / EDGE ≥ 70% / BASIC ≥ 50%) assigned from TPC-H pass rates.
 
 Generate and view the leaderboard:
 ```bash
-cd demo && ./runner/run-demo.sh
+cd demo && ./runner/run-simple-demo.sh
 cd dashboard && python3 -m http.server 8080
 # Open http://localhost:8080
 ```

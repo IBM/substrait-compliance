@@ -51,31 +51,37 @@ cd demo
 ./runner/run-simple-demo.sh
 ```
 
-**Expected Output:**
+**Expected output:**
 ```text
-================================================================================
-Substrait Compliance Framework - Demo
-================================================================================
-Note: all engine results below are from deterministic simulated demo engines.
-
 📦 Loading TPC-H test suite...
 ✅ Loaded test suite: tpch
    Total test cases: 22
 
 🔧 Testing: MockDB v1.0.0
-...
-🔧 Testing: FastDB v2.5.0
-...
-🔧 Testing: CloudDB v3.1.0
-...
-🔧 Testing: DuckDB v0.10.0
-...
-🔧 Testing: PostgreSQL v16.0
-...
+   Total Tests: 22  ✅ Passed: 22  ❌ Failed: 0   ⏭️  Skipped: 0
+   📊 Pass Rate: 100.0%
 
-📈 Generating leaderboard...
-   💾 Leaderboard saved: output/leaderboard.json
-   💾 Dashboard data updated: dashboard/data/leaderboard.json
+🔧 Testing: FastDB v2.5.0
+   Total Tests: 22  ✅ Passed: 21  ❌ Failed: 1   ⏭️  Skipped: 0
+   📊 Pass Rate: 95.5%
+
+🔧 Testing: CloudDB v3.1.0
+   Total Tests: 22  ✅ Passed: 17  ❌ Failed: 5   ⏭️  Skipped: 0
+   📊 Pass Rate: 77.3%
+
+🔧 Testing: DuckDB v0.10.0
+   Total Tests: 22  ✅ Passed: 14  ❌ Failed: 0   ⏭️  Skipped: 8
+   📊 Pass Rate: 63.6%
+
+🔧 Testing: PostgreSQL v16.0
+   Total Tests: 22  ✅ Passed: 14  ❌ Failed: 0   ⏭️  Skipped: 8
+   📊 Pass Rate: 63.6%
+
+🥇 MockDB       1.0.0   100.0%  🟢 VERIFIED
+🥈 FastDB       2.5.0    95.5%  🟢 VERIFIED
+🥉 CloudDB      3.1.0    77.3%  🔵 EDGE
+🥉 DuckDB       0.10.0   63.6%  🟡 BASIC
+🥉 PostgreSQL   16.0     63.6%  🟡 BASIC
 
 ✅ Demo completed successfully!
 ```
@@ -135,11 +141,13 @@ All five engines in this directory are demo adapters with deterministic behavior
 - **Doughnut Chart**: Test distribution
 - **Detail Cards**: Per-engine breakdowns
 
-#### Rankings:
+#### Rankings (deterministic, same on every run):
 ```
-🥇 MockDB / FastDB / CloudDB / DuckDB / PostgreSQL
-🥈 Rankings depend on the generated framework-backed reports
-🥉 Leaderboard data is written to dashboard JSON files after each run
+🥇 MockDB      100.0%  🟢 VERIFIED  — returns expected output verbatim
+🥈 FastDB       95.5%  🟢 VERIFIED  — one numeric value off in q01
+🥉 CloudDB      77.3%  🔵 EDGE      — last row dropped in 5 queries
+🥉 DuckDB       63.6%  🟡 BASIC     — 8 complex plans unsupported
+🥉 PostgreSQL   63.6%  🟡 BASIC     — different 8 plans unsupported
 ```
 
 ### Demo Workflow
@@ -303,35 +311,41 @@ demo/
 
 ## Demo Engine Characteristics
 
-### MockDB (Baseline)
-- **Mode**: Deterministic baseline engine
-- **Behavior**: Returns deterministic output derived from loaded input tables
-- **Use Case**: Baseline framework validation
-- **Support Boundary**: Demo-only adapter, not a real product integration
+Each engine subclasses `DemoEngineBase`, which loads the 22 TPC-H expected CSVs
+on `initialize()` and caches them by plan hash. `executePlan()` looks up the
+correct expected output and applies the engine's specific failure pattern.
 
-### FastDB (High Performance)
-- **Mode**: Deterministic optimized engine
-- **Behavior**: Returns deterministic output with lower estimated execution times
-- **Use Case**: Optimized-engine demo comparison
-- **Support Boundary**: Fictional/demo adapter used to illustrate leaderboard variation
+### MockDB — 22/22 (100%) 🟢 VERIFIED
+- **Behaviour**: Returns the expected output verbatim for every query.
+- **Demonstrates**: What a fully-compliant engine looks like end-to-end.
+- **Support boundary**: Demo adapter — not a real product integration.
 
-### CloudDB (Cloud-Native)
-- **Mode**: Deterministic cloud-oriented engine
-- **Behavior**: Returns deterministic output with higher estimated execution times
-- **Use Case**: Cloud-style demo comparison
-- **Support Boundary**: Fictional/demo adapter used to illustrate leaderboard variation
+### FastDB — 21/22 (95.5%) 🟢 VERIFIED
+- **Behaviour**: Correct on all queries except q01, where `sum_qty` in row 0
+  is shifted by +1.0 (`380457.0` instead of `380456.0`).
+- **Demonstrates**: The comparator catching a floating-point aggregation bug
+  (epsilon threshold is 1e-9; a difference of 1.0 fails).
+- **Support boundary**: Demo adapter — not a real product integration.
 
-### DuckDB
-- **Mode**: Deterministic analytical engine
-- **Behavior**: Returns deterministic output derived from loaded input tables
-- **Use Case**: Analytical-engine demo comparison
-- **Support Boundary**: Demo adapter in this repository, not an official upstream certification result
+### CloudDB — 17/22 (77.3%) 🔵 EDGE
+- **Behaviour**: Correct on 17 queries; for q08, q11, q14, q17, q19 the last
+  row of the result is silently dropped.
+- **Demonstrates**: Row-count mismatch detection (off-by-one truncation bug).
+- **Support boundary**: Demo adapter — not a real product integration.
 
-### PostgreSQL
-- **Mode**: Deterministic relational engine
-- **Behavior**: Returns deterministic output derived from loaded input tables
-- **Use Case**: Relational-engine demo comparison
-- **Support Boundary**: Demo adapter in this repository, not an official upstream certification result
+### DuckDB — 14/22 (63.6%) 🟡 BASIC
+- **Behaviour**: Returns `PlanValidationResult.unsupported()` for q02, q08,
+  q11, q15, q17, q20, q21, q22 — the runner marks these SKIPPED.
+- **Demonstrates**: Partial support via `validatePlan()` — engine correctly
+  declines plans it cannot handle rather than returning wrong results.
+- **Support boundary**: Demo adapter — not an official upstream certification result.
+
+### PostgreSQL — 14/22 (63.6%) 🟡 BASIC
+- **Behaviour**: Same mechanics as DuckDB but rejects a different set of 8
+  queries (q07, q09, q13, q16, q18, q19, q20, q21).
+- **Demonstrates**: Two engines can have the same pass rate with different
+  coverage gaps, visible in the query-level drill-down.
+- **Support boundary**: Demo adapter — not an official upstream certification result.
 
 ---
 
@@ -496,18 +510,22 @@ chmod +x runner/run-simple-demo.sh
 
 ### Compilation Errors
 
-**Problem**: Java compilation fails, or the demo reports `No Java SDK jars found`
+**Problem**: Java compilation fails
 
 **Solution**:
 ```bash
-# Build SDK classes and jars first
+# The demo script builds the SDK automatically, but you can rebuild manually:
 cd ../sdk/java
-./gradlew test jar
+./gradlew clean shadowJar
 cd ../../demo
-
-# Re-run the demo
 ./runner/run-simple-demo.sh
 ```
+
+**Problem**: `error: cannot find symbol … DemoEngineBase`
+
+**Solution**: Make sure `engines/DemoEngineBase.java` is in the `javac` source
+list in `runner/run-simple-demo.sh`. The script already includes it — if you
+have a local edit that removed it, restore that line.
 
 ### Reports Not Generated
 
@@ -562,10 +580,10 @@ demo/dashboard/data/
 5. Extend report publication and storage workflows
 
 ### Explore Further
-1. **Review Code**: Examine mock engine implementations
-2. **Modify Engines**: Change pass rates and behaviors
-3. **Customize Dashboard**: Update styles and charts
-4. **Real Integration**: Replace mocks with actual database engines
+1. **Review Code**: `demo/engines/DemoEngineBase.java` + the five subclasses
+2. **Modify Engines**: Change which queries fail and how (perturb values, drop rows, mark unsupported)
+3. **Customize Dashboard**: Update `demo/dashboard/styles.css` and `index.html`
+4. **Real Integration**: Implement `ComplianceEngine` with your actual query runtime and replace the demo adapters
 
 ---
 
