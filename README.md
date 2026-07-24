@@ -163,8 +163,30 @@ Substrait Compliance Framework - Demo
 <details>
 <summary><b>Java SDK (Recommended — Most Complete)</b></summary>
 
+**Option A — Depend on the published artifact (recommended)**
+
+Add to your `build.gradle`:
+```groovy
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/IBM/substrait-compliance")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key")  ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+dependencies {
+    implementation 'io.substrait:substrait-compliance:0.1.0'
+}
+```
+
+The package is published to [GitHub Packages](https://github.com/IBM/substrait-compliance/packages) on every push to `main`. A read-only GitHub token (personal or `GITHUB_TOKEN` in Actions) is sufficient to consume it.
+
+**Option B — Build from source**
+
 ```bash
-# Build the SDK
 cd sdk/java
 ./gradlew build
 
@@ -176,10 +198,12 @@ cd sdk/java
 # 12 tests passed ✅
 ```
 
-**Verify Installation:**
+**Verify installation:**
 ```bash
 ls -la build/libs/
-# Should see: substrait-compliance-sdk-*.jar
+# substrait-compliance-0.1.0.jar       (library jar)
+# substrait-compliance-0.1.0-all.jar   (fat jar with all dependencies)
+# substrait-compliance-0.1.0-sources.jar
 ```
 </details>
 

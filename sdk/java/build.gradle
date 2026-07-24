@@ -58,18 +58,41 @@ publishing {
     publications {
         maven(MavenPublication) {
             from components.java
-            
+
             pom {
                 name = 'Substrait Compliance Framework'
                 description = 'SDK for Substrait compliance testing'
                 url = 'https://github.com/IBM/substrait-compliance'
-                
+
                 licenses {
                     license {
                         name = 'The Apache License, Version 2.0'
                         url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
                 }
+            }
+        }
+    }
+
+    repositories {
+        // GitHub Packages — requires GITHUB_TOKEN (auto-injected in Actions)
+        // or a Personal Access Token with write:packages scope set as
+        // GITHUB_TOKEN in the environment.
+        //
+        // Consumers add to their repositories block:
+        //   maven {
+        //       url = uri("https://maven.pkg.github.com/IBM/substrait-compliance")
+        //       credentials {
+        //           username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+        //           password = project.findProperty("gpr.key")  ?: System.getenv("GITHUB_TOKEN")
+        //       }
+        //   }
+        maven {
+            name = 'GitHubPackages'
+            url  = uri('https://maven.pkg.github.com/IBM/substrait-compliance')
+            credentials {
+                username = System.getenv('GITHUB_ACTOR') ?: project.findProperty('gpr.user')
+                password = System.getenv('GITHUB_TOKEN') ?: project.findProperty('gpr.key')
             }
         }
     }
