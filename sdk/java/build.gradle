@@ -41,6 +41,9 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    // Expose the repository root so integration-style tests can locate
+    // test-suite data files without relying on user.dir being stable.
+    systemProperty 'substrait.compliance.rootDir', rootProject.projectDir.parentFile.parentFile.absolutePath
 }
 
 // Fat jar containing all runtime dependencies — used by the demo script

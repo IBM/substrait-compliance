@@ -2,6 +2,7 @@ package io.substrait.compliance;
 
 import io.substrait.compliance.loader.YamlTestSuiteLoader;
 import io.substrait.proto.Plan;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -256,5 +257,95 @@ class ComplianceRunnerComparatorTest {
                 .as("String(\"1.5\") vs Double(1.5) must PASS via numeric cross-type matching")
                 .isEqualTo(1);
         assertThat(report.getFailedCount()).isEqualTo(0);
+    }
+
+    /**
+     * PASS-direction proof against the real TPC-H suite.
+     *
+     * Loads all 22 TPC-H expected CSVs and plan binaries from the real repository
+     * test-suite directory, registers each expected TableData in a PassThroughEngine
+     * keyed by plan hash, then runs the full ComplianceRunner.  Every test must PASS.
+     *
+     * This proves:
+     *  - all 22 typed CSV headers parse without error
+     *  - the typed Object values produced by convertValue() round-trip through
+     *    compareColumnTypes() and valuesMatch() without a spurious failure
+     *  - no CRLF, encoding, or whitespace artefact breaks the comparison
+     *
+     * Note: input data tables are intentionally omitted from the synthetic metadata
+     * so that the test does not load the large TPC-H source files (lineitem.csv has
+     * 60k rows) into memory.  The pass-through engine does not need input data.
+     */
+    @Test
+    void realTpcHSuitePassesThroughWithExpectedOutput(@TempDir Path tempDir) throws Exception {
+        String rootDir = System.getProperty("substrait.compliance.rootDir");
+        Assumptions.assumeTrue(rootDir != null,
+                "System property substrait.compliance.rootDir must be set (check build.gradle)");
+        Path tpchDir = Path.of(rootDir).resolve("test-suites/tpch");
+        Assumptions.assumeTrue(tpchDir.resolve("metadata.yaml").toFile().exists(),
+                "TPC-H metadata.yaml must be present at " + tpchDir);
+
+        // Build a synthetic metadata YAML that references the real plan binaries
+        // and expected CSVs but has no inputTables — avoids loading the large
+        // source data files (lineitem.csv = 60k rows) into the test JVM heap.
+        String[] queryIds = {
+            "q01","q02","q03","q04","q05","q06","q07","q08","q09","q10",
+            "q11","q12","q13","q14","q15","q16","q17","q18","q19","q20",
+            "q21","q22"
+        };
+        StringBuilder yaml = new StringBuilder();
+        yaml.append("name: \"tpch\"\nversion: \"1.0.0\"\ndescription: \"TPC-H pass-through\"\ntestCases:\n");
+        for (String qid : queryIds) {
+            Path planBin = tpchDir.resolve("plans/" + qid + ".bin");
+            Path expectedCsv = tpchDir.resolve("expected/" + qid + ".csv");
+            if (!planBin.toFile().exists() || !expectedCsv.toFile().exists()) continue;
+            yaml.append("  - id: \"").append(qid).append("\"\n");
+            yaml.append("    description: \"").append(qid).append("\"\n");
+            // Use absolute paths so the loader can resolve them from tempDir
+            yaml.append("    planBinary: \"").append(planBin.toAbsolutePath()).append("\"\n");
+            yaml.append("    inputTables: []\n");
+            yaml.append("    expectedOutput: \"").append(expectedCsv.toAbsolutePath()).append("\"\n");
+        }
+
+        Path syntheticYaml = tempDir.resolve("tpch-passthrough.yaml");
+        Files.writeString(syntheticYaml, yaml.toString());
+
+        YamlTestSuiteLoader loader = new YamlTestSuiteLoader();
+        TestSuite suite = loader.load(syntheticYaml);
+
+        assertThat(suite.getTestCases())
+                .as("All 22 TPC-H queries must be loaded")
+                .hasSize(22);
+
+        // Register each expected output in the pass-through engine.
+        PassThroughEngine engine = new PassThroughEngine();
+        for (TestCase tc : suite.getTestCases()) {
+            assertThat(tc.getExpectedOutput())
+                    .as("Test case " + tc.getId() + " must have a non-null expected output")
+                    .isNotNull();
+            engine.register(tc.getPlan().toByteArray(), tc.getExpectedOutput());
+        }
+
+        ComplianceRunner runner = new ComplianceRunner(engine);
+        runner.registerTestSuite(suite);
+        ComplianceReport report = runner.runTestSuite("tpch");
+
+        // Collect failures for a clear error message if something regresses.
+        List<String> failures = new ArrayList<>();
+        for (TestResult result : report.getTestResults()) {
+            if (!result.isPassed()) {
+                failures.add(result.getTestId() + " [" + result.getStatus() + "]: " + result.getMessage());
+            }
+        }
+
+        assertThat(failures)
+                .as("Pass-through engine must produce zero non-PASSED results.\n"
+                  + "A failure indicates a typed header, convertValue, or comparator bug.\n"
+                  + "Non-passed: " + failures)
+                .isEmpty();
+
+        assertThat(report.getPassedCount())
+                .as("All 22 TPC-H queries must PASS with pass-through engine")
+                .isEqualTo(22);
     }
 }
