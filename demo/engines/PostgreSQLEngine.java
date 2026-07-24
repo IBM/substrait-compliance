@@ -5,106 +5,60 @@ import io.substrait.proto.Plan;
 import java.util.*;
 
 /**
- * PostgreSQL engine implementation for demo purposes.
- * Provides deterministic, framework-backed behavior for the demo flow.
+ * Demo engine: partial Substrait support — different set of plans rejected.
+ *
+ * Marks eight different queries as unsupported to simulate a mature SQL
+ * engine whose Substrait translator does not yet cover set operations,
+ * certain window functions, and deeply nested joins.
+ *
+ * Score: 14/22 (63.6%) — tier BASIC.
  */
-public class PostgreSQLEngine implements ComplianceEngine {
-    
-    private static final String ENGINE_NAME = "PostgreSQL";
-    private static final String ENGINE_VERSION = "16.0";
-    private static final String SUBSTRAIT_VERSION = "0.20.0";
-    
-    @Override
-    public EngineInfo getEngineInfo() {
-        return new EngineInfo(ENGINE_NAME, ENGINE_VERSION, SUBSTRAIT_VERSION);
+public class PostgreSQLEngine extends DemoEngineBase {
+
+    /** Queries requiring set ops, lateral joins, or recursive CTEs. */
+    private static final Set<String> UNSUPPORTED =
+        new HashSet<>(Arrays.asList("q07", "q09", "q13", "q16", "q18", "q19", "q20", "q21"));
+
+    public PostgreSQLEngine() { super("../test-suites/tpch"); }
+
+    @Override public EngineInfo getEngineInfo() {
+        return new EngineInfo("PostgreSQL", "16.0", "0.20.0");
     }
-    
-    @Override
-    public EngineCapabilities getCapabilities() {
+
+    @Override public EngineCapabilities getCapabilities() {
         return EngineCapabilities.builder()
-            .addRelation("read")
-            .addRelation("filter")
-            .addRelation("project")
-            .addRelation("aggregate")
-            .addRelation("join")
-            .addRelation("sort")
-            .addRelation("window")
-            .addRelation("set")
+            .addRelation("read").addRelation("filter").addRelation("project")
+            .addRelation("aggregate").addRelation("join").addRelation("sort")
+            .addRelation("window").addRelation("set")
             .build();
     }
-    
-    @Override
-    public PlanValidationResult validatePlan(Plan plan) {
+
+    @Override public PlanValidationResult validatePlan(Plan plan) {
+        String id = idFor(plan);
+        if (UNSUPPORTED.contains(id)) {
+            return PlanValidationResult.unsupported(
+                Collections.singletonList("plan shape not supported by translator"));
+        }
         return PlanValidationResult.supported();
     }
-    
+
+    @Override public void initialize() throws ComplianceException {
+        System.out.println("Initializing PostgreSQL (partial — 14/22 expected, 8 unsupported)...");
+        loadExpectedOutputs();
+    }
+
     @Override
     public ComplianceResult executePlan(Plan plan, Map<String, TableData> inputData)
             throws ComplianceException {
-        
-        long executionTime = estimateExecutionTime(plan, inputData);
-        TableData output = buildDeterministicOutput(inputData);
-        return ComplianceResult.success(output, executionTime);
-    }
-    
-    @Override
-    public void initialize() throws ComplianceException {
-        System.out.println("Initializing " + ENGINE_NAME + " (deterministic relational mode)...");
-    }
-    
-    @Override
-    public void cleanup() throws ComplianceException {
-        System.out.println("Cleaning up " + ENGINE_NAME + "...");
-    }
-    
-    private long estimateExecutionTime(Plan plan, Map<String, TableData> inputData) {
-        int relationCount = plan != null ? plan.getRelationsCount() : 0;
-        int rowCount = totalRowCount(inputData);
-        return 55L + (relationCount * 10L) + Math.min(rowCount / 220, 120);
-    }
-
-    private TableData buildDeterministicOutput(Map<String, TableData> inputData) {
-        if (inputData == null || inputData.isEmpty()) {
-            return summaryTable(0, 0);
+        TableData expected = expectedFor(plan);
+        if (expected == null) {
+            return ComplianceResult.failure("No expected output cached for this plan", null);
         }
-
-        String firstTableName = inputData.keySet().stream().sorted().findFirst().orElse(null);
-        if (firstTableName == null) {
-            return summaryTable(0, 0);
-        }
-
-        TableData source = inputData.get(firstTableName);
-        if (source == null) {
-            return summaryTable(0, 0);
-        }
-
-        return new TableData(
-            new ArrayList<>(source.getColumnNames()),
-            new ArrayList<>(source.getColumnTypes()),
-            new ArrayList<>(source.getRows())
-        );
+        return ComplianceResult.success(expected, 25L);
     }
 
-    private TableData summaryTable(int columnCount, int rowCount) {
-        return new TableData(
-            Arrays.asList("column_count", "row_count"),
-            Arrays.asList("integer", "integer"),
-            Collections.singletonList(Arrays.asList(columnCount, rowCount))
-        );
-    }
-
-    private int totalRowCount(Map<String, TableData> inputData) {
-        if (inputData == null) {
-            return 0;
-        }
-
-        int total = 0;
-        for (TableData table : inputData.values()) {
-            if (table != null && table.getRows() != null) {
-                total += table.getRows().size();
-            }
-        }
-        return total;
+    @Override public void cleanup() {
+        System.out.println("Cleaning up PostgreSQL...");
+        expectedByHash.clear();
     }
 }
-

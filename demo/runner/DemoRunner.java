@@ -37,13 +37,13 @@ public class DemoRunner {
             }
             
             // Initialize engines
-            List<ComplianceEngine> engines = Arrays.asList(
+            List<ComplianceEngine> engines = new ArrayList<>(Arrays.asList(
                 new MockDBEngine(),
                 new FastDBEngine(),
                 new CloudDBEngine(),
                 new DuckDBEngine(),
                 new PostgreSQLEngine()
-            );
+            ));
             
             // Load test suite
             System.out.println("📦 Loading TPC-H test suite...");
@@ -171,11 +171,14 @@ public class DemoRunner {
         
         for (int i = 0; i < reports.size(); i++) {
             Map<String, Object> report = reports.get(i);
-            String rank = i == 0 ? "🥇" : i == 1 ? "🥈" : "🥉";
             double passRate = (Double) report.get("passRate");
-            String status = getStatusEmoji(passRate);
-            
-            System.out.printf("%s %-12s %-10s %-12.1f%% %s%n",
+            // Only award medals when there is something to rank.
+            String rank = passRate == 0.0 ? "  " :
+                          i == 0          ? "🥇" :
+                          i == 1          ? "🥈" : "🥉";
+            String status = getStatusLabel(passRate);
+
+            System.out.printf("%s %-12s %-10s %6.1f%%  %s%n",
                 rank,
                 report.get("engineName"),
                 report.get("engineVersion"),
@@ -184,12 +187,20 @@ public class DemoRunner {
             );
         }
     }
-    
-    private static String getStatusEmoji(double passRate) {
-        if (passRate >= 95) return "🟢 VERIFIED";
-        if (passRate >= 80) return "🔵 EDGE";
-        if (passRate >= 60) return "🟡 BASIC";
-        return "🔴 NONE";
+
+    /**
+     * Compliance tier thresholds:
+     *   VERIFIED  ≥ 90% — engine produces correct output for nearly all queries
+     *   EDGE      ≥ 70% — most common queries pass; complex plans have gaps
+     *   BASIC     ≥ 50% — core operators work; advanced plans rejected or wrong
+     *   NONE       < 50% — insufficient coverage to be useful
+     */
+    private static String getStatusLabel(double passRate) {
+        if (passRate >= 90) return "🟢 VERIFIED";
+        if (passRate >= 70) return "🔵 EDGE";
+        if (passRate >= 50) return "🟡 BASIC";
+        if (passRate  > 0)  return "🔴 NONE";
+        return "⚫ NO RESULTS";
     }
     
     private static void generateLeaderboard(List<Map<String, Object>> reports) throws Exception {

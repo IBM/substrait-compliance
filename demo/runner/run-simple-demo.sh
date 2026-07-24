@@ -78,6 +78,7 @@ echo "   Using SDK fat jar: ${FAT_JAR}"
 DEMO_CLASSPATH="${FAT_JAR}"
 
 javac -proc:none -cp "${DEMO_CLASSPATH}" -d build \
+    engines/DemoEngineBase.java \
     engines/MockDBEngine.java \
     engines/FastDBEngine.java \
     engines/CloudDBEngine.java \
