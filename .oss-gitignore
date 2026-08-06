@@ -3,8 +3,8 @@
 # Machine-readable exclude list for pushes to the public open source repository:
 #   https://github.com/IBM/substrait-compliance
 #
-# This file is NOT a standard .gitignore — it does not affect the private
-# main repository at github.ibm.com/rsinha/substrait-compliance.
+# This file is NOT a standard .gitignore — it does not affect the primary
+# development repository.
 #
 # Usage when pushing to the public remote:
 #   git push public main
