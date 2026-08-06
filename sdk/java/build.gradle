@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'signing'
     id 'com.gradleup.shadow' version '8.3.6'
 }
 
@@ -14,6 +15,7 @@ java {
     sourceCompatibility = JavaVersion.VERSION_17
     targetCompatibility = JavaVersion.VERSION_17
     withSourcesJar()
+    withJavadocJar()
 }
 
 repositories {
@@ -57,6 +59,22 @@ tasks.withType(Javadoc) {
     options.addStringOption('Xdoclint:none', '-quiet')
 }
 
+// ── GPG signing ─────────────────────────────────────────────────────────────
+// Signing is required for Maven Central.  The CI job injects the key as:
+//   ORG_GRADLE_PROJECT_signingKey      (ASCII-armored private key)
+//   ORG_GRADLE_PROJECT_signingPassword (passphrase)
+// Locally, signing is skipped when those env vars are absent so that
+// developers can still publish to GitHub Packages without a GPG key.
+signing {
+    def signingKey      = findProperty('signingKey')      ?: System.getenv('SIGNING_KEY')
+    def signingPassword = findProperty('signingPassword') ?: System.getenv('SIGNING_PASSWORD')
+    if (signingKey) {
+        useInMemoryPgpKeys(signingKey, signingPassword ?: '')
+        sign publishing.publications
+    }
+    // When signingKey is absent (local builds, GitHub Packages push) signing is a no-op.
+}
+
 publishing {
     publications {
         maven(MavenPublication) {
@@ -72,6 +90,20 @@ publishing {
                         name = 'The Apache License, Version 2.0'
                         url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
                     }
+                }
+
+                developers {
+                    developer {
+                        id = 'IBM'
+                        name = 'IBM Open Source'
+                        url = 'https://github.com/IBM'
+                    }
+                }
+
+                scm {
+                    connection = 'scm:git:git://github.com/IBM/substrait-compliance.git'
+                    developerConnection = 'scm:git:ssh://github.com/IBM/substrait-compliance.git'
+                    url = 'https://github.com/IBM/substrait-compliance'
                 }
             }
         }
@@ -96,6 +128,23 @@ publishing {
             credentials {
                 username = System.getenv('GITHUB_ACTOR') ?: project.findProperty('gpr.user')
                 password = System.getenv('GITHUB_TOKEN') ?: project.findProperty('gpr.key')
+            }
+        }
+
+        // Maven Central via OSSRH (Sonatype Central Portal).
+        // Required secrets (set in GitHub Actions → Settings → Secrets):
+        //   OSSRH_USERNAME   — Sonatype OSSRH token username
+        //   OSSRH_PASSWORD   — Sonatype OSSRH token password
+        //   SIGNING_KEY      — ASCII-armored GPG private key
+        //   SIGNING_PASSWORD — GPG passphrase
+        maven {
+            name = 'MavenCentral'
+            def releasesRepoUrl  = uri('https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/')
+            def snapshotsRepoUrl = uri('https://s01.oss.sonatype.org/content/repositories/snapshots/')
+            url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+            credentials {
+                username = System.getenv('OSSRH_USERNAME') ?: project.findProperty('ossrhUsername')
+                password = System.getenv('OSSRH_PASSWORD') ?: project.findProperty('ossrhPassword')
             }
         }
     }

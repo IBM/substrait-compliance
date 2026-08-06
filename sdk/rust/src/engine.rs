@@ -68,17 +68,33 @@ impl EngineCapabilities {
 pub trait ComplianceEngine {
     /// Return engine metadata.
     fn get_info(&self) -> EngineInfo;
-    
+
     /// Return engine capabilities.
     fn get_capabilities(&self) -> EngineCapabilities;
-    
+
     /// Execute a Substrait plan with given input data.
     fn execute_plan(
         &self,
         plan_bytes: &[u8],
         input_data: &HashMap<String, TableData>,
     ) -> Result<ComplianceResult>;
-    
+
     /// Validate a Substrait plan without executing it.
     fn validate_plan(&self, plan_bytes: &[u8]) -> Result<ComplianceResult>;
+
+    /// Optional hook called once before the test suite runs.
+    ///
+    /// Override to perform any necessary setup (e.g., open connections,
+    /// warm up caches).  The default implementation is a no-op.
+    fn initialize(&mut self) -> Result<()> {
+        Ok(())
+    }
+
+    /// Optional hook called once after all tests finish (including on error).
+    ///
+    /// Override to release resources (e.g., close connections, flush logs).
+    /// The default implementation is a no-op.
+    fn cleanup(&mut self) -> Result<()> {
+        Ok(())
+    }
 }

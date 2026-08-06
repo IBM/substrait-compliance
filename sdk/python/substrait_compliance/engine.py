@@ -87,3 +87,19 @@ class ComplianceEngine(ABC):
             ComplianceResult with validation outcome
         """
         pass
+
+    def initialize(self) -> None:
+        """
+        Optional hook called once before the test suite runs.
+
+        Override to perform any necessary setup (e.g., open connections,
+        warm up caches).  The default implementation is a no-op.
+        """
+
+    def cleanup(self) -> None:
+        """
+        Optional hook called once after all tests finish (including on error).
+
+        Override to release resources (e.g., close connections, flush logs).
+        The default implementation is a no-op.
+        """

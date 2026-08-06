@@ -4,16 +4,27 @@ Java SDK for Substrait compliance testing.
 
 ## Consuming the SDK
 
-The SDK is published to GitHub Packages on every push to `main`.
-
 **Coordinates:** `io.substrait:substrait-compliance:0.1.0`
-**Repository:** `https://maven.pkg.github.com/IBM/substrait-compliance`
 
-GitHub Packages requires authentication even for public packages. You need
-a GitHub Personal Access Token (PAT) with `read:packages` scope, or reuse
-the `GITHUB_TOKEN` that Actions injects automatically in CI.
+The SDK is published to two repositories:
 
-### Gradle
+| Repository | URL | Auth required |
+|---|---|---|
+| Maven Central | `https://repo1.maven.org/maven2/` | None |
+| GitHub Packages | `https://maven.pkg.github.com/IBM/substrait-compliance` | PAT with `read:packages` |
+
+Maven Central is the preferred option for consumers — no credentials needed.
+GitHub Packages is always available immediately after each push to `main`.
+
+### Gradle (Maven Central — no auth)
+
+```gradle
+dependencies {
+    implementation 'io.substrait:substrait-compliance:0.1.0'
+}
+```
+
+### Gradle (GitHub Packages)
 
 ```gradle
 repositories {
@@ -38,7 +49,19 @@ gpr.user=<your-github-username>
 gpr.key=<your-PAT-with-read:packages>
 ```
 
-### Maven
+### Maven (Maven Central — no auth)
+
+```xml
+<dependencies>
+  <dependency>
+    <groupId>io.substrait</groupId>
+    <artifactId>substrait-compliance</artifactId>
+    <version>0.1.0</version>
+  </dependency>
+</dependencies>
+```
+
+### Maven (GitHub Packages)
 
 ```xml
 <repositories>
@@ -77,6 +100,27 @@ Add credentials to `~/.m2/settings.xml`:
 cd sdk/java
 ./gradlew build          # builds + tests
 ./gradlew shadowJar      # produces substrait-compliance-0.1.0-all.jar
+```
+
+### Publishing to Maven Central (maintainers)
+
+The `publish-maven-central` CI job runs automatically on every push to `main`
+when the following four repository secrets are set:
+
+| Secret | What |
+|---|---|
+| `OSSRH_USERNAME` | Sonatype OSSRH token username |
+| `OSSRH_PASSWORD` | Sonatype OSSRH token password |
+| `SIGNING_KEY` | ASCII-armored GPG private key (`gpg --armor --export-secret-key KEY_ID`) |
+| `SIGNING_PASSWORD` | GPG passphrase |
+
+The job publishes to the OSSRH staging repository, which syncs to Maven Central
+within ~30 minutes. To trigger a release manually:
+
+```bash
+cd sdk/java
+OSSRH_USERNAME=... OSSRH_PASSWORD=... SIGNING_KEY=... SIGNING_PASSWORD=... \
+  ./gradlew publishMavenPublicationToMavenCentralRepository --no-daemon
 ```
 
 ## Quick Start
