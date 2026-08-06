@@ -669,22 +669,15 @@ System.out.println("  Pass Rate: " + report.getPassRate() + "%");
 
 ### TPC-DS Benchmark (99 Queries)
 
-> ⚠️ **Structural validation only — result correctness not yet verifiable.**
-> The `expected/` directory contains no output files. Running TPC-DS tests
-> currently verifies that your engine can parse and execute the Substrait plans
-> without crashing; it does **not** verify that the results are correct. Tests
-> without expected output are reported as `SKIPPED` by the runner. Expected
-> outputs will be added in a future release (see [item 7 in ROADMAP.md](ROADMAP.md)).
-
 TPC-DS (Decision Support) benchmark plans and data for complex analytical workloads:
 
 | Component | Details |
 |-----------|---------|
 | **Queries** | 99 (query01.sql – query99.sql) |
-| **Substrait Plans** | 194 (97 JSON + 97 binary) |
+| **Substrait Plans** | 198 (99 JSON + 99 binary) |
 | **Data Tables** | 24 CSV files (multi-channel retail schema) |
 | **Plan Formats** | Binary (.bin) + JSON (.json) |
-| **Expected Outputs** | ❌ Not yet available — see [typed-header format](test-suites/tpch/README.md#expected-output-file-format) when contributing |
+| **Expected Outputs** | ✅ All 99 present — typed-header pipe-delimited CSV |
 
 **Key Query Categories:**
 - Customer behavior and profitability analysis
@@ -696,8 +689,8 @@ TPC-DS (Decision Support) benchmark plans and data for complex analytical worklo
 cd test-suites/tpcds
 cat metadata.yaml
 ls -la data/      # 24 CSV files
-ls -la plans/     # 194 Substrait plan files
-ls -la expected/  # empty — no expected outputs yet
+ls -la plans/     # 198 Substrait plan files (99 JSON + 99 binary)
+ls -la expected/  # 99 reference output files (q01.csv – q99.csv)
 ```
 
 > **📚 See [test-suites/tpcds/README.md](test-suites/tpcds/README.md) for complete TPC-DS documentation**
