@@ -2182,8 +2182,7 @@ notes:
   - "TPC-DS is more complex than TPC-H with 99 queries vs 22"
   - "Focuses on decision support and business intelligence scenarios"
   - "Includes multi-channel retail analysis (store, catalog, web)"
-  - "v0.1.0 includes 5 queries (q01–q05) with complete Substrait plan coverage"
-  - "Full 99-query suite will be added in future releases"
+  - "v0.1.1 includes all 99 queries with complete Substrait plan and expected-output coverage"
   - "Data generation requires TPC-DS tools from tpc.org"
   - "Scale factor 0.01 is suitable for testing and development"
 

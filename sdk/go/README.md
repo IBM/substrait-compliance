@@ -148,7 +148,7 @@ module myengine
 go 1.21
 
 require (
-    github.com/IBM/substrait-compliance/sdk/go v0.1.0
+    github.com/IBM/substrait-compliance/sdk/go v0.1.1
 )
 ```
 
