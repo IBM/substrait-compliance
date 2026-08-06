@@ -68,7 +68,16 @@ namespace Substrait.Compliance.Tests
                         planBytes,
                         tc.InputData ?? new Dictionary<string, TableData>());
 
-                    if (tc.ExpectedOutput != null && result.OutputData != null)
+                    // Mirror the fix in ComplianceRunner: no expected output → Skipped
+                    if (tc.ExpectedOutput == null)
+                    {
+                        report.AddResult(new ComplianceResult(
+                            tc.Id, TestStatus.Skipped, result.OutputData,
+                            "No expected output — cannot verify correctness"));
+                        continue;
+                    }
+
+                    if (result.OutputData != null)
                     {
                         bool matches = Comparator.Compare(tc.ExpectedOutput, result.OutputData);
                         if (!matches && result.Status == TestStatus.Passed)
@@ -212,6 +221,33 @@ namespace Substrait.Compliance.Tests
             var report = await MakeRunner(outputs).RunInMemoryAsync(MakeSuite(cases));
 
             report.FailedCount.Should().Be(1);
+        }
+
+        [Fact]
+        public async Task MissingExpectedOutput_IsSkipped_NotPassed()
+        {
+            // Build a suite with a test case that has no expected output
+            var testCase = new TestCase(
+                id: "no-expected",
+                plan: "no-expected",    // placeholder path — not read in InMemoryRunner
+                expectedOutput: null);  // explicitly absent
+
+            var suite = new TestSuite(
+                new TestSuiteMetadata("skip-test", "0.0.0"),
+                new List<TestCase> { testCase });
+
+            // Engine returns no output (empty outputs dict)
+            var report = await new InMemoryRunner(
+                new PassThroughEngine(new Dictionary<string, TableData>()))
+                .RunInMemoryAsync(suite);
+
+            report.TotalCount.Should().Be(1);
+            report.SkippedCount.Should().Be(1,
+                "missing expected output must produce Skipped, not Passed or Failed");
+            report.PassedCount.Should().Be(0,
+                "missing expected output must NOT count as passed");
+            report.FailedCount.Should().Be(0,
+                "missing expected output must not produce a spurious failure");
         }
     }
 }

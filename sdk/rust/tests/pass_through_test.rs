@@ -169,11 +169,11 @@ fn value_mismatch_is_detected() {
     assert_eq!(report.get_passed_count(), 0);
 }
 
-/// Missing expected output is SKIPPED, not PASSED.
+/// Missing expected output must produce SKIPPED — never PASSED or FAILED.
 #[test]
 fn missing_expected_output_is_skipped() {
     let tc = TestCase::new("no-expected", "no expected output", b"no-expected".to_vec());
-    // expected_output is None
+    // expected_output is None (default)
 
     let metadata = TestSuiteMetadata {
         name: "skip-test".to_string(),
@@ -189,10 +189,12 @@ fn missing_expected_output_is_skipped() {
     let runner = ComplianceRunner::new(&engine);
     let report = runner.run_test_suite(&suite);
 
-    // No expected output → status is whatever the engine returns (Passed here
-    // since expected_output is None, runner skips the comparison branch).
-    // The important invariant: it must NOT be Failed.
-    assert_ne!(report.get_failed_count(), 1,
+    assert_eq!(report.get_total_count(), 1,   "should have 1 test");
+    assert_eq!(report.get_skipped_count(), 1,
+        "missing expected output must produce SKIPPED, not PASSED or FAILED");
+    assert_eq!(report.get_passed_count(), 0,
+        "missing expected output must NOT count as passed");
+    assert_eq!(report.get_failed_count(), 0,
         "missing expected output must not produce a spurious failure");
 }
 

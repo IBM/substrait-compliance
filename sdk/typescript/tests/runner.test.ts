@@ -82,7 +82,16 @@ class InMemoryRunner extends ComplianceRunner {
 
     const result = await (this as any).engine.executePlan(planBytes, inputMap);
 
-    if (testCase.expectedOutput && result.outputData) {
+    // Mirror the fix in runner.ts: no expected output → SKIPPED
+    if (!testCase.expectedOutput) {
+      return new ComplianceResult(
+        testCase.id, TestStatus.SKIPPED, result.outputData,
+        'No expected output — cannot verify correctness',
+        undefined, result.executionTimeMs
+      );
+    }
+
+    if (result.outputData) {
       const matches = (this as any).comparator.compare(testCase.expectedOutput, result.outputData);
       if (!matches && result.status === TestStatus.PASSED) {
         return new ComplianceResult(
@@ -171,6 +180,24 @@ describe('ComplianceRunner — pass-through integration', () => {
     const report = await runner.runTestSuite(suite);
 
     expect(report.failedCount()).toBe(1);
+  });
+
+  test('missing expected output is SKIPPED, not PASSED', async () => {
+    // Build a suite with no expectedOutput on the test case
+    const testCases = [{
+      id: 'no-expected',
+      plan: 'no-expected',
+      // expectedOutput deliberately absent
+    } as TestCase];
+    const suite  = new TestSuite({ name: 'skip-test', version: '0.0.0' }, testCases);
+    const runner = makeRunner(new Map());   // engine returns no output either
+
+    const report = await runner.runTestSuite(suite);
+
+    expect(report.totalCount()).toBe(1);
+    expect(report.skippedCount()).toBe(1);
+    expect(report.passedCount()).toBe(0);
+    expect(report.failedCount()).toBe(0);
   });
 
 });

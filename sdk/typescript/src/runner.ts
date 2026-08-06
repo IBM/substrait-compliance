@@ -170,10 +170,23 @@ export class ComplianceRunner {
       // Execute the plan - engine returns ComplianceResult
       const result = await this.engine.executePlan(planContent, inputMap);
 
+      // No expected output — cannot verify correctness; return SKIPPED rather
+      // than letting the engine's raw PASSED status flow through unchallenged.
+      if (!testCase.expectedOutput) {
+        return new ComplianceResult(
+          testCase.id,
+          TestStatus.SKIPPED,
+          result.outputData,
+          'No expected output — cannot verify correctness',
+          undefined,
+          result.executionTimeMs
+        );
+      }
+
       // If we have expected output, compare it
-      if (testCase.expectedOutput && result.outputData) {
+      if (result.outputData) {
         const matches = this.comparator.compare(testCase.expectedOutput, result.outputData);
-        
+
         if (!matches && result.status === TestStatus.PASSED) {
           // Override status if output doesn't match
           return new ComplianceResult(

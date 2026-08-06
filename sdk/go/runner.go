@@ -176,6 +176,14 @@ func (r *ComplianceRunner) RunTestCase(ctx context.Context, testCase *TestCase) 
 	}
 	result.ExecutionTime = time.Since(start)
 
+	// No expected output — cannot verify correctness; mark SKIPPED rather
+	// than letting the engine's raw PASSED status flow through unchallenged.
+	if r.config.CompareResults && testCase.ExpectedOutput == nil {
+		result.Status = TestStatusSkipped
+		result.ErrorMessage = "No expected output — cannot verify correctness"
+		return result, nil
+	}
+
 	// Compare results if configured and expected output exists
 	if r.config.CompareResults && testCase.ExpectedOutput != nil && result.OutputData != nil {
 		if !r.compareOutputs(result.OutputData, testCase.ExpectedOutput) {

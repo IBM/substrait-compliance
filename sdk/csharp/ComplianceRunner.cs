@@ -196,8 +196,21 @@ namespace Substrait.Compliance
                     planBytes,
                     testCase.InputData ?? new Dictionary<string, TableData>());
 
-                // If we have expected output, compare it
-                if (testCase.ExpectedOutput != null && result.OutputData != null)
+                // No expected output — cannot verify correctness; return SKIPPED
+                // rather than letting the engine's raw Passed status flow through.
+                if (testCase.ExpectedOutput == null)
+                {
+                    return new ComplianceResult(
+                        testCase.Id,
+                        TestStatus.Skipped,
+                        result.OutputData,
+                        "No expected output — cannot verify correctness",
+                        null,
+                        result.ExecutionTimeMs);
+                }
+
+                // Compare against expected output
+                if (result.OutputData != null)
                 {
                     var matches = Comparator.Compare(testCase.ExpectedOutput, result.OutputData);
 

@@ -199,6 +199,36 @@ func TestLoadCSV_TypedHeader(t *testing.T) {
 	}
 }
 
+func TestMissingExpectedOutput_IsSkipped(t *testing.T) {
+	// Build a suite with one test case that has NO expected output.
+	suite := NewTestSuite(TestSuiteMetadata{Name: "skip-test", Version: "0.0.0"})
+	tc := NewTestCase("no-expected", []byte("no-expected"))
+	// tc.ExpectedOutput is nil — deliberately not set
+	suite.AddTestCase(tc)
+
+	engine := &passThroughEngine{outputs: map[string]*TableData{}}
+	runner := NewComplianceRunner(engine)
+
+	report, err := runner.RunTestSuite(context.Background(), suite)
+	if err != nil {
+		t.Fatalf("RunTestSuite error: %v", err)
+	}
+
+	if report.TotalCount() != 1 {
+		t.Errorf("expected 1 test, got %d", report.TotalCount())
+	}
+	if report.SkippedCount() != 1 {
+		t.Errorf("missing expected output must produce SKIPPED; got skipped=%d passed=%d failed=%d",
+			report.SkippedCount(), report.PassedCount(), report.FailedCount())
+	}
+	if report.PassedCount() != 0 {
+		t.Errorf("missing expected output must NOT count as passed; got %d", report.PassedCount())
+	}
+	if report.FailedCount() != 0 {
+		t.Errorf("missing expected output must not produce a failure; got %d", report.FailedCount())
+	}
+}
+
 func writeFile(path, content string) error {
 	return os.WriteFile(path, []byte(content), 0o644)
 }
