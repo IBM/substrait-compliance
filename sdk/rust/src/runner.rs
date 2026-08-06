@@ -58,8 +58,62 @@ impl<'a, E: ComplianceEngine> ComplianceRunner<'a, E> {
     }
     
     fn compare_results(&self, actual: &crate::table_data::TableData, expected: &crate::table_data::TableData) -> bool {
-        // Simplified comparison
-        actual.row_count() == expected.row_count() && 
-        actual.column_count() == expected.column_count()
+        if actual.row_count() != expected.row_count() {
+            return false;
+        }
+        if actual.column_count() != expected.column_count() {
+            return false;
+        }
+        // Check column types (normalised)
+        for (a_col, e_col) in actual.columns.iter().zip(expected.columns.iter()) {
+            if normalize_type(a_col.data_type) != normalize_type(e_col.data_type) {
+                return false;
+            }
+        }
+        // Check every cell value
+        for (a_row, e_row) in actual.rows.iter().zip(expected.rows.iter()) {
+            for (a_val, e_val) in a_row.iter().zip(e_row.iter()) {
+                if !values_match(a_val, e_val) {
+                    return false;
+                }
+            }
+        }
+        true
     }
+}
+
+/// Canonical type for comparison purposes. Maps aliases to a single name so
+/// that, e.g., "fp64" and "double" are treated as equivalent.
+fn normalize_type(dt: crate::table_data::DataType) -> &'static str {
+    use crate::table_data::DataType::*;
+    match dt {
+        Integer           => "integer",
+        Bigint            => "bigint",
+        Double | Decimal  => "double",
+        Varchar           => "string",
+        Date              => "string",   // dates compared as strings
+        Boolean           => "boolean",
+    }
+}
+
+/// Value-level comparison with epsilon for floating-point strings.
+/// TableData stores all values as `String`; parse numerics for comparison.
+fn values_match(actual: &str, expected: &str) -> bool {
+    if actual == expected {
+        return true;
+    }
+    // Try numeric comparison with epsilon 1e-9
+    if let (Ok(a), Ok(e)) = (actual.parse::<f64>(), expected.parse::<f64>()) {
+        if a.is_nan() && e.is_nan() {
+            return true;
+        }
+        return (a - e).abs() < 1e-9;
+    }
+    // Boolean normalisation
+    let a_lower = actual.to_lowercase();
+    let e_lower = expected.to_lowercase();
+    if (a_lower == "true" || a_lower == "false") && (e_lower == "true" || e_lower == "false") {
+        return a_lower == e_lower;
+    }
+    false
 }

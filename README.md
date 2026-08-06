@@ -859,12 +859,12 @@ substrait-compliance/
 ## 🔧 SDK Features
 
 ### Java SDK
-- **JDK**: 17+  |  **Build**: Gradle  |  **Tests**: 12 unit tests
+- **JDK**: 17+  |  **Build**: Gradle  |  **Tests**: 87 (unit + TPC-H pass-through integration)
 - **Key Classes**: `ComplianceEngine`, `ComplianceRunner`, `YamlTestSuiteLoader`, `EngineCapabilities`
 - **Docs**: [sdk/java/README.md](sdk/java/README.md)
 
 ### Python SDK
-- **Python**: 3.8+  |  **Build**: setuptools  |  **Tests**: 8 integration tests
+- **Python**: 3.8+  |  **Build**: pyproject.toml / install-dev.sh  |  **Tests**: 11 (unit + pass-through integration)
 - **Key Modules**: `engine.py`, `runner.py`, `loader.py`, `result.py`
 - **Docs**: [sdk/python/README.md](sdk/python/README.md)
 
@@ -875,24 +875,39 @@ substrait-compliance/
 - **Docs**: [sdk/cpp/README.md](sdk/cpp/README.md)
 
 ### Go SDK
-- **Go**: 1.21+  |  **Build**: Go modules  |  **Features**: goroutines, context support, zero external dependencies
+- **Go**: 1.21+  |  **Build**: Go modules  |  **Tests**: pass-through + CSV loader integration tests
 - **Key Files**: `engine.go`, `runner.go`, `loader.go`, `result.go`, `table_data.go`
 
 ### Rust SDK
-- **Edition**: 2021  |  **Build**: Cargo  |  **Tests**: 6 integration tests
+- **Edition**: 2021  |  **Build**: Cargo  |  **Tests**: 10 (unit + pass-through integration)
 - **Key Modules**: `engine.rs`, `runner.rs`, `loader.rs`, `result.rs`
 
 ### TypeScript SDK
-- **Runtime**: Node.js / Browser  |  **Build**: npm  |  **Tests**: Jest
+- **Runtime**: Node.js / Browser  |  **Build**: npm  |  **Tests**: 16 (table-data unit + runner pass-through integration)
 - **Docs**: [sdk/typescript/README.md](sdk/typescript/README.md)
 
 ### C# SDK
-- **Runtime**: .NET 10+  |  **Build**: dotnet  |  **Tests**: 12 unit tests
+- **Runtime**: .NET 10+  |  **Build**: dotnet  |  **Tests**: 19 (TableData unit + runner pass-through integration)
 - **Docs**: [sdk/csharp/README.md](sdk/csharp/README.md)
 
 ### Scala SDK
 - **Scala**: 2.13  |  **Build**: sbt  |  **JVM**: 17+
 - **Key Type**: [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) separates engine execution from test results
+
+### SDK compliance-alignment status
+
+The table below reflects the state after all gap-closure work. Every SDK with ✅ in all four columns can produce honest compliance scores when given a test suite with expected output.
+
+| SDK | Runner compares output | Type-aware comparator | Loader carries expected output | Pass-through integration test |
+|-----|---|---|---|---|
+| **Java** | ✅ full, epsilon 1e-9 | ✅ `normalizeType` + `valuesMatch` | ✅ typed CSV headers | ✅ TPC-H 22/22 proven |
+| **Python** | ✅ full, `isclose` 1e-9 | ✅ `_normalize_type` + `_values_match` | ✅ YAML `expected_output` field | ✅ 5 pass-through tests |
+| **TypeScript** | ✅ `ResultComparator` in runner | ✅ float 1e-10, NaN, Date | ✅ `expectedOutput` from YAML | ✅ 5 pass-through tests |
+| **C#** | ✅ `ResultComparator` in runner | ✅ double 1e-10, float 1e-6, DateTime | ✅ `ExpectedOutput` from YAML | ✅ 5 pass-through tests |
+| **Go** | ✅ `compareOutputs()` in runner | ✅ `valuesMatch` epsilon 1e-9 | ✅ `Load()` + `LoadCSV()` implemented | ✅ 5 pass-through tests |
+| **Rust** | ✅ full value comparison | ✅ `normalize_type` + `values_match` epsilon 1e-9 | ✅ reads `expected/<id>.csv` | ✅ 4 pass-through tests |
+| **C++** | ⏳ runner/comparator not yet written | ⏳ | ⏳ | ⏳ |
+| **Scala** | ⏳ runner/comparator not yet written | ⏳ | ⏳ | ⏳ |
 
 ---
 
