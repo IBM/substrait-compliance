@@ -1,0 +1,3 @@
+datafusion>=34.0
+datafusion-substrait>=0.10
+pyarrow>=14.0

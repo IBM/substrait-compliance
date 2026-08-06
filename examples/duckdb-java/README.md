@@ -1,101 +1,172 @@
-# DuckDB Compliance Example
+# DuckDB Java Compliance Example
 
-This example demonstrates how to integrate DuckDB with the Substrait Compliance Framework.
+Example implementation showing how to integrate DuckDB with the Substrait
+compliance framework using Java.
 
-## Overview
+## Prerequisites
 
-The example includes:
-- `DuckDBComplianceEngine.java` - Implementation of the `ComplianceEngine` interface for DuckDB
-- `DuckDBComplianceExample.java` - Example usage showing how to run compliance tests
-
-## Building
-
-### Prerequisites
 - Java 11 or higher
-- Gradle (included via wrapper in SDK)
+- The SDK fat jar (built from `sdk/java`)
+- DuckDB JDBC driver (downloaded automatically by `download-deps.sh`)
 
-### Compile the Example
-
-Use the provided compile script:
+## Quick Start
 
 ```bash
+# 1. Download the DuckDB JDBC driver into lib/
+./download-deps.sh
+
+# 2. Build the SDK fat jar (skip if already built)
+cd ../../sdk/java && ./gradlew shadowJar && cd -
+
+# 3. Compile the example
 ./compile.sh
+
+# 4. Run the example
+FAT_JAR=../../sdk/java/build/libs/substrait-compliance-0.1.0-all.jar
+DUCKDB_JAR=lib/duckdb_jdbc-1.3.1.0.jar
+java -cp "build:$FAT_JAR:$DUCKDB_JAR" io.substrait.example.DuckDBComplianceExample
 ```
 
-Or manually with the full command:
+`compile.sh` calls `download-deps.sh` automatically if the JDBC jar is
+missing, so running just `./compile.sh` is the normal workflow.
 
-```bash
-# Build the SDK first
-cd ../../sdk/java
-./gradlew build
-cd ../../examples/duckdb-java
+## Structure
 
-# Compile with dependencies
-javac -cp "../../sdk/java/build/libs/*:$HOME/.gradle/caches/modules-2/files-2.1/io.substrait/core/0.80.0/*/core-0.80.0.jar:$HOME/.gradle/caches/modules-2/files-2.1/com.google.protobuf/protobuf-java/3.*/protobuf-java-3.*.jar:." \
-    src/main/java/io/substrait/example/*.java
+```
+duckdb-java/
+├── compile.sh                                  # Build script
+├── download-deps.sh                            # Fetches DuckDB JDBC jar
+├── lib/                                        # Runtime JARs (git-ignored)
+│   └── duckdb_jdbc-1.3.1.0.jar
+└── src/main/java/io/substrait/example/
+    ├── DuckDBComplianceEngine.java             # ComplianceEngine implementation
+    └── DuckDBComplianceExample.java            # Entry point
 ```
 
-### Using Gradle (Alternative)
+## Implementing the `ComplianceEngine` Interface
 
-You can also build using Gradle from the root:
+The [`ComplianceEngine`](../../sdk/java/src/main/java/io/substrait/compliance/ComplianceEngine.java)
+interface has six methods — four required and two optional defaults:
 
-```bash
-cd ../..
-./sdk/java/gradlew :sdk:java:build
+```java
+public interface ComplianceEngine {
+
+    // Required ──────────────────────────────────────────────────────────────
+
+    /** Execute a Substrait plan with the provided input tables. */
+    ComplianceResult executePlan(Plan plan, Map<String, TableData> inputData)
+        throws ComplianceException;
+
+    /** Validate whether a plan is supported before execution. */
+    PlanValidationResult validatePlan(Plan plan);
+
+    /** Return engine identification and version metadata. */
+    EngineInfo getEngineInfo();
+
+    /** Declare which Substrait relations and functions are supported. */
+    EngineCapabilities getCapabilities();
+
+    // Optional defaults ─────────────────────────────────────────────────────
+
+    /** Called once before the test suite runs. */
+    default void initialize() throws ComplianceException {}
+
+    /** Called once after the test suite completes. */
+    default void cleanup() throws ComplianceException {}
+}
 ```
 
-## Running
+### Execution model
 
-To run the example, you'll need:
-1. The compiled classes
-2. DuckDB JDBC driver on the classpath
-3. Test suite files
+- `initialize()` is called **once** before any test case runs.
+- `executePlan()` is called **once per test case**, sequentially.  
+  The runner is single-threaded; engines may keep connection state across calls.
+- `cleanup()` is called **once** after all test cases finish (including on error).
+- The runner is synchronous — there is no async/await contract in the Java SDK
+  (contrast with the TypeScript SDK, whose interface is `async`).
 
-```bash
-java -cp "../../sdk/java/build/libs/*:$SUBSTRAIT_CORE:$PROTOBUF:$DUCKDB_JDBC:src/main/java" \
-    io.substrait.example.DuckDBComplianceExample
+### `DuckDBComplianceEngine` — how it works
+
+[`DuckDBComplianceEngine`](src/main/java/io/substrait/example/DuckDBComplianceEngine.java)
+holds a single `java.sql.Connection` to an in-memory DuckDB database and
+implements the full interface:
+
+| Method | What it does |
+|--------|-------------|
+| `getEngineInfo()` | Returns name, version, Substrait version |
+| `getCapabilities()` | Declares supported relations and functions |
+| `executePlan(plan, inputData)` | Loads `inputData` into DuckDB tables, then calls `SELECT * FROM substrait('<base64-plan>')` |
+| `validatePlan(plan)` | Returns `supported()` if the plan is non-null and non-empty |
+
+The DuckDB `substrait` extension is installed and loaded in the constructor:
+
+```java
+stmt.execute("INSTALL substrait");
+stmt.execute("LOAD substrait");
 ```
 
-## Implementation Notes
-
-### Key Changes from Original API
-
-The example has been updated to match the current SDK API:
-
-1. **EngineInfo Constructor**: Now takes 3 parameters (name, version, substraitVersion) instead of 4
-2. **EngineCapabilities Builder**: Uses `.addRelation()` and `.addFunction()` instead of `.addSupportedRelation()`
-3. **ComplianceResult**: Uses static factory methods `success()` and `failure()`
-4. **TableData Constructor**: Requires 3 parameters (columnNames, columnTypes, rows)
-5. **ComplianceReport Methods**: Uses `getTotalTests()`, `getComplianceScore()`, `getTestResults()` instead of old method names
-6. **TestResult**: Uses `TestResult.Status` enum instead of `TestStatus`
-7. **Plan Type**: Uses `io.substrait.proto.Plan` from Substrait core library
-
-### Architecture
-
-The `DuckDBComplianceEngine` implements the `ComplianceEngine` interface with these key methods:
-
-- `getEngineInfo()` - Returns engine identification
-- `getCapabilities()` - Declares supported Substrait features
-- `executePlan()` - Executes a Substrait plan and returns results
-- `validatePlan()` - Validates if a plan is supported before execution
+If the extension cannot be installed (offline CI, restricted network), a
+warning is printed and `executePlan` will fail at query time rather than at
+construction time.
 
 ## Dependencies
 
-The example requires:
-- `substrait-compliance` SDK (from `../../sdk/java`)
-- `io.substrait:core:0.80.0` (Substrait core library)
-- `com.google.protobuf:protobuf-java:3.25.8` (Protocol Buffers)
-- DuckDB JDBC driver (for actual execution)
+| Artifact | Version | Notes |
+|----------|---------|-------|
+| `substrait-compliance` SDK | 0.1.0 | Fat jar from `sdk/java` |
+| `org.duckdb:duckdb_jdbc` | 1.3.1.0 | Fetched by `download-deps.sh` |
 
-## Next Steps
+The JDBC jar is downloaded from Maven Central. No Maven or Gradle installation
+is required on the developer machine.
 
-To make this a fully functional example:
+## Consuming the SDK as a Published Artifact
 
-1. Add DuckDB JDBC driver dependency
-2. Implement actual Substrait plan execution using DuckDB's Substrait support
-3. Add proper error handling and logging
-4. Create example test suites
-5. Add integration tests
+Instead of building from source, you can depend on the SDK from GitHub Packages:
+
+**Gradle:**
+```gradle
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/IBM/substrait-compliance")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key")  ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+
+dependencies {
+    implementation 'io.substrait:substrait-compliance:0.1.0'
+    implementation 'org.duckdb:duckdb_jdbc:1.3.1.0'
+}
+```
+
+**Maven:**
+```xml
+<repositories>
+  <repository>
+    <id>github</id>
+    <url>https://maven.pkg.github.com/IBM/substrait-compliance</url>
+  </repository>
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>io.substrait</groupId>
+    <artifactId>substrait-compliance</artifactId>
+    <version>0.1.0</version>
+  </dependency>
+  <dependency>
+    <groupId>org.duckdb</groupId>
+    <artifactId>duckdb_jdbc</artifactId>
+    <version>1.3.1.0</version>
+  </dependency>
+</dependencies>
+```
+
+GitHub Packages requires authentication even for public packages. Set
+`GITHUB_TOKEN` to a Personal Access Token (PAT) with `read:packages` scope,
+or reuse the token that Actions injects automatically.
 
 ## License
 

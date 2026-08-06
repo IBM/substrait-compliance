@@ -1,0 +1,5 @@
+# Compiled classes
+build/
+
+# Downloaded runtime JARs (fetched by download-deps.sh)
+lib/

@@ -1,25 +1,82 @@
 # Substrait Compliance SDK - Java
 
-Java SDK for decentralized Substrait compliance testing.
+Java SDK for Substrait compliance testing.
 
-## Installation
+## Consuming the SDK
 
-### Maven
+The SDK is published to GitHub Packages on every push to `main`.
 
-```xml
-<dependency>
-    <groupId>io.substrait</groupId>
-    <artifactId>substrait-compliance</artifactId>
-    <version>1.0.0</version>
-</dependency>
-```
+**Coordinates:** `io.substrait:substrait-compliance:0.1.0`
+**Repository:** `https://maven.pkg.github.com/IBM/substrait-compliance`
+
+GitHub Packages requires authentication even for public packages. You need
+a GitHub Personal Access Token (PAT) with `read:packages` scope, or reuse
+the `GITHUB_TOKEN` that Actions injects automatically in CI.
 
 ### Gradle
 
 ```gradle
-dependencies {
-    implementation 'io.substrait:substrait-compliance:1.0.0'
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/IBM/substrait-compliance")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
+            password = project.findProperty("gpr.key")  ?: System.getenv("GITHUB_TOKEN")
+        }
+    }
 }
+
+dependencies {
+    implementation 'io.substrait:substrait-compliance:0.1.0'
+}
+```
+
+Store the PAT in `~/.gradle/gradle.properties`:
+
+```properties
+gpr.user=<your-github-username>
+gpr.key=<your-PAT-with-read:packages>
+```
+
+### Maven
+
+```xml
+<repositories>
+  <repository>
+    <id>github</id>
+    <url>https://maven.pkg.github.com/IBM/substrait-compliance</url>
+  </repository>
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>io.substrait</groupId>
+    <artifactId>substrait-compliance</artifactId>
+    <version>0.1.0</version>
+  </dependency>
+</dependencies>
+```
+
+Add credentials to `~/.m2/settings.xml`:
+
+```xml
+<settings>
+  <servers>
+    <server>
+      <id>github</id>
+      <username>YOUR_GITHUB_USERNAME</username>
+      <password>YOUR_PAT</password>
+    </server>
+  </servers>
+</settings>
+```
+
+### Building from source
+
+```bash
+cd sdk/java
+./gradlew build          # builds + tests
+./gradlew shadowJar      # produces substrait-compliance-0.1.0-all.jar
 ```
 
 ## Quick Start
