@@ -172,4 +172,24 @@ pipe-delimited CSV — see format section above). They were generated from the
 same input data at scale factor 0.01 and serve as the reference for
 correctness comparison.
 
+### Oracle provenance
+
+The expected outputs were produced by **DuckDB 1.2.0** executing the
+Substrait plans directly against the scale-0.01 CSV data in `data/`.  DuckDB
+is therefore the de-facto reference for result semantics in this suite.
+
+**What this means for your engine:**
+
+- An engine that produces the same results as DuckDB on this dataset will
+  **PASS**.
+- An engine whose SQL semantics differ from DuckDB — for example different
+  numeric rounding, different NULL ordering, or different DATE string
+  formatting — may **FAIL** even when its behaviour is otherwise correct.
+- Engines with incomplete Substrait support may report **SKIPPED** for plans
+  whose features they do not support.
+
+To regenerate the expected outputs against a different reference engine, run
+the equivalent of `generate_expected.py` (see `test-suites/tpcds/` for an
+example of such a script) substituting your preferred engine.
+
 **Status:** ✅ Complete — result correctness is fully verifiable for all 22 queries.

@@ -9,6 +9,7 @@ import org.junit.jupiter.api.io.TempDir;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.IdentityHashMap;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -35,10 +36,16 @@ class ComplianceRunnerComparatorTest {
      */
     static class PassThroughEngine implements ComplianceEngine {
 
-        private final Map<Integer, TableData> expectedByPlanHash = new HashMap<>();
+        /**
+         * Keyed by Plan object identity so that two different TestCase instances
+         * loaded from identical plan binaries (duplicate Substrait plans in the
+         * test suite) are still distinguished — each TestCase holds its own Plan
+         * instance, so identity is a safe surrogate for "which test case is this".
+         */
+        private final IdentityHashMap<Plan, TableData> expectedByPlan = new IdentityHashMap<>();
 
-        void register(byte[] planBytes, TableData expected) {
-            expectedByPlanHash.put(Arrays.hashCode(planBytes), expected);
+        void register(Plan plan, TableData expected) {
+            expectedByPlan.put(plan, expected);
         }
 
         @Override public EngineInfo getEngineInfo() {
@@ -51,8 +58,7 @@ class ComplianceRunnerComparatorTest {
             return PlanValidationResult.supported();
         }
         @Override public ComplianceResult executePlan(Plan plan, Map<String, TableData> inputData) {
-            byte[] planBytes = plan.toByteArray();
-            TableData expected = expectedByPlanHash.get(Arrays.hashCode(planBytes));
+            TableData expected = expectedByPlan.get(plan);
             if (expected == null) {
                 return ComplianceResult.failure("No expected output registered for plan", null);
             }
@@ -117,8 +123,7 @@ class ComplianceRunnerComparatorTest {
 
         // -- Build pass-through engine --
         PassThroughEngine engine = new PassThroughEngine();
-        byte[] planBytes = suite.getTestCases().get(0).getPlan().toByteArray();
-        engine.register(planBytes, expectedOutput);
+        engine.register(suite.getTestCases().get(0).getPlan(), expectedOutput);
 
         // -- Run --
         ComplianceRunner runner = new ComplianceRunner(engine);
@@ -175,8 +180,7 @@ class ComplianceRunnerComparatorTest {
         );
 
         PassThroughEngine engine = new PassThroughEngine();
-        byte[] planBytes = suite.getTestCases().get(0).getPlan().toByteArray();
-        engine.register(planBytes, wrongOutput);
+        engine.register(suite.getTestCases().get(0).getPlan(), wrongOutput);
 
         ComplianceRunner runner = new ComplianceRunner(engine);
         runner.registerTestSuite(suite);
@@ -245,8 +249,7 @@ class ComplianceRunnerComparatorTest {
         );
 
         PassThroughEngine engine = new PassThroughEngine();
-        byte[] planBytes = suite.getTestCases().get(0).getPlan().toByteArray();
-        engine.register(planBytes, typedOutput);
+        engine.register(suite.getTestCases().get(0).getPlan(), typedOutput);
 
         ComplianceRunner runner = new ComplianceRunner(engine);
         runner.registerTestSuite(suite);
@@ -275,6 +278,13 @@ class ComplianceRunnerComparatorTest {
      * Note: input data tables are intentionally omitted from the synthetic metadata
      * so that the test does not load the large TPC-H source files (lineitem.csv has
      * 60k rows) into memory.  The pass-through engine does not need input data.
+     *
+     * Oracle provenance: the expected outputs were produced by DuckDB 1.2.0 against
+     * the scale-0.01 CSV data shipped with this repository.  DuckDB is therefore the
+     * de-facto reference for result semantics in this suite.  Any Substrait engine
+     * that produces the same results as DuckDB on this dataset will PASS; engines
+     * whose SQL semantics differ (e.g. different numeric rounding, NULL ordering,
+     * or DATE formatting) may FAIL even when their behaviour is otherwise correct.
      */
     @Test
     void realTpcHSuitePassesThroughWithExpectedOutput(@TempDir Path tempDir) throws Exception {
@@ -323,7 +333,7 @@ class ComplianceRunnerComparatorTest {
             assertThat(tc.getExpectedOutput())
                     .as("Test case " + tc.getId() + " must have a non-null expected output")
                     .isNotNull();
-            engine.register(tc.getPlan().toByteArray(), tc.getExpectedOutput());
+            engine.register(tc.getPlan(), tc.getExpectedOutput());
         }
 
         ComplianceRunner runner = new ComplianceRunner(engine);
@@ -347,5 +357,117 @@ class ComplianceRunnerComparatorTest {
         assertThat(report.getPassedCount())
                 .as("All 22 TPC-H queries must PASS with pass-through engine")
                 .isEqualTo(22);
+    }
+
+    /**
+     * PASS-direction proof against the real TPC-DS suite.
+     *
+     * Same protocol as {@link #realTpcHSuitePassesThroughWithExpectedOutput} but for
+     * TPC-DS with 99 queries.  TPC-DS expected outputs have substantially different
+     * shapes from TPC-H: 1-column string results (q01), 8-column wide rows with mixed
+     * bigint/double ratios (q02), negative double values (q05), stddev columns (q10),
+     * and 45 queries that legitimately return zero rows on the scale-0.01 dataset.
+     * These shapes exercise comparator paths that TPC-H does not reach.
+     *
+     * The test is split into two assertions:
+     *  1. Queries with non-empty expected output must PASS (the comparator correctly
+     *     round-trips every typed value shape present in the TPC-DS goldens).
+     *  2. Queries with empty expected output (header-only CSV, zero rows) must also
+     *     PASS — the pass-through engine returns an empty TableData and the comparator
+     *     must accept empty == empty without a spurious row-count error.
+     *
+     * Oracle provenance: TPC-DS expected outputs were produced by DuckDB 1.2.0 against
+     * the scale-0.01 data in test-suites/tpcds/data/, using the TPC-DS standard
+     * parameter substitutions for that scale factor (YEAR=2000, STATE=TN, MONTH=11,
+     * etc.) via generate_expected.py.  DuckDB is the de-facto reference for result
+     * semantics in this suite; see tpcds/README.md for full provenance details.
+     */
+    @Test
+    void realTpcDsSuitePassesThroughWithExpectedOutput(@TempDir Path tempDir) throws Exception {
+        String rootDir = System.getProperty("substrait.compliance.rootDir");
+        Assumptions.assumeTrue(rootDir != null,
+                "System property substrait.compliance.rootDir must be set (check build.gradle)");
+        Path tpcdsDir = Path.of(rootDir).resolve("test-suites/tpcds");
+        Assumptions.assumeTrue(tpcdsDir.resolve("metadata.yaml").toFile().exists(),
+                "TPC-DS metadata.yaml must be present at " + tpcdsDir);
+
+        // Build synthetic YAML: real plan binaries + real expected CSVs, no inputTables.
+        // Avoids loading the large TPC-DS source data into the test JVM heap.
+        StringBuilder yaml = new StringBuilder();
+        yaml.append("name: \"tpcds\"\nversion: \"1.0.0\"\ndescription: \"TPC-DS pass-through\"\ntestCases:\n");
+
+        List<String> queryIds = new ArrayList<>();
+        for (int i = 1; i <= 99; i++) {
+            queryIds.add(String.format("q%02d", i));
+        }
+
+        int added = 0;
+        for (String qid : queryIds) {
+            Path planBin     = tpcdsDir.resolve("plans/" + qid + ".bin");
+            Path expectedCsv = tpcdsDir.resolve("expected/" + qid + ".csv");
+            if (!planBin.toFile().exists() || !expectedCsv.toFile().exists()) continue;
+            yaml.append("  - id: \"").append(qid).append("\"\n");
+            yaml.append("    description: \"").append(qid).append("\"\n");
+            yaml.append("    planBinary: \"").append(planBin.toAbsolutePath()).append("\"\n");
+            yaml.append("    inputTables: []\n");
+            yaml.append("    expectedOutput: \"").append(expectedCsv.toAbsolutePath()).append("\"\n");
+            added++;
+        }
+
+        Assumptions.assumeTrue(added > 0, "No TPC-DS plan+expected pairs found under " + tpcdsDir);
+
+        Path syntheticYaml = tempDir.resolve("tpcds-passthrough.yaml");
+        Files.writeString(syntheticYaml, yaml.toString());
+
+        YamlTestSuiteLoader loader = new YamlTestSuiteLoader();
+        TestSuite suite = loader.load(syntheticYaml);
+
+        assertThat(suite.getTestCases())
+                .as("All 99 TPC-DS queries must be loaded")
+                .hasSize(99);
+
+        // Register each expected output in the pass-through engine.
+        PassThroughEngine engine = new PassThroughEngine();
+        int withRows  = 0;
+        int withEmpty = 0;
+        for (TestCase tc : suite.getTestCases()) {
+            assertThat(tc.getExpectedOutput())
+                    .as("Test case " + tc.getId() + " must have a non-null expected output")
+                    .isNotNull();
+            engine.register(tc.getPlan(), tc.getExpectedOutput());
+            if (tc.getExpectedOutput().getRows().isEmpty()) withEmpty++;
+            else withRows++;
+        }
+
+        // Verify the 54/45 split is what we expect from generate_expected.py.
+        // If this fails it means the golden files changed and the comment needs updating.
+        assertThat(withRows)
+                .as("Expected 54 non-empty TPC-DS goldens (queries with rows on scale-0.01 data)")
+                .isEqualTo(54);
+        assertThat(withEmpty)
+                .as("Expected 45 empty TPC-DS goldens (queries whose filters match no scale-0.01 rows)")
+                .isEqualTo(45);
+
+        ComplianceRunner runner = new ComplianceRunner(engine);
+        runner.registerTestSuite(suite);
+        ComplianceReport report = runner.runTestSuite("tpcds");
+
+        // Collect failures for a clear error message if something regresses.
+        List<String> failures = new ArrayList<>();
+        for (TestResult result : report.getTestResults()) {
+            if (!result.isPassed()) {
+                failures.add(result.getTestId() + " [" + result.getStatus() + "]: " + result.getMessage());
+            }
+        }
+
+        assertThat(failures)
+                .as("Pass-through engine must produce zero non-PASSED results.\n"
+                  + "A failure indicates a typed header, convertValue, or comparator bug.\n"
+                  + "Non-passed: " + failures)
+                .isEmpty();
+
+        assertThat(report.getPassedCount())
+                .as("All 99 TPC-DS queries must PASS with pass-through engine")
+                .isEqualTo(99);
     }
 }

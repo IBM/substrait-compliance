@@ -185,3 +185,149 @@ def test_type_normalisation_integer_aliases():
 
     report = ComplianceRunner(engine).run_test_suite(suite)
     assert report.get_passed_count() == 1
+
+
+# ── Real test-suite pass-through tests ────────────────────────────────────────
+
+import os
+from pathlib import Path
+
+
+class _PlanIdentityEngine(ComplianceEngine):
+    """Pass-through engine keyed by id(plan_bytes).
+
+    Each TestCase loaded from a YAML suite holds its own distinct bytes object
+    (allocated by a separate f.read() call), so id() is a stable per-test-case
+    identifier even when two test cases carry identical binary content.
+    """
+
+    def get_info(self) -> EngineInfo:
+        return EngineInfo(name="PlanIdentity", version="0.0.0", vendor="Test")
+
+    def get_capabilities(self) -> EngineCapabilities:
+        return EngineCapabilities()
+
+    def execute_plan(self, plan_bytes: bytes, input_data: dict) -> ComplianceResult:
+        output = self._registry.get(id(plan_bytes))
+        result = ComplianceResult(test_id="passthrough", status=TestStatus.PASSED)
+        result.output_data = output
+        return result
+
+    def validate_plan(self, plan_bytes: bytes) -> ComplianceResult:
+        return ComplianceResult(test_id="validation", status=TestStatus.PASSED)
+
+
+def _identity_engine_for(test_cases) -> _PlanIdentityEngine:
+    engine = _PlanIdentityEngine()
+    engine._registry = {id(tc.plan_bytes): tc.expected_output for tc in test_cases}
+    return engine
+
+
+def _build_synthetic_yaml(suite_dir: Path, query_ids: list) -> str:
+    """Build a minimal YAML that references absolute paths, no inputTables."""
+    lines = [
+        'name: "passthrough-suite"',
+        'version: "1.0.0"',
+        'description: "Pass-through"',
+        'testCases:',
+    ]
+    for qid in query_ids:
+        plan_bin = suite_dir / "plans" / f"{qid}.bin"
+        expected_csv = suite_dir / "expected" / f"{qid}.csv"
+        if not plan_bin.exists() or not expected_csv.exists():
+            continue
+        lines += [
+            f'  - id: "{qid}"',
+            f'    description: "{qid}"',
+            f'    planBinary: "{plan_bin}"',
+            f'    inputTables: []',
+            f'    expectedOutput: "{expected_csv}"',
+        ]
+    return "\n".join(lines) + "\n"
+
+
+def test_real_tpch_suite_passes_through(repo_root, tmp_path):
+    """PASS-direction proof: all 22 TPC-H expected CSVs round-trip through the runner.
+
+    Oracle provenance: expected outputs were produced by DuckDB 1.2.0 against the
+    scale-0.01 CSV data shipped with this repository.
+    """
+    from substrait_compliance.loader import YamlTestSuiteLoader
+
+    tpch_dir = repo_root / "test-suites" / "tpch"
+    if not (tpch_dir / "metadata.yaml").exists():
+        pytest.skip("TPC-H metadata.yaml not present — skipping integration test")
+
+    query_ids = [f"q{i:02d}" for i in range(1, 23)]
+    yaml_text = _build_synthetic_yaml(tpch_dir, query_ids)
+    yaml_file = tmp_path / "tpch-passthrough.yaml"
+    yaml_file.write_text(yaml_text)
+
+    loader = YamlTestSuiteLoader()
+    suite = loader.load(yaml_file)
+
+    test_cases = suite.get_test_cases()
+    assert len(test_cases) == 22, f"Expected 22 TPC-H test cases, got {len(test_cases)}"
+
+    engine = _identity_engine_for(test_cases)
+    report = ComplianceRunner(engine).run_test_suite(suite)
+
+    failures = [
+        f"{r.test_id} [{r.status}]: {r.error_message}"
+        for r in report.results
+        if r.status != TestStatus.PASSED
+    ]
+    assert not failures, (
+        "Pass-through engine must produce zero non-PASSED results.\n"
+        "A failure indicates a loader, comparator, or type-normalisation bug.\n"
+        "Non-passed:\n" + "\n".join(failures)
+    )
+    assert report.get_passed_count() == 22
+
+
+def test_real_tpcds_suite_passes_through(repo_root, tmp_path):
+    """PASS-direction proof: all 99 TPC-DS expected CSVs round-trip through the runner.
+
+    TPC-DS shapes are substantially more varied than TPC-H:
+    - 54 queries with rows (including bigint, double, string, stddev columns)
+    - 45 queries with empty result sets (the filters find no matching scale-0.01 rows)
+
+    Oracle provenance: expected outputs were produced by DuckDB 1.2.0 against the
+    scale-0.01 data in test-suites/tpcds/data/ via generate_expected.py.
+    """
+    from substrait_compliance.loader import YamlTestSuiteLoader
+
+    tpcds_dir = repo_root / "test-suites" / "tpcds"
+    if not (tpcds_dir / "metadata.yaml").exists():
+        pytest.skip("TPC-DS metadata.yaml not present — skipping integration test")
+
+    query_ids = [f"q{i:02d}" for i in range(1, 100)]
+    yaml_text = _build_synthetic_yaml(tpcds_dir, query_ids)
+    yaml_file = tmp_path / "tpcds-passthrough.yaml"
+    yaml_file.write_text(yaml_text)
+
+    loader = YamlTestSuiteLoader()
+    suite = loader.load(yaml_file)
+
+    test_cases = suite.get_test_cases()
+    assert len(test_cases) == 99, f"Expected 99 TPC-DS test cases, got {len(test_cases)}"
+
+    with_rows  = sum(1 for tc in test_cases if tc.expected_output and tc.expected_output.rows)
+    with_empty = sum(1 for tc in test_cases if tc.expected_output and not tc.expected_output.rows)
+    assert with_rows  == 54, f"Expected 54 non-empty TPC-DS goldens, got {with_rows}"
+    assert with_empty == 45, f"Expected 45 empty TPC-DS goldens, got {with_empty}"
+
+    engine = _identity_engine_for(test_cases)
+    report = ComplianceRunner(engine).run_test_suite(suite)
+
+    failures = [
+        f"{r.test_id} [{r.status}]: {r.error_message}"
+        for r in report.results
+        if r.status != TestStatus.PASSED
+    ]
+    assert not failures, (
+        "Pass-through engine must produce zero non-PASSED results.\n"
+        "A failure indicates a loader, comparator, or type-normalisation bug.\n"
+        "Non-passed:\n" + "\n".join(failures)
+    )
+    assert report.get_passed_count() == 99

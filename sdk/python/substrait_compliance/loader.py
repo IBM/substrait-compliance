@@ -2,6 +2,7 @@
 
 from abc import ABC, abstractmethod
 import csv
+import io
 from pathlib import Path
 from typing import Any, Dict, List
 import yaml
@@ -132,11 +133,29 @@ class YamlTestSuiteLoader(TestSuiteLoader):
             return None
         return self._load_csv_table(base_dir / relative_path)
 
+    def _detect_delimiter(self, first_line: str) -> str:
+        """Return '|' if pipes outnumber commas, else ','."""
+        if first_line.count('|') > first_line.count(','):
+            return '|'
+        return ','
+
     def _load_csv_table(self, path: Path) -> TableData:
-        """Load a table from CSV with optional name:type headers."""
-        with open(path, 'r', newline='') as f:
-            reader = csv.reader(f)
-            rows = list(reader)
+        """Load a table from CSV with optional name:type headers.
+
+        The delimiter is auto-detected: if the header row contains more pipe
+        characters than commas, pipe is used; otherwise comma.  This matches
+        the convention used by the TPC-H/TPC-DS expected-output files, which
+        are pipe-delimited to avoid conflicts with string values.
+        """
+        with open(path, 'r', newline='', encoding='utf-8') as f:
+            raw_lines = f.read().splitlines()
+
+        if not raw_lines:
+            return TableData(columns=[], rows=[])
+
+        delimiter = self._detect_delimiter(raw_lines[0])
+        reader = csv.reader(io.StringIO('\n'.join(raw_lines)), delimiter=delimiter)
+        rows = list(reader)
 
         if not rows:
             return TableData(columns=[], rows=[])
