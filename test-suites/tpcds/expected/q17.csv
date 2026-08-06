@@ -1,0 +1,2 @@
+d_year:bigint|brand_id:bigint|brand:string|category_id:bigint|category:string|ext_price:double
+2000|2004001|edu packimporto #1|2|Men|34924.71

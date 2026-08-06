@@ -1,0 +1,2 @@
+d_year:bigint|brand_id:bigint|brand:string|category_id:bigint|category:string|ext_price:double
+2000|10006007|corpunivamalg #7|10|Electronics|12630.24

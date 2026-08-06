@@ -1,0 +1,2 @@
+d_year:bigint|brand_id:bigint|brand:string|category_id:bigint|category:string|ext_price:double
+2000|9013002|exportiunivamalg #2|9|Books|17274.34

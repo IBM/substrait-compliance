@@ -1,0 +1,2 @@
+d_year:bigint|brand_id:bigint|brand:string|category_id:bigint|category:string|ext_price:double
+2000|3003002|exportiexporti #2|3|Children|27044.94

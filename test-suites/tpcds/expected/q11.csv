@@ -1,0 +1,3 @@
+d_year:bigint|brand_id:bigint|brand:string|category_id:bigint|category:string|ext_price:double
+2000|7003008|exportibrand #8|7|Home|33699.63
+2000|1002001|importoamalg #1|1|Women|3102.1

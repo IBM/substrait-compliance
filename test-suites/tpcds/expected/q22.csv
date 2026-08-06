@@ -1,0 +1,3 @@
+d_year:bigint|brand_id:bigint|brand:string|category_id:bigint|category:string|ext_price:double
+2000|4001001|importobrand #6|7|Home|43427.06
+2000|10006011|corpunivamalg #11|10|Electronics|13930.92

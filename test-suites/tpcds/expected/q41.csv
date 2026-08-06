@@ -1,0 +1,2 @@
+d_year:bigint|brand_id:bigint|brand:string|category_id:bigint|category:string|ext_price:double
+2000|1002001|amalgimporto #2|2|Men|23914.73

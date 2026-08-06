@@ -1,0 +1,3 @@
+d_year:bigint|brand_id:bigint|brand:string|category_id:bigint|category:string|ext_price:double
+2000|10005006|scholarunivamalg #7|10|Electronics|51137.89
+2000|2004002|edu packimporto #2|2|Men|27264.73

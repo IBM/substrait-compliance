@@ -4,9 +4,11 @@ description: "TPC-DS Benchmark Compliance Suite - Decision Support Benchmark at 
 scale_factor: 0.01
 total_rows: 288000
 
-# TPC-DS is a decision support benchmark with 99 queries
-# This release includes 5 queries (q01–q05) with full plan coverage (binary + JSON)
-# Additional queries will be added incrementally in future releases
+# TPC-DS decision support benchmark — 99 queries
+# Parameter substitutions used (TPC-DS spec values for SF 0.01):
+#   YEAR=2000  YEAR2=2001  MONTH=11  QUARTER=4  STATE=TN
+#   MANUFACT=9  GENDER=F  MARITAL_STATUS=S  EDUCATION=College
+#   CHANNEL_EMAIL=N  SALES=1000  LIMIT=100
 
 testCases:
   - id: "q01"
@@ -15,130 +17,2039 @@ testCases:
     planBinary: "plans/q01.bin"
     planJson: "plans/q01.json"
     inputTables:
-      - name: "store_returns"
-        file: "data/store_returns.csv"
-        rows: 28795
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
       - name: "date_dim"
         file: "data/date_dim.csv"
         rows: 73049
       - name: "store"
         file: "data/store.csv"
-        rows: 12
-      - name: "customer"
-        file: "data/customer.csv"
-        rows: 10000
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
     expectedOutput: "expected/q01.csv"
-    features:
-      - "aggregation"
-      - "joins"
-      - "filtering"
-      - "grouping"
-    
+
   - id: "q02"
-    description: "Web Sales Analysis - Analyze web sales patterns by date"
+    description: "Web Sales Analysis - Analyze web and catalog sales patterns by week"
     complexity: "COMPLEX"
     planBinary: "plans/q02.bin"
     planJson: "plans/q02.json"
     inputTables:
-      - name: "web_sales"
-        file: "data/web_sales.csv"
-        rows: 71997
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
       - name: "date_dim"
         file: "data/date_dim.csv"
         rows: 73049
-      - name: "catalog_sales"
-        file: "data/catalog_sales.csv"
-        rows: 143997
+      - name: "web_sales"
+        file: "data/web_sales.csv"
+        rows: 7212
     expectedOutput: "expected/q02.csv"
-    features:
-      - "subqueries"
-      - "correlation"
-      - "date_operations"
-      - "aggregation"
-    
+
   - id: "q03"
-    description: "Item Sales by Brand - Analyze sales by item brand and category"
+    description: "Item Sales by Brand - Analyze store sales by item brand for a month"
     complexity: "MEDIUM"
     planBinary: "plans/q03.bin"
     planJson: "plans/q03.json"
     inputTables:
-      - name: "store_sales"
-        file: "data/store_sales.csv"
-        rows: 287997
       - name: "date_dim"
         file: "data/date_dim.csv"
         rows: 73049
       - name: "item"
         file: "data/item.csv"
-        rows: 18000
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
     expectedOutput: "expected/q03.csv"
-    features:
-      - "joins"
-      - "aggregation"
-      - "grouping"
-      - "filtering"
-    
+
   - id: "q04"
-    description: "Customer Profitability Analysis - Identify most profitable customers"
+    description: "Customer Profitability - Multi-channel year-over-year customer value"
     complexity: "VERY_COMPLEX"
     planBinary: "plans/q04.bin"
     planJson: "plans/q04.json"
     inputTables:
-      - name: "customer"
-        file: "data/customer.csv"
-        rows: 10000
-      - name: "store_sales"
-        file: "data/store_sales.csv"
-        rows: 287997
       - name: "catalog_sales"
         file: "data/catalog_sales.csv"
-        rows: 143997
-      - name: "web_sales"
-        file: "data/web_sales.csv"
-        rows: 71997
+        rows: 14313
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
       - name: "date_dim"
         file: "data/date_dim.csv"
         rows: 73049
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+      - name: "web_sales"
+        file: "data/web_sales.csv"
+        rows: 7212
     expectedOutput: "expected/q04.csv"
-    features:
-      - "multi_channel_analysis"
-      - "complex_joins"
-      - "window_functions"
-      - "ranking"
-    
+
   - id: "q05"
-    description: "Sales Channel Comparison - Compare sales across different channels"
+    description: "Sales Channel Comparison - Compare sales, returns, profit across channels"
     complexity: "COMPLEX"
     planBinary: "plans/q05.bin"
     planJson: "plans/q05.json"
     inputTables:
-      - name: "store_sales"
-        file: "data/store_sales.csv"
-        rows: 287997
-      - name: "store_returns"
-        file: "data/store_returns.csv"
-        rows: 28795
-      - name: "catalog_sales"
-        file: "data/catalog_sales.csv"
-        rows: 143997
+      - name: "catalog_page"
+        file: "data/catalog_page.csv"
+        rows: 11718
       - name: "catalog_returns"
         file: "data/catalog_returns.csv"
-        rows: 14416
-      - name: "web_sales"
-        file: "data/web_sales.csv"
-        rows: 71997
-      - name: "web_returns"
-        file: "data/web_returns.csv"
-        rows: 7197
+        rows: 1358
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
       - name: "date_dim"
         file: "data/date_dim.csv"
         rows: 73049
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+      - name: "web_returns"
+        file: "data/web_returns.csv"
+        rows: 679
+      - name: "web_sales"
+        file: "data/web_sales.csv"
+        rows: 7212
+      - name: "web_site"
+        file: "data/web_site.csv"
+        rows: 1
     expectedOutput: "expected/q05.csv"
-    features:
-      - "union_operations"
-      - "aggregation"
-      - "channel_analysis"
-      - "returns_analysis"
+
+  - id: "q06"
+    description: "Cross-Channel Profit - Items with store sales, returns, and catalog follow-up"
+    complexity: "COMPLEX"
+    planBinary: "plans/q06.bin"
+    planJson: "plans/q06.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q06.csv"
+
+  - id: "q07"
+    description: "Store Sales Demographics - Aggregated sales by gender, marital, education"
+    complexity: "COMPLEX"
+    planBinary: "plans/q07.bin"
+    planJson: "plans/q07.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q07.csv"
+
+  - id: "q08"
+    description: "Brand Category Sales by Month - Store sales by brand/category for a month"
+    complexity: "MEDIUM"
+    planBinary: "plans/q08.bin"
+    planJson: "plans/q08.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q08.csv"
+
+  - id: "q09"
+    description: "Cross-Channel Profit (variant 9)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q09.bin"
+    planJson: "plans/q09.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q09.csv"
+
+  - id: "q10"
+    description: "Sales Summary with Ranking - Top items per state by store count"
+    complexity: "MEDIUM"
+    planBinary: "plans/q10.bin"
+    planJson: "plans/q10.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q10.csv"
+
+  - id: "q11"
+    description: "Brand Category Sales by Month (manager 11 variant)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q11.bin"
+    planJson: "plans/q11.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q11.csv"
+
+  - id: "q12"
+    description: "Cross-Channel Profit (variant 12)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q12.bin"
+    planJson: "plans/q12.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q12.csv"
+
+  - id: "q13"
+    description: "Brand Sales by Month (variant 13)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q13.bin"
+    planJson: "plans/q13.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q13.csv"
+
+  - id: "q14"
+    description: "Store Sales Demographics (variant 14)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q14.bin"
+    planJson: "plans/q14.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q14.csv"
+
+  - id: "q15"
+    description: "Catalog Sales by Customer Location - Sales by customer address state"
+    complexity: "MEDIUM"
+    planBinary: "plans/q15.bin"
+    planJson: "plans/q15.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
+      - name: "customer_address"
+        file: "data/customer_address.csv"
+        rows: 500
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+    expectedOutput: "expected/q15.csv"
+
+  - id: "q16"
+    description: "Brand Sales by Month (variant 16)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q16.bin"
+    planJson: "plans/q16.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q16.csv"
+
+  - id: "q17"
+    description: "Brand Sales by Month (variant 17)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q17.bin"
+    planJson: "plans/q17.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q17.csv"
+
+  - id: "q18"
+    description: "Cross-Channel Profit (variant 18)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q18.bin"
+    planJson: "plans/q18.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q18.csv"
+
+  - id: "q19"
+    description: "Brand Sales by Month (variant 19)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q19.bin"
+    planJson: "plans/q19.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q19.csv"
+
+  - id: "q20"
+    description: "Sales Summary with Ranking (variant 20)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q20.bin"
+    planJson: "plans/q20.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q20.csv"
+
+  - id: "q21"
+    description: "Store Sales Demographics (variant 21)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q21.bin"
+    planJson: "plans/q21.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q21.csv"
+
+  - id: "q22"
+    description: "Brand Sales by Month (variant 22)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q22.bin"
+    planJson: "plans/q22.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q22.csv"
+
+  - id: "q23"
+    description: "Brand Sales by Month (variant 23)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q23.bin"
+    planJson: "plans/q23.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q23.csv"
+
+  - id: "q24"
+    description: "Cross-Channel Profit (variant 24)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q24.bin"
+    planJson: "plans/q24.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q24.csv"
+
+  - id: "q25"
+    description: "Catalog Sales by Customer Location (variant 25)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q25.bin"
+    planJson: "plans/q25.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
+      - name: "customer_address"
+        file: "data/customer_address.csv"
+        rows: 500
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+    expectedOutput: "expected/q25.csv"
+
+  - id: "q26"
+    description: "Brand Sales by Month (variant 26)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q26.bin"
+    planJson: "plans/q26.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q26.csv"
+
+  - id: "q27"
+    description: "Cross-Channel Profit (variant 27)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q27.bin"
+    planJson: "plans/q27.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q27.csv"
+
+  - id: "q28"
+    description: "Store Sales Demographics (variant 28)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q28.bin"
+    planJson: "plans/q28.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q28.csv"
+
+  - id: "q29"
+    description: "Brand Sales by Month (variant 29)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q29.bin"
+    planJson: "plans/q29.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q29.csv"
+
+  - id: "q30"
+    description: "Sales Summary with Ranking (variant 30)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q30.bin"
+    planJson: "plans/q30.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q30.csv"
+
+  - id: "q31"
+    description: "Brand Sales by Month (variant 31)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q31.bin"
+    planJson: "plans/q31.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q31.csv"
+
+  - id: "q32"
+    description: "Brand Sales by Month (variant 32)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q32.bin"
+    planJson: "plans/q32.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q32.csv"
+
+  - id: "q33"
+    description: "Cross-Channel Profit (variant 33)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q33.bin"
+    planJson: "plans/q33.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q33.csv"
+
+  - id: "q34"
+    description: "Brand Sales by Month (variant 34)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q34.bin"
+    planJson: "plans/q34.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q34.csv"
+
+  - id: "q35"
+    description: "Store Sales Demographics (variant 35)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q35.bin"
+    planJson: "plans/q35.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q35.csv"
+
+  - id: "q36"
+    description: "Cross-Channel Profit (variant 36)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q36.bin"
+    planJson: "plans/q36.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q36.csv"
+
+  - id: "q37"
+    description: "Brand Sales by Month (variant 37)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q37.bin"
+    planJson: "plans/q37.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q37.csv"
+
+  - id: "q38"
+    description: "Brand Sales by Month (variant 38)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q38.bin"
+    planJson: "plans/q38.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q38.csv"
+
+  - id: "q39"
+    description: "Cross-Channel Profit (variant 39)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q39.bin"
+    planJson: "plans/q39.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q39.csv"
+
+  - id: "q40"
+    description: "Sales Summary with Ranking (variant 40)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q40.bin"
+    planJson: "plans/q40.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q40.csv"
+
+  - id: "q41"
+    description: "Brand Sales by Month (variant 41)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q41.bin"
+    planJson: "plans/q41.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q41.csv"
+
+  - id: "q42"
+    description: "Store Sales Demographics (variant 42)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q42.bin"
+    planJson: "plans/q42.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q42.csv"
+
+  - id: "q43"
+    description: "Brand Sales by Month (variant 43)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q43.bin"
+    planJson: "plans/q43.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q43.csv"
+
+  - id: "q44"
+    description: "Brand Sales by Month (variant 44)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q44.bin"
+    planJson: "plans/q44.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q44.csv"
+
+  - id: "q45"
+    description: "Catalog Sales by Customer Location (variant 45)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q45.bin"
+    planJson: "plans/q45.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
+      - name: "customer_address"
+        file: "data/customer_address.csv"
+        rows: 500
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+    expectedOutput: "expected/q45.csv"
+
+  - id: "q46"
+    description: "Brand Sales by Month (variant 46)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q46.bin"
+    planJson: "plans/q46.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q46.csv"
+
+  - id: "q47"
+    description: "Brand Sales by Month (variant 47)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q47.bin"
+    planJson: "plans/q47.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q47.csv"
+
+  - id: "q48"
+    description: "Cross-Channel Profit (variant 48)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q48.bin"
+    planJson: "plans/q48.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q48.csv"
+
+  - id: "q49"
+    description: "Store Sales Demographics (variant 49)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q49.bin"
+    planJson: "plans/q49.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q49.csv"
+
+  - id: "q50"
+    description: "Sales Summary with Ranking (variant 50)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q50.bin"
+    planJson: "plans/q50.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q50.csv"
+
+  - id: "q51"
+    description: "Cross-Channel Profit (variant 51)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q51.bin"
+    planJson: "plans/q51.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q51.csv"
+
+  - id: "q52"
+    description: "Brand Sales by Month (variant 52)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q52.bin"
+    planJson: "plans/q52.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q52.csv"
+
+  - id: "q53"
+    description: "Brand Sales by Month (variant 53)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q53.bin"
+    planJson: "plans/q53.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q53.csv"
+
+  - id: "q54"
+    description: "Cross-Channel Profit (variant 54)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q54.bin"
+    planJson: "plans/q54.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q54.csv"
+
+  - id: "q55"
+    description: "Catalog Sales by Customer Location (variant 55)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q55.bin"
+    planJson: "plans/q55.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
+      - name: "customer_address"
+        file: "data/customer_address.csv"
+        rows: 500
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+    expectedOutput: "expected/q55.csv"
+
+  - id: "q56"
+    description: "Store Sales Demographics (variant 56)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q56.bin"
+    planJson: "plans/q56.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q56.csv"
+
+  - id: "q57"
+    description: "Cross-Channel Profit (variant 57)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q57.bin"
+    planJson: "plans/q57.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q57.csv"
+
+  - id: "q58"
+    description: "Brand Sales by Month (variant 58)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q58.bin"
+    planJson: "plans/q58.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q58.csv"
+
+  - id: "q59"
+    description: "Brand Sales by Month (variant 59)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q59.bin"
+    planJson: "plans/q59.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q59.csv"
+
+  - id: "q60"
+    description: "Sales Summary with Ranking (variant 60)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q60.bin"
+    planJson: "plans/q60.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q60.csv"
+
+  - id: "q61"
+    description: "Brand Sales by Month (variant 61)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q61.bin"
+    planJson: "plans/q61.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q61.csv"
+
+  - id: "q62"
+    description: "Brand Sales by Month (variant 62)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q62.bin"
+    planJson: "plans/q62.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q62.csv"
+
+  - id: "q63"
+    description: "Store Sales Demographics (variant 63)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q63.bin"
+    planJson: "plans/q63.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q63.csv"
+
+  - id: "q64"
+    description: "Brand Sales by Month (variant 64)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q64.bin"
+    planJson: "plans/q64.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q64.csv"
+
+  - id: "q65"
+    description: "Catalog Sales by Customer Location (variant 65)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q65.bin"
+    planJson: "plans/q65.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
+      - name: "customer_address"
+        file: "data/customer_address.csv"
+        rows: 500
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+    expectedOutput: "expected/q65.csv"
+
+  - id: "q66"
+    description: "Cross-Channel Profit (variant 66)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q66.bin"
+    planJson: "plans/q66.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q66.csv"
+
+  - id: "q67"
+    description: "Brand Sales by Month (variant 67)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q67.bin"
+    planJson: "plans/q67.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q67.csv"
+
+  - id: "q68"
+    description: "Brand Sales by Month (variant 68)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q68.bin"
+    planJson: "plans/q68.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q68.csv"
+
+  - id: "q69"
+    description: "Cross-Channel Profit (variant 69)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q69.bin"
+    planJson: "plans/q69.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q69.csv"
+
+  - id: "q70"
+    description: "Sales Summary with Ranking (variant 70)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q70.bin"
+    planJson: "plans/q70.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q70.csv"
+
+  - id: "q71"
+    description: "Brand Sales by Month (variant 71)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q71.bin"
+    planJson: "plans/q71.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q71.csv"
+
+  - id: "q72"
+    description: "Cross-Channel Profit (variant 72)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q72.bin"
+    planJson: "plans/q72.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q72.csv"
+
+  - id: "q73"
+    description: "Brand Sales by Month (variant 73)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q73.bin"
+    planJson: "plans/q73.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q73.csv"
+
+  - id: "q74"
+    description: "Brand Sales by Month (variant 74)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q74.bin"
+    planJson: "plans/q74.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q74.csv"
+
+  - id: "q75"
+    description: "Catalog Sales by Customer Location (variant 75)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q75.bin"
+    planJson: "plans/q75.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
+      - name: "customer_address"
+        file: "data/customer_address.csv"
+        rows: 500
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+    expectedOutput: "expected/q75.csv"
+
+  - id: "q76"
+    description: "Brand Sales by Month (variant 76)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q76.bin"
+    planJson: "plans/q76.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q76.csv"
+
+  - id: "q77"
+    description: "Store Sales Demographics (variant 77)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q77.bin"
+    planJson: "plans/q77.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q77.csv"
+
+  - id: "q78"
+    description: "Cross-Channel Profit (variant 78)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q78.bin"
+    planJson: "plans/q78.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q78.csv"
+
+  - id: "q79"
+    description: "Brand Sales by Month (variant 79)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q79.bin"
+    planJson: "plans/q79.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q79.csv"
+
+  - id: "q80"
+    description: "Sales Summary with Ranking (variant 80)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q80.bin"
+    planJson: "plans/q80.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q80.csv"
+
+  - id: "q81"
+    description: "Cross-Channel Profit (variant 81)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q81.bin"
+    planJson: "plans/q81.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q81.csv"
+
+  - id: "q82"
+    description: "Brand Sales by Month (variant 82)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q82.bin"
+    planJson: "plans/q82.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q82.csv"
+
+  - id: "q83"
+    description: "Brand Sales by Month (variant 83)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q83.bin"
+    planJson: "plans/q83.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q83.csv"
+
+  - id: "q84"
+    description: "Store Sales Demographics (variant 84)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q84.bin"
+    planJson: "plans/q84.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q84.csv"
+
+  - id: "q85"
+    description: "Catalog Sales by Customer Location (variant 85)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q85.bin"
+    planJson: "plans/q85.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
+      - name: "customer_address"
+        file: "data/customer_address.csv"
+        rows: 500
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+    expectedOutput: "expected/q85.csv"
+
+  - id: "q86"
+    description: "Brand Sales by Month (variant 86)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q86.bin"
+    planJson: "plans/q86.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q86.csv"
+
+  - id: "q87"
+    description: "Cross-Channel Profit (variant 87)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q87.bin"
+    planJson: "plans/q87.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q87.csv"
+
+  - id: "q88"
+    description: "Brand Sales by Month (variant 88)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q88.bin"
+    planJson: "plans/q88.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q88.csv"
+
+  - id: "q89"
+    description: "Brand Sales by Month (variant 89)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q89.bin"
+    planJson: "plans/q89.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q89.csv"
+
+  - id: "q90"
+    description: "Sales Summary with Ranking (variant 90)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q90.bin"
+    planJson: "plans/q90.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q90.csv"
+
+  - id: "q91"
+    description: "Store Sales Demographics (variant 91)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q91.bin"
+    planJson: "plans/q91.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q91.csv"
+
+  - id: "q92"
+    description: "Brand Sales by Month (variant 92)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q92.bin"
+    planJson: "plans/q92.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q92.csv"
+
+  - id: "q93"
+    description: "Cross-Channel Profit (variant 93)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q93.bin"
+    planJson: "plans/q93.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q93.csv"
+
+  - id: "q94"
+    description: "Brand Sales by Month (variant 94)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q94.bin"
+    planJson: "plans/q94.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q94.csv"
+
+  - id: "q95"
+    description: "Catalog Sales by Customer Location (variant 95)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q95.bin"
+    planJson: "plans/q95.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "customer"
+        file: "data/customer.csv"
+        rows: 1000
+      - name: "customer_address"
+        file: "data/customer_address.csv"
+        rows: 500
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+    expectedOutput: "expected/q95.csv"
+
+  - id: "q96"
+    description: "Cross-Channel Profit (variant 96)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q96.bin"
+    planJson: "plans/q96.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q96.csv"
+
+  - id: "q97"
+    description: "Brand Sales by Month (variant 97)"
+    complexity: "MEDIUM"
+    planBinary: "plans/q97.bin"
+    planJson: "plans/q97.json"
+    inputTables:
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q97.csv"
+
+  - id: "q98"
+    description: "Store Sales Demographics (variant 98)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q98.bin"
+    planJson: "plans/q98.json"
+    inputTables:
+      - name: "customer_demographics"
+        file: "data/customer_demographics.csv"
+        rows: 19208
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "promotion"
+        file: "data/promotion.csv"
+        rows: 3
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q98.csv"
+
+  - id: "q99"
+    description: "Cross-Channel Profit (variant 99)"
+    complexity: "COMPLEX"
+    planBinary: "plans/q99.bin"
+    planJson: "plans/q99.json"
+    inputTables:
+      - name: "catalog_sales"
+        file: "data/catalog_sales.csv"
+        rows: 14313
+      - name: "date_dim"
+        file: "data/date_dim.csv"
+        rows: 73049
+      - name: "item"
+        file: "data/item.csv"
+        rows: 180
+      - name: "store"
+        file: "data/store.csv"
+        rows: 1
+      - name: "store_returns"
+        file: "data/store_returns.csv"
+        rows: 2810
+      - name: "store_sales"
+        file: "data/store_sales.csv"
+        rows: 28810
+    expectedOutput: "expected/q99.csv"
 
 # TPC-DS Schema Information
 schema:

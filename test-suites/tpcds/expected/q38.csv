@@ -1,0 +1,3 @@
+d_year:bigint|brand_id:bigint|brand:string|category_id:bigint|category:string|ext_price:double
+2000|7006010|corpbrand #10|7|Home|25163.76
+2000|4003001|exportiedu pack #1|4|Shoes|8570.29
