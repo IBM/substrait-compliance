@@ -119,55 +119,6 @@ construction time.
 The JDBC jar is downloaded from Maven Central. No Maven or Gradle installation
 is required on the developer machine.
 
-## Consuming the SDK as a Published Artifact
-
-Instead of building from source, you can depend on the SDK from GitHub Packages:
-
-**Gradle:**
-```gradle
-repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/IBM/substrait-compliance")
-        credentials {
-            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gpr.key")  ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
-}
-
-dependencies {
-    implementation 'io.substrait:substrait-compliance:0.1.1'
-    implementation 'org.duckdb:duckdb_jdbc:1.3.1.0'
-}
-```
-
-**Maven:**
-```xml
-<repositories>
-  <repository>
-    <id>github</id>
-    <url>https://maven.pkg.github.com/IBM/substrait-compliance</url>
-  </repository>
-</repositories>
-
-<dependencies>
-  <dependency>
-    <groupId>io.substrait</groupId>
-    <artifactId>substrait-compliance</artifactId>
-    <version>0.1.1</version>
-  </dependency>
-  <dependency>
-    <groupId>org.duckdb</groupId>
-    <artifactId>duckdb_jdbc</artifactId>
-    <version>1.3.1.0</version>
-  </dependency>
-</dependencies>
-```
-
-GitHub Packages requires authentication even for public packages. Set
-`GITHUB_TOKEN` to a Personal Access Token (PAT) with `read:packages` scope,
-or reuse the token that Actions injects automatically.
-
 ## License
 
 Apache License 2.0

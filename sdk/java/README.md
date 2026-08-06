@@ -6,122 +6,41 @@ Java SDK for Substrait compliance testing.
 
 **Coordinates:** `io.substrait:substrait-compliance:0.1.1`
 
-The SDK is published to two repositories:
-
-| Repository | URL | Auth required |
-|---|---|---|
-| Maven Central | `https://repo1.maven.org/maven2/` | None |
-| GitHub Packages | `https://maven.pkg.github.com/IBM/substrait-compliance` | PAT with `read:packages` |
-
-Maven Central is the preferred option for consumers — no credentials needed.
-GitHub Packages is always available immediately after each push to `main`.
-
-### Gradle (Maven Central — no auth)
-
-```gradle
-dependencies {
-    implementation 'io.substrait:substrait-compliance:0.1.1'
-}
-```
-
-### Gradle (GitHub Packages)
-
-```gradle
-repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/IBM/substrait-compliance")
-        credentials {
-            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gpr.key")  ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
-}
-
-dependencies {
-    implementation 'io.substrait:substrait-compliance:0.1.1'
-}
-```
-
-Store the PAT in `~/.gradle/gradle.properties`:
-
-```properties
-gpr.user=<your-github-username>
-gpr.key=<your-PAT-with-read:packages>
-```
-
-### Maven (Maven Central — no auth)
-
-```xml
-<dependencies>
-  <dependency>
-    <groupId>io.substrait</groupId>
-    <artifactId>substrait-compliance</artifactId>
-    <version>0.1.1</version>
-  </dependency>
-</dependencies>
-```
-
-### Maven (GitHub Packages)
-
-```xml
-<repositories>
-  <repository>
-    <id>github</id>
-    <url>https://maven.pkg.github.com/IBM/substrait-compliance</url>
-  </repository>
-</repositories>
-
-<dependencies>
-  <dependency>
-    <groupId>io.substrait</groupId>
-    <artifactId>substrait-compliance</artifactId>
-    <version>0.1.1</version>
-  </dependency>
-</dependencies>
-```
-
-Add credentials to `~/.m2/settings.xml`:
-
-```xml
-<settings>
-  <servers>
-    <server>
-      <id>github</id>
-      <username>YOUR_GITHUB_USERNAME</username>
-      <password>YOUR_PAT</password>
-    </server>
-  </servers>
-</settings>
-```
-
-### Building from source
+The SDK is not yet published to Maven Central or GitHub Packages.
+Build from source:
 
 ```bash
 cd sdk/java
-./gradlew build          # builds + tests
-./gradlew shadowJar      # produces substrait-compliance-0.1.1-all.jar
+./gradlew build          # compile + test
+./gradlew shadowJar      # produces build/libs/substrait-compliance-0.1.1-all.jar
 ```
 
-### Publishing to Maven Central (maintainers)
+The fat jar (`-all.jar`) bundles all runtime dependencies and can be placed
+directly on any classpath.
 
-The `publish-maven-central` CI job runs automatically on every push to `main`
-when the following four repository secrets are set:
-
-| Secret | What |
-|---|---|
-| `OSSRH_USERNAME` | Sonatype OSSRH token username |
-| `OSSRH_PASSWORD` | Sonatype OSSRH token password |
-| `SIGNING_KEY` | ASCII-armored GPG private key (`gpg --armor --export-secret-key KEY_ID`) |
-| `SIGNING_PASSWORD` | GPG passphrase |
-
-The job publishes to the OSSRH staging repository, which syncs to Maven Central
-within ~30 minutes. To trigger a release manually:
+### Using the fat jar in a project (no build tool)
 
 ```bash
-cd sdk/java
-OSSRH_USERNAME=... OSSRH_PASSWORD=... SIGNING_KEY=... SIGNING_PASSWORD=... \
-  ./gradlew publishMavenPublicationToMavenCentralRepository --no-daemon
+# Compile your engine
+javac -cp sdk/java/build/libs/substrait-compliance-0.1.1-all.jar MyEngine.java
+
+# Run
+java -cp ".:sdk/java/build/libs/substrait-compliance-0.1.1-all.jar" MyMain
 ```
+
+### Using the fat jar in Gradle (local file dependency)
+
+```gradle
+dependencies {
+    implementation files('path/to/substrait-compliance-0.1.1-all.jar')
+}
+```
+
+### Publishing (maintainers)
+
+Publishing to GitHub Packages and Maven Central is handled by
+`.github/workflows/release-publish.yml` on tag pushes. Required secrets:
+`OSSRH_USERNAME`, `OSSRH_PASSWORD`, `SIGNING_KEY`, `SIGNING_PASSWORD`.
 
 ## Quick Start
 

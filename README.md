@@ -174,47 +174,23 @@ For full SDK build verification, use the ordered checklist in [`docs/SDK_VERIFIC
 <details>
 <summary><b>Java SDK (Recommended — Most Complete)</b></summary>
 
-**Option A — Depend on the published artifact (recommended)**
-
-Add to your `build.gradle`:
-```groovy
-repositories {
-    maven {
-        url = uri("https://maven.pkg.github.com/IBM/substrait-compliance")
-        credentials {
-            username = project.findProperty("gpr.user") ?: System.getenv("GITHUB_ACTOR")
-            password = project.findProperty("gpr.key")  ?: System.getenv("GITHUB_TOKEN")
-        }
-    }
-}
-
-dependencies {
-    implementation 'io.substrait:substrait-compliance:0.1.1'
-}
-```
-
-The package is published to [GitHub Packages](https://github.com/IBM/substrait-compliance/packages) on every push to `main`. A read-only GitHub token (personal or `GITHUB_TOKEN` in Actions) is sufficient to consume it.
-
-**Option B — Build from source**
+The SDK is not yet published to Maven Central or GitHub Packages.
+Build from source:
 
 ```bash
 cd sdk/java
-./gradlew build
-
-# Run tests to verify
-./gradlew test
+./gradlew build        # compile + run tests
+./gradlew shadowJar    # produces build/libs/substrait-compliance-0.1.1-all.jar
 
 # Expected output:
-# BUILD SUCCESSFUL
-# 12 tests passed ✅
+# BUILD SUCCESSFUL — 87 tests passed ✅
 ```
 
-**Verify installation:**
+**Verify build:**
 ```bash
-ls -la build/libs/
-# substrait-compliance-0.1.1.jar       (library jar)
+ls -la sdk/java/build/libs/
 # substrait-compliance-0.1.1-all.jar   (fat jar with all dependencies)
-# substrait-compliance-0.1.1-sources.jar
+# substrait-compliance-0.1.1.jar       (library jar, no deps bundled)
 ```
 </details>
 
