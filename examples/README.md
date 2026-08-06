@@ -11,8 +11,8 @@ interface — data loading, plan validation, and `executePlan` / `execute_plan`.
 | `duckdb-java` | Java | ✅ Real — JDBC + `substrait()` table function |
 | `duckdb-cpp` | C++ | ✅ Real — native `from_substrait()` C++ API |
 | `datafusion-python` | Python | ✅ Real if `datafusion-substrait` is installed; returns `None` (FAILED) otherwise |
-| `datafusion-rust` | Rust | 🔧 Structural — wiring compiles and runs, DataFusion execution not yet called |
-| `velox-cpp` | C++ | 🔧 Structural — wiring compiles and runs, Velox task execution not yet called |
+| `datafusion-rust` | Rust | ✅ Real — registers Arrow MemTables, calls `from_substrait_plan` + `collect()` |
+| `velox-cpp` | C++ | ✅ Wired — `SubstraitVeloxPlanConverter`, `Task::create/start/next`; requires a Velox build to link |
 
 For the `duckdb-java` example, a typical run against the TPC-H suite with the
 substrait extension loaded reports results per query — pass rate depends on
@@ -87,10 +87,11 @@ python datafusion_compliance.py
 ### 4. DataFusion (Rust)
 **Location:** `datafusion-rust/`
 
-Structural Rust integration with async execution scaffolding:
-- Tokio runtime, async/await patterns
-- Input data creation and table registration structure
-- `execute_plan` dispatch point — DataFusion Substrait consumer call not yet wired
+Real DataFusion integration using `datafusion-substrait`:
+- Registers input `TableData` as in-memory Arrow `MemTable`s
+- Serializes the plan and calls `from_substrait_plan` to get a `LogicalPlan`
+- Executes via `SessionContext::execute_logical_plan` and collects results
+- Requires `protoc` to compile the `substrait` proto crate (`apt install protobuf-compiler` or Homebrew)
 
 **Build & Run:**
 ```bash
@@ -102,11 +103,11 @@ cargo run --release -- [plan.substrait]
 ### 5. Velox (C++)
 **Location:** `velox-cpp/`
 
-Structural Velox integration with vectorized execution scaffolding:
-- `SubstraitVeloxPlanConverter` included and called in `convertSubstraitPlan`
-- Presto SQL function registration, memory pool setup
-- `executeVeloxPlan` creates and starts a `Task` — full result collection
-  path is present but requires a working Velox build to verify
+Fully wired Velox integration with vectorized execution:
+- Registers input data as `RowVector`s in a Velox memory pool
+- Converts the Substrait plan via `SubstraitVeloxPlanConverter::toVeloxPlan`
+- Executes via `exec::Task::create/start` and collects results with `task->next()`
+- Source compiles against the Velox headers; linking requires a complete Velox build
 
 **Build & Run:**
 ```bash
@@ -123,8 +124,8 @@ make -j$(nproc)
 |---------|--------------|--------------|---------------------|-------------------|-------------|
 | **Language** | Java 17 | C++17 | Python 3.9+ | Rust 2021 | C++17 |
 | **Execution model** | Synchronous | Synchronous | Synchronous | Async (Tokio) | Synchronous |
-| **`executePlan` status** | ✅ Real | ✅ Real | ✅ Real (if installed) | 🔧 Structural | 🔧 Structural |
-| **Plan mechanism** | JDBC `substrait()` | `from_substrait()` | `consumer.from_substrait_plan()` | — | `SubstraitVeloxPlanConverter` |
+| **`executePlan` status** | ✅ Real | ✅ Real | ✅ Real (if installed) | ✅ Real | ✅ Wired (needs Velox build) |
+| **Plan mechanism** | JDBC `substrait()` | `from_substrait()` | `consumer.from_substrait_plan()` | `from_substrait_plan` + `collect()` | `SubstraitVeloxPlanConverter` + `Task` |
 | **Build time** | Fast (Gradle) | Fast | None (Python) | Medium | Slow |
 | **Dependencies** | DuckDB JDBC | DuckDB C++ | datafusion, pyarrow | datafusion crate | Velox, Presto funcs |
 

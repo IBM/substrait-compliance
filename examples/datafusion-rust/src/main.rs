@@ -4,7 +4,7 @@
 //! Substrait compliance tests.
 
 use datafusion_substrait_compliance::{
-    ComplianceResult, DataFusionComplianceEngine, TableData, Value,
+    DataFusionComplianceEngine, TableData, Value,
 };
 use std::collections::HashMap;
 use std::env;
@@ -103,6 +103,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 /// Load a Substrait plan from file
 fn load_plan_from_file(filename: &str) -> Result<Plan, Box<dyn std::error::Error>> {
+    use prost::Message;
     let bytes = fs::read(filename)?;
     let plan = Plan::decode(&bytes[..])?;
     Ok(plan)
