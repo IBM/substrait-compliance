@@ -1,10 +1,10 @@
+use std::collections::HashMap;
 /// Pass-through integration tests — prove the comparison path works end-to-end.
 ///
 /// A "pass-through" engine returns whatever expected output the test case
 /// carries.  Running such an engine must yield 100% pass rate.  Any failure
 /// indicates a bug in the comparator, the type-normalisation, or the loader.
 use substrait_compliance::*;
-use std::collections::HashMap;
 
 // ── Pass-through engine ───────────────────────────────────────────────────────
 
@@ -15,7 +15,9 @@ struct PassThroughEngine {
 
 impl PassThroughEngine {
     fn new() -> Self {
-        Self { expected: HashMap::new() }
+        Self {
+            expected: HashMap::new(),
+        }
     }
 }
 
@@ -54,7 +56,8 @@ fn make_table(vals: &[(i64, i64)]) -> TableData {
         Column::new("a", DataType::Integer),
         Column::new("b", DataType::Integer),
     ];
-    let rows: Vec<Vec<String>> = vals.iter()
+    let rows: Vec<Vec<String>> = vals
+        .iter()
         .map(|(a, b)| vec![a.to_string(), b.to_string()])
         .collect();
     TableData::new(columns, rows)
@@ -116,11 +119,14 @@ fn pass_through_engine_scores_100_percent() {
     ];
 
     // Build test suite in memory (id encoded in plan_bytes for engine lookup)
-    let test_cases: Vec<TestCase> = cases.iter().map(|(id, data)| {
-        let mut tc = TestCase::new(*id, format!("{} pass-through", id), id.as_bytes().to_vec());
-        tc.expected_output = Some(data.clone());
-        tc
-    }).collect();
+    let test_cases: Vec<TestCase> = cases
+        .iter()
+        .map(|(id, data)| {
+            let mut tc = TestCase::new(*id, format!("{} pass-through", id), id.as_bytes().to_vec());
+            tc.expected_output = Some(data.clone());
+            tc
+        })
+        .collect();
 
     let metadata = TestSuiteMetadata {
         name: "pass-through".to_string(),
@@ -131,7 +137,10 @@ fn pass_through_engine_scores_100_percent() {
     let suite = SimpleTestSuite::new("pass-through", test_cases, metadata);
 
     let engine = ExpectedReturnEngine {
-        outputs: cases.into_iter().map(|(id, data)| (id.to_string(), data)).collect(),
+        outputs: cases
+            .into_iter()
+            .map(|(id, data)| (id.to_string(), data))
+            .collect(),
     };
     let runner = ComplianceRunner::new(&engine);
     let report = runner.run_test_suite(&suite);
@@ -139,14 +148,17 @@ fn pass_through_engine_scores_100_percent() {
     assert_eq!(report.get_total_count(), 3, "should have 3 tests");
     assert_eq!(report.get_passed_count(), 3, "all three should pass");
     assert_eq!(report.get_failed_count(), 0, "no failures expected");
-    assert!((report.get_pass_rate() - 100.0).abs() < 0.01, "pass rate should be 100%");
+    assert!(
+        (report.get_pass_rate() - 100.0).abs() < 0.01,
+        "pass rate should be 100%"
+    );
 }
 
 /// Mismatched output must be caught as FAILED, not silently passed.
 #[test]
 fn value_mismatch_is_detected() {
     let expected = make_table(&[(1, 2)]);
-    let wrong    = make_table(&[(1, 99)]);   // row 0 col 1 is wrong
+    let wrong = make_table(&[(1, 99)]); // row 0 col 1 is wrong
 
     let mut tc = TestCase::new("mismatch", "mismatch test", b"mismatch".to_vec());
     tc.expected_output = Some(expected);
@@ -165,7 +177,11 @@ fn value_mismatch_is_detected() {
     let runner = ComplianceRunner::new(&engine);
     let report = runner.run_test_suite(&suite);
 
-    assert_eq!(report.get_failed_count(), 1, "wrong value should cause FAILED");
+    assert_eq!(
+        report.get_failed_count(),
+        1,
+        "wrong value should cause FAILED"
+    );
     assert_eq!(report.get_passed_count(), 0);
 }
 
@@ -189,13 +205,22 @@ fn missing_expected_output_is_skipped() {
     let runner = ComplianceRunner::new(&engine);
     let report = runner.run_test_suite(&suite);
 
-    assert_eq!(report.get_total_count(), 1,   "should have 1 test");
-    assert_eq!(report.get_skipped_count(), 1,
-        "missing expected output must produce SKIPPED, not PASSED or FAILED");
-    assert_eq!(report.get_passed_count(), 0,
-        "missing expected output must NOT count as passed");
-    assert_eq!(report.get_failed_count(), 0,
-        "missing expected output must not produce a spurious failure");
+    assert_eq!(report.get_total_count(), 1, "should have 1 test");
+    assert_eq!(
+        report.get_skipped_count(),
+        1,
+        "missing expected output must produce SKIPPED, not PASSED or FAILED"
+    );
+    assert_eq!(
+        report.get_passed_count(),
+        0,
+        "missing expected output must NOT count as passed"
+    );
+    assert_eq!(
+        report.get_failed_count(),
+        0,
+        "missing expected output must not produce a spurious failure"
+    );
 }
 
 /// Epsilon comparison: values within 1e-9 are equal; beyond that are different.
@@ -210,14 +235,14 @@ fn epsilon_comparison_for_floats() {
 
     // 1.0 vs 1.0 + 5e-10 → within epsilon → PASS
     let expected_close = make_double_row(1.0);
-    let actual_close   = make_double_row(1.0 + 5e-10);
+    let actual_close = make_double_row(1.0 + 5e-10);
 
     let mut tc_close = TestCase::new("close", "within epsilon", b"close".to_vec());
     tc_close.expected_output = Some(expected_close);
 
     // 1.0 vs 2.0 → outside epsilon → FAIL
     let expected_far = make_double_row(1.0);
-    let actual_far   = make_double_row(2.0);
+    let actual_far = make_double_row(2.0);
 
     let mut tc_far = TestCase::new("far", "outside epsilon", b"far".to_vec());
     tc_far.expected_output = Some(expected_far);
@@ -228,19 +253,27 @@ fn epsilon_comparison_for_floats() {
         description: "".to_string(),
     };
     use substrait_compliance::test_suite::SimpleTestSuite;
-    let suite = SimpleTestSuite::new("epsilon",
-        vec![tc_close, tc_far],
-        metadata);
+    let suite = SimpleTestSuite::new("epsilon", vec![tc_close, tc_far], metadata);
 
     let engine = ExpectedReturnEngine {
         outputs: [
             ("close".to_string(), actual_close),
-            ("far".to_string(),   actual_far),
-        ].into_iter().collect(),
+            ("far".to_string(), actual_far),
+        ]
+        .into_iter()
+        .collect(),
     };
     let runner = ComplianceRunner::new(&engine);
     let report = runner.run_test_suite(&suite);
 
-    assert_eq!(report.get_passed_count(), 1, "'close' should pass (within epsilon)");
-    assert_eq!(report.get_failed_count(), 1, "'far' should fail (outside epsilon)");
+    assert_eq!(
+        report.get_passed_count(),
+        1,
+        "'close' should pass (within epsilon)"
+    );
+    assert_eq!(
+        report.get_failed_count(),
+        1,
+        "'far' should fail (outside epsilon)"
+    );
 }

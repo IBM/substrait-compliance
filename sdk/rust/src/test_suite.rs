@@ -29,11 +29,7 @@ pub struct TestCase {
 }
 
 impl TestCase {
-    pub fn new(
-        id: impl Into<String>,
-        description: impl Into<String>,
-        plan_bytes: Vec<u8>,
-    ) -> Self {
+    pub fn new(id: impl Into<String>, description: impl Into<String>, plan_bytes: Vec<u8>) -> Self {
         Self {
             id: id.into(),
             description: description.into(),
@@ -77,11 +73,11 @@ impl TestSuite for SimpleTestSuite {
     fn get_name(&self) -> &str {
         &self.name
     }
-    
+
     fn get_test_cases(&self) -> &[TestCase] {
         &self.test_cases
     }
-    
+
     fn get_metadata(&self) -> &TestSuiteMetadata {
         &self.metadata
     }

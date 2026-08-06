@@ -34,22 +34,22 @@ impl ComplianceResult {
             execution_time_ms: 0,
         }
     }
-    
+
     pub fn with_output(mut self, output: TableData) -> Self {
         self.output_data = Some(output);
         self
     }
-    
+
     pub fn with_error(mut self, error: impl Into<String>) -> Self {
         self.error_message = Some(error.into());
         self
     }
-    
+
     pub fn with_execution_time(mut self, time_ms: u64) -> Self {
         self.execution_time_ms = time_ms;
         self
     }
-    
+
     pub fn is_success(&self) -> bool {
         self.status == TestStatus::Passed
     }
@@ -75,27 +75,39 @@ impl ComplianceReport {
             end_time: None,
         }
     }
-    
+
     pub fn get_passed_count(&self) -> usize {
-        self.results.iter().filter(|r| r.status == TestStatus::Passed).count()
+        self.results
+            .iter()
+            .filter(|r| r.status == TestStatus::Passed)
+            .count()
     }
-    
+
     pub fn get_failed_count(&self) -> usize {
-        self.results.iter().filter(|r| r.status == TestStatus::Failed).count()
+        self.results
+            .iter()
+            .filter(|r| r.status == TestStatus::Failed)
+            .count()
     }
-    
+
     pub fn get_skipped_count(&self) -> usize {
-        self.results.iter().filter(|r| r.status == TestStatus::Skipped).count()
+        self.results
+            .iter()
+            .filter(|r| r.status == TestStatus::Skipped)
+            .count()
     }
-    
+
     pub fn get_error_count(&self) -> usize {
-        self.results.iter().filter(|r| r.status == TestStatus::Error).count()
+        self.results
+            .iter()
+            .filter(|r| r.status == TestStatus::Error)
+            .count()
     }
-    
+
     pub fn get_total_count(&self) -> usize {
         self.results.len()
     }
-    
+
     pub fn get_pass_rate(&self) -> f64 {
         let total = self.get_total_count();
         if total == 0 {

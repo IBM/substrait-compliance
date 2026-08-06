@@ -62,8 +62,7 @@ impl ComplianceEngine for MockEngine {
     }
 }
 
-fn single_operation(
-) -> Box<dyn Fn() -> Result<(), Box<dyn Error>> + Send + Sync> {
+fn single_operation() -> Box<dyn Fn() -> Result<(), Box<dyn Error>> + Send + Sync> {
     Box::new(|| Ok(()))
 }
 
@@ -324,4 +323,3 @@ async fn test_benchmark_throughput_calculation() {
     assert!(result.throughput.is_finite());
     assert!(result.throughput > 0.0);
 }
-

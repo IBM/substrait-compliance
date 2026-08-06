@@ -23,11 +23,15 @@ pub trait TestSuiteLoader {
 pub struct YamlTestSuiteLoader;
 
 impl YamlTestSuiteLoader {
-    pub fn new() -> Self { Self }
+    pub fn new() -> Self {
+        Self
+    }
 }
 
 impl Default for YamlTestSuiteLoader {
-    fn default() -> Self { Self::new() }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 // ── YAML schema ─────────────────────────────────────────────────────────────
@@ -63,9 +67,9 @@ impl TestSuiteLoader for YamlTestSuiteLoader {
         let content = fs::read_to_string(path)?;
         let def: TestSuiteDefinition = serde_yaml::from_str(&content)?;
 
-        let base_dir = path.parent().ok_or_else(||
-            ComplianceError::Loading("Invalid path".to_string())
-        )?;
+        let base_dir = path
+            .parent()
+            .ok_or_else(|| ComplianceError::Loading("Invalid path".to_string()))?;
 
         let mut test_cases = Vec::new();
         for tc_def in def.test_cases {
@@ -79,7 +83,7 @@ impl TestSuiteLoader for YamlTestSuiteLoader {
             // Resolve expected-output path: explicit field or default location.
             let csv_path = match &tc_def.expected_output {
                 Some(rel) => base_dir.join(rel),
-                None      => base_dir.join("expected").join(format!("{}.csv", tc_def.id)),
+                None => base_dir.join("expected").join(format!("{}.csv", tc_def.id)),
             };
             if csv_path.exists() {
                 tc.expected_output = Some(load_csv(&csv_path)?);
@@ -94,7 +98,9 @@ impl TestSuiteLoader for YamlTestSuiteLoader {
             description: def.description,
         };
 
-        Ok(Box::new(SimpleTestSuite::new(def.name, test_cases, metadata)))
+        Ok(Box::new(SimpleTestSuite::new(
+            def.name, test_cases, metadata,
+        )))
     }
 
     fn supports(&self, path: &Path) -> bool {
@@ -112,9 +118,8 @@ impl TestSuiteLoader for YamlTestSuiteLoader {
 /// Typed header format: `colname:type|colname:type|...`
 /// Untyped header: absent — columns are named `column_1`, `column_2`, …
 pub fn load_csv(path: &Path) -> Result<TableData> {
-    let text = fs::read_to_string(path).map_err(|e| {
-        ComplianceError::Loading(format!("expected CSV {}: {}", path.display(), e))
-    })?;
+    let text = fs::read_to_string(path)
+        .map_err(|e| ComplianceError::Loading(format!("expected CSV {}: {}", path.display(), e)))?;
 
     let lines: Vec<&str> = text.lines().collect();
     if lines.is_empty() {
@@ -127,10 +132,13 @@ pub fn load_csv(path: &Path) -> Result<TableData> {
     let has_typed_header = fields.iter().all(|f| f.contains(':'));
 
     let (columns, data_start) = if has_typed_header {
-        let cols = fields.iter().map(|f| {
-            let (name, type_str) = f.split_once(':').unwrap_or((f, "varchar"));
-            Column::new(name.trim(), parse_data_type(type_str.trim()))
-        }).collect();
+        let cols = fields
+            .iter()
+            .map(|f| {
+                let (name, type_str) = f.split_once(':').unwrap_or((f, "varchar"));
+                Column::new(name.trim(), parse_data_type(type_str.trim()))
+            })
+            .collect();
         (cols, 1)
     } else {
         // No header: default column names, all varchar
@@ -144,7 +152,9 @@ pub fn load_csv(path: &Path) -> Result<TableData> {
     let mut rows: Vec<Vec<String>> = Vec::new();
     for line in &lines[data_start..] {
         let line = line.trim();
-        if line.is_empty() { continue; }
+        if line.is_empty() {
+            continue;
+        }
         let row: Vec<String> = line.split('|').map(|v| v.trim().to_string()).collect();
         rows.push(row);
     }
@@ -155,11 +165,11 @@ pub fn load_csv(path: &Path) -> Result<TableData> {
 fn parse_data_type(s: &str) -> DataType {
     match s.to_lowercase().as_str() {
         "integer" | "int" | "int32" | "i32" | "smallint" | "int4" => DataType::Integer,
-        "bigint" | "int64" | "i64"                                  => DataType::Bigint,
-        "double" | "fp64" | "float8" | "numeric" | "decimal"        => DataType::Double,
-        "boolean" | "bool"                                           => DataType::Boolean,
-        "date" | "timestamp"                                         => DataType::Date,
-        _                                                            => DataType::Varchar,
+        "bigint" | "int64" | "i64" => DataType::Bigint,
+        "double" | "fp64" | "float8" | "numeric" | "decimal" => DataType::Double,
+        "boolean" | "bool" => DataType::Boolean,
+        "date" | "timestamp" => DataType::Date,
+        _ => DataType::Varchar,
     }
 }
 
@@ -169,12 +179,15 @@ fn parse_data_type(s: &str) -> DataType {
 /// Each file `tablename.csv` becomes the entry keyed by `tablename`.
 pub fn load_input_data(dir: &Path) -> Result<HashMap<String, TableData>> {
     let mut map = HashMap::new();
-    if !dir.exists() { return Ok(map); }
+    if !dir.exists() {
+        return Ok(map);
+    }
     for entry in fs::read_dir(dir)? {
         let entry = entry?;
         let path = entry.path();
         if path.extension().and_then(|e| e.to_str()) == Some("csv") {
-            let name = path.file_stem()
+            let name = path
+                .file_stem()
                 .and_then(|s| s.to_str())
                 .unwrap_or("unknown")
                 .to_string();

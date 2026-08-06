@@ -15,7 +15,11 @@ pub struct EngineInfo {
 }
 
 impl EngineInfo {
-    pub fn new(name: impl Into<String>, version: impl Into<String>, vendor: impl Into<String>) -> Self {
+    pub fn new(
+        name: impl Into<String>,
+        version: impl Into<String>,
+        vendor: impl Into<String>,
+    ) -> Self {
         Self {
             name: name.into(),
             version: version.into(),
@@ -23,7 +27,7 @@ impl EngineInfo {
             description: String::new(),
         }
     }
-    
+
     pub fn with_description(mut self, description: impl Into<String>) -> Self {
         self.description = description.into();
         self
@@ -54,11 +58,11 @@ impl EngineCapabilities {
             ..Default::default()
         }
     }
-    
+
     pub fn supports_relation(&self, relation_type: &str) -> bool {
         self.supported_relations.iter().any(|r| r == relation_type)
     }
-    
+
     pub fn supports_function(&self, function_name: &str) -> bool {
         self.supported_functions.iter().any(|f| f == function_name)
     }

@@ -4,17 +4,19 @@ Python SDK for decentralized Substrait compliance testing.
 
 ## Installation
 
+The SDK is not yet published to PyPI. Install from source:
+
 ```bash
-pip install substrait-compliance   # once published to PyPI
+python3 -m venv venv && source venv/bin/activate
+pip install -e /path/to/substrait-compliance/sdk/python
 ```
 
-> **Installing from source?** Use [`install-dev.sh`](install-dev.sh) — it
-> ensures the correct package index is used regardless of local pip
-> configuration:
-> ```bash
-> python3 -m venv venv && source venv/bin/activate
-> ./install-dev.sh
-> ```
+Or use the helper script from within `sdk/python/`:
+
+```bash
+python3 -m venv venv && source venv/bin/activate
+./install-dev.sh
+```
 
 ## Quick Start
 

@@ -1,5 +1,5 @@
-use substrait_compliance::*;
 use std::collections::HashMap;
+use substrait_compliance::*;
 
 struct MockEngine;
 
@@ -7,11 +7,11 @@ impl ComplianceEngine for MockEngine {
     fn get_info(&self) -> EngineInfo {
         EngineInfo::new("MockEngine", "1.0.0", "Test")
     }
-    
+
     fn get_capabilities(&self) -> EngineCapabilities {
         EngineCapabilities::new()
     }
-    
+
     fn execute_plan(
         &self,
         _plan_bytes: &[u8],
@@ -19,7 +19,7 @@ impl ComplianceEngine for MockEngine {
     ) -> error::Result<ComplianceResult> {
         Ok(ComplianceResult::new("test", TestStatus::Passed))
     }
-    
+
     fn validate_plan(&self, _plan_bytes: &[u8]) -> error::Result<ComplianceResult> {
         Ok(ComplianceResult::new("test", TestStatus::Passed))
     }
@@ -37,7 +37,7 @@ fn test_engine_capabilities() {
     let mut caps = EngineCapabilities::new();
     caps.supported_relations.push("read".to_string());
     caps.supported_relations.push("filter".to_string());
-    
+
     assert!(caps.supports_relation("read"));
     assert!(!caps.supports_relation("join"));
 }
@@ -52,10 +52,16 @@ fn test_compliance_result() {
 #[test]
 fn test_compliance_report() {
     let mut report = ComplianceReport::new("tpch", "TestEngine");
-    report.results.push(ComplianceResult::new("q01", TestStatus::Passed));
-    report.results.push(ComplianceResult::new("q02", TestStatus::Failed));
-    report.results.push(ComplianceResult::new("q03", TestStatus::Passed));
-    
+    report
+        .results
+        .push(ComplianceResult::new("q01", TestStatus::Passed));
+    report
+        .results
+        .push(ComplianceResult::new("q02", TestStatus::Failed));
+    report
+        .results
+        .push(ComplianceResult::new("q03", TestStatus::Passed));
+
     assert_eq!(report.get_total_count(), 3);
     assert_eq!(report.get_passed_count(), 2);
     assert_eq!(report.get_failed_count(), 1);
@@ -73,7 +79,7 @@ fn test_table_data() {
         vec!["2".to_string(), "data".to_string()],
     ];
     let data = TableData::new(cols, rows);
-    
+
     assert_eq!(data.row_count(), 2);
     assert_eq!(data.column_count(), 2);
 }
@@ -83,7 +89,7 @@ fn test_mock_engine() {
     let engine = MockEngine;
     let info = engine.get_info();
     assert_eq!(info.name, "MockEngine");
-    
+
     let result = engine.execute_plan(&[], &HashMap::new()).unwrap();
     assert!(result.is_success());
 }

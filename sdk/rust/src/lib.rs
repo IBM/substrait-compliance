@@ -3,20 +3,20 @@
 //! This crate provides interfaces and utilities for engines to test
 //! their Substrait compliance in a decentralized manner.
 
-pub mod engine;
-pub mod runner;
-pub mod result;
-pub mod test_suite;
-pub mod table_data;
-pub mod loader;
-pub mod error;
 pub mod benchmark;
+pub mod engine;
+pub mod error;
+pub mod loader;
+pub mod result;
+pub mod runner;
+pub mod table_data;
+pub mod test_suite;
 
-pub use engine::{ComplianceEngine, EngineInfo, EngineCapabilities};
-pub use runner::ComplianceRunner;
-pub use result::{ComplianceResult, ComplianceReport, TestStatus};
-pub use test_suite::{TestSuite, SimpleTestSuite, TestCase, TestSuiteMetadata};
-pub use table_data::{TableData, Column, DataType};
-pub use loader::{TestSuiteLoader, YamlTestSuiteLoader, load_csv, load_input_data};
+pub use benchmark::{BenchmarkConfig, BenchmarkResult, BenchmarkRunner, BenchmarkStats};
+pub use engine::{ComplianceEngine, EngineCapabilities, EngineInfo};
 pub use error::ComplianceError;
-pub use benchmark::{BenchmarkRunner, BenchmarkConfig, BenchmarkResult, BenchmarkStats};
+pub use loader::{load_csv, load_input_data, TestSuiteLoader, YamlTestSuiteLoader};
+pub use result::{ComplianceReport, ComplianceResult, TestStatus};
+pub use runner::ComplianceRunner;
+pub use table_data::{Column, DataType, TableData};
+pub use test_suite::{SimpleTestSuite, TestCase, TestSuite, TestSuiteMetadata};

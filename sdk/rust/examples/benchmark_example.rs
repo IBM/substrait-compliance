@@ -115,7 +115,10 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let runner = BenchmarkRunner::new(&engine, config);
     let stats = runner
         .benchmark_operation("execute_plan", &|| {
-            engine.execute_plan(&plan_data, &input_data).map(|_| ()).map_err(|e| e.into())
+            engine
+                .execute_plan(&plan_data, &input_data)
+                .map(|_| ())
+                .map_err(|e| e.into())
         })
         .await?;
 
@@ -190,4 +193,3 @@ async fn main() -> Result<(), Box<dyn Error>> {
     println!("\n=== Benchmark Complete ===");
     Ok(())
 }
-

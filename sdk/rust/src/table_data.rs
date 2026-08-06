@@ -31,7 +31,7 @@ impl Column {
             nullable: true,
         }
     }
-    
+
     pub fn not_null(mut self) -> Self {
         self.nullable = false;
         self
@@ -49,15 +49,15 @@ impl TableData {
     pub fn new(columns: Vec<Column>, rows: Vec<Vec<String>>) -> Self {
         Self { columns, rows }
     }
-    
+
     pub fn row_count(&self) -> usize {
         self.rows.len()
     }
-    
+
     pub fn column_count(&self) -> usize {
         self.columns.len()
     }
-    
+
     pub fn get_column(&self, name: &str) -> Option<&Column> {
         self.columns.iter().find(|c| c.name == name)
     }
