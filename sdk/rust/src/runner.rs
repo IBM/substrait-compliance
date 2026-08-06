@@ -1,7 +1,6 @@
 //! Test runner for executing compliance tests.
 
 use crate::engine::ComplianceEngine;
-use crate::error::Result;
 use crate::result::{ComplianceReport, ComplianceResult, TestStatus};
 use crate::test_suite::{TestCase, TestSuite};
 use chrono::Utc;
@@ -16,21 +15,21 @@ impl<'a, E: ComplianceEngine> ComplianceRunner<'a, E> {
     pub fn new(engine: &'a E) -> Self {
         Self { engine }
     }
-    
+
     /// Run all tests in a suite.
     pub fn run_test_suite(&self, suite: &dyn TestSuite) -> ComplianceReport {
         let engine_info = self.engine.get_info();
         let mut report = ComplianceReport::new(suite.get_name(), &engine_info.name);
-        
+
         for test_case in suite.get_test_cases() {
             let result = self.run_test_case(test_case);
             report.results.push(result);
         }
-        
+
         report.end_time = Some(Utc::now());
         report
     }
-    
+
     /// Run a single test case.
     pub fn run_test_case(&self, test_case: &TestCase) -> ComplianceResult {
         let start = Instant::now();
@@ -44,7 +43,10 @@ impl<'a, E: ComplianceEngine> ComplianceRunner<'a, E> {
                 .with_execution_time(start.elapsed().as_millis() as u64);
         }
 
-        match self.engine.execute_plan(&test_case.plan_bytes, &test_case.input_data) {
+        match self
+            .engine
+            .execute_plan(&test_case.plan_bytes, &test_case.input_data)
+        {
             Ok(mut result) => {
                 // Compare against expected output (guaranteed Some by the guard above)
                 if let (Some(expected), Some(actual)) =
@@ -59,15 +61,17 @@ impl<'a, E: ComplianceEngine> ComplianceRunner<'a, E> {
                 result.execution_time_ms = start.elapsed().as_millis() as u64;
                 result
             }
-            Err(e) => {
-                ComplianceResult::new(&test_case.id, TestStatus::Error)
-                    .with_error(e.to_string())
-                    .with_execution_time(start.elapsed().as_millis() as u64)
-            }
+            Err(e) => ComplianceResult::new(&test_case.id, TestStatus::Error)
+                .with_error(e.to_string())
+                .with_execution_time(start.elapsed().as_millis() as u64),
         }
     }
-    
-    fn compare_results(&self, actual: &crate::table_data::TableData, expected: &crate::table_data::TableData) -> bool {
+
+    fn compare_results(
+        &self,
+        actual: &crate::table_data::TableData,
+        expected: &crate::table_data::TableData,
+    ) -> bool {
         if actual.row_count() != expected.row_count() {
             return false;
         }
@@ -97,12 +101,12 @@ impl<'a, E: ComplianceEngine> ComplianceRunner<'a, E> {
 fn normalize_type(dt: crate::table_data::DataType) -> &'static str {
     use crate::table_data::DataType::*;
     match dt {
-        Integer           => "integer",
-        Bigint            => "bigint",
-        Double | Decimal  => "double",
-        Varchar           => "string",
-        Date              => "string",   // dates compared as strings
-        Boolean           => "boolean",
+        Integer => "integer",
+        Bigint => "bigint",
+        Double | Decimal => "double",
+        Varchar => "string",
+        Date => "string", // dates compared as strings
+        Boolean => "boolean",
     }
 }
 

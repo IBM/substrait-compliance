@@ -1,6 +1,9 @@
 use crate::ComplianceEngine;
 use std::time::{Duration, Instant};
 
+/// Type alias for a benchmark operation closure to avoid the "very complex type" clippy lint.
+type BenchmarkOp = dyn Fn() -> Result<(), Box<dyn std::error::Error>> + Send + Sync;
+
 /// Performance metrics for a single operation
 #[derive(Debug, Clone)]
 pub struct OperationMetrics {
@@ -143,7 +146,7 @@ impl<'a, E: ComplianceEngine> BenchmarkRunner<'a, E> {
     pub async fn run_benchmark(
         &self,
         benchmark_name: &str,
-        operations: Vec<(&str, Box<dyn Fn() -> Result<(), Box<dyn std::error::Error>> + Send + Sync>)>,
+        operations: Vec<(&str, Box<BenchmarkOp>)>,
     ) -> Result<BenchmarkResult, Box<dyn std::error::Error>> {
         let start_time = Instant::now();
 
@@ -155,7 +158,7 @@ impl<'a, E: ComplianceEngine> BenchmarkRunner<'a, E> {
 
         let mut stats = Vec::new();
         for (name, operation) in operations {
-            let stat = self.benchmark_operation(name, &operation).await?;
+            let stat = self.benchmark_operation(name, operation.as_ref()).await?;
             stats.push(stat);
         }
 
@@ -228,7 +231,11 @@ impl<'a, E: ComplianceEngine> BenchmarkRunner<'a, E> {
     }
 
     /// Calculate statistics from metrics
-    fn calculate_stats(&self, operation_name: &str, metrics: &[OperationMetrics]) -> BenchmarkStats {
+    fn calculate_stats(
+        &self,
+        operation_name: &str,
+        metrics: &[OperationMetrics],
+    ) -> BenchmarkStats {
         let mut times: Vec<Duration> = metrics.iter().map(|m| m.execution_time).collect();
         times.sort();
 
@@ -272,7 +279,6 @@ impl<'a, E: ComplianceEngine> BenchmarkRunner<'a, E> {
             throughput,
         }
     }
-
 }
 
 #[cfg(test)]
@@ -302,4 +308,3 @@ mod tests {
         assert_eq!(metrics.len(), 2);
     }
 }
-
