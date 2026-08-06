@@ -67,6 +67,7 @@ test-output/
 out/
 output/
 !demo/output/.gitkeep
+!demo/output/analytics/analytics-report.json
 
 # Temporary files
 *.tmp
@@ -131,3 +132,22 @@ dependency-check-report.*
 trivy-report.*
 gitleaks-report.*
 secret-scan-report.*
+
+# Python virtual environments (any naming convention)
+**/.venv*/
+**/.venv-*/
+
+# Private / internal-only files (tracked in private repo only; absent from public repo)
+# These are excluded from the public remote via .oss-gitignore; they live only on disk
+# in the private clone and must never be accidentally staged.
+ROADMAP.md
+RELEASE_CHECKLIST.md
+SDK_TEST_SUITE_VERIFICATION.md
+SECURITY_SCAN_REPORT.md
+OSS_EXCLUDE.md
+quality_reports/
+test-suites-enhanced/
+test-suites/functions.old/
+docs/CDMS2026_Decentralized_Compliance_Framework.md
+docs/LINKEDIN_POST.md
+docs/decentralized-substrait-compliance-paper.md
