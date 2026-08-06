@@ -1,32 +1,54 @@
 # Substrait Compliance Examples
 
-Structural reference implementations showing how to wire a query engine into
-the compliance framework. Each example implements the full `ComplianceEngine`
-interface — data loading, plan validation, and the `executePlan` / `execute_plan`
-method — but the plan-execution body is currently a stub returning empty output
-(see the `STUB` comment in each file). A run against TPC-H will therefore show
-0% pass rate until Option A (real engine execution) is implemented.
+Reference implementations showing how to wire a query engine into the
+compliance framework. Each example implements the full `ComplianceEngine`
+interface — data loading, plan validation, and `executePlan` / `execute_plan`.
 
-The five working demo engines in [`demo/engines/`](../demo/engines/) demonstrate
-the full round-trip (load → execute → compare → report) and are the current
-proof that the framework works end-to-end.
+**Execution status by example:**
+
+| Example | Language | `executePlan` status |
+|---------|----------|----------------------|
+| `duckdb-java` | Java | ✅ Real — JDBC + `substrait()` table function |
+| `duckdb-cpp` | C++ | ✅ Real — native `from_substrait()` C++ API |
+| `datafusion-python` | Python | ✅ Real if `datafusion-substrait` is installed; returns `None` (FAILED) otherwise |
+| `datafusion-rust` | Rust | 🔧 Structural — wiring compiles and runs, DataFusion execution not yet called |
+| `velox-cpp` | C++ | 🔧 Structural — wiring compiles and runs, Velox task execution not yet called |
+
+For the `duckdb-java` example, a typical run against the TPC-H suite with the
+substrait extension loaded reports results per query — pass rate depends on
+which TPC-H plans your DuckDB version can execute. Without the extension it
+reports FAILED for each query with a clear `substrait extension not loaded`
+message.
 
 ## Reference Implementations
 
-### 1. DuckDB (C++)
+### 1. DuckDB (Java)
+**Location:** `duckdb-java/`
+
+Real DuckDB integration via JDBC. The `executePlan` method:
+1. Loads input `TableData` into DuckDB via `CREATE TABLE` + `INSERT`
+2. Base64-encodes the plan bytes and calls `SELECT * FROM substrait('<base64>')`
+3. Reads the `ResultSet` back into a `TableData` using JDBC metadata for types
+
+**Run:**
+```bash
+cd duckdb-java
+./compile.sh
+java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.0-all.jar" \
+    io.substrait.example.DuckDBComplianceExample
+```
+
+Requires DuckDB JDBC with the substrait extension installable. The engine
+attempts `INSTALL substrait; LOAD substrait;` on startup and prints a warning
+if the extension is unavailable.
+
+### 2. DuckDB (C++)
 **Location:** `duckdb-cpp/`
 
-DuckDB integration skeleton using native Substrait support:
-- Native Substrait extension usage
-- SQL-based data loading
-- Type mapping between Substrait and DuckDB
-- Base64 encoding for binary plans
-
-**Features:**
-- 40+ supported functions
-- All Substrait primitive and complex types
-- Direct plan execution via `from_substrait()`
-- Comprehensive validation
+Real DuckDB integration via the native C++ API. The `executePlan` method:
+1. Loads input data via `DROP TABLE IF EXISTS` + `CREATE TABLE` + `INSERT`
+2. Base64-encodes the plan bytes and calls `conn_->Query("SELECT * FROM from_substrait('<base64>')")`
+3. Fetches chunks from the `QueryResult` and converts to `TableData`
 
 **Build & Run:**
 ```bash
@@ -37,30 +59,38 @@ make
 ./duckdb_compliance_example [plan.substrait]
 ```
 
-### 2. DuckDB (Java)
-**Location:** `duckdb-java/`
+### 3. DataFusion (Python)
+**Location:** `datafusion-python/`
 
-Java-based DuckDB integration example:
-- `ComplianceEngine` implementation
-- SQL-based data loading
-- Substrait plan execution
-- TPC-H test suite support
+Python DataFusion integration using `datafusion-substrait`. When the packages
+are installed, `execute_plan` calls:
+
+```python
+plan = await serde.deserialize_bytes(plan_bytes)
+df   = await consumer.from_substrait_plan(ctx, plan)
+batches = df.collect()
+```
+
+If `datafusion` or `datafusion-substrait` is not installed the engine
+constructor prints a warning and `execute_plan` returns `None`, causing
+the runner to report FAILED with a clear message rather than raising at
+import time.
 
 **Run:**
 ```bash
-cd duckdb-java
-./compile.sh
-java -cp "../../sdk/java/build/libs/*:." io.substrait.example.DuckDBComplianceExample
+cd datafusion-python
+pip install datafusion datafusion-substrait pyarrow
+pip install -e ../../sdk/python
+python datafusion_compliance.py
 ```
 
-### 3. DataFusion (Rust)
+### 4. DataFusion (Rust)
 **Location:** `datafusion-rust/`
 
-Apache DataFusion integration skeleton with async execution:
-- Native Substrait consumer (stub — not yet called)
-- Arrow-based processing structure
-- Async/await with Tokio runtime
-- Type-safe Rust implementation
+Structural Rust integration with async execution scaffolding:
+- Tokio runtime, async/await patterns
+- Input data creation and table registration structure
+- `execute_plan` dispatch point — DataFusion Substrait consumer call not yet wired
 
 **Build & Run:**
 ```bash
@@ -69,30 +99,14 @@ cargo build --release
 cargo run --release -- [plan.substrait]
 ```
 
-### 4. DataFusion (Python)
-**Location:** `datafusion-python/`
-
-Python-based Apache DataFusion integration:
-- Pythonic `ComplianceEngine` implementation
-- DataFrame-based data handling
-- Native Substrait support
-- TPC-H test suite execution
-
-**Run:**
-```bash
-cd datafusion-python
-pip install -e ../../sdk/python
-python datafusion_compliance.py
-```
-
 ### 5. Velox (C++)
 **Location:** `velox-cpp/`
 
-Velox integration skeleton with vectorized execution structure:
-- Velox's SubstraitVeloxPlanConverter (stub — not yet called)
-- Columnar processing structure
-- Presto SQL function library wiring
-- Memory management scaffolding
+Structural Velox integration with vectorized execution scaffolding:
+- `SubstraitVeloxPlanConverter` included and called in `convertSubstraitPlan`
+- Presto SQL function registration, memory pool setup
+- `executeVeloxPlan` creates and starts a `Task` — full result collection
+  path is present but requires a working Velox build to verify
 
 **Build & Run:**
 ```bash
@@ -102,37 +116,17 @@ cmake ..
 make -j$(nproc)
 ./velox_compliance_example [plan.substrait]
 ```
+
 ## Comparison Matrix
 
-| Feature | DuckDB (C++) | DataFusion (Rust) | Velox (C++) |
-|---------|--------------|-------------------|-------------|
-| **Language** | C++17 | Rust 2021 | C++17 |
-| **Execution** | SQL-based | Vectorized | Vectorized |
-| **Memory** | In-memory | Arrow columnar | Custom pools |
-| **Stub status** | executePlan stub | execute_plan stub | executePlan stub |
-| **Build Time** | Fast | Medium | Slow |
-| **Dependencies** | Minimal | Moderate | Many |
-
-## Choosing an Implementation
-
-### Use DuckDB if:
-- You need fast development iteration
-- SQL compatibility is important
-- You want minimal dependencies
-- In-memory analytics is your use case
-
-### Use DataFusion if:
-- You prefer Rust's type safety
-- You need async execution
-- Arrow integration is important
-- You want modern async/await patterns
-
-### Use Velox if:
-- You need maximum performance
-- You're building production systems
-- You need Presto SQL compatibility
-- You can handle complex dependencies
-
+| Feature | DuckDB (Java) | DuckDB (C++) | DataFusion (Python) | DataFusion (Rust) | Velox (C++) |
+|---------|--------------|--------------|---------------------|-------------------|-------------|
+| **Language** | Java 17 | C++17 | Python 3.9+ | Rust 2021 | C++17 |
+| **Execution model** | Synchronous | Synchronous | Synchronous | Async (Tokio) | Synchronous |
+| **`executePlan` status** | ✅ Real | ✅ Real | ✅ Real (if installed) | 🔧 Structural | 🔧 Structural |
+| **Plan mechanism** | JDBC `substrait()` | `from_substrait()` | `consumer.from_substrait_plan()` | — | `SubstraitVeloxPlanConverter` |
+| **Build time** | Fast (Gradle) | Fast | None (Python) | Medium | Slow |
+| **Dependencies** | DuckDB JDBC | DuckDB C++ | datafusion, pyarrow | datafusion crate | Velox, Presto funcs |
 
 ## Architecture
 
@@ -140,10 +134,10 @@ All implementations follow the same pattern:
 
 ```
 1. Implement ComplianceEngine interface
-   ├── get_info() - Return engine metadata
-   ├── get_capabilities() - Declare supported features
-   ├── execute_plan() - Execute Substrait plans
-   └── validate_plan() - Validate plan structure
+   ├── get_info() / getEngineInfo()  — Return engine metadata
+   ├── get_capabilities()            — Declare supported features
+   ├── execute_plan()                — Execute Substrait plans
+   └── validate_plan()               — Validate plan structure
 
 2. Load test suite
    └── YamlTestSuiteLoader.load("metadata.yaml")
@@ -166,51 +160,41 @@ Each engine implements the `ComplianceEngine` interface:
 
 ### Data Loading
 Engines load test data into their native format:
-- **DuckDB:** SQL CREATE TABLE + INSERT statements
-- **DataFusion:** Arrow RecordBatch registration
-- **Velox:** RowVector with memory pools
+- **DuckDB:** SQL `CREATE TABLE` + `INSERT` statements
+- **DataFusion:** Arrow `RecordBatch` registration
+- **Velox:** `RowVector` with memory pools
 - **Custom:** Any format the engine supports
 
 ### Plan Execution
 Engines execute Substrait plans using their native support:
-- Parse binary Substrait plan
-- Convert to engine's internal representation
-- Execute against loaded data
-- Return results as TableData
+1. Receive plan bytes (binary protobuf) from the runner
+2. Convert to engine's internal representation
+3. Execute against pre-loaded input tables
+4. Return results as `TableData`
 
 ### Result Reporting
 Framework aggregates results across all tests:
-- Pass/fail counts
-- Error messages
-- Execution times
+- Pass/fail counts and error messages
+- Execution times per query
 - Pass rate percentage
 
 ## Adding Your Engine
 
-1. **Choose SDK:** C++, Rust, Java, or Python
-2. **Pick Template:** Start from the closest reference implementation
-3. **Implement Interface:** ComplianceEngine with all methods
-4. **Load Data:** Convert TableData to your engine's format
-5. **Execute Plans:** Use your engine's Substrait support
-6. **Run Tests:** Use ComplianceRunner
+1. **Choose SDK:** C++, Rust, Java, Python (or Go, TypeScript, C#, Scala)
+2. **Pick Template:** Start from the closest reference implementation above
+3. **Implement Interface:** `ComplianceEngine` with all four required methods
+4. **Load Data:** Convert `TableData` to your engine's format in `execute_plan`
+5. **Execute Plans:** Call your engine's Substrait consumer with the plan bytes
+6. **Run Tests:** Use `ComplianceRunner`
 7. **Optimize:** Profile and improve performance
-8. **Document:** Create README with build instructions
+8. **Document:** Create a README with build instructions
 9. **Share:** Contribute back to the community!
-
-## Benefits
-
-- **Self-Service:** Test locally without framework dependency
-- **Fast Iteration:** No waiting for central CI/CD
-- **Comprehensive:** Full function coverage
-- **Transparent:** See exactly what's being tested
-- **Reproducible:** Deterministic test cases
-- **Structural template:** Full interface wiring without the engine execution stub filled in
 
 ## Performance Tips
 
 ### DuckDB
 - Use in-memory database for speed
-- Batch INSERT statements
+- Batch `INSERT` statements
 - Enable parallel execution
 - Use appropriate data types
 
@@ -229,7 +213,7 @@ Framework aggregates results across all tests:
 ## Next Steps
 
 1. Choose an implementation based on your needs
-2. Follow the build instructions in the README
+2. Follow the build instructions above
 3. Run the example with sample data
 4. Create your own test plans
 5. Integrate with your CI/CD pipeline

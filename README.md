@@ -384,22 +384,23 @@ ls -la target/release/
 
 Every SDK exposes the same four required operations plus optional lifecycle hooks. The table below shows the exact names and signatures by language — use it as your checklist before writing any code.
 
-| | Java | Python | TypeScript | Rust | Go | C# |
-|---|---|---|---|---|---|---|
-| **Plan arg type** | `Plan` (parsed protobuf) | `bytes` | `Uint8Array` | `&[u8]` | `[]byte` | `byte[]` |
-| **Execution model** | Synchronous | Synchronous | `async`/`Promise` | Synchronous | `context.Context` | `async Task` |
-| **Get metadata** | `getEngineInfo()` | `get_info()` | `getInfo()` | `get_info()` | `GetInfo()` | `GetInfo()` |
-| **Get capabilities** | `getCapabilities()` | `get_capabilities()` | `getCapabilities()` | `get_capabilities()` | `GetCapabilities()` | `GetCapabilities()` |
-| **Execute plan** | `executePlan(Plan, Map<String,TableData>)` | `execute_plan(bytes, Dict[str,TableData])` | `executePlan(Uint8Array, Map<string,TableData>)` | `execute_plan(&[u8], &HashMap<String,TableData>)` | `ExecutePlan(ctx, []byte, map[string]*TableData)` | `ExecutePlanAsync(byte[], IReadOnlyDictionary<string,TableData>)` |
-| **Validate plan** | `validatePlan(Plan)` | `validate_plan(bytes)` | `validatePlan(Uint8Array)` | `validate_plan(&[u8])` | `ValidatePlan(ctx, []byte)` | `ValidatePlanAsync(byte[])` |
-| **Lifecycle init** | `initialize()` *(default no-op)* | — | `initialize?()` *(optional)* | — | `Initialize(ctx)` | `InitializeAsync()` *(default no-op)* |
-| **Lifecycle cleanup** | `cleanup()` *(default no-op)* | — | `shutdown?()` *(optional)* | — | `Shutdown(ctx)` | `ShutdownAsync()` *(default no-op)* |
+| | Java | Python | TypeScript | Rust | Go | C# | C++ | Scala |
+|---|---|---|---|---|---|---|---|---|
+| **Plan arg type** | `Plan` (parsed protobuf) | `bytes` | `Uint8Array` | `&[u8]` | `[]byte` | `byte[]` | `vector<uint8_t>` | `Array[Byte]` |
+| **Execution model** | Synchronous | Synchronous | `async`/`Promise` | Synchronous | `context.Context` | `async Task` | Synchronous | `Future` |
+| **Get metadata** | `getEngineInfo()` | `get_info()` | `getInfo()` | `get_info()` | `GetInfo()` | `GetInfo()` | `get_info()` | `getInfo` |
+| **Get capabilities** | `getCapabilities()` | `get_capabilities()` | `getCapabilities()` | `get_capabilities()` | `GetCapabilities()` | `GetCapabilities()` | `get_capabilities()` | `getCapabilities` |
+| **Execute plan** | `executePlan(Plan, Map<String,TableData>)` | `execute_plan(bytes, Dict[str,TableData])` | `executePlan(Uint8Array, Map<string,TableData>)` | `execute_plan(&[u8], &HashMap<String,TableData>)` | `ExecutePlan(ctx, []byte, map[string]*TableData)` | `ExecutePlanAsync(byte[], IReadOnlyDictionary<string,TableData>)` | `execute_plan(vector<uint8_t>, TableCollection)` | `executePlan(Array[Byte], Map[String,TableData])` |
+| **Validate plan** | `validatePlan(Plan)` | `validate_plan(bytes)` | `validatePlan(Uint8Array)` | `validate_plan(&[u8])` | `ValidatePlan(ctx, []byte)` | `ValidatePlanAsync(byte[])` | `validate_plan(vector<uint8_t>)` | `validatePlan(Array[Byte])` |
+| **Lifecycle init** | `initialize()` *(default no-op)* | — | `initialize?()` *(optional)* | — | `Initialize(ctx)` | `InitializeAsync()` *(default no-op)* | `initialize()` *(default no-op)* | `initialize()` *(default no-op)* |
+| **Lifecycle cleanup** | `cleanup()` *(default no-op)* | — | `shutdown?()` *(optional)* | — | `Shutdown(ctx)` | `ShutdownAsync()` *(default no-op)* | `shutdown()` *(default no-op)* | `shutdown()` *(default no-op)* |
 
 **Key differences to be aware of:**
 
 - **Java** receives a fully-parsed `io.substrait.proto.Plan` object — the SDK deserializes the protobuf before calling your engine. All other SDKs receive raw bytes and you deserialize inside `execute_plan` / `executePlan`.
-- **TypeScript** runner supports optional parallel execution (`RunnerOptions.parallel`). All other SDK runners execute tests sequentially.
+- **TypeScript** and **Scala** use `Future`-based async execution; the TypeScript runner also supports optional parallel execution (`RunnerOptions.parallel`). All other SDK runners execute tests sequentially.
 - **Go** passes a `context.Context` through every call — use it for cancellation and deadlines.
+- **C++** uses `vector<uint8_t>` for plan bytes and a `TableCollection` typedef (`unordered_map<string, TableData>`) for input data.
 - **Lifecycle**: `initialize` is called once before the first test in a suite; `cleanup`/`shutdown` once after the last. They are not called per-test. You may keep open connections across test cases within a suite, but the engine must be stateless between test case executions (input data is passed fresh each time).
 
 <details>
@@ -534,33 +535,30 @@ public class MyEngine : IComplianceEngine
 
 ### Step 3: Run Against Test Suites
 
-**Java example (DuckDB — structural template):**
+**Java example (DuckDB):**
 ```bash
 cd examples/duckdb-java
 ./compile.sh
 java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.0-all.jar" \
     io.substrait.example.DuckDBComplianceExample
 
-# Expected output (stub — executePlan not yet implemented):
-# Loaded test suite: add
-# Test cases: N
-# Compliance Score: 0.0%   ← honest result until Option A is wired in
-```
-
-**Python example (DataFusion — structural template):**
-```bash
-cd examples/datafusion-python
-source ../../sdk/python/venv/bin/activate   # or your own venv
-python datafusion_compliance.py
-
-# Expected output (stub — _execute_substrait_plan returns None):
+# Expected output (requires DuckDB JDBC with substrait extension):
 # Loaded test suite: tpch
 # Test cases: 22
-# Pass Rate: 0.0%   ← honest result until Option A is wired in
+# Pass Rate: N%   ← actual result depends on which plans your DuckDB version supports
 ```
 
-> For a working end-to-end round-trip (load → execute → compare → report),
-> see the five demo engines in [`demo/engines/`](demo/engines/).
+**Python example (DataFusion):**
+```bash
+pip install datafusion datafusion-substrait pyarrow
+cd examples/datafusion-python
+python datafusion_compliance.py
+
+# Expected output (when datafusion-substrait is installed):
+# Loaded test suite: tpch
+# Test cases: 22
+# Pass Rate: N%   ← actual result; without the packages installed, tests report FAILED
+```
 
 **Programmatic usage (Java):**
 ```java
@@ -782,7 +780,7 @@ substrait-compliance/
 │   ├── functions/                 # 140 function test files, 5,041 assertions (14 categories)
 │   ├── tpch/                      # TPC-H (22 queries, 8 data files, 44 plans)
 │   └── tpcds/                     # TPC-DS (99 queries, 24 data files, 198 plans)
-├── 💡 examples/                   # Structural integration templates (executePlan stubs — see examples/README.md)
+├── 💡 examples/                   # Integration examples — duckdb-java and duckdb-cpp execute plans; see examples/README.md
 │   ├── datafusion-python/         # DataFusion integration (Python)
 │   ├── datafusion-rust/           # DataFusion integration (Rust)
 │   ├── duckdb-cpp/                # DuckDB integration (C++)
@@ -1212,20 +1210,22 @@ cd sdk/rust && cargo build --release && cargo test
 
 ### Running Examples
 
-> **Note:** The examples in `examples/` are structural templates. The
-> `executePlan` / `execute_plan` body is a stub that returns empty output —
-> pass rate will be 0% until the real engine execution is wired in (Option A).
-> For a working demo, use [`demo/runner/run-simple-demo.sh`](demo/runner/run-simple-demo.sh).
+> **Note:** `duckdb-java` and `duckdb-cpp` execute plans for real (JDBC
+> `substrait()` and native `from_substrait()` respectively). `datafusion-python`
+> executes when `datafusion-substrait` is installed. `datafusion-rust` and
+> `velox-cpp` have the wiring in place but execution is not yet called. See
+> [`examples/README.md`](examples/README.md) for the full status table.
 
-**DuckDB (Java — structural template):**
+**DuckDB (Java):**
 ```bash
 cd examples/duckdb-java && ./compile.sh
 java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.0-all.jar" \
     io.substrait.example.DuckDBComplianceExample
 ```
 
-**DataFusion (Python — structural template):**
+**DataFusion (Python):**
 ```bash
+pip install datafusion datafusion-substrait pyarrow
 cd examples/datafusion-python && python datafusion_compliance.py
 ```
 
