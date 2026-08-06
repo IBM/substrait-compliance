@@ -6,7 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-# Set macOS SDK path for C++ standard library
+# Ensure macOS C++ standard library headers are found.
+# On macOS 15+ (darwin25) the SDK path returned by xcrun may not be in clang's
+# default include search path.  We force-add it so that <string>, <vector> etc.
+# are always resolved.
 if(APPLE)
     execute_process(
         COMMAND xcrun --show-sdk-path
@@ -14,6 +17,13 @@ if(APPLE)
         OUTPUT_STRIP_TRAILING_WHITESPACE
     )
     set(CMAKE_OSX_SYSROOT ${MACOS_SDK_PATH})
+    # Explicitly add libc++ and system headers so that clang can always find them
+    add_compile_options(
+        -stdlib=libc++
+        -I${MACOS_SDK_PATH}/usr/include/c++/v1
+        -I${MACOS_SDK_PATH}/usr/include
+    )
+    add_link_options(-stdlib=libc++)
 endif()
 
 # Options
@@ -25,25 +35,51 @@ option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 find_package(Protobuf REQUIRED)
 find_package(yaml-cpp REQUIRED)
 
+# yaml-cpp installed via Homebrew may not export its lib path via CMake config.
+# Fall back to pkg-config if the imported target has no LOCATION.
+if(APPLE)
+    execute_process(
+        COMMAND /opt/homebrew/bin/pkg-config --libs-only-L yaml-cpp
+        OUTPUT_VARIABLE YAML_CPP_LIBDIR
+        OUTPUT_STRIP_TRAILING_WHITESPACE
+        ERROR_QUIET
+    )
+    if(YAML_CPP_LIBDIR)
+        string(REPLACE "-L" "" YAML_CPP_LIBDIR "${YAML_CPP_LIBDIR}")
+        string(STRIP "${YAML_CPP_LIBDIR}" YAML_CPP_LIBDIR)
+        link_directories(${YAML_CPP_LIBDIR})
+    else()
+        # Homebrew default
+        link_directories(/opt/homebrew/lib)
+    endif()
+endif()
+
 # Include directories
 include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${Protobuf_INCLUDE_DIRS}
 )
 
-# Create header-only interface library
-add_library(substrait_compliance INTERFACE)
+# Implementation sources (runner, loader, comparator)
+set(SUBSTRAIT_COMPLIANCE_SRCS
+    src/runner.cpp
+    src/loader.cpp
+    src/comparator.cpp
+)
+
+# Build as a static library (replaces the header-only INTERFACE target)
+add_library(substrait_compliance STATIC ${SUBSTRAIT_COMPLIANCE_SRCS})
 
 target_include_directories(substrait_compliance
-    INTERFACE
+    PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
 )
 
 target_link_libraries(substrait_compliance
-    INTERFACE
-        ${Protobuf_LIBRARIES}
+    PUBLIC
         yaml-cpp
+        ${Protobuf_LIBRARIES}
 )
 
 # Set library properties

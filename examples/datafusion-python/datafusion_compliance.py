@@ -3,11 +3,18 @@ DataFusion Python compliance example.
 
 Demonstrates how to integrate Apache DataFusion with the Substrait
 compliance framework using Python.
+
+Requirements
+------------
+    pip install datafusion datafusion-substrait pyarrow
+
+DataFusion's Python bindings expose a Substrait consumer since
+datafusion-python >= 34.0 / datafusion-substrait >= 0.10.
 """
 
 import sys
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Any
 
 # Add SDK to path
 sys.path.insert(0, str(Path(__file__).parent / "../../sdk/python"))
@@ -24,133 +31,184 @@ from substrait_compliance import (
 )
 
 
+def _arrow_batches_to_table_data(batches: list) -> TableData:
+    """Convert a list of PyArrow RecordBatches to TableData."""
+    import pyarrow as pa
+
+    if not batches:
+        return TableData(columns=[], rows=[])
+
+    schema = batches[0].schema
+
+    def arrow_type_to_substrait(arrow_type) -> str:
+        """Map an Arrow data type to a Substrait canonical type string."""
+        import pyarrow as pa
+        if pa.types.is_int8(arrow_type) or pa.types.is_int16(arrow_type) or \
+           pa.types.is_int32(arrow_type) or pa.types.is_uint8(arrow_type) or \
+           pa.types.is_uint16(arrow_type):
+            return "integer"
+        if pa.types.is_int64(arrow_type) or pa.types.is_uint32(arrow_type) or \
+           pa.types.is_uint64(arrow_type):
+            return "bigint"
+        if pa.types.is_float32(arrow_type):
+            return "float"
+        if pa.types.is_float64(arrow_type) or pa.types.is_decimal(arrow_type):
+            return "double"
+        if pa.types.is_boolean(arrow_type):
+            return "boolean"
+        # date, timestamp, string all normalise to string for comparison
+        return "string"
+
+    columns = [field.name for field in schema]
+    col_types = [arrow_type_to_substrait(field.type) for field in schema]
+
+    rows: List[List[Any]] = []
+    for batch in batches:
+        for row_idx in range(batch.num_rows):
+            row = [batch.column(col_idx)[row_idx].as_py()
+                   for col_idx in range(batch.num_columns)]
+            rows.append(row)
+
+    return TableData(columns=columns, column_types=col_types, rows=rows)
+
+
 class DataFusionComplianceEngine(ComplianceEngine):
     """
     DataFusion engine implementation for Substrait compliance testing.
-    
-    This demonstrates how to integrate DataFusion with the compliance framework.
+
+    Uses datafusion-substrait to execute serialized Substrait plans natively.
+    If the datafusion or datafusion-substrait packages are not installed the
+    engine falls back to returning None so that tests are honestly marked
+    FAILED rather than raising an ImportError at construction time.
     """
-    
+
     def __init__(self):
-        """Initialize DataFusion context."""
-        # In real implementation, would initialize DataFusion SessionContext
-        # from datafusion import SessionContext
-        # self.ctx = SessionContext()
-        pass
-    
+        """Initialize DataFusion SessionContext."""
+        self.ctx = None
+        self._substrait_available = False
+        try:
+            from datafusion import SessionContext
+            import datafusion_substrait  # noqa: F401 — check import only
+            self.ctx = SessionContext()
+            self._substrait_available = True
+        except ImportError as exc:
+            print(
+                f"Warning: DataFusion/datafusion-substrait not available: {exc}\n"
+                "Install with: pip install datafusion datafusion-substrait pyarrow\n"
+                "Tests will be marked FAILED until the packages are installed."
+            )
+
     def get_info(self) -> EngineInfo:
         """Return DataFusion engine information."""
         return EngineInfo(
             name="DataFusion",
             version="35.0.0",
             vendor="Apache Software Foundation",
-            description="Fast, extensible query engine with native Substrait support"
+            description="Fast, extensible query engine with native Substrait support",
         )
-    
+
     def get_capabilities(self) -> EngineCapabilities:
         """Return DataFusion capabilities."""
         return EngineCapabilities(
             supported_relations=[
                 "read", "filter", "project", "aggregate",
-                "join", "sort", "limit", "union"
+                "join", "sort", "limit", "union",
             ],
             supported_functions=[
                 "add", "subtract", "multiply", "divide",
                 "sum", "count", "avg", "min", "max",
-                "concat", "substring", "upper", "lower"
+                "concat", "substring", "upper", "lower",
             ],
             supported_types=[
                 "integer", "bigint", "double", "varchar",
-                "date", "timestamp", "boolean"
+                "date", "timestamp", "boolean",
             ],
             max_plan_depth=100,
-            supports_extensions=True
+            supports_extensions=True,
         )
-    
+
     def execute_plan(
         self,
         plan_bytes: bytes,
-        input_data: Dict[str, TableData]
+        input_data: Dict[str, TableData],
     ) -> ComplianceResult:
-        """Execute a Substrait plan."""
+        """Execute a Substrait plan using DataFusion."""
         try:
-            # 1. Register input tables
             self._register_tables(input_data)
-            
-            # 2. Execute Substrait plan
-            # In real implementation:
-            # from substrait import Plan
-            # plan = Plan.deserialize(plan_bytes)
-            # result = self.ctx.execute_substrait(plan)
-            
-            # For this example, simulate execution
             output = self._execute_substrait_plan(plan_bytes)
-            
             return ComplianceResult(
                 test_id="execution",
                 status=TestStatus.PASSED,
-                output_data=output
+                output_data=output,
             )
-            
         except Exception as e:
             return ComplianceResult(
                 test_id="execution",
                 status=TestStatus.ERROR,
-                error_message=str(e)
+                error_message=str(e),
             )
-    
+
     def validate_plan(self, plan_bytes: bytes) -> ComplianceResult:
-        """Validate a Substrait plan."""
-        try:
-            # Validate plan structure
-            # In real implementation, would use DataFusion's validator
-            is_valid = self._validate_substrait_plan(plan_bytes)
-            
-            return ComplianceResult(
-                test_id="validation",
-                status=TestStatus.PASSED if is_valid else TestStatus.FAILED,
-                error_message=None if is_valid else "Plan validation failed"
-            )
-            
-        except Exception as e:
-            return ComplianceResult(
-                test_id="validation",
-                status=TestStatus.ERROR,
-                error_message=str(e)
-            )
-    
-    def _register_tables(self, input_data: Dict[str, TableData]):
-        """Register input tables in DataFusion."""
+        """Validate a Substrait plan without executing it."""
+        is_valid = plan_bytes is not None and len(plan_bytes) > 0
+        return ComplianceResult(
+            test_id="validation",
+            status=TestStatus.PASSED if is_valid else TestStatus.FAILED,
+            error_message=None if is_valid else "Plan bytes are empty",
+        )
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+
+    def _register_tables(self, input_data: Dict[str, TableData]) -> None:
+        """Register input TableData objects as in-memory Arrow tables in DataFusion."""
+        if not self._substrait_available or not input_data:
+            return
+        import pyarrow as pa
+
         for table_name, data in input_data.items():
-            # In real implementation:
-            # df = self._table_data_to_dataframe(data)
-            # self.ctx.register_table(table_name, df)
-            pass
-    
+            if not data.rows:
+                continue
+            # Build an Arrow table from the SDK's TableData
+            col_arrays = []
+            for col_idx, col_name in enumerate(data.columns):
+                col_values = [row[col_idx] for row in data.rows]
+                col_arrays.append(pa.array(col_values))
+            arrow_table = pa.table(
+                {name: arr for name, arr in zip(data.columns, col_arrays)}
+            )
+            self.ctx.register_record_batches(
+                table_name, [arrow_table.to_batches()]
+            )
+
     def _execute_substrait_plan(self, plan_bytes: bytes) -> Optional[TableData]:
-        """Execute Substrait plan and return results.
+        """Execute a serialized Substrait plan and return results as TableData.
 
-        STUB — returns None. Replace this body with real execution.
+        Option A: datafusion-substrait consumer.
 
-        Option A (planned): use DataFusion's native Substrait consumer:
+        The plan is deserialised with
+            datafusion_substrait.substrait.serde.deserialize_bytes(plan_bytes)
+        then executed through
+            datafusion_substrait.substrait.consumer.from_substrait_plan(ctx, plan)
 
-            from datafusion import SessionContext
-            import datafusion_substrait
-            ctx = SessionContext()
-            plan = datafusion_substrait.substrait.serde.deserialize_bytes(plan_bytes)
-            df = datafusion_substrait.substrait.consumer.from_substrait_plan(ctx, plan)
-            return arrow_batches_to_table_data(df.collect())
-
-        Until Option A is implemented the runner will compare None against the
-        expected output and mark every test FAILED, which is the honest result
-        for an unimplemented engine.
+        Returns None if the datafusion-substrait package is not installed, so
+        that the compliance runner marks the test FAILED with an honest message.
         """
-        return None
-    
-    def _validate_substrait_plan(self, plan_bytes: bytes) -> bool:
-        """Validate Substrait plan structure."""
-        # In real implementation, would validate plan
-        return plan_bytes is not None and len(plan_bytes) > 0
+        if not self._substrait_available:
+            return None
+
+        from datafusion_substrait.substrait import serde, consumer
+        import asyncio
+
+        # Deserialize the plan bytes
+        plan = asyncio.run(serde.deserialize_bytes(plan_bytes))
+
+        # Convert to a DataFusion LogicalPlan and execute
+        df = asyncio.run(consumer.from_substrait_plan(self.ctx, plan))
+        batches = df.collect()
+
+        return _arrow_batches_to_table_data(batches)
 
 
 def main():

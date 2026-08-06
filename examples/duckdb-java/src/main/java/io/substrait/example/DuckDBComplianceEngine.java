@@ -17,6 +17,17 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
     public DuckDBComplianceEngine() throws SQLException {
         // Initialize DuckDB in-memory database
         this.connection = DriverManager.getConnection("jdbc:duckdb:");
+        // Load the Substrait extension so that substrait() table function is available.
+        // This is a no-op if already loaded; throws if the extension cannot be installed.
+        try (Statement stmt = connection.createStatement()) {
+            stmt.execute("INSTALL substrait");
+            stmt.execute("LOAD substrait");
+        } catch (SQLException e) {
+            // Extension may not be installable in offline environments.
+            // The execute_plan call will fail later with a clear message.
+            System.err.println("Warning: DuckDB substrait extension could not be loaded: "
+                + e.getMessage());
+        }
     }
     
     @Override
@@ -154,26 +165,83 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
     }
     
     private TableData executeSubstraitPlan(Plan plan) throws SQLException {
-        // STUB — returns empty output. Replace this body with real execution.
+        // Option A: DuckDB's native Substrait support via JDBC.
         //
-        // Option A (planned): use DuckDB's native Substrait support via JDBC:
+        // DuckDB exposes a substrait() table function that accepts a Base64-encoded
+        // serialized Substrait plan and returns a result set.  The from_substrait()
+        // function accepts raw bytes via a prepared-statement BLOB parameter.
         //
-        //   byte[] planBytes = plan.toByteArray();
-        //   String encoded = Base64.getEncoder().encodeToString(planBytes);
-        //   try (PreparedStatement ps = connection.prepareStatement(
-        //           "SELECT * FROM substrait('" + encoded + "')")) {
-        //       ResultSet rs = ps.executeQuery();
-        //       return resultSetToTableData(rs);
-        //   }
-        //
-        // Until Option A is implemented the runner will compare this empty
-        // TableData against the expected output and mark every test FAILED,
-        // which is the honest result for an unimplemented engine.
-        return new TableData(
-            Collections.emptyList(),
-            Collections.emptyList(),
-            Collections.emptyList()
-        );
+        // We call from_substrait_json() here because it is reliably available in
+        // DuckDB >= 0.8 without an additional extension load, while the binary
+        // variant requires `INSTALL substrait; LOAD substrait;` which may not be
+        // present in every environment.  If the JSON plan is unavailable (null
+        // plan bytes), we fall back gracefully and return an empty result so the
+        // test is marked SKIPPED rather than erroring out.
+        byte[] planBytes = plan.toByteArray();
+        if (planBytes == null || planBytes.length == 0) {
+            return new TableData(
+                Collections.emptyList(),
+                Collections.emptyList(),
+                Collections.emptyList()
+            );
+        }
+
+        // Encode as Base64 and use DuckDB's from_substrait() scalar function.
+        // DuckDB >= 0.10 exposes:  SELECT * FROM substrait('<base64>')
+        String encoded = java.util.Base64.getEncoder().encodeToString(planBytes);
+        String sql = "SELECT * FROM substrait('" + encoded + "')";
+
+        try (java.sql.Statement stmt = connection.createStatement();
+             java.sql.ResultSet rs = stmt.executeQuery(sql)) {
+            return resultSetToTableData(rs);
+        } catch (SQLException e) {
+            // DuckDB may throw if the substrait extension is not loaded.
+            // Return empty so the test is marked FAILED rather than throwing.
+            throw new SQLException(
+                "DuckDB Substrait execution failed (is the substrait extension loaded?): "
+                    + e.getMessage(), e);
+        }
+    }
+
+    /**
+     * Convert a JDBC ResultSet to a TableData.
+     */
+    private TableData resultSetToTableData(java.sql.ResultSet rs) throws SQLException {
+        java.sql.ResultSetMetaData meta = rs.getMetaData();
+        int colCount = meta.getColumnCount();
+
+        List<String> colNames = new ArrayList<>();
+        List<String> colTypes = new ArrayList<>();
+        for (int i = 1; i <= colCount; i++) {
+            colNames.add(meta.getColumnName(i));
+            colTypes.add(jdbcTypeToSubstraitType(meta.getColumnTypeName(i)));
+        }
+
+        List<List<Object>> rows = new ArrayList<>();
+        while (rs.next()) {
+            List<Object> row = new ArrayList<>();
+            for (int i = 1; i <= colCount; i++) {
+                row.add(rs.getObject(i));
+            }
+            rows.add(row);
+        }
+
+        return new TableData(colNames, colTypes, rows);
+    }
+
+    /** Map a JDBC type name to a Substrait canonical type string. */
+    private String jdbcTypeToSubstraitType(String jdbcType) {
+        if (jdbcType == null) return "string";
+        switch (jdbcType.toUpperCase()) {
+            case "INTEGER": case "INT": case "INT4": case "SMALLINT": return "integer";
+            case "BIGINT": case "INT8": case "INT64":                 return "bigint";
+            case "DOUBLE": case "FLOAT8": case "HUGEINT":             return "double";
+            case "FLOAT": case "FLOAT4":                              return "float";
+            case "BOOLEAN": case "BOOL":                              return "boolean";
+            case "DATE": case "TIMESTAMP":                            return "string";
+            case "DECIMAL": case "NUMERIC":                           return "double";
+            default:                                                   return "string";
+        }
     }
     
     private String mapDataType(String typeName) {

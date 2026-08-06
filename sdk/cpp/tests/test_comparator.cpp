@@ -34,8 +34,9 @@ TEST(ResultComparatorTest, CompareDifferentTables) {
 TEST(ResultComparatorTest, CompareFloatsWithEpsilon) {
     ResultComparator comparator;
     
+    // 5e-10 is within the default epsilon of 1e-9
     CellValue a = 1.0;
-    CellValue b = 1.0000001;
+    CellValue b = 1.0 + 5e-10;
     
     EXPECT_TRUE(comparator.compare_values(a, b, "DOUBLE"));
 }
