@@ -12,7 +12,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SDK_DIR="$SCRIPT_DIR/../../sdk/java"
-FAT_JAR="$SDK_DIR/build/libs/substrait-compliance-0.1.0-all.jar"
+FAT_JAR="$SDK_DIR/build/libs/substrait-compliance-0.1.1-all.jar"
 DUCKDB_VERSION="1.3.1.0"
 DUCKDB_JAR="$SCRIPT_DIR/lib/duckdb_jdbc-${DUCKDB_VERSION}.jar"
 

@@ -212,9 +212,9 @@ cd sdk/java
 **Verify installation:**
 ```bash
 ls -la build/libs/
-# substrait-compliance-0.1.0.jar       (library jar)
-# substrait-compliance-0.1.0-all.jar   (fat jar with all dependencies)
-# substrait-compliance-0.1.0-sources.jar
+# substrait-compliance-0.1.1.jar       (library jar)
+# substrait-compliance-0.1.1-all.jar   (fat jar with all dependencies)
+# substrait-compliance-0.1.1-sources.jar
 ```
 </details>
 
@@ -539,7 +539,7 @@ public class MyEngine : IComplianceEngine
 ```bash
 cd examples/duckdb-java
 ./compile.sh
-java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.0-all.jar" \
+java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.1-all.jar" \
     io.substrait.example.DuckDBComplianceExample
 
 # Expected output (requires DuckDB JDBC with substrait extension):
@@ -1219,7 +1219,7 @@ cd sdk/rust && cargo build --release && cargo test
 **DuckDB (Java):**
 ```bash
 cd examples/duckdb-java && ./compile.sh
-java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.0-all.jar" \
+java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.1-all.jar" \
     io.substrait.example.DuckDBComplianceExample
 ```
 

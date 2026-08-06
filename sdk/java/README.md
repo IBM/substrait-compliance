@@ -99,7 +99,7 @@ Add credentials to `~/.m2/settings.xml`:
 ```bash
 cd sdk/java
 ./gradlew build          # builds + tests
-./gradlew shadowJar      # produces substrait-compliance-0.1.0-all.jar
+./gradlew shadowJar      # produces substrait-compliance-0.1.1-all.jar
 ```
 
 ### Publishing to Maven Central (maintainers)

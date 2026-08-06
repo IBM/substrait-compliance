@@ -1,6 +1,6 @@
 [package]
 name = "substrait-compliance"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Substrait Community"]
 description = "Decentralized compliance testing SDK for Substrait engines"

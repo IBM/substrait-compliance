@@ -450,7 +450,7 @@ jobs:
 
       - name: Smoke test — class loads without error
         run: |
-          FAT_JAR=sdk/java/build/libs/substrait-compliance-0.1.0-all.jar
+          FAT_JAR=sdk/java/build/libs/substrait-compliance-0.1.1-all.jar
           DUCKDB_JAR=examples/duckdb-java/lib/duckdb_jdbc-1.3.1.0.jar
           java -cp "examples/duckdb-java/build:$FAT_JAR:$DUCKDB_JAR" \
                io.substrait.example.DuckDBComplianceExample \

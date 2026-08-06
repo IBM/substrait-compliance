@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "substrait-compliance"
-version = "0.1.0"
+version = "0.1.1"
 description = "Decentralized compliance testing SDK for Substrait engines"
 readme = "README.md"
 license = { text = "Apache-2.0" }
