@@ -24,7 +24,7 @@ Add the following to your `build.sbt`:
 
 ```scala
 libraryDependencies ++= Seq(
-  "io.substrait" %% "substrait-compliance" % "1.0.0",
+  "io.substrait" %% "substrait-compliance" % "0.1.1",
   "io.circe" %% "circe-core" % "0.14.6",
   "io.circe" %% "circe-generic" % "0.14.6",
   "io.circe" %% "circe-parser" % "0.14.6",

@@ -8,7 +8,7 @@ Add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-substrait-compliance = "1.0"
+substrait-compliance = "0.1.1"
 ```
 
 ## Quick Start

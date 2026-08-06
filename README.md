@@ -897,8 +897,8 @@ The table below reflects the state after all gap-closure work. Every SDK with �
 | **C#** | ✅ `ResultComparator` in runner | ✅ double 1e-10, float 1e-6, DateTime | ✅ `ExpectedOutput` from YAML | ✅ 5 pass-through tests |
 | **Go** | ✅ `compareOutputs()` in runner | ✅ `valuesMatch` epsilon 1e-9 | ✅ `Load()` + `LoadCSV()` implemented | ✅ 5 pass-through tests |
 | **Rust** | ✅ full value comparison | ✅ `normalize_type` + `values_match` epsilon 1e-9 | ✅ reads `expected/<id>.csv` | ✅ 4 pass-through tests |
-| **C++** | ⏳ runner/comparator not yet written | ⏳ | ⏳ | ⏳ |
-| **Scala** | ⏳ runner/comparator not yet written | ⏳ | ⏳ | ⏳ |
+| **C++** | ✅ full, epsilon 1e-9 | ✅ `normalizeType` + `valuesMatch` | ✅ typed CSV headers + YAML loader | ✅ 5 pass-through tests |
+| **Scala** | ✅ full, epsilon 1e-9 | ✅ `normalizeType` + `valuesMatch` | ✅ `expectedOutput` from YAML | ✅ 5 pass-through tests |
 
 ---
 
