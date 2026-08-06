@@ -13,7 +13,7 @@ from .table_data import TableData, Column, DataType
 from .loader import TestSuiteLoader, YamlTestSuiteLoader
 from .exceptions import ComplianceException
 
-__version__ = "1.0.0"
+__version__ = "0.1.1"
 
 __all__ = [
     "ComplianceEngine",

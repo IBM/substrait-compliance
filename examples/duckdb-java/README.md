@@ -113,7 +113,7 @@ construction time.
 
 | Artifact | Version | Notes |
 |----------|---------|-------|
-| `substrait-compliance` SDK | 0.1.0 | Fat jar from `sdk/java` |
+| `substrait-compliance SDK | 0.1.1 | Fat jar from `sdk/java` |
 | `org.duckdb:duckdb_jdbc` | 1.3.1.0 | Fetched by `download-deps.sh` |
 
 The JDBC jar is downloaded from Maven Central. No Maven or Gradle installation
@@ -136,7 +136,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.substrait:substrait-compliance:0.1.0'
+    implementation 'io.substrait:substrait-compliance:0.1.1'
     implementation 'org.duckdb:duckdb_jdbc:1.3.1.0'
 }
 ```
@@ -154,7 +154,7 @@ dependencies {
   <dependency>
     <groupId>io.substrait</groupId>
     <artifactId>substrait-compliance</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
   </dependency>
   <dependency>
     <groupId>org.duckdb</groupId>

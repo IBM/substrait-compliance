@@ -4,7 +4,7 @@ Java SDK for Substrait compliance testing.
 
 ## Consuming the SDK
 
-**Coordinates:** `io.substrait:substrait-compliance:0.1.0`
+**Coordinates:** `io.substrait:substrait-compliance:0.1.1`
 
 The SDK is published to two repositories:
 
@@ -20,7 +20,7 @@ GitHub Packages is always available immediately after each push to `main`.
 
 ```gradle
 dependencies {
-    implementation 'io.substrait:substrait-compliance:0.1.0'
+    implementation 'io.substrait:substrait-compliance:0.1.1'
 }
 ```
 
@@ -38,7 +38,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.substrait:substrait-compliance:0.1.0'
+    implementation 'io.substrait:substrait-compliance:0.1.1'
 }
 ```
 
@@ -56,7 +56,7 @@ gpr.key=<your-PAT-with-read:packages>
   <dependency>
     <groupId>io.substrait</groupId>
     <artifactId>substrait-compliance</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
   </dependency>
 </dependencies>
 ```
@@ -75,7 +75,7 @@ gpr.key=<your-PAT-with-read:packages>
   <dependency>
     <groupId>io.substrait</groupId>
     <artifactId>substrait-compliance</artifactId>
-    <version>0.1.0</version>
+    <version>0.1.1</version>
   </dependency>
 </dependencies>
 ```

@@ -189,7 +189,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'io.substrait:substrait-compliance:0.1.0'
+    implementation 'io.substrait:substrait-compliance:0.1.1'
 }
 ```
 
