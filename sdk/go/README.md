@@ -327,11 +327,9 @@ go test -v ./...
 
 ## Examples
 
-See the `examples/` directory for complete examples:
+See the `examples/` directory for a complete example:
 
-- `basic_engine.go` - Minimal engine implementation
-- `advanced_engine.go` - Full-featured engine (coming soon)
-- `parallel_execution.go` - Concurrent testing (coming soon)
+- [`basic_engine.go`](examples/basic_engine.go) - Minimal engine implementation
 
 ## Performance Tips
 
