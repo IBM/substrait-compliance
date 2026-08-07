@@ -167,7 +167,7 @@ cd sdk/java
 ./gradlew shadowJar    # produces build/libs/substrait-compliance-0.1.1-all.jar
 
 # Expected output:
-# BUILD SUCCESSFUL — 87 tests passed ✅
+# BUILD SUCCESSFUL — 88 tests passed ✅
 ```
 
 **Verify build:**
@@ -191,7 +191,7 @@ python3 -m venv venv && source venv/bin/activate
 pytest
 
 # Expected output:
-# 6 passed ✅
+# 13 passed ✅
 ```
 
 **Verify Installation:**
@@ -206,12 +206,11 @@ python3 -c "import substrait_compliance; print('SDK installed successfully!')"
 ```bash
 # Build the SDK
 cd sdk/cpp
-mkdir build && cd build
-cmake ..
-make
+cmake -S . -B build -DBUILD_TESTS=ON
+cmake --build build --parallel
 
 # Run tests to verify
-ctest --output-on-failure
+ctest --test-dir build --output-on-failure
 
 # Expected output:
 # 100% tests passed ✅
@@ -257,8 +256,9 @@ npm test
 
 # Expected output:
 # PASS  tests/table-data.test.ts
-# Test Suites: 1 passed, 1 total
-# Tests:       12 passed, 12 total
+# PASS  tests/runner.test.ts
+# Test Suites: 2 passed, 2 total
+# Tests:       17 passed, 17 total
 ```
 
 **Verify Installation:**
@@ -281,7 +281,7 @@ dotnet build
 dotnet test
 
 # Expected output:
-# Passed!  - Failed:     0, Passed:    12, Skipped:     0, Total:    12
+# Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20
 ```
 
 **Verify Installation:**
@@ -312,7 +312,7 @@ sbt test
 **Verify Installation:**
 ```bash
 ls -la target/scala-2.13/
-# Should see: substrait-compliance_2.13-1.0.0.jar
+# Should see: substrait-compliance_2.13-0.1.1.jar
 ```
 </details>
 
@@ -328,7 +328,7 @@ cargo build --release
 cargo test
 
 # Expected output:
-# test result: ok. 6 passed ✅
+# test result: ok. 22 passed ✅
 ```
 
 **Verify Installation:**
@@ -834,7 +834,7 @@ substrait-compliance/
 - **Key Modules**: `engine.rs`, `runner.rs`, `loader.rs`, `result.rs`
 
 ### TypeScript SDK
-- **Runtime**: Node.js / Browser  |  **Build**: npm  |  **Tests**: 22 (table-data unit + runner pass-through integration)
+- **Runtime**: Node.js / Browser  |  **Build**: npm  |  **Tests**: 17 (table-data unit + runner pass-through integration)
 - **Docs**: [sdk/typescript/README.md](sdk/typescript/README.md)
 
 ### C# SDK

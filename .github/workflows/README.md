@@ -15,7 +15,7 @@ in parallel, then runs smoke tests for the two fully-executable examples.
 | `python-sdk` | `pip install -e .[dev]` + pytest across Python 3.8/3.9/3.10/3.11 matrix |
 | `rust-sdk` | `cargo fmt --check`, `cargo clippy -D warnings`, 22 tests, `cargo-tarpaulin` coverage |
 | `go-sdk` | `go build ./...` + `go test ./...` |
-| `typescript-sdk` | `npm ci` + `npm run build` + 22 Jest tests |
+| `typescript-sdk` | `npm ci` + `npm run build` + 17 Jest tests |
 | `scala-sdk` | `sbt compile` + `sbt test` (21 ScalaTest tests) |
 | `csharp-sdk` | `dotnet build` + `dotnet test` (20 xUnit tests) |
 | `cpp-sdk` | CMake configure (`-S/-B`) + parallel build + CTest (30 GTest tests via FetchContent fallback) |
@@ -56,6 +56,23 @@ Builds a multi-platform (`linux/amd64`, `linux/arm64`) Docker image for the REST
 ### `api-deploy-staging.yml` / `api-deploy-production.yml` — Staged deployments
 
 Deploy the REST API container to staging and production environments. Require environment secrets.
+
+### `api-pr-validation.yml` — REST API pull-request validation
+
+Runs on pull requests that touch `api/**` or `sdk/java/**`. Builds and tests the Spring Boot API
+and comments results on the PR. Complements `api-build-test.yml` (which runs on every push).
+
+### `sdk-verification.yml` — SDK cross-build verification (scheduled)
+
+Runs daily and on pushes that touch `sdk/**`. Verifies that all SDK build artefacts are
+consistent with the test-suite data on disk. Supplements `sdk-build-test.yml` with a scheduled
+freshness check independent of developer commits.
+
+### `compliance-leaderboard.yml` — Leaderboard aggregation
+
+Runs weekly (Sunday 00:00 UTC), on `workflow_dispatch`, and on `repository_dispatch` events of
+type `compliance-report-submitted`. Collects compliance reports from participating engines and
+regenerates the public leaderboard JSON.
 
 ## Notes
 
