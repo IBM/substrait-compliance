@@ -842,7 +842,7 @@ substrait-compliance/
 - **Docs**: [sdk/csharp/README.md](sdk/csharp/README.md)
 
 ### Scala SDK
-- **Scala**: 2.13  |  **Build**: sbt  |  **JVM**: 17+  |  **Tests**: 21
+- **Scala**: 2.13  |  **Build**: sbt  |  **JVM**: 17+  |  **Tests**: 26
 - **Key Files**: [`ComplianceEngine.scala`](sdk/scala/src/main/scala/io/substrait/compliance/ComplianceEngine.scala), [`ComplianceRunner.scala`](sdk/scala/src/main/scala/io/substrait/compliance/ComplianceRunner.scala), [`TestSuiteLoader.scala`](sdk/scala/src/main/scala/io/substrait/compliance/TestSuiteLoader.scala), [`EngineResult.scala`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala)
 - **Key Type**: [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) separates engine execution from test results
 - **Docs**: [sdk/scala/README.md](sdk/scala/README.md)

@@ -10,6 +10,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Java SDK: Gradle wrapper bumped `8.14.5 → 9.7.0`; Shadow plugin bumped `8.3.6 → 9.6.1`
   (shadow 9.x requires Gradle 9.x for the `Provider`-based `addVariantsFromConfiguration` API)
+- Java SDK: Substrait dependency bumped `0.80.0 → 0.98.0`; all 88 tests pass on the new version
+- API module: Gradle wrapper bumped `8.14.5 → 9.7.0` (aligns with SDK wrapper)
+- C++ SDK: `CMakeLists.txt` project version corrected `1.0.0 → 0.1.1` (matches all other SDKs)
+- README: Scala SDK Features test count corrected `21 → 26`
+  (BenchmarkRunnerSpec 7 + ComplianceEngineSpec 4 + TableDataSpec 10 + PassThroughSpec 5)
+- `dependabot.yml`: removed minor-version ignore for `io.substrait*` so spec library
+  version bumps are auto-proposed
 - README: CI badge changed from static shields.io to live `sdk-build-test.yml` workflow badge
 - README: REST API "pre-release" note expanded to clarify no public endpoint exists
 
