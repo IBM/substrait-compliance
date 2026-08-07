@@ -26,10 +26,10 @@ COPY api/src api/src
 RUN gradle :api:bootJar --no-daemon
 
 # Stage 2: Runtime
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:17-jre-jammy
 
 # Install curl for healthcheck
-RUN apk add --no-cache curl
+RUN apt-get update -q && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -37,7 +37,7 @@ WORKDIR /app
 COPY --from=builder /build/api/build/libs/*.jar app.jar
 
 # Create non-root user for security
-RUN addgroup -S spring && adduser -S spring -G spring
+RUN groupadd --system spring && useradd --system --gid spring spring
 RUN chown -R spring:spring /app
 
 # Switch to non-root user
