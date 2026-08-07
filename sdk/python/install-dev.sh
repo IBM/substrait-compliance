@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install the Python SDK and its dev dependencies using PyPI directly.
+# Install the Python SDK and its dev dependencies (editable local install).
 #
 # Why this script exists:
 #   pip reads a global/user pip.conf before every install. On machines
@@ -10,7 +10,9 @@
 #
 #   PIP_INDEX_URL overrides pip.conf for all subprocesses pip spawns.
 #   We export it before every pip call so the build-backend bootstrap,
-#   dependency resolution, and wheel fetches all use PyPI.
+#   transitive-dependency resolution, and wheel fetches all use PyPI.
+#   The package itself is installed as an editable local source tree
+#   (pip install -e), not downloaded from PyPI.
 #
 # Usage (from sdk/python/):
 #   python3 -m venv venv
@@ -25,7 +27,7 @@ export PIP_INDEX_URL="https://pypi.org/simple"
 echo "📦 Seeding build tools (setuptools, wheel) from PyPI..."
 pip install --upgrade pip setuptools wheel
 
-echo "📦 Installing substrait-compliance[dev] from PyPI..."
+echo "📦 Installing substrait-compliance[dev] as editable local install..."
 pip install -e ".[dev]"
 
 echo ""
