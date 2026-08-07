@@ -26,7 +26,17 @@ jobs:
           cache: 'gradle'
       
       - name: Grant execute permission
-        run: chmod +x api/gradlew
+        run: |
+          chmod +x gradlew
+          chmod +x api/gradlew
+      
+      - name: Build SDK fat jar (required by api/ build)
+        # api/build.gradle resolves the SDK via fileTree(dir: "${rootDir}/libs").
+        # Build the fat jar here and stage it so the API compile step finds it.
+        run: |
+          ./gradlew :sdk:java:shadowJar --no-daemon
+          mkdir -p api/libs
+          cp sdk/java/build/libs/*-all.jar api/libs/
       
       - name: Run tests
         run: |

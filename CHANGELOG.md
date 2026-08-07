@@ -8,9 +8,24 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Fixed
-- `api/Containerfile`: builder image updated `gradle:8.14-jdk17 → gradle:9.7-jdk17`; wrapper
-  files (`sdk/java/gradle/`, `api/gradle/`) now COPYed into the layer so the shadow 9.6.1 plugin
-  (which requires Gradle 9.x) resolves correctly during the container build
+- `api/Containerfile` converted to a three-stage build to resolve a Gradle version split:
+  the Java SDK requires Gradle ≥ 9 (Shadow plugin 9.6.1 uses a Gradle 9-only API), while
+  the Spring Boot 2.7 API requires Gradle ≤ 8 (the Spring dependency-management plugin calls
+  an API removed in Gradle 9). Stage 1 uses `gradle:9.6.1-jdk17` to build the SDK fat jar;
+  Stage 2 uses `gradle:8.14.5-jdk17` to build the API bootJar (consuming the fat jar via
+  `COPY --from=sdk-builder`); Stage 3 is the `eclipse-temurin:17-jre-jammy` runtime image
+- `api/` decoupled from the root multi-project Gradle build — `api/settings.gradle` created
+  so the API is a standalone project; `settings.gradle` root `include 'api'` removed (with
+  explanatory comment); `api/build.gradle` dependency changed from `project(':sdk:java')` to
+  `fileTree(dir: "${rootDir}/libs")` so the API can be built independently under Gradle 8
+- `api/gradle/wrapper/gradle-wrapper.properties`: wrapper corrected to `gradle-8.14.5-bin.zip`
+  (was briefly set to 9.7.0 during an intermediate fix attempt)
+- CI: `api-container-build.yml` image reference lowercased before Trivy and SBOM steps so
+  the workflow succeeds when the GitHub organisation name contains uppercase letters
+- CI: Null-safe `rootProject.projectDir.parentFile?.parentFile` in `sdk/java/build.gradle`
+  `test` block so the build does not fail when there is no grandparent directory (container)
+- CI: `api-container-build.yml` SARIF upload guarded with `if: always()` so the Trivy step
+  does not silently skip on non-default branches
 
 ### Changed
 - Java SDK: Gradle wrapper bumped `8.14.5 → 9.7.0`; Shadow plugin bumped `8.3.6 → 9.6.1`
@@ -20,7 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   Plans are protobuf binary with no embedded spec-version tag; deserialization is unaffected by
   the minor bump. Dependabot minor-version ignore for `io.substrait*` removed (manual review
   complete — future minor bumps will be auto-proposed)
-- API module: Gradle wrapper bumped `8.14.5 → 9.7.0` (aligns with SDK wrapper)
+- API module: Gradle wrapper corrected to `gradle-8.14.5-bin.zip` (Gradle 8 required by
+  Spring Boot 2.7 + dependency-management plugin; API and SDK now use separate wrappers)
 - C++ SDK: `CMakeLists.txt` project version corrected `1.0.0 → 0.1.1` (matches all other SDKs)
 - README: Scala SDK Features test count corrected `21 → 26`
   (BenchmarkRunnerSpec 7 + ComplianceEngineSpec 4 + TableDataSpec 10 + PassThroughSpec 5)
