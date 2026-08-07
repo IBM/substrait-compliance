@@ -1,7 +1,7 @@
 # Substrait Compliance Framework
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
-[![CI/CD](https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-2088FF?logo=github-actions&logoColor=white)](https://github.com/IBM/substrait-compliance/actions)
+[![CI](https://github.com/IBM/substrait-compliance/actions/workflows/sdk-build-test.yml/badge.svg)](https://github.com/IBM/substrait-compliance/actions/workflows/sdk-build-test.yml)
 [![Release](https://img.shields.io/github/v/release/IBM/substrait-compliance?include_prereleases)](https://github.com/IBM/substrait-compliance/releases)
 [![Contributors](https://img.shields.io/github/contributors/IBM/substrait-compliance)](https://github.com/IBM/substrait-compliance/graphs/contributors)
 
@@ -45,7 +45,7 @@ The Substrait Compliance Framework transforms how query engines validate their S
 - 📦 **Pre-packaged Test Suites** — TPC-H, TPC-DS, and function test suites included in-repo
 - ⚡ **Performance Benchmarking** — Benchmarking components included across several SDKs
 - 🤖 **Automated CI/CD** — GitHub Actions workflows for validation, release, and automation
-- 🌐 **REST API** — Spring Boot API implementation for programmatic access (pre-release)
+- 🌐 **REST API** — Spring Boot API implementation for programmatic access *(pre-release; not yet deployed to a public endpoint)*
 - 📊 **Interactive Demo** — Live dashboard with mock engines, query drill-down, and complexity filtering
 - 🏆 **Leaderboard Support** — Report aggregation and leaderboard generation
 
@@ -1109,7 +1109,7 @@ curl http://localhost:8080/api/v1/leaderboard
 - [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) — Deployment instructions
 - [api/README.md](api/README.md) — API module readme
 
-> **Note:** The REST API is pre-release. See [api/README.md](api/README.md) for current status.
+> **Note:** The REST API is pre-release — the code is in-repo and builds cleanly, but it is not deployed to a public endpoint and the auth/storage configuration is not production-hardened. It is provided for evaluation and self-hosted use only. See [api/README.md](api/README.md) for current status.
 
 ---
 

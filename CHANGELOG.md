@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Java SDK: Gradle wrapper bumped `8.14.5 → 9.7.0`; Shadow plugin bumped `8.3.6 → 9.6.1`
+  (shadow 9.x requires Gradle 9.x for the `Provider`-based `addVariantsFromConfiguration` API)
+- README: CI badge changed from static shields.io to live `sdk-build-test.yml` workflow badge
+- README: REST API "pre-release" note expanded to clarify no public endpoint exists
+
 ## [0.1.1] - 2026-08-06
 
 ### Fixed
