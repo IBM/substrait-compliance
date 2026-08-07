@@ -65,14 +65,14 @@ jobs:
 
     steps:
       - name: Checkout compliance framework at pinned version
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: IBM/substrait-compliance
           ref: v${{ needs.setup.outputs.sdk-version }}
           path: substrait-compliance
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -91,7 +91,7 @@ jobs:
           ls tpch-test-suite
 
       - name: Upload compliance assets
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compliance-assets
           path: |
@@ -106,7 +106,7 @@ jobs:
     
     steps:
       - name: Checkout engine code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       # CUSTOMIZE THIS SECTION FOR YOUR ENGINE
       - name: Set up build environment
@@ -135,7 +135,7 @@ jobs:
           echo "⚠️ CUSTOMIZE THIS: Build your engine"
       
       - name: Upload engine artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: engine-build
           path: |
@@ -154,15 +154,15 @@ jobs:
     
     steps:
       - name: Checkout engine code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Download compliance assets
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: compliance-assets
       
       - name: Download engine build
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: engine-build
       
@@ -188,7 +188,7 @@ jobs:
           echo "⚠️ CUSTOMIZE THIS: Build your compliance implementation"
       
       - name: Upload compliance implementation
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compliance-implementation
           path: |
@@ -202,7 +202,7 @@ jobs:
     
     steps:
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
       
       - name: Set up test environment
         run: |
@@ -263,7 +263,7 @@ jobs:
           echo "  Passed: $PASSED/$TOTAL"
       
       - name: Upload compliance report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compliance-report
           path: compliance-report.json
@@ -289,10 +289,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Download compliance report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: compliance-report
       
@@ -343,7 +343,7 @@ jobs:
     
     steps:
       - name: Download compliance report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: compliance-report
       
@@ -368,7 +368,7 @@ jobs:
     
     steps:
       - name: Download compliance report
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: compliance-report
         continue-on-error: true
