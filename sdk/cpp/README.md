@@ -78,25 +78,22 @@ cd vcpkg
 ```bash
 # Clone the repository
 git clone https://github.com/IBM/substrait-compliance.git
-cd substrait-compliance/sdk/cpp
 
-# Create build directory
-mkdir build && cd build
-
-# Configure with CMake
-cmake .. -G Ninja \
+# Configure — source is sdk/cpp, build output goes to sdk/cpp/build
+cmake -S substrait-compliance/sdk/cpp -B substrait-compliance/sdk/cpp/build \
+  -G Ninja \
   -DCMAKE_BUILD_TYPE=Release \
   -DBUILD_TESTS=ON \
   -DBUILD_EXAMPLES=ON
 
 # Build
-ninja
+cmake --build substrait-compliance/sdk/cpp/build --parallel
 
 # Run tests (optional)
-ctest --output-on-failure
+ctest --test-dir substrait-compliance/sdk/cpp/build --output-on-failure
 
 # Install (optional)
-sudo ninja install
+sudo cmake --install substrait-compliance/sdk/cpp/build
 ```
 
 #### Using CMake (Windows with Visual Studio)
@@ -104,26 +101,22 @@ sudo ninja install
 ```powershell
 # Clone the repository
 git clone https://github.com/IBM/substrait-compliance.git
-cd substrait-compliance\sdk\cpp
 
-# Create build directory
-mkdir build
-cd build
-
-# Configure with CMake (adjust vcpkg path as needed)
-cmake .. -G "Visual Studio 16 2019" -A x64 ^
-  -DCMAKE_TOOLCHAIN_FILE=C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake ^
-  -DBUILD_TESTS=ON ^
+# Configure (adjust vcpkg path as needed)
+cmake -S substrait-compliance\sdk\cpp -B substrait-compliance\sdk\cpp\build `
+  -G "Visual Studio 16 2019" -A x64 `
+  -DCMAKE_TOOLCHAIN_FILE=C:/path/to/vcpkg/scripts/buildsystems/vcpkg.cmake `
+  -DBUILD_TESTS=ON `
   -DBUILD_EXAMPLES=ON
 
 # Build
-cmake --build . --config Release
+cmake --build substrait-compliance\sdk\cpp\build --config Release
 
 # Run tests (optional)
-ctest -C Release --output-on-failure
+ctest --test-dir substrait-compliance\sdk\cpp\build -C Release --output-on-failure
 
 # Install (optional, requires admin)
-cmake --install . --config Release
+cmake --install substrait-compliance\sdk\cpp\build --config Release
 ```
 
 ### Using Package Managers

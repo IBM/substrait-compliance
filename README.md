@@ -70,22 +70,6 @@ git --version     # Any recent version
 
 ---
 
-## 🔧 SDK Notes
-
-This repository includes SDKs and examples across multiple languages. Support level, feature parity, and verification status may vary by SDK and release.
-
-Recent documentation and compatibility updates include:
-
-- **Rust SDK**: Updated [`benchmark_example.rs`](sdk/rust/examples/benchmark_example.rs) to use the current instance-method benchmark pattern
-- **Go SDK**: Cleaned up [`go.mod`](sdk/go/go.mod) and refreshed module metadata
-- **Scala SDK**: Introduced [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) to separate engine execution from test results
-- **C++ SDK**: Expanded setup guidance in [`README.md`](sdk/cpp/README.md)
-- **TypeScript SDK**: Improved package configuration and troubleshooting guidance in [`README.md`](sdk/typescript/README.md)
-
-For current build and test status, rely on repository CI results and per-SDK documentation.
-
----
-
 ## 🚀 5-Minute Quick Start
 
 Experience the framework before integrating your own engine:
@@ -859,7 +843,9 @@ substrait-compliance/
 
 ### Scala SDK
 - **Scala**: 2.13  |  **Build**: sbt  |  **JVM**: 17+  |  **Tests**: 21
+- **Key Files**: [`ComplianceEngine.scala`](sdk/scala/src/main/scala/io/substrait/compliance/ComplianceEngine.scala), [`ComplianceRunner.scala`](sdk/scala/src/main/scala/io/substrait/compliance/ComplianceRunner.scala), [`TestSuiteLoader.scala`](sdk/scala/src/main/scala/io/substrait/compliance/TestSuiteLoader.scala), [`EngineResult.scala`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala)
 - **Key Type**: [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) separates engine execution from test results
+- **Docs**: [sdk/scala/README.md](sdk/scala/README.md)
 
 ### SDK compliance-alignment status
 
@@ -923,7 +909,7 @@ cp .github/workflows/engine-compliance-template.yml \
 
 Customize: engine name/version, build commands, test execution, compliance threshold (default 80%).
 
-See [.github/workflows/README.md](.github/workflows/README.md) for details.
+See [.github/workflows/README.md](.github/workflows/README.md) for a description of every workflow file.
 
 ---
 
@@ -1004,7 +990,7 @@ git pull origin main
 ```bash
 cd sdk/python
 source venv/bin/activate   # activate the venv created during install
-./install-dev.sh           # re-installs from PyPI if needed
+./install-dev.sh           # re-seeds build tools and re-installs locally (editable install)
 python3 -c "import substrait_compliance; print('OK')"
 ```
 

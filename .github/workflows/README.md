@@ -1,333 +1,67 @@
-# GitHub Actions Workflows
+# CI/CD Workflows
 
-This directory contains CI/CD workflows for the Substrait Compliance Framework.
+This directory contains all GitHub Actions workflows for the Substrait Compliance Framework.
 
 ## Workflows
 
-### API Workflows
-
-#### 1. PR Validation (`api-pr-validation.yml`)
-**Trigger**: Pull requests to main/develop  
-**Purpose**: Validate code changes before merge
-
-**Steps**:
-- Checkout code
-- Setup Java 11
-- Run tests
-- Generate coverage report
-- Upload to Codecov
-- Comment results on PR
-
-**Required Secrets**: None (uses GITHUB_TOKEN)
-
-#### 2. Build and Test (`api-build-test.yml`)
-**Trigger**: Push to any branch  
-**Purpose**: Continuous validation
-
-**Steps**:
-- Build JAR file
-- Run all tests
-- Generate test reports
-- Archive artifacts
-- Publish test results
-
-**Required Secrets**: None
-
-#### 3. Container Build (`api-container-build.yml`)
-**Trigger**: Push to main/develop, manual  
-**Purpose**: Build and publish container images
-
-**Steps**:
-- Build multi-platform images (amd64, arm64)
-- Push to GitHub Container Registry
-- Run Trivy security scan
-- Generate SBOM
-- Upload security results
-
-**Required Secrets**:
-- `GITHUB_TOKEN` (automatic)
+### `sdk-build-test.yml` — Primary CI gate
 
-**Permissions**:
-- `contents: read`
-- `packages: write`
-- `security-events: write`
+Runs on every push and pull request to `main` and `develop`. Builds and tests all eight SDKs
+in parallel, then runs smoke tests for the two fully-executable examples.
 
-#### 4. Deploy to Staging (`api-deploy-staging.yml`)
-**Trigger**: After successful container build on develop  
-**Purpose**: Auto-deploy to staging environment
-
-**Steps**:
-- Configure kubectl
-- Update deployment
-- Wait for rollout
-- Run smoke tests
-- Notify on completion
-
-**Required Secrets**:
-- `KUBE_CONFIG_STAGING` - Base64-encoded kubeconfig
-
-**Environment**: staging
+| Job | What it does |
+|-----|--------------|
+| `java-sdk` | Gradle build + 88 unit and integration tests + JaCoCo coverage |
+| `python-sdk` | `pip install -e .[dev]` + pytest across Python 3.8/3.9/3.10/3.11 matrix |
+| `rust-sdk` | `cargo fmt --check`, `cargo clippy -D warnings`, 22 tests, `cargo-tarpaulin` coverage |
+| `go-sdk` | `go build ./...` + `go test ./...` |
+| `typescript-sdk` | `npm ci` + `npm run build` + 22 Jest tests |
+| `scala-sdk` | `sbt compile` + `sbt test` (21 ScalaTest tests) |
+| `csharp-sdk` | `dotnet build` + `dotnet test` (20 xUnit tests) |
+| `cpp-sdk` | CMake configure (`-S/-B`) + parallel build + CTest (30 GTest tests via FetchContent fallback) |
+| `duckdb-java-example` | Builds SDK fat jar, compiles DuckDB example, smoke-tests class loading |
+| `datafusion-python-example` | `pip install -e .` + DataFusion/PyArrow import check |
+| `datafusion-rust-example` | `cargo check` with `protoc` available (build check, no execution) |
+| `summary` | Gate job — fails the workflow if any of the 8 SDK jobs failed |
 
-#### 5. Deploy to Production (`api-deploy-production.yml`)
-**Trigger**: Manual with version input  
-**Purpose**: Deploy to production with approval
+### `test-suite-validation.yml` — Test suite integrity
 
-**Steps**:
-- Create backup
-- Update deployment
-- Wait for rollout
-- Run comprehensive smoke tests
-- Rollback on failure
-- Create deployment record
-
-**Required Secrets**:
-- `KUBE_CONFIG_PROD` - Base64-encoded kubeconfig
-
-**Environment**: production (requires approval)
-
-#### 6. Release (`api-release.yml`)
-**Trigger**: Tag push (v*.*.*), manual  
-**Purpose**: Create GitHub releases
+Validates that all test suite files are well-formed (YAML, plan binaries, CSV data and expected
+outputs). Runs on push to `main` and on schedule.
 
-**Steps**:
-- Build release artifacts
-- Generate changelog
-- Create GitHub release
-- Build and push release container
-- Upload JAR to release
+### `engine-compliance-template.yml` — Template for engine developers ⭐
 
-**Required Secrets**: None (uses GITHUB_TOKEN)
-
-## Setup Instructions
+Copy this file into your own repository's `.github/workflows/` directory to enable automated
+Substrait compliance testing. Customize:
 
-### 1. Configure Secrets
-
-Navigate to: `Settings > Secrets and variables > Actions`
+- `ENGINE_NAME` / `ENGINE_VERSION` — your engine's identity
+- build commands — whatever produces the JAR/binary your engine needs
+- `COMPLIANCE_THRESHOLD` — minimum pass rate before the job fails (default 80 %)
+- `COMPLIANCE_SDK_VERSION` — framework version to pull (currently `0.1.1`)
 
-**Repository Secrets**:
-```bash
-# Kubernetes configs (base64-encoded)
-KUBE_CONFIG_STAGING=<base64-encoded-kubeconfig>
-KUBE_CONFIG_PROD=<base64-encoded-kubeconfig>
-
-# Optional: For enhanced features
-CODECOV_TOKEN=<codecov-token>
-SLACK_WEBHOOK_URL=<slack-webhook-url>
-```
-
-**Encoding kubeconfig**:
-```bash
-cat ~/.kube/config | base64 -w 0
-```
-
-### 2. Configure Environments
-
-Navigate to: `Settings > Environments`
-
-**Staging Environment**:
-- Name: `staging`
-- URL: `https://api-staging.substrait.io`
-- Protection rules: None (auto-deploy)
-
-**Production Environment**:
-- Name: `production`
-- URL: `https://api.substrait.io`
-- Protection rules:
-  - Required reviewers: 2
-  - Wait timer: 0 minutes
-  - Deployment branches: main only
-
-### 3. Enable GitHub Container Registry
-
-Navigate to: `Settings > Packages`
-
-- Enable "Inherit access from source repository"
-- Set visibility to Public or Private
-
-### 4. Configure Branch Protection
-
-Navigate to: `Settings > Branches`
-
-**Main Branch**:
-- Require pull request reviews (2 approvals)
-- Require status checks to pass:
-  - `validate` (from api-pr-validation)
-  - `build` (from api-build-test)
-- Require branches to be up to date
-- Require conversation resolution
-- Do not allow bypassing
-
-**Develop Branch**:
-- Require pull request reviews (1 approval)
-- Require status checks to pass
-- Allow force pushes (for rebasing)
-
-## Usage Examples
-
-### Running Workflows Manually
-
-#### Deploy to Staging
-```bash
-gh workflow run api-deploy-staging.yml
-```
-
-#### Deploy to Production
-```bash
-gh workflow run api-deploy-production.yml -f version=v1.0.0
-```
-
-#### Create Release
-```bash
-# Tag and push
-git tag v1.0.0
-git push origin v1.0.0
-
-# Or trigger manually
-gh workflow run api-release.yml -f version=v1.0.0
-```
-
-### Monitoring Workflows
-
-```bash
-# List workflow runs
-gh run list --workflow=api-build-test.yml
-
-# View specific run
-gh run view <run-id>
-
-# Watch run in real-time
-gh run watch <run-id>
-
-# Download artifacts
-gh run download <run-id>
-```
-
-## Workflow Dependencies
-
-```
-PR Validation
-    ↓
-Build & Test
-    ↓
-Container Build
-    ↓
-Deploy Staging (auto on develop)
-    ↓
-Deploy Production (manual approval)
-```
-
-## Troubleshooting
-
-### Workflow Fails on Test Step
-
-**Check**:
-1. Test logs in Actions tab
-2. Local test execution: `cd api && ./gradlew test`
-3. TestContainers Docker access
-
-**Fix**:
-- Ensure tests pass locally
-- Check for flaky tests
-- Verify TestContainers configuration
-
-### Container Build Fails
-
-**Check**:
-1. Containerfile syntax
-2. Build context includes all files
-3. Multi-platform build support
-
-**Fix**:
-```bash
-# Test locally
-podman build -t test -f api/Containerfile .
-
-# Check buildx
-docker buildx ls
-```
-
-### Deployment Fails
-
-**Check**:
-1. Kubernetes cluster connectivity
-2. Deployment manifests
-3. Image pull permissions
-
-**Fix**:
-```bash
-# Test kubectl access
-kubectl cluster-info
-kubectl get pods -n substrait-staging
-
-# Verify image exists
-podman pull ghcr.io/org/repo/substrait-compliance-api:develop
-```
-
-### Secrets Not Working
-
-**Check**:
-1. Secret names match exactly
-2. Secrets are set in correct scope (repo/environment)
-3. Base64 encoding is correct
-
-**Fix**:
-```bash
-# Re-encode kubeconfig
-cat ~/.kube/config | base64 -w 0 > kubeconfig.b64
-
-# Set secret
-gh secret set KUBE_CONFIG_STAGING < kubeconfig.b64
-```
-
-## Best Practices
-
-### 1. Keep Workflows DRY
-- Use reusable workflows for common tasks
-- Extract repeated steps into composite actions
-- Use workflow templates
-
-### 2. Secure Secrets
-- Never commit secrets to repository
-- Use environment-specific secrets
-- Rotate secrets regularly
-- Use least-privilege access
-
-### 3. Optimize Performance
-- Cache dependencies (Gradle, Docker layers)
-- Run jobs in parallel when possible
-- Use conditional execution
-- Limit artifact retention
-
-### 4. Monitor and Alert
-- Set up status badges
-- Configure Slack/email notifications
-- Monitor workflow execution times
-- Track failure rates
-
-### 5. Document Changes
-- Update this README when adding workflows
-- Document required secrets
-- Explain workflow triggers
-- Provide troubleshooting steps
-
-## Status Badges
-
-Add to your README.md:
-
-```markdown
-![API Build](https://github.com/org/repo/actions/workflows/api-build-test.yml/badge.svg)
-![Container Build](https://github.com/org/repo/actions/workflows/api-container-build.yml/badge.svg)
-![Staging](https://github.com/org/repo/actions/workflows/api-deploy-staging.yml/badge.svg)
-```
-
-## Resources
-
-- [GitHub Actions Documentation](https://docs.github.com/en/actions)
-- [Workflow Syntax](https://docs.github.com/en/actions/reference/workflow-syntax-for-github-actions)
-- [GitHub CLI](https://cli.github.com/manual/gh_workflow)
-- [Kubernetes Deployment](https://kubernetes.io/docs/concepts/workloads/controllers/deployment/)
-
----
-
-**Last Updated**: 2026-04-16  
-**Maintained By**: DevOps Team
+### `release-publish.yml` — Versioned release and publishing
+
+Triggered by a semver tag (`v*.*.*`). Builds the Java SDK fat jar and the Python wheel, then
+publishes both as GitHub Release assets. Maven Central and PyPI publishing require credentials
+stored as repository secrets; they are wired but gated on the secrets being present.
+
+### `api-build-test.yml` — REST API build and test
+
+Builds the Spring Boot REST API and runs its unit tests. The API is pre-release functionality.
+
+### `api-container-build.yml` — Multi-platform container image
+
+Builds a multi-platform (`linux/amd64`, `linux/arm64`) Docker image for the REST API.
+
+### `api-deploy-staging.yml` / `api-deploy-production.yml` — Staged deployments
+
+Deploy the REST API container to staging and production environments. Require environment secrets.
+
+## Notes
+
+- The `summary` job in `sdk-build-test.yml` is the single required status check for branch
+  protection. All eight SDK jobs must pass; the two example smoke-test jobs are advisory.
+- The C++ job uses a `FetchContent` fallback in `sdk/cpp/tests/CMakeLists.txt` — it downloads
+  and builds GTest from source when the system package is unavailable.
+- The `datafusion-rust` CI job runs `cargo check` only; a full `cargo build --release` requires
+  `protoc` ≥ 3.15 and takes ~5 minutes on the free runner tier.
