@@ -826,39 +826,39 @@ substrait-compliance/
 ## 🔧 SDK Features
 
 ### Java SDK
-- **JDK**: 17+  |  **Build**: Gradle  |  **Tests**: 87 (unit + TPC-H pass-through integration)
+- **JDK**: 17+  |  **Build**: Gradle  |  **Tests**: 88 (unit + TPC-H pass-through integration)
 - **Key Classes**: `ComplianceEngine`, `ComplianceRunner`, `YamlTestSuiteLoader`, `EngineCapabilities`
 - **Docs**: [sdk/java/README.md](sdk/java/README.md)
 
 ### Python SDK
-- **Python**: 3.8+  |  **Build**: pyproject.toml / install-dev.sh  |  **Tests**: 11 (unit + pass-through integration)
+- **Python**: 3.8+  |  **Build**: pyproject.toml / install-dev.sh  |  **Tests**: 13 (unit + pass-through integration)
 - **Key Modules**: `engine.py`, `runner.py`, `loader.py`, `result.py`
 - **Docs**: [sdk/python/README.md](sdk/python/README.md)
 
 ### C++ SDK
-- **Standard**: C++17  |  **Build**: CMake 3.15+  |  **Tests**: Google Test
+- **Standard**: C++17  |  **Build**: CMake 3.15+  |  **Tests**: 30 (Google Test)
 - **Key Headers**: `engine.h`, `runner.h`, `loader.h`, `result.h`, `comparator.h`
 - **Features**: Smart pointers, zero-copy operations, header-only option, cross-platform
 - **Docs**: [sdk/cpp/README.md](sdk/cpp/README.md)
 
 ### Go SDK
-- **Go**: 1.21+  |  **Build**: Go modules  |  **Tests**: pass-through + CSV loader integration tests
+- **Go**: 1.21+  |  **Build**: Go modules  |  **Tests**: 24 (pass-through + CSV loader integration)
 - **Key Files**: `engine.go`, `runner.go`, `loader.go`, `result.go`, `table_data.go`
 
 ### Rust SDK
-- **Edition**: 2021  |  **Build**: Cargo  |  **Tests**: 10 (unit + pass-through integration)
+- **Edition**: 2021  |  **Build**: Cargo  |  **Tests**: 22 (unit + benchmark + pass-through integration)
 - **Key Modules**: `engine.rs`, `runner.rs`, `loader.rs`, `result.rs`
 
 ### TypeScript SDK
-- **Runtime**: Node.js / Browser  |  **Build**: npm  |  **Tests**: 16 (table-data unit + runner pass-through integration)
+- **Runtime**: Node.js / Browser  |  **Build**: npm  |  **Tests**: 22 (table-data unit + runner pass-through integration)
 - **Docs**: [sdk/typescript/README.md](sdk/typescript/README.md)
 
 ### C# SDK
-- **Runtime**: .NET 10+  |  **Build**: dotnet  |  **Tests**: 19 (TableData unit + runner pass-through integration)
+- **Runtime**: .NET 10+  |  **Build**: dotnet  |  **Tests**: 20 (TableData unit + runner pass-through integration)
 - **Docs**: [sdk/csharp/README.md](sdk/csharp/README.md)
 
 ### Scala SDK
-- **Scala**: 2.13  |  **Build**: sbt  |  **JVM**: 17+
+- **Scala**: 2.13  |  **Build**: sbt  |  **JVM**: 17+  |  **Tests**: 21
 - **Key Type**: [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) separates engine execution from test results
 
 ### SDK compliance-alignment status
@@ -1067,9 +1067,9 @@ cd demo/dashboard && python3 -m http.server 8080 &
 curl -s http://localhost:8080 | grep -q "Substrait Compliance" && echo "OK"
 
 # 6. SDK build (pick at least one)
-cd sdk/java && ./gradlew build test    # BUILD SUCCESSFUL, 12 tests
-cd sdk/python && python3 -m venv venv && source venv/bin/activate && ./install-dev.sh && pytest  # 6 passed
-cd sdk/rust && cargo build --release && cargo test  # 6 passed
+cd sdk/java && ./gradlew build test    # BUILD SUCCESSFUL, 88 tests
+cd sdk/python && python3 -m venv venv && source venv/bin/activate && ./install-dev.sh && pytest  # 13 passed
+cd sdk/rust && cargo build --release && cargo test  # 22 passed
 ```
 
 **Success Criteria:**
