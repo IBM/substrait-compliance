@@ -15,9 +15,19 @@ Go SDK for decentralized Substrait compliance testing with built-in concurrency 
 
 - Go 1.21 or higher
 - Protocol Buffers (for Substrait plans)
-- yaml-cpp (for test suite loading)
 
 ## Installation
+
+> **Note:** The Go SDK has not been submitted to the Go module proxy. Until the module is
+> publicly indexed, clone and reference it locally:
+>
+> ```bash
+> git clone https://github.com/IBM/substrait-compliance.git
+> # then in your go.mod, use a replace directive:
+> # replace github.com/IBM/substrait-compliance/sdk/go => ../path/to/substrait-compliance/sdk/go
+> ```
+
+Once the module is proxied, use:
 
 ```bash
 go get github.com/IBM/substrait-compliance/sdk/go
@@ -366,5 +376,4 @@ Apache License 2.0
 ## Support
 
 - GitHub Issues: https://github.com/IBM/substrait-compliance/issues
-- Documentation: https://substrait.io/compliance
-- Slack: #substrait-compliance
+- Documentation: https://github.com/IBM/substrait-compliance

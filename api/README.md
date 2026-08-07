@@ -348,8 +348,7 @@ Apache License 2.0 - See LICENSE file for details
 ## Support
 
 - **Issues**: https://github.com/IBM/substrait-compliance/issues
-- **Documentation**: https://substrait.io/compliance
-- **Email**: support@substrait.io
+- **Documentation**: https://github.com/IBM/substrait-compliance
 
 ---
 

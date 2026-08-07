@@ -569,7 +569,7 @@ See [.github/workflows/README.md](.github/workflows/README.md) for details.
 ## 🧪 Test Suites
 
 > **📚 Detailed Documentation:**
-> - [test-suites/functions/README.md](test-suites/functions/README.md) — Function tests (140 files, 5,041 test assertions, 14 categories)
+> - [test-suites/functions/README.md](test-suites/functions/README.md) — Function tests (136 files, 5,041 test assertions, 14 categories)
 > - [test-suites/tpch/README.md](test-suites/tpch/README.md) — TPC-H benchmark (22 queries)
 > - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) — TPC-DS benchmark (99 queries)
 
@@ -653,9 +653,9 @@ ls -la expected/  # 99 reference output files (q01.csv – q99.csv)
 
 > **📚 See [test-suites/tpcds/README.md](test-suites/tpcds/README.md) for complete TPC-DS documentation**
 
-### Function Tests (140 Files, 5,041 Assertions)
+### Function Tests (136 Files, 5,041 Assertions)
 
-The function test suite covers 14 semantic categories with 5,041 individual test assertions:
+The function test suite covers 14 semantic categories with 5,041 individual test assertions across 136 committed files:
 
 ```
 aggregate/     (6 files)  — count, avg, stddev, variance, etc.
@@ -737,7 +737,7 @@ substrait-compliance/
 │   ├── csharp/                    # C#/.NET 10+, dotnet
 │   └── scala/                     # Scala 2.13, sbt
 ├── 🧪 test-suites/                # Test suites
-│   ├── functions/                 # 140 function test files, 5,041 assertions (14 categories)
+│   ├── functions/                 # 136 function test files, 5,041 assertions (14 categories)
 │   ├── tpch/                      # TPC-H (22 queries, 8 data files, 44 plans)
 │   └── tpcds/                     # TPC-DS (99 queries, 24 data files, 198 plans)
 ├── 💡 examples/                   # Integration examples — duckdb-java and duckdb-cpp execute plans; see examples/README.md
@@ -772,7 +772,7 @@ substrait-compliance/
 **Key Directories for Developers:**
 - 🎯 **`demo/`** — Run the interactive demo first to see the framework in action
 - 📚 **`sdk/`** — 8 SDKs: C++, C#, Go, Java, Python, Rust, Scala, TypeScript
-- 🧪 **`test-suites/`** — 140 function test files (5,041 assertions) + TPC-H + TPC-DS benchmarks
+- 🧪 **`test-suites/`** — 136 function test files (5,041 assertions) + TPC-H + TPC-DS benchmarks
 - 💡 **`examples/`** — Real integration examples with DuckDB, DataFusion, and Velox
 
 ---
@@ -1110,7 +1110,7 @@ docker pull ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
 **Documentation:**
 - [docs/REST_API_GUIDE.md](docs/REST_API_GUIDE.md) — Complete API reference
 - [docs/REST_API_ARCHITECTURE.md](docs/REST_API_ARCHITECTURE.md) — Architecture and design
-- [docs/API_IMPLEMENTATION.md](docs/API_IMPLEMENTATION.md) — Implementation guide
+- [docs/API_IMPLEMENTATION.md](docs/API_IMPLEMENTATION.md) — API implementation guide
 - [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) — Deployment instructions
 - [api/README.md](api/README.md) — API module readme
 
@@ -1136,9 +1136,11 @@ docker pull ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
 - [sdk/java/README.md](sdk/java/README.md) — Java SDK
 - [sdk/python/README.md](sdk/python/README.md) — Python SDK
 - [sdk/rust/README.md](sdk/rust/README.md) — Rust SDK
+- [sdk/go/README.md](sdk/go/README.md) — Go SDK
 - [sdk/cpp/README.md](sdk/cpp/README.md) — C++ SDK
 - [sdk/typescript/README.md](sdk/typescript/README.md) — TypeScript SDK
 - [sdk/csharp/README.md](sdk/csharp/README.md) — C# SDK
+- [sdk/scala/README.md](sdk/scala/README.md) — Scala SDK
 
 ### 🔧 Development & Quality
 - [docs/PERFORMANCE_BENCHMARKING.md](docs/PERFORMANCE_BENCHMARKING.md) — Benchmarking guide
@@ -1231,7 +1233,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 |--------|-------|
 | **SDKs** | 8 (Java, Python, Rust, Go, C++, TypeScript, C#, Scala) |
 | **Test Suites** | 3 (TPC-H, TPC-DS, Functions) |
-| **Function Test Files** | 140 (14 categories) |
+| **Function Test Files** | 136 (14 categories) |
 | **Function Test Assertions** | 5,041 individual test cases |
 | **TPC-H Queries** | 22 |
 | **TPC-DS Queries** | 99 |
@@ -1262,23 +1264,24 @@ This project is licensed under the Apache License 2.0 — see the [LICENSE](LICE
 - **Issues**: [GitHub Issues](https://github.com/IBM/substrait-compliance/issues)
 - **Discussions**: [GitHub Discussions](https://github.com/IBM/substrait-compliance/discussions)
 - **Documentation**: [docs/](docs/)
-- **Mailing List**: substrait-dev@googlegroups.com
-- **Slack**: #substrait-compliance (join at [substrait.io](https://substrait.io/))
 
 ---
 
 ## 🗺️ Roadmap
 
+See [ROADMAP.md](ROADMAP.md) for the full phased roadmap with timelines.
+
+**Recently completed:**
 - [x] REST API infrastructure with Spring Boot
 - [x] Comprehensive CI/CD workflows
 - [x] Interactive demo system with dashboard
 - [x] Multi-platform container builds
 - [x] TPC-DS benchmark (99 queries)
+
+**Up next:**
 - [ ] Performance benchmarking CI integration
 - [ ] Compliance badges
-- [ ] Historical trend analysis
-- [ ] Multi-version testing
-- [ ] Spring Boot 3.x migration for REST API (requires `javax.*` → `jakarta.*` namespace update across 16 source files; blocked on Spring Boot 2.7 EOL timeline)
+- [ ] Spring Boot 3.x migration for REST API
 
 ---
 

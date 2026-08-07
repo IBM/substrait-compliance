@@ -20,7 +20,15 @@ A C#/.NET SDK for implementing and testing Substrait compliance in query engines
 
 ## Installation
 
-### Via NuGet (when published)
+> **Note:** The C# SDK is not yet published to NuGet. Build from source until available:
+>
+> ```bash
+> git clone https://github.com/IBM/substrait-compliance.git
+> cd substrait-compliance/sdk/csharp
+> dotnet build && dotnet test
+> ```
+
+### Via NuGet (once published)
 
 ```bash
 dotnet add package Substrait.Compliance

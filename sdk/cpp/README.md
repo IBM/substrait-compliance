@@ -121,9 +121,12 @@ cmake --install substrait-compliance\sdk\cpp\build --config Release
 
 ### Using Package Managers
 
-#### vcpkg
+> **Note:** Neither the vcpkg nor the Conan package has been submitted to the respective public
+> registries. Build from source until the packages are available (see "Building from Source" above).
+
+#### vcpkg *(not yet in registry — build from source)*
 ```bash
-# Install via vcpkg
+# Install via vcpkg (once registered)
 vcpkg install substrait-compliance
 
 # Use in your CMakeLists.txt
@@ -530,5 +533,4 @@ Apache License 2.0
 ## Support
 
 - GitHub Issues: https://github.com/IBM/substrait-compliance/issues
-- Documentation: https://substrait.io/compliance
-- Slack: #substrait-compliance
+- Documentation: https://github.com/IBM/substrait-compliance

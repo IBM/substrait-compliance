@@ -25,7 +25,8 @@ This project adheres to a Code of Conduct that all contributors are expected to 
 - Java 17 or higher
 - Python 3.8+ (for Python SDK)
 - Rust 1.70+ (for Rust SDK)
-- Gradle 8.0+
+- Gradle 9.7+ for the Java SDK (`sdk/java` uses the Gradle 9 wrapper; the API module uses a
+  separate Gradle 8 wrapper — both are in-repo, no global Gradle install required)
 - Git
 
 ### Setting Up Your Development Environment

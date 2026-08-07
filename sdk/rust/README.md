@@ -4,7 +4,16 @@ Rust SDK for decentralized Substrait compliance testing.
 
 ## Installation
 
-Add to your `Cargo.toml`:
+> **Note:** The Rust SDK is not yet published to crates.io. Until a published crate is available,
+> add the SDK as a git path dependency or build from source:
+>
+> ```bash
+> git clone https://github.com/IBM/substrait-compliance.git
+> cd substrait-compliance/sdk/rust
+> cargo build --release
+> ```
+
+Once published, add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -22,7 +31,7 @@ struct MyEngine;
 
 impl ComplianceEngine for MyEngine {
     fn get_info(&self) -> EngineInfo {
-        EngineInfo::new("MyEngine", "1.0.0", "MyCompany")
+        EngineInfo::new("MyEngine", "1.0.0", "MyCompany")  // your engine's own version — not the compliance SDK version
             .with_description("My Substrait engine")
     }
     

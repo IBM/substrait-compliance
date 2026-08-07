@@ -14,6 +14,17 @@ A TypeScript/JavaScript SDK for implementing and testing Substrait compliance in
 
 ## Installation
 
+> **Note:** The TypeScript SDK is not yet published to npm. Until a published package is
+> available, build from source and reference the compiled output directly:
+>
+> ```bash
+> git clone https://github.com/IBM/substrait-compliance.git
+> cd substrait-compliance/sdk/typescript
+> npm ci && npm run build   # compiled output in dist/
+> ```
+
+Once published, install with:
+
 ```bash
 npm install @substrait/compliance
 ```
