@@ -45,7 +45,11 @@ test {
     useJUnitPlatform()
     // Expose the repository root so integration-style tests can locate
     // test-suite data files without relying on user.dir being stable.
-    systemProperty 'substrait.compliance.rootDir', rootProject.projectDir.parentFile.parentFile.absolutePath
+    // rootProject sits at <repo>/sdk/java/ so the repo root is two levels up.
+    // Inside the container the build root is /build and has no grandparent;
+    // fall back to rootProject.projectDir so the property is always set.
+    def repoRoot = rootProject.projectDir.parentFile?.parentFile ?: rootProject.projectDir
+    systemProperty 'substrait.compliance.rootDir', repoRoot.absolutePath
 }
 
 // Fat jar containing all runtime dependencies — used by the demo script
