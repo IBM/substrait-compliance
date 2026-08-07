@@ -1,31 +1,47 @@
 # Multi-stage build for Substrait Compliance API
 # Optimized for Podman but compatible with Docker
+#
+# Build strategy: sdk/java (shadow 9.6.1) requires Gradle 9; api (Spring Boot 2.7)
+# requires Gradle 8 because io.spring.dependency-management removes
+# LenientConfiguration.getFiles() in Gradle 9.  The two modules are built in
+# separate stages so each uses its own compatible Gradle image.
 
-# Stage 1: Build
-FROM gradle:9.6.1-jdk17 AS builder
+# ── Stage 1: Build the SDK fat jar (Gradle 9) ─────────────────────────────────
+FROM gradle:9.6.1-jdk17 AS sdk-builder
 
 WORKDIR /build
 
-# Copy gradle files first for better caching
 COPY settings.gradle .
 COPY sdk/java/build.gradle sdk/java/
 COPY sdk/java/gradle sdk/java/gradle
 COPY sdk/java/gradlew sdk/java/gradlew
-COPY api/build.gradle api/
-COPY api/gradle api/gradle
-COPY api/gradlew api/gradlew
+COPY sdk/java/src sdk/java/src
+
+RUN gradle :sdk:java:shadowJar --no-daemon -q
+
+# ── Stage 2: Build the API bootJar (Gradle 8) ─────────────────────────────────
+FROM gradle:8.14.5-jdk17 AS api-builder
+
+WORKDIR /build
+
+# api/settings.gradle becomes the root settings file for this standalone build
+COPY api/settings.gradle .
+COPY api/build.gradle build.gradle
+COPY api/gradle gradle
+COPY api/gradlew gradlew
+
+# Bring the SDK fat jar in from the previous stage
+COPY --from=sdk-builder /build/sdk/java/build/libs/substrait-compliance-*-all.jar \
+     libs/substrait-compliance-all.jar
 
 # Download dependencies (cached layer)
-RUN gradle :api:dependencies --no-daemon || true
+RUN gradle dependencies --no-daemon -q || true
 
-# Copy source code
-COPY sdk/java/src sdk/java/src
-COPY api/src api/src
+COPY api/src src
 
-# Build the application
-RUN gradle :api:bootJar --no-daemon
+RUN gradle bootJar --no-daemon -q
 
-# Stage 2: Runtime
+# ── Stage 3: Runtime ──────────────────────────────────────────────────────────
 FROM eclipse-temurin:17-jre-jammy
 
 # Install curl for healthcheck
@@ -33,8 +49,9 @@ RUN apt-get update -q && apt-get install -y --no-install-recommends curl && rm -
 
 WORKDIR /app
 
-# Copy the built JAR from builder stage
-COPY --from=builder /build/api/build/libs/*.jar app.jar
+# Copy the built JAR from the API builder stage
+# In the standalone build the jar lands at /build/build/libs/ (rootDir/build/libs)
+COPY --from=api-builder /build/build/libs/*.jar app.jar
 
 # Create non-root user for security
 RUN groupadd --system spring && useradd --system --gid spring spring

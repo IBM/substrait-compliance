@@ -5,6 +5,8 @@ plugins {
 rootProject.name = 'substrait-compliance'
 
 include 'sdk:java'
-include 'api'
+// api/ has its own standalone build (api/settings.gradle) because it requires
+// Gradle 8 (Spring Boot 2.7 + io.spring.dependency-management is incompatible
+// with Gradle 9).  Build api/ via: cd api && ./gradlew bootJar
 
 // Made with Bob

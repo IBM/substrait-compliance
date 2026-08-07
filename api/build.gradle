@@ -21,8 +21,10 @@ repositories {
 }
 
 dependencies {
-    // SDK dependency
-    implementation project(':sdk:java')
+    // SDK fat jar — in the container this is at ${rootDir}/libs/ (same level as build.gradle).
+    // For local development: cd sdk/java && ./gradlew shadowJar, then
+    //   mkdir -p api/libs && cp sdk/java/build/libs/*-all.jar api/libs/
+    implementation fileTree(dir: "${rootDir}/libs", include: '*.jar')
     
     // Spring Boot starters
     implementation 'org.springframework.boot:spring-boot-starter-web'
