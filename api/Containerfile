@@ -2,14 +2,18 @@
 # Optimized for Podman but compatible with Docker
 
 # Stage 1: Build
-FROM gradle:8.14-jdk17 AS builder
+FROM gradle:9.7-jdk17 AS builder
 
 WORKDIR /build
 
 # Copy gradle files first for better caching
 COPY settings.gradle .
 COPY sdk/java/build.gradle sdk/java/
+COPY sdk/java/gradle sdk/java/gradle
+COPY sdk/java/gradlew sdk/java/gradlew
 COPY api/build.gradle api/
+COPY api/gradle api/gradle
+COPY api/gradlew api/gradlew
 
 # Download dependencies (cached layer)
 RUN gradle :api:dependencies --no-daemon || true

@@ -970,7 +970,7 @@ cd sdk/java
 # Python: reinstall
 cd sdk/python
 pip uninstall substrait-compliance -y
-./install-dev.sh   # re-seeds build tools and reinstalls from PyPI
+./install-dev.sh   # re-seeds build tools and re-installs as editable local install
 
 # Rust: clean rebuild
 cd sdk/rust
@@ -1193,7 +1193,10 @@ cd examples/datafusion-python && python datafusion_compliance.py
 
 **DuckDB (C++):**
 ```bash
-cd examples/duckdb-cpp && mkdir build && cd build && cmake .. && make && ./example
+cd examples/duckdb-cpp
+cmake -S . -B build
+cmake --build build --parallel
+./build/example
 ```
 
 **DataFusion (Rust):**
@@ -1270,6 +1273,7 @@ This project is licensed under the Apache License 2.0 — see the [LICENSE](LICE
 - [ ] Compliance badges
 - [ ] Historical trend analysis
 - [ ] Multi-version testing
+- [ ] Spring Boot 3.x migration for REST API (requires `javax.*` → `jakarta.*` namespace update across 16 source files; blocked on Spring Boot 2.7 EOL timeline)
 
 ---
 

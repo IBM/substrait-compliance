@@ -7,14 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- `api/Containerfile`: builder image updated `gradle:8.14-jdk17 → gradle:9.7-jdk17`; wrapper
+  files (`sdk/java/gradle/`, `api/gradle/`) now COPYed into the layer so the shadow 9.6.1 plugin
+  (which requires Gradle 9.x) resolves correctly during the container build
+
 ### Changed
 - Java SDK: Gradle wrapper bumped `8.14.5 → 9.7.0`; Shadow plugin bumped `8.3.6 → 9.6.1`
   (shadow 9.x requires Gradle 9.x for the `Provider`-based `addVariantsFromConfiguration` API)
-- Java SDK: Substrait dependency bumped `0.80.0 → 0.98.0`; all 88 tests pass on the new version
+- Java SDK: Substrait dependency bumped `0.80.0 → 0.98.0`; functionally verified — all 88 unit
+  and integration tests pass; full demo (5 engines × 22 TPC-H queries) passes at expected rates.
+  Plans are protobuf binary with no embedded spec-version tag; deserialization is unaffected by
+  the minor bump. Dependabot minor-version ignore for `io.substrait*` removed (manual review
+  complete — future minor bumps will be auto-proposed)
 - API module: Gradle wrapper bumped `8.14.5 → 9.7.0` (aligns with SDK wrapper)
 - C++ SDK: `CMakeLists.txt` project version corrected `1.0.0 → 0.1.1` (matches all other SDKs)
 - README: Scala SDK Features test count corrected `21 → 26`
   (BenchmarkRunnerSpec 7 + ComplianceEngineSpec 4 + TableDataSpec 10 + PassThroughSpec 5)
+- README line 973: `"reinstalls from PyPI"` → `"re-installs as editable local install"` (second
+  occurrence of this stale comment; line 993 was fixed earlier)
+- README line 1196: duckdb-cpp example command updated from `mkdir build && cd build && cmake ..`
+  to canonical `cmake -S . -B build / cmake --build build --parallel` form
 - `dependabot.yml`: removed minor-version ignore for `io.substrait*` so spec library
   version bumps are auto-proposed
 - README: CI badge changed from static shields.io to live `sdk-build-test.yml` workflow badge
