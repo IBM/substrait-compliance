@@ -20,7 +20,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Get version from tag or input
         id: get-version
@@ -50,10 +50,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -80,7 +80,7 @@ jobs:
           jar tf build/libs/substrait-compliance-java-${{ needs.validate-version.outputs.version }}.jar | grep -q "io/substrait/compliance/"
       
       - name: Upload Java artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: java-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/java/build/libs/*.jar
@@ -92,10 +92,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -131,7 +131,7 @@ jobs:
           deactivate
       
       - name: Upload Python artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: python-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/python/dist/*
@@ -143,7 +143,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -170,7 +170,7 @@ jobs:
           tar -tf target/package/substrait-compliance-${{ needs.validate-version.outputs.version }}.crate | grep -q "Cargo.toml"
       
       - name: Upload Rust artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rust-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/rust/target/package/*.crate
@@ -182,10 +182,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: '1.21'
           cache-dependency-path: sdk/go/go.sum
@@ -206,7 +206,7 @@ jobs:
           go run basic_engine.go
 
       - name: Upload Go artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: go-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/go/dist/*.tar.gz
@@ -218,10 +218,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: 'npm'
@@ -254,7 +254,7 @@ jobs:
           node -e "require('substrait-compliance'); console.log('typescript package ok')"
 
       - name: Upload TypeScript artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: typescript-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/typescript/*.tgz
@@ -266,10 +266,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -291,7 +291,7 @@ jobs:
           ls -lah dist
 
       - name: Upload Scala artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scala-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/scala/dist/*.jar
@@ -303,10 +303,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
@@ -326,7 +326,7 @@ jobs:
           unzip -l dist/*.nupkg | grep -q "Substrait.Compliance.dll"
 
       - name: Upload C# artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: csharp-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/csharp/dist/*.nupkg
@@ -338,7 +338,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install C++ toolchain
         run: sudo apt-get update && sudo apt-get install -y cmake g++
@@ -358,7 +358,7 @@ jobs:
           find . -type f | head
 
       - name: Upload C++ artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cpp-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/cpp/dist/*.tar.gz
@@ -370,7 +370,7 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Create function test suite archive
         run: |
@@ -390,7 +390,7 @@ jobs:
             > test-suite-checksums-${{ needs.validate-version.outputs.version }}.txt
       
       - name: Upload test suites
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: test-suites-${{ needs.validate-version.outputs.version }}
           path: |
@@ -407,10 +407,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       
       - name: Download all artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: release-artifacts
       
@@ -486,7 +486,7 @@ jobs:
           EOF
       
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.validate-version.outputs.version }}
           name: Release v${{ needs.validate-version.outputs.version }}
@@ -505,7 +505,7 @@ jobs:
 
     steps:
       - name: Download all release candidate artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           path: release-candidate-artifacts
 
@@ -528,7 +528,7 @@ jobs:
           cat release-candidate-manifest-${{ needs.validate-version.outputs.version }}.txt
 
       - name: Upload release candidate manifest
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-candidate-manifest-${{ needs.validate-version.outputs.version }}
           path: release-candidate-manifest-${{ needs.validate-version.outputs.version }}.txt
@@ -541,10 +541,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -578,7 +578,7 @@ jobs:
 
       - name: Upload Java publication evidence
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: java-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: publication-evidence/java-maven-central.txt
@@ -591,15 +591,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
       - name: Download Python artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: python-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/python/dist
@@ -630,7 +630,7 @@ jobs:
 
       - name: Upload Python publication evidence
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: python-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: publication-evidence/python-pypi.txt
@@ -643,7 +643,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
@@ -671,7 +671,7 @@ jobs:
 
       - name: Upload Rust publication evidence
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: rust-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: publication-evidence/rust-crates-io.txt
@@ -684,10 +684,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Go
-        uses: actions/setup-go@v5
+        uses: actions/setup-go@v7
         with:
           go-version: '1.21'
           cache-dependency-path: sdk/go/go.sum
@@ -727,7 +727,7 @@ jobs:
 
       - name: Upload Go publication evidence
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: go-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: publication-evidence/go-pkg-go-dev.txt
@@ -740,10 +740,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: '20'
           registry-url: 'https://registry.npmjs.org'
@@ -751,7 +751,7 @@ jobs:
           cache-dependency-path: sdk/typescript/package-lock.json
 
       - name: Download TypeScript artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: typescript-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/typescript
@@ -781,7 +781,7 @@ jobs:
 
       - name: Upload TypeScript publication evidence
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: typescript-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: publication-evidence/typescript-npm.txt
@@ -794,10 +794,10 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -834,7 +834,7 @@ jobs:
 
       - name: Upload Scala publication evidence
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: scala-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: publication-evidence/scala-maven-central.txt
@@ -847,15 +847,15 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up .NET
-        uses: actions/setup-dotnet@v4
+        uses: actions/setup-dotnet@v6
         with:
           dotnet-version: '10.0.x'
 
       - name: Download C# artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: csharp-sdk-${{ needs.validate-version.outputs.version }}
           path: sdk/csharp/dist
@@ -887,7 +887,7 @@ jobs:
 
       - name: Upload C# publication evidence
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: csharp-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: publication-evidence/csharp-nuget.txt
@@ -900,13 +900,13 @@ jobs:
 
     steps:
       - name: Download C++ artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cpp-sdk-${{ needs.validate-version.outputs.version }}
           path: cpp-dist
 
       - name: Upload C++ tarball to GitHub Release
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           tag_name: v${{ needs.validate-version.outputs.version }}
           files: cpp-dist/*.tar.gz
@@ -929,7 +929,7 @@ jobs:
 
       - name: Upload C++ publication evidence
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: cpp-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: publication-evidence/cpp-github-release.txt
@@ -942,63 +942,63 @@ jobs:
 
     steps:
       - name: Download release candidate manifest
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: release-candidate-manifest-${{ needs.validate-version.outputs.version }}
           path: release-evidence
 
       - name: Download Java publication evidence
         if: needs.publish-java.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: java-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: release-evidence/publication
 
       - name: Download Python publication evidence
         if: needs.publish-python.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: python-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: release-evidence/publication
 
       - name: Download Rust publication evidence
         if: needs.publish-rust.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: rust-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: release-evidence/publication
 
       - name: Download Go publication evidence
         if: needs.publish-go.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: go-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: release-evidence/publication
 
       - name: Download TypeScript publication evidence
         if: needs.publish-typescript.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: typescript-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: release-evidence/publication
 
       - name: Download Scala publication evidence
         if: needs.publish-scala.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: scala-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: release-evidence/publication
 
       - name: Download C# publication evidence
         if: needs.publish-csharp.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: csharp-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: release-evidence/publication
 
       - name: Download C++ publication evidence
         if: needs.publish-cpp.result == 'success'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: cpp-publication-evidence-${{ needs.validate-version.outputs.version }}
           path: release-evidence/publication
@@ -1029,7 +1029,7 @@ jobs:
           EOF
 
       - name: Upload release evidence bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: release-evidence-${{ needs.validate-version.outputs.version }}
           path: release-evidence

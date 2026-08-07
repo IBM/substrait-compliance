@@ -22,12 +22,12 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ inputs.version }}
       
       - name: Setup kubectl
-        uses: azure/setup-kubectl@v3
+        uses: azure/setup-kubectl@v5
         with:
           version: 'v1.28.0'
       
@@ -109,7 +109,7 @@ jobs:
       
       - name: Upload deployment record
         if: success()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: deployment-record-${{ github.run_number }}
           path: deployment-log.txt
