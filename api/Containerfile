@@ -2,7 +2,7 @@
 # Optimized for Podman but compatible with Docker
 
 # Stage 1: Build
-FROM gradle:9.7-jdk17 AS builder
+FROM gradle:9.6.1-jdk17 AS builder
 
 WORKDIR /build
 
