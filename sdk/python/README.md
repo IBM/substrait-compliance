@@ -36,7 +36,7 @@ class MyEngine(ComplianceEngine):
     def get_info(self):
         return EngineInfo(
             name="MyEngine",
-            version="1.0.0",
+            version="1.0.0",   # your engine's own version — not the compliance SDK version
             vendor="MyCompany"
         )
     

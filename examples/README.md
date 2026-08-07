@@ -53,10 +53,9 @@ Real DuckDB integration via the native C++ API. The `executePlan` method:
 **Build & Run:**
 ```bash
 cd duckdb-cpp
-mkdir build && cd build
-cmake ..
-make
-./duckdb_compliance_example [plan.substrait]
+cmake -S . -B build
+cmake --build build --parallel
+./build/duckdb_compliance_example [plan.substrait]
 ```
 
 ### 3. DataFusion (Python)
@@ -112,10 +111,9 @@ Fully wired Velox integration with vectorized execution:
 **Build & Run:**
 ```bash
 cd velox-cpp
-mkdir build && cd build
-cmake ..
-make -j$(nproc)
-./velox_compliance_example [plan.substrait]
+cmake -S . -B build
+cmake --build build --parallel
+./build/velox_compliance_example [plan.substrait]
 ```
 
 ## Comparison Matrix

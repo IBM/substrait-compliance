@@ -42,7 +42,7 @@ type MyEngine struct{}
 func (e *MyEngine) GetInfo() compliance.EngineInfo {
     return compliance.EngineInfo{
         Name:        "MyEngine",
-        Version:     "1.0.0",
+        Version:     "1.0.0",    // your engine's own version — not the compliance SDK version
         Vendor:      "MyCompany",
         Description: "My Substrait query engine",
     }

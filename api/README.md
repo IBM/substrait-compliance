@@ -101,8 +101,7 @@ export SPRING_DATASOURCE_PASSWORD="$DEV_DB_PASSWORD"
 
 - **[Deployment Guide](DEPLOYMENT.md)** - Complete deployment instructions
 - **[API Usage Guide](API_USAGE.md)** - API endpoints and examples
-- **[Swagger UI](http://localhost:8080/swagger-ui.html)** - Interactive API documentation
-- **[Implementation Plan](../API_IMPLEMENTATION_PLAN.md)** - Architecture and design decisions
+- **[Swagger UI](http://localhost:8080/swagger-ui.html)** - Interactive API documentation *(Spring Boot 2: `/swagger-ui.html`; will move to `/swagger-ui/index.html` after the Boot 3 migration)*
 - **[Security Policy](../SECURITY.md)** - Verified vs. operator-dependent security guarantees
 
 ## Project Structure
@@ -146,7 +145,7 @@ api/
 
 ## Technology Stack
 
-- **Spring Boot 2.7.18** - Application framework
+- **Spring Boot 2.7.18** - Application framework *(EOL November 2023; Boot 3.x migration tracked in [ROADMAP.md](../ROADMAP.md))*
 - **PostgreSQL 15** - Primary database
 - **JWT** - Authentication tokens
 - **Bucket4j** - Rate limiting
@@ -192,8 +191,31 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for complete configuration options.
 # Build JAR
 ./gradlew bootJar
 
-# Build container image
-podman build -t substrait-compliance-api:latest -f Containerfile .
+# Build container image (local)
+podman build -t substrait-compliance-api:local -f Containerfile .
+```
+
+### Pre-built Container Image
+
+A multi-platform image (`linux/amd64`, `linux/arm64`) is published to GitHub Container Registry
+on every push to `main` and on every semver tag by `api-container-build.yml`:
+
+```
+ghcr.io/ibm/substrait-compliance/substrait-compliance-api:main     # latest main branch
+ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest   # alias for main
+ghcr.io/ibm/substrait-compliance/substrait-compliance-api:<tag>    # e.g. 0.1.1
+```
+
+Pull and run:
+
+```bash
+docker pull ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
+docker run -p 8080:8080 \
+  -e JWT_SECRET="$(openssl rand -base64 32)" \
+  -e SPRING_DATASOURCE_URL=jdbc:postgresql://host.docker.internal:5432/substrait_compliance \
+  -e SPRING_DATASOURCE_USERNAME=substrait \
+  -e SPRING_DATASOURCE_PASSWORD=<password> \
+  ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
 ```
 
 ### Test
@@ -331,5 +353,5 @@ Apache License 2.0 - See LICENSE file for details
 
 ---
 
-**Version**: 1.0.0-SNAPSHOT
-**Last Updated**: 2026-05-30
+**Version**: 0.1.1
+**Last Updated**: 2026-08-06

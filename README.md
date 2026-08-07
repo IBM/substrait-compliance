@@ -1102,6 +1102,11 @@ docker-compose up -d postgres
 curl http://localhost:8080/api/v1/leaderboard
 ```
 
+**Pre-built container image** (published on every push to `main`):
+```bash
+docker pull ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
+```
+
 **Documentation:**
 - [docs/REST_API_GUIDE.md](docs/REST_API_GUIDE.md) — Complete API reference
 - [docs/REST_API_ARCHITECTURE.md](docs/REST_API_ARCHITECTURE.md) — Architecture and design

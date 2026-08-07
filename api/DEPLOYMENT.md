@@ -273,7 +273,7 @@ A minimal evidence record can be captured in Markdown like this:
 - Environment: staging
 - Deployment owner: <name>
 - Rollback owner: <name>
-- Image tag: ghcr.io/ORG/REPO/substrait-compliance-api:<tag>
+- Image tag: ghcr.io/ibm/substrait-compliance/substrait-compliance-api:<tag>
 - Commit SHA: <sha>
 - Validation date: YYYY-MM-DD
 - Backup rehearsal: passed/failed

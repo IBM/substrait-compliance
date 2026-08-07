@@ -16,7 +16,7 @@ in parallel, then runs smoke tests for the two fully-executable examples.
 | `rust-sdk` | `cargo fmt --check`, `cargo clippy -D warnings`, 22 tests, `cargo-tarpaulin` coverage |
 | `go-sdk` | `go build ./...` + `go test ./...` |
 | `typescript-sdk` | `npm ci` + `npm run build` + 17 Jest tests |
-| `scala-sdk` | `sbt compile` + `sbt test` (21 ScalaTest tests) |
+| `scala-sdk` | `sbt compile` + `sbt test` (26 ScalaTest tests) |
 | `csharp-sdk` | `dotnet build` + `dotnet test` (20 xUnit tests) |
 | `cpp-sdk` | CMake configure (`-S/-B`) + parallel build + CTest (30 GTest tests via FetchContent fallback) |
 | `duckdb-java-example` | Builds SDK fat jar, compiles DuckDB example, smoke-tests class loading |
@@ -51,7 +51,14 @@ Builds the Spring Boot REST API and runs its unit tests. The API is pre-release 
 
 ### `api-container-build.yml` — Multi-platform container image
 
-Builds a multi-platform (`linux/amd64`, `linux/arm64`) Docker image for the REST API.
+Builds a multi-platform (`linux/amd64`, `linux/arm64`) container image for the REST API and
+publishes it to GitHub Container Registry on every push to `main` and on semver tags:
+
+```
+ghcr.io/ibm/substrait-compliance/substrait-compliance-api:main
+ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
+ghcr.io/ibm/substrait-compliance/substrait-compliance-api:<semver>
+```
 
 ### `api-deploy-staging.yml` / `api-deploy-production.yml` — Staged deployments
 

@@ -42,7 +42,7 @@ class MyQueryEngine implements ComplianceEngine {
   getInfo(): EngineInfo {
     return {
       name: 'My Query Engine',
-      version: '1.0.0',
+      version: '1.0.0',  // your engine's own version — not the compliance SDK version
       vendor: 'My Company',
       description: 'A high-performance query engine',
     };

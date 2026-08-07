@@ -47,7 +47,7 @@ public class MyQueryEngine : IComplianceEngine
     {
         return new EngineInfo(
             Name: "My Query Engine",
-            Version: "1.0.0",
+            Version: "1.0.0",   // your engine's own version — not the compliance SDK version
             Vendor: "My Company",
             Description: "A high-performance query engine"
         );

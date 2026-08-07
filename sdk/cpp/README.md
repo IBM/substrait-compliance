@@ -135,7 +135,7 @@ target_link_libraries(your_target PRIVATE substrait::substrait_compliance)
 ```bash
 # Add to conanfile.txt
 [requires]
-substrait-compliance/1.0.0
+substrait-compliance/0.1.1
 
 [generators]
 cmake

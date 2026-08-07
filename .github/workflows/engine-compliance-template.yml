@@ -57,7 +57,10 @@ jobs:
           echo "sdk-version=$SDK_VERSION" >> $GITHUB_OUTPUT
 
   download-compliance-assets:
-    name: Prepare Compliance Assets
+    # NOTE: The SDK is built from source at the pinned tag — it is not yet
+    # published to a package registry. This job checks out the framework repo,
+    # builds the fat jar, and packages the test suite before the engine job runs.
+    name: Build Compliance SDK and Prepare Assets
     runs-on: ubuntu-latest
     needs: setup
     # Guard: never run the placeholder template inside the framework repo itself

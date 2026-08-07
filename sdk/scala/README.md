@@ -20,7 +20,16 @@ A comprehensive Scala SDK for testing Substrait plan compliance across different
 
 ## Installation
 
-Add the following to your `build.sbt`:
+> **Note:** The Scala SDK is not yet published to Maven Central. Build from source until a
+> published artifact is available:
+>
+> ```bash
+> git clone https://github.com/IBM/substrait-compliance.git
+> cd substrait-compliance/sdk/scala
+> sbt publishLocal   # installs to ~/.ivy2/local for use in local projects
+> ```
+
+Once published, add to your `build.sbt`:
 
 ```scala
 libraryDependencies ++= Seq(
@@ -46,7 +55,7 @@ class MyEngine(implicit ec: ExecutionContext) extends ComplianceEngine {
   override def getInfo(): EngineInfo = {
     EngineInfo(
       name = "My Query Engine",
-      version = "1.0.0",
+      version = "1.0.0",          // your engine's own version — not the compliance SDK version
       description = Some("My custom query engine")
     )
   }

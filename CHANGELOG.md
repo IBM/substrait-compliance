@@ -27,6 +27,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - CI: `api-container-build.yml` SARIF upload guarded with `if: always()` so the Trivy step
   does not silently skip on non-default branches
 
+### Added
+- REST API container image published to GitHub Container Registry on every push to `main` and
+  on semver tags via `api-container-build.yml`:
+  `ghcr.io/ibm/substrait-compliance/substrait-compliance-api:{branch|tag|latest}`
+
 ### Changed
 - Java SDK: Gradle wrapper bumped `8.14.5 → 9.7.0`; Shadow plugin bumped `8.3.6 → 9.6.1`
   (shadow 9.x requires Gradle 9.x for the `Provider`-based `addVariantsFromConfiguration` API)
