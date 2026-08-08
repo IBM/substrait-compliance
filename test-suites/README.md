@@ -7,9 +7,9 @@ binaries, input data, and expected reference outputs.
 
 | Suite | Queries | Data files | Expected outputs | Oracle |
 |-------|---------|------------|-----------------|--------|
-| [TPC-H](tpch/) | 22 | 8 CSV (86,805 rows, scale 0.01) | 22 CSV | DuckDB 1.2.0 |
-| [TPC-DS](tpcds/) | 99 | 24 CSV (scale 0.01) | 99 CSV | DuckDB 1.2.0 |
-| [Functions](functions/) | — | — | inline in .test files | Substrait spec |
+| [TPC-H](tpch/README.md) | 22 | 8 CSV (86,805 rows, scale 0.01) | 22 CSV | DuckDB 1.2.0 |
+| [TPC-DS](tpcds/README.md) | 99 | 24 CSV (scale 0.01) | 99 CSV | DuckDB 1.2.0 |
+| [Functions](functions/README.md) | — | — | inline in .test files | Substrait spec |
 
 ## Function Tests
 

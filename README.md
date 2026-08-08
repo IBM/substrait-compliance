@@ -1128,6 +1128,7 @@ docker pull ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
 - [examples/README.md](examples/README.md) — Integration examples
 
 ### 🧪 Test Suites
+- [test-suites/README.md](test-suites/README.md) — Test suites overview
 - [test-suites/functions/README.md](test-suites/functions/README.md) — Function tests
 - [test-suites/tpch/README.md](test-suites/tpch/README.md) — TPC-H benchmark
 - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) — TPC-DS benchmark

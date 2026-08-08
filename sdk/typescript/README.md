@@ -556,6 +556,6 @@ Apache License 2.0 - See [LICENSE](../../LICENSE) for details.
 
 ## Support
 
-- 📖 [Documentation](https://substrait.io)
+- 📖 [Documentation](https://github.com/IBM/substrait-compliance)
 - 💬 [Discussions](https://github.com/IBM/substrait-compliance/discussions)
 - 🐛 [Issue Tracker](https://github.com/IBM/substrait-compliance/issues)

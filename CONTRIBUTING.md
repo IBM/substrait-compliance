@@ -373,8 +373,6 @@ Describe testing performed
 
 - **GitHub Issues**: Bug reports and feature requests
 - **GitHub Discussions**: Questions and general discussion
-- **Mailing List**: substrait-dev@googlegroups.com
-- **Slack**: #substrait-compliance channel
 
 ### Getting Help
 

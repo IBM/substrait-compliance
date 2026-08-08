@@ -54,6 +54,8 @@ public class MyEngine implements ComplianceEngine {
     
     @Override
     public EngineInfo getEngineInfo() {
+        // Replace "MyEngine" / "1.0.0" / "0.20.0" with your engine's name, version, and
+        // the Substrait spec version your engine targets — none of these are the SDK version.
         return new EngineInfo("MyEngine", "1.0.0", "0.20.0");
     }
     

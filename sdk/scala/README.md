@@ -468,7 +468,8 @@ Apache License 2.0
 
 For issues and questions:
 - GitHub Issues: https://github.com/IBM/substrait-compliance/issues
-- Documentation: https://substrait.io/
+- GitHub Discussions: https://github.com/IBM/substrait-compliance/discussions
+- Documentation: https://github.com/IBM/substrait-compliance
 
 ## Related Projects
 

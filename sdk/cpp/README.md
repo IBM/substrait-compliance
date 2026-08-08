@@ -179,6 +179,7 @@ using namespace substrait::compliance;
 class MyEngine : public ComplianceEngine {
 public:
     EngineInfo get_info() const override {
+        // your engine's own version — not the compliance SDK version
         return EngineInfo("MyEngine", "1.0.0", "MyCompany")
             .with_description("My Substrait query engine");
     }
