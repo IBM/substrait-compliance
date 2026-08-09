@@ -41,11 +41,14 @@ This project adheres to a Code of Conduct that all contributors are expected to 
    ```bash
    git remote add upstream https://github.com/IBM/substrait-compliance.git
    ```
-4. **Build the project**:
+4. **Build the Java SDK**:
    ```bash
    ./gradlew build
    ```
-5. **Run tests** to verify setup:
+   > **Note**: The root `./gradlew build` only builds the Java SDK (`sdk:java`). Each other SDK
+   > has its own build system (see the per-SDK README). The REST API is a separate Gradle project
+   > under `api/` built with its own `./gradlew build` there.
+5. **Run Java SDK tests** to verify setup:
    ```bash
    ./gradlew test
    ```
@@ -379,7 +382,6 @@ Describe testing performed
 - Check existing documentation
 - Search GitHub issues
 - Ask in GitHub Discussions
-- Join community calls (monthly)
 
 ### Recognition
 

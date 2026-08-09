@@ -74,9 +74,8 @@ class MyEngine(implicit ec: ExecutionContext) extends ComplianceEngine {
     inputTables: Map[String, TableData]
   ): Future[TableData] = {
     Future {
-      // Parse and execute the Substrait plan
-      // Return the result as TableData
-      ???
+      // TODO: parse and execute the Substrait plan, then return the result as TableData
+      TableData(schema = inputTables.headOption.map(_._2.schema).getOrElse(Seq.empty), rows = Seq.empty)
     }
   }
 

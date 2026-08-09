@@ -153,7 +153,7 @@ api/
 - **Flyway** - Database migrations
 - **OpenAPI 3.0** - API documentation
 - **TestContainers** - Integration testing
-- **Gradle 8.5** - Build tool
+- **Gradle 8.14.5** - Build tool
 
 ## Production-Style Validation Checklist
 

@@ -7,6 +7,42 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Documentation
+- README: execution model and isolation semantics added to SDK cross-reference table — documents
+  that `initialize`/`cleanup` are called once per suite (not per test), that engines must be
+  stateless between test cases, that TypeScript supports optional parallel execution via
+  `RunnerOptions.parallel`, and that Java receives a parsed `Plan` object while all other SDKs
+  receive raw bytes
+- README: inline Java engine example corrected to use the real `executePlan(Plan plan,
+  Map<String, TableData> inputData)` signature and `q1.getPlan()` accessor — the previously
+  published `byte[] planBytes` / `getPlanBytes()` variant caused a compile error on first contact
+- README: all 22 TPC-H and all 99 TPC-DS expected-result CSVs confirmed present; "missing
+  expected output → SKIPPED" runner semantics documented explicitly in test-suites/README.md
+- README: demo classpath assembly updated to reference local fat-jar build output rather than
+  Gradle cache; `run-simple-demo.sh` uses `sdk/java/build/libs/*-all.jar` after `shadowJar`
+- examples/README.md: `executePlan` status column added to reference table — each example now
+  explicitly states whether execution is real, conditional on optional dependencies, or wired but
+  requires a full native library build
+- `api/README.md`: Gradle version corrected `8.5 → 8.14.5`
+- `sdk/scala/README.md`: quick-start `executePlan` stub replaced `???` (throws
+  `NotImplementedError`) with a valid stub return — consistent with all other SDK examples
+- `CONTRIBUTING.md`: `./gradlew build` step annotated to clarify it builds only the Java SDK;
+  phantom "Join community calls (monthly)" bullet removed (no such programme exists)
+- All 8 SDK READMEs: "not yet published" caveats added; `EngineInfo` constructor comments
+  clarified; support section URLs corrected to live GitHub Discussions links
+- `test-suites/README.md` created: suite table, query counts, expected-result coverage, and
+  result-status semantics (PASSED / FAILED / SKIPPED / ERROR)
+- `.github/workflows/README.md`: workflow inventory updated with correct Scala test count (26),
+  GHCR image paths, and api-build-test SDK-staging step
+
+### Maintenance
+- GitHub Actions: all 20 action versions bumped across 12 workflow files (Dependabot batch) —
+  checkout `v3→v4`, setup-java `v3→v4`, upload-artifact `v3→v4`, download-artifact `v3→v4`,
+  cache `v3→v4`, upload-sarif `v1→v3`, and others
+- CI: `api-build-test.yml` and `api-pr-validation.yml` now stage the SDK fat jar into `api/libs/`
+  before running Gradle 8 for the API build — fixes the two API CI jobs that failed when the
+  `api/` project was decoupled from the root multi-project build
+
 ### Fixed
 - `api/Containerfile` converted to a three-stage build to resolve a Gradle version split:
   the Java SDK requires Gradle ≥ 9 (Shadow plugin 9.6.1 uses a Gradle 9-only API), while
