@@ -140,6 +140,9 @@ cd demo
 ./runner/run-simple-demo.sh          # Quick: 22 TPC-H queries
 # ./runner/run-demo.sh               # Enhanced: more detailed output
 
+# Run TPC-DS tests (99 queries, more complex than TPC-H)
+# ./runner/run-tpcds-demo.sh
+
 # Run function-level tests (must cd to demo/runner/)
 cd runner
 ./run-function-tests.sh              # Java version: 4,000+ tests, 14 categories
