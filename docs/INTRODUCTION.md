@@ -105,11 +105,11 @@ flowchart TD
     C -->|yes| P["PASSED<br/>output verified against reference"]
     C -->|no| F2["FAILED<br/>output mismatch, difference recorded"]
 
-    style P fill:#defbe6,stroke:#24a148
-    style F1 fill:#fff1f1,stroke:#da1e28
-    style F2 fill:#fff1f1,stroke:#da1e28
-    style S1 fill:#edf5ff,stroke:#0043ce
-    style S2 fill:#edf5ff,stroke:#0043ce
+    style P fill:#defbe6,stroke:#24a148,color:#161616
+    style F1 fill:#fff1f1,stroke:#da1e28,color:#161616
+    style F2 fill:#fff1f1,stroke:#da1e28,color:#161616
+    style S1 fill:#edf5ff,stroke:#0043ce,color:#161616
+    style S2 fill:#edf5ff,stroke:#0043ce,color:#161616
 ```
 
 Per-category results then roll up into fidelity tiers, one tier per category per engine:
