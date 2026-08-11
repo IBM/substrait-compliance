@@ -28,7 +28,11 @@ class FunctionTestDemo:
     """Demo runner for function tests."""
     
     def __init__(self):
-        self.test_suites_dir = Path(__file__).parent.parent.parent / "test-suites" / "functions"
+        # Try test-suites-enhanced first (primary location), then fall back to test-suites
+        enhanced_dir = Path(__file__).parent.parent.parent / "test-suites-enhanced" / "functions"
+        default_dir = Path(__file__).parent.parent.parent / "test-suites" / "functions"
+        
+        self.test_suites_dir = enhanced_dir if enhanced_dir.exists() else default_dir
         self.output_dir = Path(__file__).parent.parent / "output"
         self.output_dir.mkdir(exist_ok=True)
         

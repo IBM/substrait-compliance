@@ -16,8 +16,18 @@ import org.json.*;
  */
 public class FunctionTestDemo {
     
-    private static final String TEST_SUITES_DIR = "../test-suites/functions";
+    private static final String TEST_SUITES_DIR = getTestSuitesDir();
     private static final String OUTPUT_DIR = "output";
+    
+    private static String getTestSuitesDir() {
+        // Try test-suites-enhanced first (primary location)
+        Path enhanced = Paths.get("../../test-suites-enhanced/functions");
+        if (Files.exists(enhanced)) {
+            return enhanced.toString();
+        }
+        // Fallback to test-suites
+        return "../../test-suites/functions";
+    }
     private static final ObjectMapper JSON_MAPPER = new ObjectMapper()
         .enable(SerializationFeature.INDENT_OUTPUT);
     
