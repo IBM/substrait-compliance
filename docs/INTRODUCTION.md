@@ -30,7 +30,7 @@ Three layers, mirroring the modular structure of the systems under test.
 flowchart TD
     STS["Shared test suites<br/>function tests · TPC-H / TPC-DS plans · expected outputs"]
 
-    subgraph LOCAL["Engine-local CI (no data leaves)"]
+    subgraph LOCAL["Engine-local CI"]
         EA["Engine A<br/>CI execution"]
         EB["Engine B<br/>CI execution"]
         EC["Engine C<br/>CI execution"]
