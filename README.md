@@ -9,6 +9,8 @@
 
 Enable database engines to self-certify their Substrait compliance through standardized interfaces, pre-packaged test suites, and automated reporting.
 
+> **New to the project?** Read the [technical introduction](docs/INTRODUCTION.md) for the motivation, architecture, and how to get involved.
+
 ---
 
 ## 📑 Table of Contents
