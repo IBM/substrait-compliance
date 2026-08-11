@@ -140,14 +140,14 @@ cd demo
 ./runner/run-simple-demo.sh          # Quick: 22 TPC-H queries
 # ./runner/run-demo.sh               # Enhanced: more detailed output
 
-# Run TPC-DS tests (99 queries, more complex than TPC-H; requires more memory)
-# ./runner/run-tpcds-demo.sh                # Java version (Note: requires 4GB+ heap)
-# Or use Python function tests for comprehensive testing without memory constraints
+# Run TPC-DS tests (99 queries, more complex than TPC-H)
+# Note: Requires significant memory (8GB+ heap). If memory-constrained, use Python function tests instead.
+# ./runner/run-tpcds-demo.sh         # Java version (requires 8GB+ heap for large CSV data)
 
-# Run function-level tests (must cd to demo/runner/)
+# Run function-level tests (5,000+ tests across 15 categories - most comprehensive)
 cd runner
-./run-function-tests.sh              # Java version: 4,000+ tests, 14 categories
-# ./run-function-tests-python.sh     # Python version: 5,000+ tests, 15 categories
+./run-function-tests-python.sh       # Python version: 5,000+ tests, 15 categories (recommended)
+# ./run-function-tests.sh            # Java version: 4,000+ tests, 14 categories
 
 # View results
 cd ..
