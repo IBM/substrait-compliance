@@ -77,22 +77,32 @@ git --version     # Any recent version
 Experience the framework before integrating your own engine:
 
 ```bash
-# 1. Clone the repository
+# 1. Clone and build
 git clone https://github.com/IBM/substrait-compliance.git
 cd substrait-compliance
+sdk/java/gradlew shadowJar -p sdk/java
 
-# 2. Run the demo (generates mock compliance reports)
+# 2. Run TPC-H demo (quick validation)
 cd demo
-./runner/run-simple-demo.sh
+./runner/run-simple-demo.sh                    # 22 TPC-H queries (~1-2 min)
 
-# Or run the enhanced demo with 10-phase framework
-./runner/run-enhanced-demo.sh
+# 3. Run comprehensive function tests (RECOMMENDED)
+cd runner
+./run-function-tests-python.sh                 # 5,000+ tests, 15 categories (~5-10 min)
 
-# 3. View the interactive dashboard
-cd dashboard
+# 4. View the interactive dashboard
+cd ..
 python3 -m http.server 8080
 
-# 4. Open in your browser: http://localhost:8080
+# 5. Open in your browser: http://localhost:8080
+```
+
+**For additional testing:**
+```bash
+# Enhanced TPC-H demo with detailed phases
+cd demo && ./runner/run-enhanced-demo.sh
+
+# Note: Java TPC-DS demo (99 queries) available but requires significant memory (8GB+)
 ```
 
 ### Cold-start validation
@@ -101,9 +111,15 @@ Use this sequence to verify the public repo from a fresh clone:
 
 ```bash
 # From repository root
+sdk/java/gradlew shadowJar -p sdk/java
+
+# Run tests
 cd demo
-./runner/run-simple-demo.sh
-./runner/run-enhanced-demo.sh
+./runner/run-simple-demo.sh              # TPC-H validation (~2 min)
+
+cd runner
+./run-function-tests-python.sh           # Comprehensive function tests (~10 min)
+
 cd ..
 ```
 

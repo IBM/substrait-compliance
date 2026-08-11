@@ -33,22 +33,37 @@ This demo is **not** intended to serve as:
 - a statistically rigorous benchmark harness
 - a guarantee of real engine behavior outside the deterministic demo adapters in [`demo/engines`](demo/engines)
 
-## Quick Start (5 Minutes)
+## Quick Start (10-15 Minutes)
 
 ### Prerequisites
 
 - ✅ Java 17 or higher
-- ✅ Python 3.8+ (for web server)
+- ✅ Python 3.8+ (for web server and function tests)
 - ✅ Web browser
 
-### Step 1: Run the Demo
+### Step 1: Build the SDK
+
+```bash
+# From repository root
+sdk/java/gradlew shadowJar -p sdk/java
+```
+
+### Step 2: Run TPC-H Demo
 
 ```bash
 # Navigate to demo directory
 cd demo
 
-# Run the framework-backed demo script
+# Run the TPC-H demo script (22 queries, ~1-2 minutes)
 ./runner/run-simple-demo.sh
+```
+
+### Step 3: Run Comprehensive Function Tests (RECOMMENDED)
+
+```bash
+# Run the Python function test suite (5,000+ tests, ~5-10 minutes)
+cd runner
+./run-function-tests-python.sh
 ```
 
 **Expected output:**
@@ -86,19 +101,19 @@ cd demo
 ✅ Demo completed successfully!
 ```
 
-### Step 2: Verify Files Were Created
+### Step 4: Verify Files Were Created
 
 ```bash
 # Check that reports were generated
-ls -la output/
-# Should show: mockdb-report.json, fastdb-report.json, clouddb-report.json, duckdb-report.json, postgresql-report.json, leaderboard.json
+ls -la runner/output/
+# Should show: *_function_tests.json and *_tpcds_report.json files
 
 # Check that dashboard data was created
 ls -la dashboard/data/
-# Should show: leaderboard.json
+# Should show: leaderboard.json and summary.json
 ```
 
-### Step 3: Start Web Server
+### Step 5: Start Web Server
 
 ⚠️ **Important:** Due to browser security (CORS), you **must** use a web server, not open files directly.
 
