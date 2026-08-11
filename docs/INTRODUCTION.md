@@ -127,14 +127,30 @@ Capability declarations extend into a capability contract. A plan induces a dema
 
 ## 5. Getting started
 
-Run the demo first; it takes about five minutes. It executes real TPC-H plans through simulated engines and the production comparator, producing mixed results and a browsable dashboard:
+Clone the repository and build the Java SDK, then run the compliance demos. The complete sequence takes about 10–15 minutes on first run.
 
 ```bash
+# Clone and build
 git clone https://github.com/IBM/substrait-compliance.git
-cd substrait-compliance/demo
-./runner/run-simple-demo.sh
-cd dashboard && python3 -m http.server 8080   # then open http://localhost:8080
+cd substrait-compliance
+sdk/java/gradlew shadowJar -p sdk/java
+
+# Run TPC-H tests (from demo/ directory)
+cd demo
+./runner/run-simple-demo.sh          # Quick: 22 TPC-H queries
+# ./runner/run-demo.sh               # Enhanced: more detailed output
+
+# Run function-level tests (must cd to demo/runner/)
+cd runner
+./run-function-tests.sh              # Java version: 4,000+ tests, 14 categories
+# ./run-function-tests-python.sh     # Python version: 5,000+ tests, 15 categories
+
+# View results
+cd ..
+python3 -m http.server 8080          # Open http://localhost:8080/dashboard/
 ```
+
+Results are saved as JSON in `demo/runner/output/`. The dashboard displays pass rates by category and engine, with per-category fidelity tiers (verified, edge, basic, none) and evidence for plan-routing decisions.
 
 To integrate an engine, pick the SDK matching your language under sdk/, implement ComplianceEngine, load a suite through the provided loader, and run it with ComplianceRunner. Working reference integrations live in examples/: a DuckDB integration in Java and C++ that executes plans through DuckDB's native Substrait extension, and a DataFusion integration in Rust and Python built on from_substrait_plan. A status table in that directory documents what each example demonstrates. The Java SDK builds as a self-contained fat jar via ./gradlew shadowJar, and installation instructions for every language are in the main README.
 
