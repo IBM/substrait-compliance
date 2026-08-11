@@ -30,7 +30,7 @@ Three layers, mirroring the modular structure of the systems under test.
 flowchart TD
     STS["Shared test suites<br/>function tests · TPC-H / TPC-DS plans · expected outputs"]
 
-    subgraph LOCAL["Engine-local CI execution — decentralized, no data leaves"]
+    subgraph LOCAL["Engine-local CI (no data leaves)"]
         EA["Engine A<br/>CI execution"]
         EB["Engine B<br/>CI execution"]
         EC["Engine C<br/>CI execution"]
@@ -62,7 +62,7 @@ flowchart TD
     style LB fill:#edf5ff,stroke:#0043ce,color:#161616
 ```
 
-Shared suites run locally inside each engine's CI pipeline (the dashed region). Structured reports feed a public leaderboard that exposes category pass rates and evidence tiers over a REST API. The figure adapts Figure 1 of the SAO 2026 paper, ending at the leaderboard; section 4 describes downstream consumers of the evidence, such as plan routers.
+Shared suites run decentralized: locally, inside each engine's own CI pipeline (the dashed region), with no data leaving the engine team's environment. Structured reports feed a public leaderboard that exposes category pass rates and evidence tiers over a REST API. The figure adapts Figure 1 of the SAO 2026 paper, ending at the leaderboard; section 4 describes downstream consumers of the evidence, such as plan routers.
 
 The first layer is the shared corpus, a versioned and language-neutral set of correctness fixtures. It holds 5,041 function-level assertions across 136 files in 14 categories: arithmetic (with decimal, rounding, and logarithmic subfamilies), string, comparison, datetime, aggregate, array, map, struct, set, window, conditional, JSON, cast, and geospatial. Each function test specifies typed input columns, a plan exercising one function under defined edge conditions such as nulls, boundaries, overflow, and empty groups, and an expected result with an explicit floating-point tolerance. Alongside the function tests sit the benchmark suites: all 22 TPC-H queries and all 99 TPC-DS queries, serialized as Substrait plans in binary and JSON form, each with committed expected outputs. Result correctness is verifiable end to end. None of this measures speed. These are semantic-fidelity tests, and the only question they answer is whether an engine returns the right rows.
 
