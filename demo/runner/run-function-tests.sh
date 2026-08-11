@@ -16,13 +16,16 @@ if [ ! -d "../../test-suites/functions" ]; then
     exit 1
 fi
 
-# Create output directory
-mkdir -p ../output
+# Create output directories
+mkdir -p ../output dashboard/data
+
+# Store SDK JAR path before cd
+SDK_JAR="$(cd ../../sdk/java/build/libs && pwd)/substrait-compliance-0.1.1-all.jar"
 
 # Compile the demo
 echo "📦 Compiling demo..."
 javac -d ../output \
-    -cp ".:../engines:../../sdk/java/build/libs/*:lib/*" \
+    -cp ".:../engines:${SDK_JAR}:lib/*" \
     FunctionTestDemo.java \
     ../engines/*.java
 
@@ -38,16 +41,13 @@ echo ""
 echo "🚀 Running function tests..."
 echo ""
 
-cd ../output
-java -cp ".:../../engines:../../../sdk/java/build/libs/*:../lib/*:org.json.jar" \
+java -cp "../output:../../engines:lib/*:${SDK_JAR}" \
     demo.runner.FunctionTestDemo
 
 if [ $? -ne 0 ]; then
     echo "❌ Demo execution failed"
     exit 1
 fi
-
-cd ..
 
 echo ""
 echo "════════════════════════════════════════════════════════════"
