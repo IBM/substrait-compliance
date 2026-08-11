@@ -1,0 +1,85 @@
+{
+  "lastUpdated" : "2026-08-11T16:58:20.683Z",
+  "totalEngines" : 5,
+  "engines" : [ {
+    "engineName" : "CloudDB",
+    "engineVersion" : "demo",
+    "functions" : {
+      "passRate" : 96.65071770334929,
+      "totalTests" : 3971,
+      "passed" : 3838,
+      "failed" : 133
+    },
+    "tpch" : {
+      "passRate" : 0.0,
+      "totalTests" : 0,
+      "passed" : 0,
+      "failed" : 0,
+      "skipped" : 0
+    }
+  }, {
+    "engineName" : "MockDB",
+    "engineVersion" : "demo",
+    "functions" : {
+      "passRate" : 80.6346008562075,
+      "totalTests" : 3971,
+      "passed" : 3202,
+      "failed" : 769
+    },
+    "tpch" : {
+      "passRate" : 0.0,
+      "totalTests" : 0,
+      "passed" : 0,
+      "failed" : 0,
+      "skipped" : 0
+    }
+  }, {
+    "engineName" : "DuckDB",
+    "engineVersion" : "demo",
+    "functions" : {
+      "passRate" : 94.51019894233191,
+      "totalTests" : 3971,
+      "passed" : 3753,
+      "failed" : 218
+    },
+    "tpch" : {
+      "passRate" : 0.0,
+      "totalTests" : 0,
+      "passed" : 0,
+      "failed" : 0,
+      "skipped" : 0
+    }
+  }, {
+    "engineName" : "PostgreSQL",
+    "engineVersion" : "demo",
+    "functions" : {
+      "passRate" : 90.55653487786452,
+      "totalTests" : 3971,
+      "passed" : 3596,
+      "failed" : 375
+    },
+    "tpch" : {
+      "passRate" : 0.0,
+      "totalTests" : 0,
+      "passed" : 0,
+      "failed" : 0,
+      "skipped" : 0
+    }
+  }, {
+    "engineName" : "FastDB",
+    "engineVersion" : "demo",
+    "functions" : {
+      "passRate" : 92.64668849156384,
+      "totalTests" : 3971,
+      "passed" : 3679,
+      "failed" : 292
+    },
+    "tpch" : {
+      "passRate" : 0.0,
+      "totalTests" : 0,
+      "passed" : 0,
+      "failed" : 0,
+      "skipped" : 0
+    }
+  } ]
+}

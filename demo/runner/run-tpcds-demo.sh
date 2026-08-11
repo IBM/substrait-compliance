@@ -93,7 +93,7 @@ echo ""
 echo -e "${BLUE}🚀 Step 4: Running framework-backed TPC-DS compliance demo (99 queries)...${NC}"
 echo ""
 
-java -cp "build:${DEMO_CLASSPATH}" io.substrait.demo.runner.TPCDSDemoRunner
+java -Xmx4g -cp "build:${DEMO_CLASSPATH}" io.substrait.demo.runner.TPCDSDemoRunner
 
 echo ""
 echo -e "${GREEN}✅ Demo completed successfully!${NC}"
