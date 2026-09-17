@@ -269,10 +269,11 @@ jobs:
           json_count=$(ls -1 *.json 2>/dev/null | wc -l)
           echo "  JSON plans (.json): $json_count"
           
-          # Validate JSON syntax
+          # Validate JSON syntax (strip leading // comment lines first;
+          # plan files use JSONC-style headers that are not valid JSON)
           for json_file in *.json; do
             if [ -f "$json_file" ]; then
-              if ! python -m json.tool "$json_file" > /dev/null 2>&1; then
+              if ! grep -v '^\s*//' "$json_file" | python -m json.tool > /dev/null 2>&1; then
                 echo "❌ Invalid JSON: $json_file"
                 exit 1
               fi
