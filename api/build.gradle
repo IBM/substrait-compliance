@@ -36,7 +36,7 @@ dependencies {
     
     // Database
     runtimeOnly 'org.postgresql:postgresql:42.7.13'
-    runtimeOnly 'com.h2database:h2:2.4.240' // For testing
+    runtimeOnly 'com.h2database:h2:2.5.250' // For testing
     
     // JWT
     implementation 'io.jsonwebtoken:jjwt-api:0.13.0'
@@ -57,8 +57,8 @@ dependencies {
 
     
     // Lombok (optional, for reducing boilerplate)
-    compileOnly 'org.projectlombok:lombok:1.18.46'
-    annotationProcessor 'org.projectlombok:lombok:1.18.46'
+    compileOnly 'org.projectlombok:lombok:1.18.48'
+    annotationProcessor 'org.projectlombok:lombok:1.18.48'
     
     // Testing
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
@@ -66,8 +66,8 @@ dependencies {
     testImplementation 'org.testcontainers:testcontainers:1.21.4'
     testImplementation 'org.testcontainers:postgresql:1.21.4'
     testImplementation 'org.testcontainers:junit-jupiter:1.21.4'
-    testCompileOnly 'org.projectlombok:lombok:1.18.46'
-    testAnnotationProcessor 'org.projectlombok:lombok:1.18.46'
+    testCompileOnly 'org.projectlombok:lombok:1.18.48'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.48'
 }
 
 test {
