@@ -23,7 +23,7 @@ repositories {
 }
 
 ext {
-    substraitVersion = '0.98.0'
+    substraitVersion = '0.103.0'
 }
 
 dependencies {
@@ -33,7 +33,7 @@ dependencies {
     
     implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.1'
     implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.22.1'
-    implementation 'org.slf4j:slf4j-api:2.0.18'
+    implementation 'org.slf4j:slf4j-api:2.0.19'
     
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
