@@ -23,7 +23,7 @@ repositories {
 }
 
 ext {
-    substraitVersion = '0.98.0'
+    substraitVersion = '0.103.0'
 }
 
 dependencies {
@@ -31,14 +31,14 @@ dependencies {
     api "io.substrait:isthmus:${substraitVersion}"
     api 'com.google.protobuf:protobuf-java:3.25.9'
     
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.1'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.22.1'
-    implementation 'org.slf4j:slf4j-api:2.0.18'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.3'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.22.3'
+    implementation 'org.slf4j:slf4j-api:2.0.20'
     
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.14.4'
     testImplementation 'org.assertj:assertj-core:3.27.7'
-    testImplementation 'org.mockito:mockito-core:5.23.0'
+    testImplementation 'org.mockito:mockito-core:5.24.0'
 }
 
 test {
