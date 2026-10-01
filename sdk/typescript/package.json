@@ -32,7 +32,7 @@
     "directory": "sdk/typescript"
   },
   "dependencies": {
-    "js-yaml": "^4.3.0"
+    "js-yaml": "^4.3.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
