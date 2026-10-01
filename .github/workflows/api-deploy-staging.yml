@@ -21,10 +21,10 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
       
       - name: Setup kubectl
-        uses: azure/setup-kubectl@v5
+        uses: azure/setup-kubectl@v4
         with:
           version: 'v1.28.0'
       

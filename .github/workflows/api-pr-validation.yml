@@ -14,12 +14,12 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v7
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0  # Full history for better analysis
       
       - name: Setup Java 17
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -27,16 +27,16 @@ jobs:
       
       - name: Grant execute permission
         run: |
-          chmod +x gradlew
+          chmod +x sdk/java/gradlew
           chmod +x api/gradlew
       
       - name: Build SDK fat jar (required by api/ build)
         # api/build.gradle resolves the SDK via fileTree(dir: "${rootDir}/libs").
         # Build the fat jar here and stage it so the API compile step finds it.
         run: |
-          ./gradlew :sdk:java:shadowJar --no-daemon
-          mkdir -p api/libs
-          cp sdk/java/build/libs/*-all.jar api/libs/
+          cd sdk/java && ./gradlew shadowJar --no-daemon
+          mkdir -p ../../api/libs
+          cp build/libs/*-all.jar ../../api/libs/
       
       - name: Run tests
         run: |
@@ -44,7 +44,7 @@ jobs:
           ./gradlew test --no-daemon
       
       - name: Upload test results
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@v4
         if: always()
         with:
           name: test-results
