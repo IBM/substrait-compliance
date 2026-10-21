@@ -41,6 +41,10 @@ env:
   COMPLIANCE_SDK_VERSION: "0.1.1"
   COMPLIANCE_THRESHOLD: ${{ github.event.inputs.compliance_threshold || 60 }}
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
@@ -149,7 +153,7 @@ jobs:
           java -cp "examples/duckdb-java/build:$FAT_JAR:$DUCKDB_JAR" \
             io.substrait.example.DuckDBComplianceExample \
             --test-suite compliance-assets/test-suites/tpch/metadata.yaml \
-            --output-report output/reports/duckdb-tpch-report.json || true
+            --output-report output/reports/duckdb-tpch-report.json
 
           # 2. Run Function compliance test runner
           python3 demo/runner/function_test_demo.py
@@ -167,11 +171,21 @@ jobs:
             REPORT_FILE="output/reports/duckdb-report.json"
           fi
 
-          PASS_RATE=$(jq -r '.passRate // .summary.passRate // 63.6' "$REPORT_FILE")
-          PASSED=$(jq -r '.passed // .summary.passed // 14' "$REPORT_FILE")
-          TOTAL=$(jq -r '.totalTests // .summary.totalTests // 22' "$REPORT_FILE")
+          if [ ! -f "$REPORT_FILE" ]; then
+            echo "❌ Report file not found at $REPORT_FILE"
+            exit 1
+          fi
+
+          PASS_RATE=$(jq -r '.passRate // .summary.passRate // empty' "$REPORT_FILE")
+          PASSED=$(jq -r '.passed // .summary.passed // empty' "$REPORT_FILE")
+          TOTAL=$(jq -r '.totalTests // .summary.totalTests // empty' "$REPORT_FILE")
           FAILED=$(jq -r '.failed // .summary.failed // 0' "$REPORT_FILE")
-          SKIPPED=$(jq -r '.skipped // .summary.skipped // 8' "$REPORT_FILE")
+          SKIPPED=$(jq -r '.skipped // .summary.skipped // 0' "$REPORT_FILE")
+
+          if [ -z "$PASS_RATE" ] || [ -z "$PASSED" ] || [ -z "$TOTAL" ]; then
+            echo "❌ Could not parse valid compliance metrics from $REPORT_FILE"
+            exit 1
+          fi
 
           echo "pass-rate=$PASS_RATE" >> $GITHUB_OUTPUT
           echo "passed=$PASSED" >> $GITHUB_OUTPUT
