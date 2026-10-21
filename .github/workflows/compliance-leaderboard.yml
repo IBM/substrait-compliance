@@ -8,6 +8,9 @@ on:
   repository_dispatch:
     types: [compliance-report-submitted]
 
+permissions:
+  contents: read
+
 jobs:
   collect-reports:
     name: Collect Compliance Reports

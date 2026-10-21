@@ -15,6 +15,9 @@ env:
   # all-lowercase references and github.repository preserves the org's case.
   IMAGE_NAME: ${{ github.repository }}/substrait-compliance-api
 
+permissions:
+  contents: read
+
 jobs:
   build:
     runs-on: ubuntu-latest

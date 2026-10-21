@@ -11,6 +11,9 @@ on:
       - 'test-suites/**'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 jobs:
   validate-tpch-metadata:
     name: Validate TPC-H Metadata
