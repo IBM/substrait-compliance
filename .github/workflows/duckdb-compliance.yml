@@ -89,7 +89,7 @@ jobs:
   # 2. Implement & Execute Engine Compliance Tests
   # ============================================================================
   run-compliance:
-    name: Run Compliance Tests (${{ env.ENGINE_NAME }})
+    name: Run Compliance Tests (${{ inputs.engine_name || 'DuckDB' }})
     runs-on: ubuntu-latest
     needs: build-framework
     outputs:

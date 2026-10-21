@@ -55,7 +55,7 @@ jobs:
       - name: Check test results
         run: |
           cd sdk/java
-          if [ -f build/test-results/test/TEST-*.xml ]; then
+          if compgen -G 'build/test-results/test/TEST-*.xml' > /dev/null; then
             echo "✅ Java SDK tests completed"
           else
             echo "❌ Java SDK tests failed"
@@ -118,9 +118,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
+        run: rustup toolchain install stable --profile minimal -c rustfmt,clippy
       
       - name: Cache Rust dependencies
         uses: actions/cache@v4
@@ -249,9 +247,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'sbt'
-
-      - name: Set up sbt
-        uses: sbt/setup-sbt@v1
 
       - name: Build Scala SDK
         run: cd sdk/scala && sbt compile
@@ -426,7 +421,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        run: rustup toolchain install stable --profile minimal -c rustfmt,clippy
 
       - name: Cache Rust dependencies
         uses: actions/cache@v4

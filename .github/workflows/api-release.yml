@@ -42,22 +42,9 @@ jobs:
           cd api
           ./gradlew bootJar --no-daemon
       
-      - name: Generate changelog
-        id: changelog
-        uses: mikepenz/release-changelog-builder-action@v5
-        with:
-          configuration: ".github/changelog-config.json"
-          failOnError: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
       - name: Create release notes
         run: |
           cat > release-notes.md << 'EOF'
-          ## What's Changed
-          
-          ${{ steps.changelog.outputs.changelog }}
-          
           ## Installation
           
           ### Docker/Podman
@@ -79,22 +66,18 @@ jobs:
           ## Release Evidence
           - This release workflow proves artifact creation and container publication only when the hosted workflow run succeeds
           - Environment rollout, ingress reachability, and operator acceptance remain separate deployment-stage checks
-          
-          ## Full Changelog
-          **Full Changelog**: https://github.com/${{ github.repository }}/compare/...
           EOF
       
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          name: Release ${{ github.ref_name }}
-          body_path: release-notes.md
-          draft: false
-          prerelease: false
-          files: |
-            api/build/libs/*.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          gh release create "$TAG_NAME" \
+            --title "Release $TAG_NAME" \
+            --notes-file release-notes.md \
+            --generate-notes \
+            api/build/libs/*.jar
       
       - name: Build and push release container
         uses: docker/build-push-action@v6
