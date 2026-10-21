@@ -12,7 +12,7 @@ This demo showcases the function test framework by:
 import json
 import sys
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 
 # Add SDK to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent / "sdk" / "python"))
@@ -98,8 +98,10 @@ class FunctionTestDemo:
                     if category_name in default_counts:
                         categories[category_name] = default_counts[category_name]
                     else:
-                        # Count actual test files
+                        # Count actual test files; skip directories with none
                         test_files = list(category_dir.glob("*.test"))
+                        if not test_files:
+                            continue
                         categories[category_name] = {
                             "files": len(test_files),
                             "avg_tests": 20  # default estimate
@@ -306,7 +308,7 @@ class FunctionTestDemo:
             merged_engines.append(engine_summary)
         
         shared_summary = {
-            "lastUpdated": datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+            "lastUpdated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
             "totalEngines": len(merged_engines),
             "engines": merged_engines
         }

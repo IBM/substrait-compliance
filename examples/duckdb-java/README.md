@@ -25,7 +25,18 @@ cd ../../sdk/java && ./gradlew shadowJar && cd -
 FAT_JAR=../../sdk/java/build/libs/substrait-compliance-0.1.1-all.jar
 DUCKDB_JAR=lib/duckdb_jdbc-1.3.1.0.jar
 java -cp "build:$FAT_JAR:$DUCKDB_JAR" io.substrait.example.DuckDBComplianceExample
+
+# CLI Options:
+# Dry run:
+java -cp "build:$FAT_JAR:$DUCKDB_JAR" io.substrait.example.DuckDBComplianceExample --dry-run
+
+# Run specific test suite and output JSON report:
+java -cp "build:$FAT_JAR:$DUCKDB_JAR" io.substrait.example.DuckDBComplianceExample \
+  --test-suite ../../test-suites/tpch/metadata.yaml \
+  --output-report reports/duckdb-tpch-report.json
 ```
+
+For automated CI/CD integration, see the [DuckDB Compliance Workflow](../../.github/workflows/duckdb-compliance.yml) and the [CI Compliance Workflow Guide](../../docs/CI_COMPLIANCE_WORKFLOW_GUIDE.md).
 
 `compile.sh` calls `download-deps.sh` automatically if the JDBC jar is
 missing, so running just `./compile.sh` is the normal workflow.

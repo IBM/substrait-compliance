@@ -12,6 +12,7 @@ from .test_suite import TestSuite, TestCase, TestSuiteMetadata
 from .table_data import TableData, Column, DataType
 from .loader import TestSuiteLoader, YamlTestSuiteLoader
 from .exceptions import ComplianceException
+from .expression_mapper import SubstraitExpressionMapper
 
 __version__ = "0.1.1"
 
@@ -32,4 +33,5 @@ __all__ = [
     "TestSuiteLoader",
     "YamlTestSuiteLoader",
     "ComplianceException",
+    "SubstraitExpressionMapper",
 ]

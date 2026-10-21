@@ -10,15 +10,40 @@ import json
 import sys
 import argparse
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Dict, Any, Optional
 
 
 def load_compliance_report(report_path: Path) -> Optional[Dict[str, Any]]:
     """Load a compliance report from a JSON file."""
+    if report_path.name in ('leaderboard.json', 'summary.json', 'function_tests_summary.json', 'analytics-report.json') or report_path.name.startswith('leaderboard'):
+        return None
     try:
         with open(report_path, 'r') as f:
-            return json.load(f)
+            data = json.load(f)
+            if not isinstance(data, dict):
+                return None
+            if 'engineName' not in data and 'engine' not in data:
+                return None
+            if 'engineName' not in data and 'engine' in data:
+                data['engineName'] = data['engine']
+            if 'passed' not in data and 'totalPassed' in data:
+                data['passed'] = data['totalPassed']
+            if 'passRate' not in data and 'overallPassRate' in data:
+                data['passRate'] = data['overallPassRate']
+            if 'failed' not in data and 'totalFailed' in data:
+                data['failed'] = data['totalFailed']
+            if 'categories' in data and ('totalTests' not in data or 'passed' not in data or 'passRate' not in data):
+                total = sum(c.get('total', 0) for c in data['categories'].values() if isinstance(c, dict))
+                passed = sum(c.get('passed', 0) for c in data['categories'].values() if isinstance(c, dict))
+                failed = sum(c.get('failed', 0) for c in data['categories'].values() if isinstance(c, dict))
+                skipped = sum(c.get('skipped', 0) for c in data['categories'].values() if isinstance(c, dict))
+                data['totalTests'] = data.get('totalTests', total)
+                data['passed'] = data.get('passed', passed)
+                data['failed'] = data.get('failed', failed)
+                data['skipped'] = data.get('skipped', skipped)
+                data['passRate'] = data.get('passRate', (passed * 100.0 / total) if total > 0 else 0.0)
+            return data
     except Exception as e:
         print(f"Error loading {report_path}: {e}", file=sys.stderr)
         return None
@@ -64,7 +89,7 @@ def generate_leaderboard_markdown(reports: List[Dict[str, Any]], output_path: Pa
     lines = [
         "# Substrait Compliance Leaderboard",
         "",
-        f"Last Updated: {datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S UTC')}",
+        f"Last Updated: {datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S UTC')}",
         "",
         "## Overall Rankings",
         "",
@@ -155,7 +180,7 @@ def generate_leaderboard_json(reports: List[Dict[str, Any]], output_path: Path):
     sorted_reports = sorted(reports, key=lambda x: x.get('passRate', 0), reverse=True)
     
     leaderboard = {
-        "lastUpdated": datetime.utcnow().isoformat() + "Z",
+        "lastUpdated": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "totalEngines": len(sorted_reports),
         "averagePassRate": sum(r.get('passRate', 0) for r in sorted_reports) / len(sorted_reports) if sorted_reports else 0,
         "engines": []
