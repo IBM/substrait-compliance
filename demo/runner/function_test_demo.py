@@ -19,9 +19,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "sdk" / "python"))
 
 try:
     from substrait_compliance.function_test_parser import FunctionTestParser
+    from substrait_compliance.expression_mapper import SubstraitExpressionMapper
 except ImportError:
     print("⚠️  SDK not found. Running in standalone mode...")
     FunctionTestParser = None
+    SubstraitExpressionMapper = None
 
 
 class FunctionTestDemo:
@@ -134,28 +136,58 @@ class FunctionTestDemo:
                 test_files = list(category_dir.glob("*.test"))
                 num_files = len(test_files)
                 
-                # Parse files to count tests if parser available
+                # Parse and execute tests
                 if FunctionTestParser:
                     parser = FunctionTestParser()
                     total_tests = 0
+                    real_passed = 0
+                    real_duckdb = (engine_name == "DuckDB")
+                    duckdb_con = None
+                    if real_duckdb:
+                        try:
+                            import duckdb
+                            duckdb_con = duckdb.connect()
+                        except ImportError:
+                            duckdb_con = None
+
                     for test_file in test_files:
                         try:
                             suite = parser.parse_file(test_file)
                             total_tests += len(suite.test_cases)
+                            if duckdb_con and SubstraitExpressionMapper:
+                                for tc in suite.test_cases:
+                                    fn_sql = SubstraitExpressionMapper.map_expression(tc.function_call)
+                                    exp_sql = SubstraitExpressionMapper.clean_expected(tc.expected_result)
+                                    try:
+                                        res = duckdb_con.execute(f"SELECT ({fn_sql}) IS NOT DISTINCT FROM ({exp_sql})").fetchone()[0]
+                                        if res is True:
+                                            real_passed += 1
+                                    except Exception:
+                                        pass
                         except Exception as e:
                             print(f"   ⚠️  Could not parse {test_file.name}: {e}")
                     
                     if total_tests == 0:
                         total_tests = num_files * info["avg_tests"]
+
+                    if duckdb_con and SubstraitExpressionMapper:
+                        passed = real_passed
+                        failed = total_tests - passed
+                        pass_rate = (passed / total_tests) if total_tests > 0 else 0.0
+                    else:
+                        pass_rate = self.get_pass_rate(engine_name, category)
+                        passed = int(total_tests * pass_rate)
+                        failed = total_tests - passed
                 else:
                     total_tests = num_files * info["avg_tests"]
+                    pass_rate = self.get_pass_rate(engine_name, category)
+                    passed = int(total_tests * pass_rate)
+                    failed = total_tests - passed
             else:
                 total_tests = info["files"] * info["avg_tests"]
-            
-            # Simulate test execution with realistic pass rates
-            pass_rate = self.get_pass_rate(engine_name, category)
-            passed = int(total_tests * pass_rate)
-            failed = total_tests - passed
+                pass_rate = self.get_pass_rate(engine_name, category)
+                passed = int(total_tests * pass_rate)
+                failed = total_tests - passed
             
             results["categories"][category] = {
                 "total": total_tests,
