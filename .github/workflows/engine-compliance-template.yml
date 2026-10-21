@@ -24,6 +24,9 @@ env:
   COMPLIANCE_THRESHOLD: 80        # Minimum pass rate (%) to pass CI
   COMPLIANCE_SDK_VERSION: "0.1.1" # Pin to a released tag of IBM/substrait-compliance
 
+permissions:
+  contents: read
+
 jobs:
   setup:
     name: Setup Compliance Environment
@@ -289,7 +292,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: run-compliance-tests
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+    permissions:
+      contents: write
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4

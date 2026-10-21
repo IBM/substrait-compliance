@@ -13,6 +13,9 @@ env:
   DEPLOYMENT_NAME: substrait-api
   NAMESPACE: substrait-production
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
