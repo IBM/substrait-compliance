@@ -29,6 +29,14 @@ in parallel, then runs smoke tests for the two fully-executable examples.
 Validates that all test suite files are well-formed (YAML, plan binaries, CSV data and expected
 outputs). Runs on push to `main` and on schedule.
 
+### `duckdb-compliance.yml` — DuckDB engine compliance & dashboard workflow ⭐
+
+End-to-end working CI workflow demonstrating how DuckDB integrates the Substrait compliance
+framework, compiles and executes tests using the `ComplianceEngine` interface, generates
+compliance reports, validates pass-rate thresholds, and updates the compliance dashboard data.
+This workflow serves as a reference implementation that can be parameterized for any database engine.
+See the comprehensive [Engine CI Integration Guide](../../docs/CI_COMPLIANCE_WORKFLOW_GUIDE.md) for step-by-step setup instructions and CLI commands.
+
 ### `engine-compliance-template.yml` — Template for engine developers ⭐
 
 Copy this file into your own repository's `.github/workflows/` directory to enable automated

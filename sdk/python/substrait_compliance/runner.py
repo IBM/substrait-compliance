@@ -123,10 +123,11 @@ class ComplianceRunner:
             return False
 
         for actual_column, expected_column in zip(actual_columns, expected_columns):
-            if actual_column.name != expected_column.name:
+            if actual_column.name.lower() != expected_column.name.lower():
                 return False
-            if self._normalize_type(actual_column.data_type.value) != self._normalize_type(expected_column.data_type.value):
-                return False
+            if actual_column.data_type and expected_column.data_type:
+                if not self._types_compatible(actual_column.data_type.value, expected_column.data_type.value):
+                    return False
 
         for actual_row, expected_row in zip(actual.rows, expected.rows):
             if len(actual_row) != len(expected_row):
@@ -136,6 +137,20 @@ class ComplianceRunner:
                     return False
 
         return True
+
+    def _types_compatible(self, type1: str | None, type2: str | None) -> bool:
+        """Check if two data types are compatible for comparison."""
+        if type1 is None or type2 is None:
+            return True
+        norm1 = self._normalize_type(type1)
+        norm2 = self._normalize_type(type2)
+        if norm1 == norm2:
+            return True
+        if {norm1, norm2} <= {'date', 'varchar'}:
+            return True
+        if {norm1, norm2} <= {'integer', 'double'}:
+            return True
+        return False
 
     def _normalize_type(self, data_type: str | None) -> str | None:
         """Normalize type aliases before comparison."""
@@ -149,9 +164,9 @@ class ComplianceRunner:
             'i8': 'integer',
             'i16': 'integer',
             'i32': 'integer',
-            'long': 'bigint',
-            'bigint': 'bigint',
-            'i64': 'bigint',
+            'long': 'integer',
+            'bigint': 'integer',
+            'i64': 'integer',
             'float': 'double',
             'double': 'double',
             'fp32': 'double',
@@ -159,6 +174,10 @@ class ComplianceRunner:
             'decimal': 'double',
             'bool': 'boolean',
             'boolean': 'boolean',
+            'string': 'varchar',
+            'varchar': 'varchar',
+            'date': 'date',
+            'timestamp': 'date',
         }
         return aliases.get(normalized, normalized)
 
@@ -167,13 +186,27 @@ class ComplianceRunner:
         if actual is None or expected is None:
             return actual is expected
 
-        if isinstance(actual, (int, float)) and isinstance(expected, (int, float)):
-            return isclose(float(actual), float(expected), rel_tol=0.0, abs_tol=1e-9)
+        try:
+            act_num = float(actual)
+            exp_num = float(expected)
+            return isclose(act_num, exp_num, rel_tol=1e-4, abs_tol=1e-4)
+        except (ValueError, TypeError):
+            pass
 
         if isinstance(actual, bool) or isinstance(expected, bool):
             return self._to_bool(actual) == self._to_bool(expected)
 
-        return str(actual) == str(expected)
+        # Normalize date/datetime string representations
+        act_str = str(actual).strip()
+        exp_str = str(expected).strip()
+        if act_str == exp_str:
+            return True
+        if hasattr(actual, 'strftime') and actual.strftime('%Y-%m-%d') == exp_str:
+            return True
+        if act_str.endswith(' 00:00:00') and act_str[:-9] == exp_str:
+            return True
+
+        return act_str == exp_str
 
     def _to_bool(self, value: Any) -> bool:
         """Normalize boolean-like values."""

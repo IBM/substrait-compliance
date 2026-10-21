@@ -116,7 +116,7 @@ class YamlTestSuiteLoader(TestSuiteLoader):
 
         for table_def in input_tables:
             table_name = table_def.get('name')
-            csv_path = table_def.get('csv')
+            csv_path = table_def.get('csv') or table_def.get('file')
             if not table_name or not csv_path:
                 continue
             tables[table_name] = self._load_csv_table(base_dir / csv_path)
