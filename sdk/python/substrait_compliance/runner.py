@@ -1,8 +1,10 @@
 """Test runner for executing compliance tests."""
 
+from __future__ import annotations
+
 from datetime import datetime
 from math import isclose
-from typing import Any, List
+from typing import Any, List, Optional
 from .engine import ComplianceEngine
 from .test_suite import TestSuite, TestCase
 from .result import ComplianceResult, ComplianceReport, TestStatus

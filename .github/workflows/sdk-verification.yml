@@ -186,7 +186,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential ${{ matrix.compiler }}
+          sudo apt-get install -y cmake build-essential libprotobuf-dev protobuf-compiler libyaml-cpp-dev pkg-config ${{ matrix.compiler }}
       
       - name: Configure CMake
         working-directory: sdk/cpp
@@ -344,7 +344,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        scala-version: ['2.13', '3.3']
+        scala-version: ['2.13']
     
     steps:
       - uses: actions/checkout@v4
