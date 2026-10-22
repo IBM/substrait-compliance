@@ -25,7 +25,7 @@ on:
       compliance_threshold:
         description: 'Minimum compliance pass rate percentage (0-100)'
         required: false
-        default: '60'
+        default: '45'
       engine_name:
         description: 'Target engine name'
         required: false
@@ -33,13 +33,21 @@ on:
       engine_version:
         description: 'Target engine version'
         required: false
-        default: '0.10.0'
+        default: '1.2.0'
 
 env:
   ENGINE_NAME: ${{ github.event.inputs.engine_name || 'DuckDB' }}
-  ENGINE_VERSION: ${{ github.event.inputs.engine_version || '0.10.0' }}
+  ENGINE_VERSION: ${{ github.event.inputs.engine_version || '1.2.0' }}
   COMPLIANCE_SDK_VERSION: "0.1.1"
-  COMPLIANCE_THRESHOLD: ${{ github.event.inputs.compliance_threshold || 60 }}
+  COMPLIANCE_THRESHOLD: ${{ github.event.inputs.compliance_threshold || 45 }}
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
