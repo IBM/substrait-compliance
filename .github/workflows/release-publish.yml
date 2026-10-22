@@ -282,6 +282,12 @@ jobs:
           distribution: 'temurin'
           cache: 'sbt'
 
+      - name: Install sbt
+        run: |
+          curl -fLo sbt.tgz https://github.com/sbt/sbt/releases/download/v1.9.9/sbt-1.9.9.tgz
+          tar -xzf sbt.tgz
+          echo "$PWD/sbt/bin" >> $GITHUB_PATH
+
       - name: Build and test Scala SDK
         run: |
           cd sdk/scala
@@ -804,6 +810,12 @@ jobs:
           distribution: 'temurin'
           cache: 'sbt'
 
+      - name: Install sbt
+        run: |
+          curl -fLo sbt.tgz https://github.com/sbt/sbt/releases/download/v1.9.9/sbt-1.9.9.tgz
+          tar -xzf sbt.tgz
+          echo "$PWD/sbt/bin" >> $GITHUB_PATH
+
       - name: Publish to Maven Central
         run: |
           cd sdk/scala
@@ -908,6 +920,7 @@ jobs:
       - name: Upload C++ tarball to GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           TAG_NAME: v${{ needs.validate-version.outputs.version }}
         run: |
           gh release upload "$TAG_NAME" cpp-dist/*.tar.gz

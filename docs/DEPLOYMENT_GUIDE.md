@@ -122,9 +122,13 @@ Direct pushes to `main` are protected. All changes must go through a pull reques
 For maintainers cutting a release:
 
 ```bash
-# Tag a release
+# Tag an SDK release (release-publish.yml)
 git tag -a v1.0.0 -m "Release v1.0.0"
 git push origin v1.0.0
+
+# Tag a REST API release (api-release.yml) — separate prefix
+git tag -a api-v1.0.0 -m "API release v1.0.0"
+git push origin api-v1.0.0
 ```
 
 ---
