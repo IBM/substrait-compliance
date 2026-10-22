@@ -13,13 +13,13 @@ This test suite contains 22 TPC-H queries for Substrait compliance testing.
 
 ```
 tpch/
-├── metadata.yaml                  # Suite "tpch": plans in the current Substrait encoding
-├── metadata-legacy-encoding.yaml  # Suite "tpch-legacy-encoding": same queries, legacy plans
+├── metadata.yaml                # Suite "tpch": plans/ (Substrait 0.107.0)
+├── metadata-substrait-0.81.yaml # Suite "tpch-substrait-0.81": same queries, original plans
 ├── plans/
-│   ├── q01.bin           # Binary Substrait plans (44 files: q01–q22), current encoding
+│   ├── q01.bin           # Binary Substrait plans (44 files: q01–q22), Substrait 0.107.0
 │   ├── q01.json          # JSON Substrait plans
 │   └── ...
-├── plans-legacy-encoding/ # The original plans, using fields since removed from the spec
+├── plans-substrait-0.81/ # The original plans, as produced with Substrait 0.81
 ├── data/
 │   ├── lineitem.csv      # Input data (60,175 rows)
 │   ├── orders.csv        # Input data (15,000 rows)
@@ -38,31 +38,61 @@ this suite — if you see it, the expected files are missing from your checkout
 
 ## Plan encodings
 
-The plans were originally produced (Isthmus, Substrait 0.81) with two encodings that
-have since been **removed** from the Substrait spec. Current consumers ignore those
-fields, which silently drops grouping keys and LIMIT clauses:
+Each plan set is named after the **Substrait spec version** it conforms to, recorded as
+`substraitVersion` in the suite's metadata file and in every plan's `version` field:
 
-| What | Legacy encoding (`plans-legacy-encoding/`) | Current encoding (`plans/`) |
-|---|---|---|
-| Aggregate grouping keys | `groupings[].grouping_expressions` | aggregate-level `grouping_expressions` + `groupings[].expression_references` |
-| LIMIT / OFFSET | `FetchRel.count` / `FetchRel.offset` | `FetchRel.count_expr` / `FetchRel.offset_expr` (i64 literals) |
+| Suite | Plans | Substrait | Meaning |
+|---|---|---|---|
+| `tpch` | `plans/` | 0.107.0 | The maintained plans; validated against the 0.107.0 protobuf definitions |
+| `tpch-substrait-0.81` | `plans-substrait-0.81/` | 0.81.0 | The original plans (Isthmus), unchanged — tests whether an engine still accepts older plans |
 
-`plans/` was produced from the legacy plans by `scripts/modernize_substrait_plans.py`,
-which converts only these fields (and drops always-empty removed `args` lists and the
-superseded extension URIs; every function also carries its URN reference). For all 22
-plans, everything else is identical to the original, every grouping key and limit is
-preserved, and each `.bin` matches its `.json`.
+Both suites share `data/` and `expected/`, so results are directly comparable.
+DuckDB 1.5.6, for example, passes `tpch` 12/22 and `tpch-substrait-0.81` 3/22; the 10
+remaining `tpch` failures are queries with subqueries, which DuckDB's Substrait extension
+does not support.
 
-Both suites share `data/` and `expected/`, so results are directly comparable:
+### What changed between 0.81 and 0.107.0
 
-- `tpch` — what a consumer of the current spec should handle;
-- `tpch-legacy-encoding` — whether an engine still accepts plans from older producers.
+The original plans used two encodings that were deprecated and later **removed** from the
+spec. Current consumers no longer read them, so grouping keys and LIMIT clauses were silently
+lost:
 
-DuckDB 1.5.6 example: `tpch` 12/22, `tpch-legacy-encoding` 3/22 (the 10 remaining
-failures in `tpch` are queries with subqueries, which DuckDB's Substrait extension
-does not support).
+| What | Substrait 0.81 plans | Substrait 0.107.0 plans | Deprecated / removed |
+|---|---|---|---|
+| Aggregate grouping keys | `groupings[].grouping_expressions` | aggregate-level `grouping_expressions` + `groupings[].expression_references` ([spec](https://substrait.io/relations/logical_relations/#aggregate-operation)) | 0.57.0 ([#706](https://github.com/substrait-io/substrait/issues/706)) / 0.88.0 ([#1002](https://github.com/substrait-io/substrait/issues/1002)) |
+| LIMIT / OFFSET | `FetchRel.count` / `offset` | `FetchRel.count_expr` / `offset_expr` ([spec](https://substrait.io/relations/logical_relations/#fetch-operation)) | 0.63.0 ([#748](https://github.com/substrait-io/substrait/issues/748)) / 0.98.0 ([#1130](https://github.com/substrait-io/substrait/issues/1130)) |
+| Function `args` (always empty here) | present | dropped | removed in 0.93.0 ([#1085](https://github.com/substrait-io/substrait/issues/1085)) |
+| Extension URIs | `extension_uris` + URNs | URNs only | removed in 0.85.0 ([#971](https://github.com/substrait-io/substrait/issues/971)) |
 
-To run both plan sets through DuckDB locally:
+The 0.81 definitions, with these fields marked deprecated, are in
+[algebra.proto at v0.81.0](https://github.com/substrait-io/substrait/blob/v0.81.0/proto/substrait/algebra.proto).
+
+`plans/` was produced from `plans-substrait-0.81/` by `scripts/modernize_substrait_plans.py`,
+which converts only the fields above and refuses any other field unknown to 0.107.0.
+`scripts/verify_modernized_plans.py` checks the result: each `.bin` matches its `.json`;
+apart from the converted fields and the version, every plan is identical to the original;
+every grouping key and LIMIT/OFFSET value is preserved.
+
+### Known upcoming change
+
+The 0.107.0 plans still use one deprecated field: `OuterReference.steps_out` (deprecated
+in 0.101.0 in favour of `rel_reference`), in the correlated-subquery plans q02, q04, q17,
+q20, q21 and q22 (and TPC-DS q01). When it is removed from the spec, these plans will need
+converting again, following "Adding a new spec version" below.
+
+### Adding a new spec version
+
+When a spec change requires the plans to change:
+
+1. Copy `plans/` to `plans-substrait-<its current version>/` and add a matching
+   `metadata-substrait-<version>.yaml` (suite `tpch-substrait-<version>`).
+2. Convert `plans/`, update `substraitVersion` in `metadata.yaml`, and verify.
+3. Keep at most one or two older plan sets; remove the oldest when adding a new one.
+
+Suite names therefore never change meaning: `tpch` is always the maintained plans,
+and `tpch-substrait-<version>` always means exactly that version.
+
+To run every TPC-H suite through DuckDB locally:
 `python scripts/tpch_duckdb_local.py` (needs `pip install duckdb`).
 
 ## Usage

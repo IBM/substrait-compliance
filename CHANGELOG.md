@@ -8,17 +8,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased] — candidates for v0.1.2
 
 ### Changed — test-suite plan format
-- **TPC-H and TPC-DS plans converted to the current Substrait encoding.** The plans used
-  fields since removed from the spec, so current consumers ignored them: aggregate grouping
-  keys (`groupings[].grouping_expressions` → aggregate-level `grouping_expressions` +
-  `expression_references`) and LIMIT/OFFSET (`FetchRel.count`/`offset` →
-  `count_expr`/`offset_expr`). Converted with `scripts/modernize_substrait_plans.py`; all
-  other plan content is unchanged and every grouping key and limit was verified. Engines
-  that only read the removed fields will see different results on `tpch` and `tpcds`.
-- New suite **`tpch-legacy-encoding`** (`test-suites/tpch/metadata-legacy-encoding.yaml`)
-  keeps the original TPC-H plans, sharing data and expected results with `tpch`, to measure
-  whether engines still accept plans from older producers. The DuckDB compliance workflow
-  runs and publishes both.
+- **TPC-H and TPC-DS plans now conform to Substrait 0.107.0** (`substraitVersion` in each
+  suite's `metadata.yaml`, and each plan's `version` field). The original plans (Isthmus,
+  Substrait 0.81) used fields since removed from the spec, so current consumers ignored them:
+  aggregate grouping keys (`groupings[].grouping_expressions` → aggregate-level
+  `grouping_expressions` + `expression_references`) and LIMIT/OFFSET (`FetchRel.count`/`offset`
+  → `count_expr`/`offset_expr`). Converted with `scripts/modernize_substrait_plans.py` and
+  verified with `scripts/verify_modernized_plans.py`: all other plan content is unchanged and
+  every grouping key and limit is preserved. Engines that only read the removed fields will
+  see different results on `tpch` and `tpcds`.
+- New suite **`tpch-substrait-0.81`** (`test-suites/tpch/metadata-substrait-0.81.yaml`) keeps the
+  original TPC-H plans in `plans-substrait-0.81/`, sharing data and expected results with `tpch`,
+  to measure whether engines still accept older plans. Plan sets are named by spec version so
+  names stay accurate as the spec evolves (see test-suites/tpch/README.md, "Plan encodings").
+  The DuckDB compliance workflow runs and publishes both.
 
 ### Documentation
 - README: execution model and isolation semantics added to SDK cross-reference table — documents

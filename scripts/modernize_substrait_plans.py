@@ -18,10 +18,15 @@ Conversions (only these; anything else unknown to the current spec aborts):
     current URN reference (checked):
       Plan.extension_uris, ExtensionFunction.extension_uri_reference
 
+The output plans are validated strictly against the installed Substrait protobuf
+definitions and their `version` field is set to that spec version (see TARGET_VERSION),
+with the producer recorded as "<original producer>; converted by scripts/modernize_substrait_plans.py".
+
 Usage:
     modernize_substrait_plans.py SRC_DIR DST_DIR      # reads SRC_DIR/*.json, writes DST_DIR/*.{json,bin}
 
-Requires: pip install substrait   (current Substrait protobuf definitions)
+Requires the exact protobuf package for the target spec version:
+    pip install "substrait-protobuf==0.107.0"
 """
 
 import copy
@@ -29,10 +34,15 @@ import json
 import sys
 from pathlib import Path
 
-import substrait.proto as sp
-from google.protobuf import json_format
+import importlib.metadata
 
-CONVERTED_NOTE = ("// Converted to the current Substrait encoding (aggregate grouping_expressions + "
+from google.protobuf import json_format
+from substrait import plan_pb2
+
+TARGET_VERSION = "0.107.0"
+PRODUCER_SUFFIX = "converted by scripts/modernize_substrait_plans.py"
+
+CONVERTED_NOTE = (f"// Converted to Substrait {TARGET_VERSION} (aggregate grouping_expressions + "
                   "expression_references, FetchRel offset_expr/count_expr) by "
                   "scripts/modernize_substrait_plans.py")
 
@@ -122,9 +132,16 @@ def convert_file(src, dst_dir, stats):
     plan_json = convert(copy.deepcopy(plan_json), stats)
     if plan_json.pop("extensionUris", None) is not None:
         stats["plan extension URI lists dropped"] += 1
-    plan = sp.Plan()
-    # Strict: any field still unknown to the current spec is an error, not silently dropped.
+    plan = plan_pb2.Plan()
+    # Strict: any field still unknown to the target spec is an error, not silently dropped.
     json_format.ParseDict(plan_json, plan, ignore_unknown_fields=False)
+    # Record the spec version the plan now conforms to, and that it was converted.
+    major, minor, patch = (int(x) for x in TARGET_VERSION.split("."))
+    original_producer = plan.version.producer or "unknown producer"
+    plan.version.major_number, plan.version.minor_number, plan.version.patch_number = major, minor, patch
+    plan.version.git_hash = ""
+    if PRODUCER_SUFFIX not in original_producer:
+        plan.version.producer = f"{original_producer}; {PRODUCER_SUFFIX}"
     dst_dir.mkdir(parents=True, exist_ok=True)
     (dst_dir / src.with_suffix(".bin").name).write_bytes(plan.SerializeToString(deterministic=True))
     text = json_format.MessageToJson(plan, indent=2)
@@ -136,6 +153,10 @@ def main(argv):
     if len(argv) != 3:
         sys.exit(__doc__)
     src_dir, dst_dir = Path(argv[1]), Path(argv[2])
+    installed = importlib.metadata.version("substrait-protobuf")
+    if installed != TARGET_VERSION:
+        sys.exit(f"substrait-protobuf {installed} is installed; this script targets {TARGET_VERSION}:\n"
+                 f'    pip install "substrait-protobuf=={TARGET_VERSION}"')
     stats = {k: 0 for k in ("groupings converted", "fetches converted", "empty args dropped",
                             "extension URI references dropped", "plan extension URI lists dropped")}
     files = sorted(src_dir.glob("*.json"))
@@ -143,7 +164,7 @@ def main(argv):
         sys.exit(f"no .json plans in {src_dir}")
     for src in files:
         convert_file(src, dst_dir, stats)
-    print(f"{len(files)} plans converted from {src_dir} -> {dst_dir}")
+    print(f"{len(files)} plans converted to Substrait {TARGET_VERSION}: {src_dir} -> {dst_dir}")
     for k, v in stats.items():
         print(f"  {k}: {v}")
 

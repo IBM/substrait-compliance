@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 """
 Run the TPC-H Substrait plans through DuckDB locally and compare with the expected
-results, for both plan encodings side by side:
+results, for every TPC-H suite side by side. Suites are discovered from
+test-suites/tpch/metadata.yaml and metadata-substrait-*.yaml, e.g.
 
-    plans/                    current Substrait encoding
-    plans-legacy-encoding/    original plans (removed grouping / fetch fields)
+    tpch                  plans/                  Substrait 0.107.0
+    tpch-substrait-0.81   plans-substrait-0.81/   Substrait 0.81.0
 
 Mirrors what CI does: input tables are created from each plan's ReadRel schema,
 plans run via the substrait extension's from_substrait(), and results are compared
@@ -29,8 +30,20 @@ from decimal import Decimal
 from pathlib import Path
 
 SUITE = Path(__file__).resolve().parent.parent / "test-suites" / "tpch"
-ENCODINGS = [("current", "plans"), ("legacy", "plans-legacy-encoding")]
 REL_TOL = ABS_TOL = 1e-9
+
+
+def discover_suites():
+    """[(suite name, Substrait version, plan folder)] from the suite metadata files."""
+    import re
+    suites = []
+    for meta in [SUITE / "metadata.yaml"] + sorted(SUITE.glob("metadata-substrait-*.yaml")):
+        text = meta.read_text()
+        name = re.search(r'^name:\s*"([^"]+)"', text, re.M).group(1)
+        version = re.search(r'^substraitVersion:\s*"([^"]+)"', text, re.M)
+        folder = re.search(r'planBinary:\s*"([^"/]+)/', text).group(1)
+        suites.append((name, version.group(1) if version else "?", folder))
+    return suites
 
 
 def plan_json(path):
@@ -127,12 +140,13 @@ def main():
         except Exception as exc:
             sys.exit(f"Could not load DuckDB's substrait extension: {exc}")
 
-    results, summary = [], {name: 0 for name, _ in ENCODINGS}
+    suites = discover_suites()
+    results, summary = [], {name: 0 for name, _, _ in suites}
     for i in range(1, 23):
         q = f"q{i:02d}"
         exp_names, _, exp_rows = read_expected(SUITE / "expected" / f"{q}.csv")
         row = {"query": q}
-        for name, folder in ENCODINGS:
+        for name, _, folder in suites:
             plan_dir = SUITE / folder
             load_tables(con, read_schemas(plan_json(plan_dir / f"{q}.json"), {}))
             if args.check_data:
@@ -149,16 +163,23 @@ def main():
         results.append(row)
 
     print(f"DuckDB {duckdb.__version__} — TPC-H via Substrait\n")
-    print(f"{'query':6} {'current encoding':18} {'legacy encoding':18} detail (current / legacy)")
+    headers = [f"{name} ({version})" for name, version, _ in suites]
+    width = max(len(h) for h in headers) + 2
+    print(f"{'query':6} " + "".join(f"{h:{width}}" for h in headers) + "detail")
     for row in results:
-        cur, leg = row["current"], row["legacy"]
-        detail = cur["detail"] if cur["detail"] == leg["detail"] else f"{cur['detail']} / {leg['detail']}"
-        print(f"{row['query']:6} {cur['status']:18} {leg['status']:18} {detail[:110]}")
+        cells = [row[name] for name, _, _ in suites]
+        details = []
+        for (name, _, _), cell in zip(suites, cells):
+            if cell["detail"] and cell["detail"] not in details:
+                details.append(cell["detail"])
+        print(f"{row['query']:6} " + "".join(f"{c['status']:{width}}" for c in cells) + " / ".join(details)[:110])
     if not args.check_data:
-        print(f"\nPassed: current {summary['current']}/22, legacy {summary['legacy']}/22")
+        print("\nPassed: " + ", ".join(f"{h} {summary[n]}/22" for h, (n, _, _) in zip(headers, suites)))
     out = SUITE.parent.parent / ".ci-reports" / "local-tpch.json"
     out.parent.mkdir(exist_ok=True)
-    out.write_text(json.dumps({"duckdb": duckdb.__version__, "results": results, "passed": summary}, indent=2))
+    out.write_text(json.dumps({"duckdb": duckdb.__version__,
+                               "suites": [{"name": n, "substraitVersion": v, "plans": f} for n, v, f in suites],
+                               "results": results, "passed": summary}, indent=2))
     print(f"Saved {out.relative_to(SUITE.parent.parent)}")
 
 

@@ -1,5 +1,6 @@
 name: "tpch"
 version: "1.0.0"
+substraitVersion: "0.107.0"   # spec version the plans in plans/ conform to
 description: "TPC-H Benchmark Compliance Suite - 22 queries at Scale Factor 0.01"
 scale_factor: 0.01
 total_rows: 86630

@@ -160,9 +160,9 @@ jobs:
             --test-suite compliance-assets/test-suites/tpch/metadata.yaml \
             --output-report output/reports/duckdb-tpch.json
 
-      # Same queries, plans in the legacy encoding (fields since removed from the
-      # Substrait spec). Measures whether the engine still accepts older plans.
-      - name: Run TPC-H plans in the legacy encoding
+      # Same queries, original plans in the Substrait 0.81 encoding (fields since
+      # removed from the spec). Measures whether the engine still accepts older plans.
+      - name: Run TPC-H plans in the Substrait 0.81 encoding
         env:
           COMPLIANCE_REQUIRE_SUBSTRAIT_EXTENSION: "true"
         run: |
@@ -170,8 +170,8 @@ jobs:
           DUCKDB_JAR="examples/duckdb-java/lib/duckdb_jdbc-${DUCKDB_JDBC_VERSION}.jar"
           java -cp "examples/duckdb-java/build:$FAT_JAR:$DUCKDB_JAR" \
             io.substrait.example.DuckDBComplianceExample \
-            --test-suite compliance-assets/test-suites/tpch/metadata-legacy-encoding.yaml \
-            --output-report output/reports/duckdb-tpch-legacy-encoding.json
+            --test-suite compliance-assets/test-suites/tpch/metadata-substrait-0.81.yaml \
+            --output-report output/reports/duckdb-tpch-substrait-0.81.json
 
       - name: Run function test suites on DuckDB (Python)
         run: |
@@ -184,7 +184,7 @@ jobs:
           python scripts/combine_engine_reports.py --engine DuckDB \
             --suite functions=output/reports/duckdb-functions.json \
             --suite tpch=output/reports/duckdb-tpch.json \
-            --suite tpch-legacy-encoding=output/reports/duckdb-tpch-legacy-encoding.json \
+            --suite tpch-substrait-0.81=output/reports/duckdb-tpch-substrait-0.81.json \
             --output output/leaderboard/duckdb.json
 
       - name: Parse Compliance Results
