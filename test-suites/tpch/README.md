@@ -13,11 +13,13 @@ This test suite contains 22 TPC-H queries for Substrait compliance testing.
 
 ```
 tpch/
-├── metadata.yaml          # Test suite definition
+├── metadata.yaml                  # Suite "tpch": plans in the current Substrait encoding
+├── metadata-legacy-encoding.yaml  # Suite "tpch-legacy-encoding": same queries, legacy plans
 ├── plans/
-│   ├── q01.bin           # Binary Substrait plans (44 files: q01–q22)
+│   ├── q01.bin           # Binary Substrait plans (44 files: q01–q22), current encoding
 │   ├── q01.json          # JSON Substrait plans
 │   └── ...
+├── plans-legacy-encoding/ # The original plans, using fields since removed from the spec
 ├── data/
 │   ├── lineitem.csv      # Input data (60,175 rows)
 │   ├── orders.csv        # Input data (15,000 rows)
@@ -33,6 +35,35 @@ result means the engine produced the correct answer. A `FAILED` result means
 output was produced but did not match. A `SKIPPED` result is not expected for
 this suite — if you see it, the expected files are missing from your checkout
 (run `git status test-suites/tpch/expected/` to check).
+
+## Plan encodings
+
+The plans were originally produced (Isthmus, Substrait 0.81) with two encodings that
+have since been **removed** from the Substrait spec. Current consumers ignore those
+fields, which silently drops grouping keys and LIMIT clauses:
+
+| What | Legacy encoding (`plans-legacy-encoding/`) | Current encoding (`plans/`) |
+|---|---|---|
+| Aggregate grouping keys | `groupings[].grouping_expressions` | aggregate-level `grouping_expressions` + `groupings[].expression_references` |
+| LIMIT / OFFSET | `FetchRel.count` / `FetchRel.offset` | `FetchRel.count_expr` / `FetchRel.offset_expr` (i64 literals) |
+
+`plans/` was produced from the legacy plans by `scripts/modernize_substrait_plans.py`,
+which converts only these fields (and drops always-empty removed `args` lists and the
+superseded extension URIs; every function also carries its URN reference). For all 22
+plans, everything else is identical to the original, every grouping key and limit is
+preserved, and each `.bin` matches its `.json`.
+
+Both suites share `data/` and `expected/`, so results are directly comparable:
+
+- `tpch` — what a consumer of the current spec should handle;
+- `tpch-legacy-encoding` — whether an engine still accepts plans from older producers.
+
+DuckDB 1.5.6 example: `tpch` 12/22, `tpch-legacy-encoding` 3/22 (the 10 remaining
+failures in `tpch` are queries with subqueries, which DuckDB's Substrait extension
+does not support).
+
+To run both plan sets through DuckDB locally:
+`python scripts/tpch_duckdb_local.py` (needs `pip install duckdb`).
 
 ## Usage
 

@@ -160,6 +160,19 @@ jobs:
             --test-suite compliance-assets/test-suites/tpch/metadata.yaml \
             --output-report output/reports/duckdb-tpch.json
 
+      # Same queries, plans in the legacy encoding (fields since removed from the
+      # Substrait spec). Measures whether the engine still accepts older plans.
+      - name: Run TPC-H plans in the legacy encoding
+        env:
+          COMPLIANCE_REQUIRE_SUBSTRAIT_EXTENSION: "true"
+        run: |
+          FAT_JAR="compliance-assets/libs/substrait-compliance-all.jar"
+          DUCKDB_JAR="examples/duckdb-java/lib/duckdb_jdbc-${DUCKDB_JDBC_VERSION}.jar"
+          java -cp "examples/duckdb-java/build:$FAT_JAR:$DUCKDB_JAR" \
+            io.substrait.example.DuckDBComplianceExample \
+            --test-suite compliance-assets/test-suites/tpch/metadata-legacy-encoding.yaml \
+            --output-report output/reports/duckdb-tpch-legacy-encoding.json
+
       - name: Run function test suites on DuckDB (Python)
         run: |
           python scripts/run_function_compliance.py \
@@ -171,6 +184,7 @@ jobs:
           python scripts/combine_engine_reports.py --engine DuckDB \
             --suite functions=output/reports/duckdb-functions.json \
             --suite tpch=output/reports/duckdb-tpch.json \
+            --suite tpch-legacy-encoding=output/reports/duckdb-tpch-legacy-encoding.json \
             --output output/leaderboard/duckdb.json
 
       - name: Parse Compliance Results

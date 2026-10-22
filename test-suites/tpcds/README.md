@@ -23,7 +23,11 @@ This release includes **99 TPC-DS queries** with comprehensive data, plan, and e
 ### Available Resources
 
 - **Queries**: 99 SQL query files (query01.sql – query99.sql)
-- **Plans**: 198 Substrait plan files (99 JSON + 99 binary format)
+- **Plans**: 198 Substrait plan files (99 JSON + 99 binary format), in the current
+  Substrait encoding: grouping keys use aggregate-level `grouping_expressions` +
+  `expression_references` and LIMIT/OFFSET use `FetchRel.count_expr`/`offset_expr`.
+  They were converted from the original Isthmus (Substrait 0.81) output by
+  `scripts/modernize_substrait_plans.py`; see the TPC-H README, "Plan encodings".
 - **Data**: 24 CSV data files covering all TPC-DS tables
 - **Expected outputs**: 99 reference CSV files (q01.csv – q99.csv)
 
