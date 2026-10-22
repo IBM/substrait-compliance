@@ -46,6 +46,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/combine_engine_reports.py --informational NAME=REPORT`: suites shown in the breakdown
   but excluded from the headline pass rate.
 
+### Changed — the current-format function suite is now scored
+- `functions-substrait-0.107` and `functions-substrait-0.107-extended` count towards the headline
+  pass rate on the leaderboard.
+- The legacy suite (`test-suites/functions`, folder unchanged) still runs and is shown as
+  `functions-legacy`, marked *not scored*. Suites passed with `--informational` are now labelled
+  "not scored" on the leaderboard and in the CI summary.
+
 ### Changed — test-suite plan format
 - Java SDK: `YamlTestSuiteLoader` now ignores unknown metadata fields instead of failing the
   whole suite, so suites can gain optional fields without breaking engines.

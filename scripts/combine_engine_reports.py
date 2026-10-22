@@ -3,7 +3,7 @@
 Combine per-suite compliance reports for one engine into a single leaderboard entry.
 
     combine_engine_reports.py --engine DuckDB \
-        --suite functions=output/reports/duckdb-functions.json \
+        --suite functions-substrait-0.107=output/reports/duckdb-functions-substrait-0.107.json \
         --suite tpch=output/reports/duckdb-tpch-report.json \
         --output output/leaderboard/duckdb.json
 
@@ -12,9 +12,9 @@ tests are reported but never counted as passes. Each suite's own figures are kep
 under "suites" so the leaderboard can show the breakdown.
 
 Suites passed with --informational instead of --suite are listed in the breakdown
-(marked "informational": true) but left out of the headline totals - e.g. a new
-suite that runs alongside the one it will replace, so the same functions are not
-counted twice.
+(marked "informational": true, shown as "not scored") but left out of the headline
+totals - e.g. a legacy suite kept for reference next to the suite that replaced it,
+so the same functions are not counted twice.
 """
 
 import argparse

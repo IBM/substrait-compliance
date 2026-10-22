@@ -187,7 +187,8 @@ Two function-test formats are supported, detected per file:
   (scalar, aggregate and window cases). DataFusion runs in
   [`datafusion-compliance.yml`](../.github/workflows/datafusion-compliance.yml).
 - **Legacy format** — [`test-suites/functions`](../test-suites/functions/README.md), mapped by the regex-based
-  mapper described below. This suite is being replaced by the one above.
+  mapper described below. This suite has been replaced by the one above; it still runs and is shown
+  on the leaderboard as `functions-legacy`, but is not scored.
 
 Substrait Function Test files (`.test`) declare functional AST signatures rather than SQL statements. For the legacy format, the framework includes [`SubstraitExpressionMapper`](../sdk/python/substrait_compliance/expression_mapper.py:10) to recursively map Substrait operators, types, and functions to database-executable SQL expressions:
 

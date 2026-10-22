@@ -223,7 +223,7 @@ jobs:
                               html += `<td>${engine.passed}/${engine.passed + engine.failed}</td>`;
                               html += `<td>${engine.skipped}</td>`;
                               const suites = Object.entries(engine.suites || {}).map(([name, s]) =>
-                                  `${name}: ${s.passRate === null ? 'n/a' : s.passRate.toFixed(1) + '%'}${s.informational ? ' (informational)' : ''}`).join('<br>');
+                                  `${name}: ${s.passRate === null ? 'n/a' : s.passRate.toFixed(1) + '%'}${s.informational ? ' (not scored)' : ''}`).join('<br>');
                               html += `<td>${suites || '—'}</td>`;
                               html += `<td>${statusEmoji}</td>`;
                               html += '</tr>';

@@ -588,7 +588,7 @@ See [.github/workflows/README.md](.github/workflows/README.md) for details.
 
 > **📚 Detailed Documentation:**
 > - [test-suites/functions-substrait-0.107/README.md](test-suites/functions-substrait-0.107/README.md) — Function tests in the current Substrait format (1,315 upstream + 2,180 verified cases, validated against Substrait 0.107.0)
-> - [test-suites/functions/README.md](test-suites/functions/README.md) — Legacy function tests (136 files, 5,041 test assertions, 14 categories; being replaced)
+> - [test-suites/functions/README.md](test-suites/functions/README.md) — Legacy function tests (136 files, 5,041 test assertions, 14 categories; replaced, not scored)
 > - [test-suites/tpch/README.md](test-suites/tpch/README.md) — TPC-H benchmark (22 queries)
 > - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) — TPC-DS benchmark (99 queries)
 
@@ -1149,7 +1149,7 @@ docker pull ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
 ### 🧪 Test Suites
 - [test-suites/README.md](test-suites/README.md) — Test suites overview
 - [test-suites/functions-substrait-0.107/README.md](test-suites/functions-substrait-0.107/README.md) — Function tests (current Substrait format)
-- [test-suites/functions/README.md](test-suites/functions/README.md) — Legacy function tests (being replaced)
+- [test-suites/functions/README.md](test-suites/functions/README.md) — Legacy function tests (replaced, not scored)
 - [test-suites/tpch/README.md](test-suites/tpch/README.md) — TPC-H benchmark
 - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) — TPC-DS benchmark
 

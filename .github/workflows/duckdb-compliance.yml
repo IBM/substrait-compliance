@@ -180,14 +180,8 @@ jobs:
             --test-suite compliance-assets/test-suites/tpch/metadata-substrait-0.81.yaml \
             --output-report output/reports/duckdb-tpch-substrait-0.81.json
 
-      - name: Run function test suites on DuckDB (Python)
-        run: |
-          python scripts/run_function_compliance.py \
-            --suites-dir compliance-assets/test-suites/functions \
-            --output output/reports/duckdb-functions.json
-
-      # Current-format function suite (upstream Substrait cases + verified legacy
-      # cases). Informational until it replaces test-suites/functions.
+      # The scored function suite: upstream Substrait cases + verified legacy cases,
+      # validated against the extension YAMLs first.
       - name: Validate functions-substrait-0.107 against the extension YAMLs
         run: |
           python scripts/validate_function_tests.py \
@@ -205,14 +199,23 @@ jobs:
             --suite-name functions-substrait-0.107-extended \
             --output output/reports/duckdb-functions-substrait-0.107-extended.json
 
+      # The legacy suite (test-suites/functions) still runs and is shown on the
+      # leaderboard as functions-legacy, but is not scored.
+      - name: Run legacy function suite on DuckDB (Python)
+        run: |
+          python scripts/run_function_compliance.py \
+            --suites-dir compliance-assets/test-suites/functions \
+            --suite-name functions-legacy \
+            --output output/reports/duckdb-functions-legacy.json
+
       - name: Combine into leaderboard entry
         run: |
           python scripts/combine_engine_reports.py --engine DuckDB \
-            --suite functions=output/reports/duckdb-functions.json \
+            --suite functions-substrait-0.107=output/reports/duckdb-functions-substrait-0.107.json \
+            --suite functions-substrait-0.107-extended=output/reports/duckdb-functions-substrait-0.107-extended.json \
             --suite tpch=output/reports/duckdb-tpch.json \
             --suite tpch-substrait-0.81=output/reports/duckdb-tpch-substrait-0.81.json \
-            --informational functions-substrait-0.107=output/reports/duckdb-functions-substrait-0.107.json \
-            --informational functions-substrait-0.107-extended=output/reports/duckdb-functions-substrait-0.107-extended.json \
+            --informational functions-legacy=output/reports/duckdb-functions-legacy.json \
             --output output/leaderboard/duckdb.json
 
       - name: Parse Compliance Results
@@ -344,7 +347,7 @@ jobs:
             echo ""
             echo "| Suite | Pass Rate | Passed | Failed | Skipped | Total |"
             echo "|---|---|---|---|---|---|"
-            jq -r '.suites | to_entries[] | "| \(.key)\(if .value.informational then " _(informational)_" else "" end) | \(if .value.passRate == null then "n/a" else "\(.value.passRate)%" end) | \(.value.passed) | \(.value.failed) | \(.value.skipped) | \(.value.totalTests) |"' leaderboard/duckdb.json
+            jq -r '.suites | to_entries[] | "| \(.key)\(if .value.informational then " _(not scored)_" else "" end) | \(if .value.passRate == null then "n/a" else "\(.value.passRate)%" end) | \(.value.passed) | \(.value.failed) | \(.value.skipped) | \(.value.totalTests) |"' leaderboard/duckdb.json
             echo ""
             echo "Per-test reasons for every failure and skip are in the \`duckdb-compliance-reports\` artifact."
           } >> "$GITHUB_STEP_SUMMARY"

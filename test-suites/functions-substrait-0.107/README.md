@@ -1,10 +1,10 @@
 # Function tests — Substrait 0.107
 
 Function test cases in the **current upstream Substrait test-case format**, checked against the
-function definitions of Substrait **v0.107.0**. This suite replaces
-[`test-suites/functions`](../functions/README.md) once it has run alongside it for a while; until
-then it is reported as *informational* on the leaderboard (shown per suite, not in the headline
-pass rate), so the same functions are not counted twice.
+function definitions of Substrait **v0.107.0**. This is the **scored** function suite: both parts
+count towards an engine's headline pass rate on the leaderboard. It replaces
+[`test-suites/functions`](../functions/README.md), which still runs and is shown on the leaderboard
+as `functions-legacy`, marked *not scored*.
 
 | Part | Cases | What it is |
 |---|---:|---|
@@ -122,17 +122,16 @@ DuckDB version.
 
 1. Create `functions-substrait-<new>` with the commands above at the new tag and the matching
    `substrait-extensions` version; review which `FIXES` upstream has resolved.
-2. Run it next to this suite as informational; compare the per-case reports.
+2. Run it next to this suite, not scored (`--informational`); compare the per-case reports.
 3. Make it the scored suite and deprecate this one — the same steps as for the legacy suite below.
 
-## Replacing the legacy suite
+## The legacy suite
 
-When this suite has run alongside [`test-suites/functions`](../functions/README.md) long enough to
-be trusted:
+[`test-suites/functions`](../functions/README.md) has been replaced by this suite. It still runs in
+CI and appears on the leaderboard as `functions-legacy` (passed to `combine_engine_reports.py` with
+`--informational`, so it is shown but *not scored*). Remaining clean-up, when wanted:
 
-1. In `.github/workflows/duckdb-compliance.yml`, pass `functions-substrait-0.107` (and `-extended`)
-   to `combine_engine_reports.py` with `--suite` instead of `--informational`, and drop the legacy
-   `functions` run.
-2. Review the quarantined cases in [`extended/CONVERSION.md`](extended/CONVERSION.md) — they are
+1. Review the quarantined cases in [`extended/CONVERSION.md`](extended/CONVERSION.md) — they are
    valid but unverified — and add the ones that are right.
-3. Remove `test-suites/functions` (or move it to an archive) and its regex-based runner path.
+2. Stop running the legacy suite and remove `test-suites/functions` (or move it to an archive)
+   together with its regex-based runner path.
