@@ -6,10 +6,10 @@ compliance framework using Python.
 
 Requirements
 ------------
-    pip install datafusion datafusion-substrait pyarrow
+    pip install datafusion pyarrow
 
-DataFusion's Python bindings expose a Substrait consumer since
-datafusion-python >= 34.0 / datafusion-substrait >= 0.10.
+DataFusion's Python bindings expose a Substrait consumer in
+datafusion.substrait (datafusion >= 34.0).
 """
 
 import sys
@@ -87,14 +87,13 @@ class DataFusionComplianceEngine(ComplianceEngine):
         self.ctx = None
         self._substrait_available = False
         try:
-            from datafusion import SessionContext
-            import datafusion_substrait  # noqa: F401 — check import only
+            from datafusion import SessionContext, substrait  # noqa: F401
             self.ctx = SessionContext()
             self._substrait_available = True
-        except ImportError as exc:
+        except (ImportError, AttributeError) as exc:
             print(
-                f"Warning: DataFusion/datafusion-substrait not available: {exc}\n"
-                "Install with: pip install datafusion datafusion-substrait pyarrow\n"
+                f"Warning: DataFusion substrait module not available: {exc}\n"
+                "Install with: pip install datafusion pyarrow\n"
                 "Tests will be marked FAILED until the packages are installed."
             )
 

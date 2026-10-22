@@ -15,7 +15,7 @@ Substrait compliance framework using Python.
 cd ../../sdk/python && pip install -e . && cd -
 
 # 2. Install DataFusion dependencies
-pip install -r requirements.txt
+pip install datafusion pyarrow
 
 # 3. Run the example
 python datafusion_compliance.py

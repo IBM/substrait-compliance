@@ -410,8 +410,7 @@ jobs:
           # Verify the SDK imports cleanly
           from substrait_compliance import ComplianceEngine, EngineInfo, ComplianceRunner
           # Verify DataFusion imports cleanly
-          from datafusion import SessionContext
-          import datafusion_substrait  # noqa: F401
+          from datafusion import SessionContext, substrait  # noqa: F401
           import pyarrow as pa
           print("✅ All imports succeeded")
           EOF
