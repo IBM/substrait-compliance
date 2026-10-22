@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Added — DataFusion function runs
+- `scripts/run_function_compliance.py --engine datafusion` runs the current-format function suite
+  on Apache DataFusion (Python bindings); new workflow `datafusion-compliance.yml` (DataFusion
+  55.0.0) publishes the reports as an artifact and in the job summary.
+- `scripts/duckdb_function_sql.py` is now `scripts/function_sql.py`, with a `Dialect` per engine
+  (DuckDB, DataFusion). Only direct SQL spellings are mapped; functions an engine lacks are
+  reported as untranslatable (skipped), not emulated. DuckDB results are unchanged.
+- Window results over an empty frame are typed (`CAST([] AS T[])`); a timestamp at midnight now
+  also matches an expected date the other way round (value comparison, as for DuckDB).
+
 ### Added — function suite in the current Substrait format
 - **`test-suites/functions-substrait-0.107`**: function tests in the upstream Substrait test-case
   format, validated against the Substrait 0.107.0 function definitions. Runs alongside
@@ -24,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/validate_function_tests.py`: checks every case against the extension YAMLs
   (signatures, enum values, options, return types, literal well-formedness); runs in CI.
 - `scripts/run_function_compliance.py` runs the current format (scalar, aggregate and window
-  cases) through `scripts/duckdb_function_sql.py`; legacy files still use the old path.
+  cases) through `scripts/function_sql.py`; legacy files still use the old path.
 - Python SDK: `substrait_compliance.function_cases`, reading `.test` files with the Substrait
   project's own parser (vendored in `substrait_compliance/testcase_parser`, Apache-2.0; new
   dependency `antlr4-python3-runtime==4.13.2`).

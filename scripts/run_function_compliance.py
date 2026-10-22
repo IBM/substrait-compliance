@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
 """
-Run the Substrait function test suites against a real engine (DuckDB).
+Run the Substrait function test suites against a real engine: DuckDB, or
+Apache DataFusion (--engine datafusion, current-format suites only).
 
 Two file formats are supported and detected per file:
 
   * the current upstream Substrait format (``### SUBSTRAIT_INCLUDE: extension:...``),
     used by test-suites/functions-substrait-0.107. These files are parsed with the
     upstream parser (substrait_compliance.function_cases) and translated to SQL by
-    scripts/duckdb_function_sql.py; scalar, aggregate and window cases all run.
+    scripts/function_sql.py; scalar, aggregate and window cases all run.
   * the older format of test-suites/functions (quoted include paths), handled by the
     regex-based SubstraitExpressionMapper as before.
 
@@ -37,7 +38,7 @@ For current-format files, results are compared by the expected Substrait type:
 integers and decimals exactly, booleans only with booleans, floats with a relative
 tolerance only (1e-9, or 1e-6 for fp32), intervals and nanosecond timestamps by
 DuckDB's text form. A pinned option is scored normally when DuckDB implements that
-mode (DUCKDB_IMPLEMENTED_MODES), skipped up front for its other values, and
+mode (the engine's implemented_modes), skipped up front for its other values, and
 otherwise turned from a failure into a skip ("mode not implemented"). <!ERROR>
 passes only on a runtime error, not when the engine cannot bind the call. A
 current-format file that does not parse makes the run fail. Legacy-format files
@@ -66,7 +67,7 @@ from substrait_compliance.function_cases import (  # noqa: E402
 )
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
-import duckdb_function_sql as fsql  # noqa: E402
+import function_sql as fsql  # noqa: E402
 
 PASSED, FAILED, SKIPPED = "passed", "failed", "skipped"
 
@@ -168,6 +169,13 @@ def translate_aggregate(function_call: str) -> str:
 
 class DuckDBEngine:
     name = "DuckDB"
+    dialect = fsql.DUCKDB
+    # Option modes DuckDB is known to implement for every function that declares the
+    # option (see run_upstream_case).
+    implemented_modes = {
+        "overflow": {"ERROR"},
+        "division_type": {"TRUNCATE"},
+    }
 
     def __init__(self):
         try:
@@ -194,17 +202,77 @@ class DuckDBEngine:
     def query(self, sql: str):
         return self.con.execute(sql).fetchone()[0]
 
+    def error_kind(self, exc: Exception):
+        """('parser'|'extension'|'missing'|'bind'|'runtime', detail)"""
+        if _is_parser_error(exc):
+            return "parser", None
+        ext = _needs_extension(exc)
+        if ext:
+            return "extension", ext
+        missing = _missing_function(exc)
+        if missing:
+            return "missing", missing
+        if type(exc).__name__ == "BinderException":
+            return "bind", None
+        return "runtime", None
 
-def _classify_engine_error(exc: Exception, sql: str):
-    """(status, reason) for an exception raised while running a case's SQL."""
-    if _is_parser_error(exc):
+
+class DataFusionEngine:
+    """Apache DataFusion through its Python bindings (SQL)."""
+    name = "DataFusion"
+    dialect = fsql.DATAFUSION
+    # DataFusion's integer arithmetic is not consistent about overflow (+ - * wrap
+    # silently, abs/negate/divide raise), so no overflow mode is claimed; integer
+    # division truncates.
+    implemented_modes = {
+        "division_type": {"TRUNCATE"},
+    }
+    extensions = {}
+
+    def __init__(self):
+        try:
+            import datafusion
+        except ImportError as exc:  # never fall back to simulated numbers
+            raise SystemExit(f"❌ datafusion Python package is not installed: {exc}")
+        self.version = datafusion.__version__
+        self.ctx = datafusion.SessionContext()
+
+    def query(self, sql: str):
+        table = self.ctx.sql(sql).to_arrow_table()
+        if table.num_rows == 0:
+            return None
+        return table.column(0)[0].as_py()
+
+    def scalar(self, sql: str):
+        return self.query(f"SELECT {sql}")
+
+    def error_kind(self, exc: Exception):
+        msg = str(exc)
+        if "ParserError" in msg or msg.startswith("SQL error"):
+            return "parser", None
+        m = re.search(r"Invalid function '(\w+)'", msg)
+        if m:
+            return "missing", m.group(1)
+        if "Optimizer rule" in msg:  # constant folding hit a runtime error
+            return "runtime", None
+        if "Error during planning" in msg or "not implemented" in msg or "Schema error" in msg:
+            return "bind", None
+        return "runtime", None
+
+
+ENGINES = {"duckdb": DuckDBEngine, "datafusion": DataFusionEngine}
+
+
+def _classify_engine_error(engine, exc: Exception, sql: str):
+    """(status, reason) for an exception that means the case could not be run at
+    all (skipped), or None when it is the engine's real answer to the case."""
+    kind, detail = engine.error_kind(exc)
+    if kind == "parser":
         return SKIPPED, f"untranslatable: {sql}"
-    ext = _needs_extension(exc)
-    if ext:
-        return SKIPPED, f"requires DuckDB {ext} extension (not available)"
-    missing = _missing_function(exc)
-    if missing:
-        return SKIPPED, f"no SQL mapping for function: {missing}"
+    if kind == "extension":
+        return SKIPPED, f"requires {engine.name} {detail} extension (not available)"
+    if kind == "missing":
+        return SKIPPED, f"no SQL mapping for function: {detail}"
     return None
 
 
@@ -238,25 +306,19 @@ def frame_types_for(source_lines, line_no):
     return {}
 
 
-# Option modes DuckDB is known to implement for every function that declares the
-# option. A case pinned to one of these modes is scored normally; a case pinned to
-# another value of the same option is skipped up front. For any other option the
-# runner cannot tell which mode DuckDB implements, so a failure is reported as
-# "mode not implemented" (skipped) rather than as a failure.
-DUCKDB_IMPLEMENTED_MODES = {
-    "overflow": {"ERROR"},
-    "division_type": {"TRUNCATE"},
-}
-
-
 def run_upstream_case(engine, kind, tc, source_lines):
-    """Run one case parsed from the upstream format (see the module docstring)."""
+    """Run one case parsed from the upstream format (see the module docstring).
+
+    Options: a case pinned to a mode in engine.implemented_modes is scored normally;
+    a case pinned to another value of such an option is skipped up front. For any
+    other option the runner cannot tell which mode the engine implements, so a
+    failure is reported as "mode not implemented" (skipped) rather than as a failure."""
     for key, value in tc.options.items():
-        modes = DUCKDB_IMPLEMENTED_MODES.get(key)
+        modes = engine.implemented_modes.get(key)
         if modes is not None and str(value).upper() not in modes:
             return SKIPPED, f"unsupported option {key}:{value} (engine implements {key}:{'/'.join(sorted(modes))})"
     status, reason = _run_upstream_case(engine, kind, tc, source_lines)
-    unknown = {k: v for k, v in tc.options.items() if k not in DUCKDB_IMPLEMENTED_MODES}
+    unknown = {k: v for k, v in tc.options.items() if k not in engine.implemented_modes}
     if status == FAILED and unknown:
         modes = ", ".join(f"{k}:{v}" for k, v in unknown.items())
         return SKIPPED, f"option mode not implemented ({modes}): {reason}"
@@ -290,8 +352,9 @@ def upstream_values_match(actual, expected, type_str) -> bool:
     * floats with a relative tolerance only (1e-9; 1e-6 for fp32) - no absolute
       slack, so 0.0 must be exactly 0 and 5e-324 is not 0,
     * lists element by element with the element type,
-    * everything else (strings, temporal values) with ==, by value: a TIMESTAMP at
-      midnight equals the DATE it represents (result types are not scored).
+    * everything else (strings, temporal values) with ==, by value: a timestamp at
+      midnight equals the date it represents, either way round (result types are
+      not scored).
     """
     if actual is None or expected is None:
         return actual is None and expected is None
@@ -317,6 +380,8 @@ def upstream_values_match(actual, expected, type_str) -> bool:
         return math.isclose(a, e, rel_tol=rel, abs_tol=0.0)
     if type(expected).__name__ == "date" and isinstance(actual, datetime):
         return actual.date() == expected and actual.time() == datetime.min.time() and actual.tzinfo is None
+    if type(actual).__name__ == "date" and isinstance(expected, datetime):
+        return expected.date() == actual and expected.time() == datetime.min.time() and expected.tzinfo is None
     return actual == expected
 
 
@@ -325,7 +390,7 @@ def _run_upstream_case(engine, kind, tc, source_lines):
     if isinstance(result, SubstraitError) and result.error == "undefined":
         return SKIPPED, "expected result is undefined"
 
-    tr = fsql.Translator(tc.options)
+    tr = fsql.Translator(tc.options, engine.dialect)
     try:
         if kind == "window":
             actual_sql = tr.window_case(tc, frame_types_for(source_lines, tc.line))
@@ -348,10 +413,10 @@ def _run_upstream_case(engine, kind, tc, source_lines):
         try:
             value = engine.query(actual_sql)
         except Exception as exc:
-            classified = _classify_engine_error(exc, actual_sql)
+            classified = _classify_engine_error(engine, exc, actual_sql)
             if classified:
                 return classified
-            if type(exc).__name__ == "BinderException":
+            if engine.error_kind(exc)[0] == "bind":
                 # the engine could not even bind the call (e.g. no overload for these
                 # types): that is not the runtime error the case expects
                 return FAILED, f"expected a runtime error, got {type(exc).__name__}: " \
@@ -366,7 +431,7 @@ def _run_upstream_case(engine, kind, tc, source_lines):
     try:
         actual_value = engine.query(actual_sql)
     except Exception as exc:
-        classified = _classify_engine_error(exc, actual_sql)
+        classified = _classify_engine_error(engine, exc, actual_sql)
         if classified:
             return classified
         msg = str(exc).splitlines()[0][:200]
@@ -471,9 +536,11 @@ def main(argv=None):
     ap.add_argument("--suites-dir", type=Path, default=REPO_ROOT / "test-suites" / "functions")
     ap.add_argument("--output", type=Path, required=True, help="JSON report to write")
     ap.add_argument("--suite-name", default="functions", help="suite name recorded in the report")
+    ap.add_argument("--engine", choices=sorted(ENGINES), default="duckdb",
+                    help="engine to run on (legacy-format files: duckdb only)")
     args = ap.parse_args(argv)
 
-    engine = DuckDBEngine()
+    engine = ENGINES[args.engine]()
     parser = FunctionTestParser()
     files = sorted(args.suites_dir.rglob("*.test"))
     if not files:
@@ -496,6 +563,9 @@ def main(argv=None):
             cases = [(tc, run_upstream_case(engine, kind, tc, source_lines),
                       tc.line, source_lines[tc.line - 1].strip()) for tc in test_file.testcases]
         else:
+            if args.engine != "duckdb":
+                raise SystemExit(f"❌ {display_path(path)} is in the legacy format, which only the "
+                                 f"duckdb engine supports; use a current-format suite")
             try:
                 suite = parser.parse_file(path)
             except Exception as exc:
@@ -553,7 +623,7 @@ def main(argv=None):
         rate = "n/a" if c["passRate"] is None else f"{c['passRate']:.1f}%"
         print(f"{name:<{width}} {c['total']:>6} {c[PASSED]:>6} {c[FAILED]:>6} {c[SKIPPED]:>6} {rate:>7}")
     print(f"{'TOTAL':<{width}} {totals['total']:>6} {totals[PASSED]:>6} {totals[FAILED]:>6} {totals[SKIPPED]:>6} {report['passRate']:>6.1f}%")
-    print(f"DuckDB {engine.version} — report written to {args.output}")
+    print(f"{engine.name} {engine.version} — report written to {args.output}")
     if fatal_parse_errors:
         # a current-format file that does not parse would silently drop out of the totals
         print(f"❌ {len(fatal_parse_errors)} file(s) failed to parse: {', '.join(fatal_parse_errors)}")

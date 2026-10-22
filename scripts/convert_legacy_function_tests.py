@@ -158,7 +158,7 @@ def convert_extract(s: str) -> str:
     comp = EXTRACT_COMPONENTS.get(m.group(1).upper())
     if comp is None:
         raise Reject("extract component with no exact Substrait equivalent (EPOCH, WEEK, DOW, ...)")
-    from duckdb_function_sql import INDEXED_COMPONENTS
+    from function_sql import INDEXED_COMPONENTS
     indexing = "ONE::enum, " if comp in INDEXED_COMPONENTS else ""
     return f"extract({comp}::enum, {indexing}{m.group(2)}"
 

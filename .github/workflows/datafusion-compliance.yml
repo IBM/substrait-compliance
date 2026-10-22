@@ -1,0 +1,102 @@
+name: DataFusion Function Compliance
+
+# Runs the current-format function suite (test-suites/functions-substrait-0.107)
+# on Apache DataFusion through its Python bindings. Results are published as a
+# report artifact and in the job summary; they are not on the leaderboard yet.
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths:
+      - 'test-suites/functions-substrait-0.107/**'
+      - 'sdk/python/**'
+      - 'scripts/run_function_compliance.py'
+      - 'scripts/function_sql.py'
+      - 'scripts/validate_function_tests.py'
+      - '.github/workflows/datafusion-compliance.yml'
+  pull_request:
+    branches: [ main, develop ]
+    paths:
+      - 'test-suites/functions-substrait-0.107/**'
+      - 'sdk/python/**'
+      - 'scripts/run_function_compliance.py'
+      - 'scripts/function_sql.py'
+      - 'scripts/validate_function_tests.py'
+      - '.github/workflows/datafusion-compliance.yml'
+  schedule:
+    # Weekly on Monday at 02:30 UTC, after the DuckDB run
+    - cron: '30 2 * * 1'
+  workflow_dispatch:
+
+env:
+  DATAFUSION_PY_VERSION: "55.0.0"
+  SUBSTRAIT_EXTENSIONS_VERSION: "0.107.0"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  run-functions:
+    name: Run function suite on DataFusion
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'sdk/python/pyproject.toml'
+
+      - name: Install Python SDK & DataFusion
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e sdk/python "datafusion==${DATAFUSION_PY_VERSION}" \
+            "substrait-extensions==${SUBSTRAIT_EXTENSIONS_VERSION}"
+
+      - name: Validate functions-substrait-0.107 against the extension YAMLs
+        run: |
+          python scripts/validate_function_tests.py test-suites/functions-substrait-0.107 \
+            --substrait-version "${SUBSTRAIT_EXTENSIONS_VERSION%.*}"
+
+      - name: Run functions-substrait-0.107 on DataFusion
+        run: |
+          mkdir -p output/reports
+          python scripts/run_function_compliance.py --engine datafusion \
+            --suites-dir test-suites/functions-substrait-0.107/upstream \
+            --suite-name functions-substrait-0.107 \
+            --output output/reports/datafusion-functions-substrait-0.107.json
+          python scripts/run_function_compliance.py --engine datafusion \
+            --suites-dir test-suites/functions-substrait-0.107/extended \
+            --suite-name functions-substrait-0.107-extended \
+            --output output/reports/datafusion-functions-substrait-0.107-extended.json
+
+      - name: Post results
+        if: always()
+        run: |
+          {
+            echo "## DataFusion ${DATAFUSION_PY_VERSION} — function suite"
+            echo ""
+            echo "| Suite | Pass Rate | Passed | Failed | Skipped | Total |"
+            echo "|---|---|---|---|---|---|"
+            for f in output/reports/datafusion-*.json; do
+              [ -f "$f" ] || continue
+              jq -r '"| \(.suite) | \(if .passRate == null then "n/a" else "\(.passRate)%" end) | \(.passed) | \(.failed) | \(.skipped) | \(.totalTests) |"' "$f"
+            done
+            echo ""
+            echo "Per-test reasons for every failure and skip are in the \`datafusion-function-reports\` artifact."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: datafusion-function-reports
+          path: output/reports/
+          retention-days: 30

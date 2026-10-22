@@ -183,8 +183,9 @@ Two function-test formats are supported, detected per file:
   Files are parsed with the Substrait project's own parser
   ([`substrait_compliance.function_cases`](../sdk/python/substrait_compliance/function_cases.py)), validated
   against the extension YAMLs by [`scripts/validate_function_tests.py`](../scripts/validate_function_tests.py), and
-  translated to DuckDB SQL from the parsed values by [`scripts/duckdb_function_sql.py`](../scripts/duckdb_function_sql.py)
-  (scalar, aggregate and window cases).
+  translated from the parsed values into DuckDB or DataFusion SQL by [`scripts/function_sql.py`](../scripts/function_sql.py)
+  (scalar, aggregate and window cases). DataFusion runs in
+  [`datafusion-compliance.yml`](../.github/workflows/datafusion-compliance.yml).
 - **Legacy format** — [`test-suites/functions`](../test-suites/functions/README.md), mapped by the regex-based
   mapper described below. This suite is being replaced by the one above.
 

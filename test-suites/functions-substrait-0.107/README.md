@@ -49,9 +49,22 @@ which is how the upstream problems listed in [`upstream/UPSTREAM.md`](upstream/U
 
 ## How cases are scored
 
-[`scripts/run_function_compliance.py`](../../scripts/run_function_compliance.py) runs each case on the
-engine (today DuckDB, through [`scripts/duckdb_function_sql.py`](../../scripts/duckdb_function_sql.py))
-and compares the result with the expected literal evaluated by the same engine:
+[`scripts/run_function_compliance.py`](../../scripts/run_function_compliance.py) runs each case on an
+engine — DuckDB (default) or Apache DataFusion (`--engine datafusion`) — translating it to that
+engine's SQL with [`scripts/function_sql.py`](../../scripts/function_sql.py), and compares the result
+with the expected literal evaluated by the same engine. Only direct SQL spellings are mapped: a
+function an engine lacks (e.g. DataFusion has no list lambdas, `isfinite` or bitwise NOT) is not
+emulated, and its cases are skipped as untranslatable.
+
+| Engine | `upstream/` | `extended/` | CI |
+|---|---|---|---|
+| DuckDB 1.5.6 | 93.9% (1,189 passed, 77 failed, 49 skipped) | 99.9% (2,151 / 2 / 27) | `duckdb-compliance.yml`, on the leaderboard |
+| DataFusion 55.0.0 | 93.2% (1,089 passed, 80 failed, 146 skipped) | 99.4% (2,068 / 12 / 100) | `datafusion-compliance.yml`, report artifact |
+
+Because DuckDB is one of the verifiers of `extended/`, that part favours DuckDB; compare engines on
+`upstream/`.
+
+For each case:
 
 - **passed / failed** — the engine's result does or does not match the expected value, compared by
   the expected type: integers and decimals exactly; booleans only with booleans; floats with a
@@ -69,6 +82,18 @@ and compares the result with the expected literal evaluated by the same engine:
 
 Pass rate = passed / (passed + failed). Every non-passing case is listed with its reason in the
 report. A suite file that does not parse fails the run.
+
+## Running on another engine
+
+```bash
+pip install -e sdk/python "datafusion==55.0.0"
+python scripts/run_function_compliance.py --engine datafusion --output /tmp/df.json \
+    --suites-dir test-suites/functions-substrait-0.107/upstream --suite-name functions-substrait-0.107
+```
+
+To add an engine, give it a `Dialect` in `scripts/function_sql.py` (type names and the functions it
+spells differently) and an engine class in `scripts/run_function_compliance.py` (how to run a query,
+how its errors classify, which option modes it implements).
 
 ## Regenerating
 
