@@ -334,6 +334,23 @@ class DataFusionPlanEngine:
 ENGINES = {"datafusion": DataFusionPlanEngine}
 
 
+def resolve_engine(spec: str):
+    """An engine class: a built-in name (datafusion) or "package.module:ClassName" for an
+    engine defined outside this repository (importable on PYTHONPATH)."""
+    if spec in ENGINES:
+        return ENGINES[spec]
+    module, sep, cls_name = spec.partition(":")
+    if not sep or not module or not cls_name:
+        raise SystemExit(f"❌ unknown engine {spec!r}: use one of {', '.join(sorted(ENGINES))} "
+                         "or package.module:ClassName")
+    import importlib
+    try:
+        cls = getattr(importlib.import_module(module), cls_name)
+    except (ImportError, AttributeError) as exc:
+        raise SystemExit(f"❌ cannot load engine {spec!r}: {exc}")
+    return cls
+
+
 # ------------------------------------------------------------------------ main
 
 
@@ -375,19 +392,22 @@ def run_suite(engine, suite_path: Path):
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--engine", choices=sorted(ENGINES), required=True)
+    ap.add_argument("--engine", required=True,
+                    help="datafusion, or package.module:ClassName for your own engine class")
     ap.add_argument("--test-suite", type=Path, required=True, help="suite metadata.yaml")
     ap.add_argument("--output", type=Path, required=True)
     args = ap.parse_args(argv)
 
-    engine = ENGINES[args.engine]()
+    engine = resolve_engine(args.engine)()
     meta, results = run_suite(engine, args.test_suite)
     counts = {s: sum(r["status"] == s for r in results) for s in ("PASSED", "FAILED", "SKIPPED")}
     executed = counts["PASSED"] + counts["FAILED"]
     if executed == 0:
         raise SystemExit("❌ No test was executed; refusing to write an empty report")
+    import submissions
     report = {
         "engineName": engine.name,
+        "suiteHash": submissions.hash_suite_path(args.test_suite, "metadata"),
         "engineVersion": engine.version,
         "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "testSuiteName": meta.get("name", args.test_suite.stem),

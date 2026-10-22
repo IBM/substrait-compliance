@@ -246,6 +246,7 @@ jobs:
       - name: Combine into leaderboard entry
         run: |
           python scripts/combine_engine_reports.py --engine DuckDB \
+            --source ci --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --consumer "substrait community extension" \
             --functions functions-substrait-0.107=output/reports/duckdb-functions-substrait-0.107.json \
             --queries tpch=output/reports/duckdb-tpch.json \

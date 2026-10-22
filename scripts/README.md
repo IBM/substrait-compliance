@@ -177,6 +177,23 @@ python scripts/test_enhancer.py --dry-run concat.test
 
 ---
 
+## Leaderboard and Submissions
+
+The public leaderboard and how results reach it are described in
+[docs/COMPLIANCE_LEADERBOARD.md](../docs/COMPLIANCE_LEADERBOARD.md); engine teams submit results as described in
+[submissions/README.md](../submissions/README.md).
+
+| Script | Purpose |
+|---|---|
+| `combine_engine_reports.py` | One engine's suite reports → its leaderboard entry (categories, overall score, source) |
+| `generate_leaderboard.py` | Engine entries → `leaderboard.md`, `.json` and `.html` |
+| `check_compliance_regression.py` | Fails when an engine's scores drop from its last published entry |
+| `prepare_submission.py` | Suite reports → `submissions/<engine>/<version>/`, checked |
+| `validate_submission.py` | Checks submissions (also the pull-request check) and previews the ranking |
+| `collect_submissions.py` | Merged submissions → leaderboard entries |
+| `suite_hash.py` | Prints the hash of each accepted suite's files |
+| `submissions.py` | Shared code for the submission scripts |
+
 ## Report Generation
 
 ### Technical Report Generator (`generate_technical_report.py`)
@@ -199,11 +216,12 @@ python scripts/generate_technical_report.py \
   --output docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md
 ```
 
-**Generate Leaderboard:**
+**Generate Leaderboard** (from engine entries written by `combine_engine_reports.py`;
+see [docs/COMPLIANCE_LEADERBOARD.md](../docs/COMPLIANCE_LEADERBOARD.md)):
 ```bash
 python scripts/generate_leaderboard.py \
-  --input quality_reports/ \
-  --output leaderboard.md
+  --input entries/ \
+  --output preview/leaderboard.md --format all
 ```
 
 **Custom Report:**
@@ -361,10 +379,10 @@ python scripts/generate_technical_report.py \
   --input quality_reports/ \
   --output docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md
 
-# Generate leaderboard
+# Generate a leaderboard preview from engine entries (docs/COMPLIANCE_LEADERBOARD.md)
 python scripts/generate_leaderboard.py \
-  --input quality_reports/ \
-  --output leaderboard.md
+  --input entries/ \
+  --output preview/leaderboard.md --format all
 ```
 
 ### 4. Verify SDKs

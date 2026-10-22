@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Added — leaderboard submissions by pull request
+- Engine teams run the suites in their own CI and submit the results by pull request:
+  `submissions/<engine>/<version>/` holds a `manifest.json` (engine, consumer, CI run, suite
+  hashes) and one report per suite with per-case results. See `submissions/README.md`.
+- `test-suites/registry.json`: the accepted suites and how each counts (functions, queries,
+  reference); `schemas/submission-manifest.v1.json` and `schemas/suite-report.v1.json`.
+- `scripts/prepare_submission.py` builds a submission from reports; `scripts/suite_hash.py`
+  prints suite hashes; `scripts/validate_submission.py` checks submissions:
+  - schemas, folder layout and names;
+  - suite hashes against `main`, so results run on modified or older test files are rejected;
+  - every report against the suite's own cases (`totalTests` = the suite's case count, each
+    per-case id exists, per-case results add up to the totals);
+  - the run mode;
+  - one engine per pull request.
+
+  It also previews the ranking.
+- `submission-validation.yml` runs the check on submission pull requests, with the checker,
+  suites and schemas from the base branch only.
+- `submit-results.yml`: a reusable workflow teams call from their CI. It builds and checks the
+  submission and opens the pull request from a fork. `dry-run` only builds and checks it.
+- The leaderboard publishes each submitted engine's latest merged submission next to the
+  engines run here, scored with the same rules. A **Source** column shows *Run here* or
+  *Submitted*, linking to the run. A submission run on an earlier suite revision stays, marked †.
+- `run_function_compliance.py` and `run_plan_compliance.py` take `--engine package.module:Class`,
+  so teams run their own engine class without changing this repository.
+- `.github/CODEOWNERS` for submissions and the rules they are checked against; the engine
+  template has a `submit-results` job ready to enable.
+- The REST API is documented as an optional second route; the README no longer points at the
+  unimplemented `GET /api/v1/leaderboard`.
+- `docs/COMPLIANCE_LEADERBOARD.md`: how results reach the leaderboard, from this repository's CI and from
+  submissions, and how they are scored, checked and published. `docs/CI_COMPLIANCE_WORKFLOW_GUIDE.md`
+  now covers submitting and regression checks instead of the 80% threshold and committing
+  leaderboard files. `leaderboard.json` engine entries carry `schemaVersion`, so a published entry
+  works as a regression baseline. The stale `docs/leaderboard.md` and `docs/leaderboard.json` (demo data) are removed.
+
 ### Added — DataFusion runs (TPC-H plans and functions)
 - `scripts/run_plan_compliance.py --engine datafusion` runs plan suites (TPC-H, both encodings)
   through DataFusion's Substrait consumer, loading inputs and scoring results with the same rules

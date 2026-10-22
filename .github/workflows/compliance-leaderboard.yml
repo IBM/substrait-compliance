@@ -7,6 +7,12 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [compliance-report-submitted]
+  # Publish when a leaderboard submission is merged (submissions/README.md)
+  push:
+    branches: [main]
+    paths:
+      - 'submissions/**'
+      - 'test-suites/registry.json'
   # Publish as soon as an engine's compliance run on main finishes
   workflow_run:
     workflows: ["DuckDB Substrait Compliance CI", "DataFusion Compliance"]
@@ -31,6 +37,17 @@ jobs:
       actions: read
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install the submission tools
+        run: pip install -e sdk/python "jsonschema==4.23.0"
+
       - name: Create reports directory
         run: mkdir -p compliance-reports
 
@@ -41,7 +58,6 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
         run: |
-          found=0
           for spec in duckdb-compliance.yml:duckdb-leaderboard-report \
                       datafusion-compliance.yml:datafusion-leaderboard-report; do
             workflow=${spec%%:*}; artifact=${spec#*:}
@@ -49,13 +65,19 @@ jobs:
               --limit 1 --json databaseId --jq '.[0].databaseId // empty' || true)
             if [ -n "$RUN_ID" ] && gh run download "$RUN_ID" --name "$artifact" --dir compliance-reports; then
               echo "✅ $artifact from $workflow run $RUN_ID"
-              found=$((found + 1))
             else
               echo "::warning::No $artifact from a successful $workflow run on main; that engine is left off"
             fi
           done
-          if [ "$found" -eq 0 ]; then
-            echo "❌ No engine has a successful compliance run on main yet; nothing real to publish"
+          ls -l compliance-reports
+
+      # Engines run by their own teams: the latest merged submission of each, checked
+      # again and scored with the same rules (scripts/collect_submissions.py).
+      - name: Collect merged submissions
+        run: |
+          python scripts/collect_submissions.py --output compliance-reports
+          if [ -z "$(ls compliance-reports/*.json 2>/dev/null)" ]; then
+            echo "❌ No engine results (CI runs on main or merged submissions); nothing real to publish"
             exit 1
           fi
           ls -l compliance-reports

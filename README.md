@@ -1087,6 +1087,18 @@ cd sdk/rust && cargo build --release && cargo test  # 22 passed
 
 ## 📈 Compliance Leaderboard
 
+The public leaderboard is at **https://ibm.github.io/substrait-compliance/**. Engines are ranked
+by the average of two scores: **Functions** (the Substrait project's function cases, run as
+Substrait plans) and **Queries** (TPC-H plans).
+
+**Add your engine:** run the suites in your own CI and submit the results by pull request.
+A reusable workflow does it for you. The submission is checked and scored automatically and
+published once merged. See [submissions/README.md](submissions/README.md).
+How scores are computed and how results from this repository's CI and from submissions
+reach the board: [docs/COMPLIANCE_LEADERBOARD.md](docs/COMPLIANCE_LEADERBOARD.md).
+
+### Demo leaderboard
+
 Run the demo to generate leaderboard data from the five demo engines, then view it in the interactive dashboard. Results include fidelity tier badges (VERIFIED ≥ 90% / EDGE ≥ 70% / BASIC ≥ 50%) assigned from TPC-H pass rates.
 
 Generate and view the leaderboard:
@@ -1105,7 +1117,11 @@ python3 scripts/generate_leaderboard.py
 
 ## 🌐 REST API
 
-A Spring Boot REST API provides programmatic access to compliance results.
+A Spring Boot REST API provides programmatic access to compliance results. It is an optional
+second route for results; the public leaderboard is published from pull-request submissions
+([submissions/README.md](submissions/README.md)) and does not need it. `GET /api/v1/leaderboard`
+is not implemented yet: the published leaderboard data is
+[`leaderboard.json`](https://ibm.github.io/substrait-compliance/leaderboard.json).
 
 **Features:** JWT authentication, report submission, data querying with filtering/pagination, webhooks, rate limiting, caching.
 
@@ -1117,8 +1133,8 @@ docker-compose up -d postgres
 # In a separate terminal, start the API application
 ./gradlew bootRun
 
-# Access the API
-curl http://localhost:8080/api/v1/leaderboard
+# Access the API (reports; a JWT with the report:read scope is required)
+curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/reports
 ```
 
 **Pre-built container image** (published on every push to `main`):

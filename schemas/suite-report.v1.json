@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/IBM/substrait-compliance/schemas/suite-report.v1.json",
+  "title": "Suite report in a leaderboard submission (v1)",
+  "description": "reports/<suite>.json: one engine's results for one suite, as written by the runners in this repository (scripts/run_function_compliance.py, scripts/run_plan_compliance.py, the Java SDK runner). Totals plus per-case results: either testResults (every case) or nonPassingResults (every failed or skipped case; the rest passed). The leaderboard recomputes every score from these; a submitted passRate is ignored.",
+  "type": "object",
+  "required": ["engineName", "engineVersion", "totalTests", "passed", "failed", "skipped"],
+  "properties": {
+    "engineName": {"type": "string", "minLength": 1},
+    "engineVersion": {"type": ["string", "number"]},
+    "mode": {"enum": ["plan", "sql"],
+             "description": "Function suites: how cases were run (scripts/run_function_compliance.py --mode)"},
+    "totalTests": {"type": "integer", "minimum": 0, "maximum": 100000000},
+    "passed": {"type": "integer", "minimum": 0, "maximum": 100000000},
+    "failed": {"type": "integer", "minimum": 0, "maximum": 100000000},
+    "skipped": {"type": "integer", "minimum": 0, "maximum": 100000000},
+    "categories": {
+      "type": "object",
+      "description": "Function suites: figures per extension (suite folder)",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "total": {"type": "integer", "minimum": 0, "maximum": 100000000},
+          "passed": {"type": "integer", "minimum": 0, "maximum": 100000000},
+          "failed": {"type": "integer", "minimum": 0, "maximum": 100000000},
+          "skipped": {"type": "integer", "minimum": 0, "maximum": 100000000}
+        }
+      }
+    },
+    "suiteHash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$",
+                  "description": "Hash of the suite files the runner ran (scripts/submissions.py hash_suite_path)"},
+    "engineCrashes": {"type": "integer", "minimum": 0, "maximum": 100000000},
+    "testResults": {
+      "type": "array",
+      "description": "Every case: plan suites (testId) or function suites (file, line)",
+      "items": {
+        "type": "object",
+        "required": ["status"],
+        "properties": {
+          "testId": {"type": "string"},
+          "file": {"type": "string"},
+          "line": {"type": "integer", "minimum": 1, "maximum": 10000000},
+          "status": {"type": "string", "pattern": "^(passed|failed|skipped|error|PASSED|FAILED|SKIPPED|ERROR)$"},
+          "message": {"type": ["string", "null"], "maxLength": 4000}
+        }
+      }
+    },
+    "nonPassingResults": {
+      "type": "array",
+      "description": "Every failed or skipped case of a function suite",
+      "items": {
+        "type": "object",
+        "required": ["file", "line", "status"],
+        "properties": {
+          "file": {"type": "string"},
+          "line": {"type": "integer", "minimum": 1, "maximum": 10000000},
+          "status": {"enum": ["failed", "skipped"]},
+          "reason": {"type": ["string", "null"], "maxLength": 4000}
+        }
+      }
+    }
+  }
+}

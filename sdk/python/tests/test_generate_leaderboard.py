@@ -70,6 +70,7 @@ def test_ranks_by_overall_and_lays_out_every_section(tmp_path):
     data = json.loads((site / "leaderboard.json").read_text())
     assert [e["engineName"] for e in data["engines"]] == ["A", "B"]
     assert data["engines"][0]["categories"]["queries"]["passRate"] == 80.0
+    assert data["engines"][0]["schemaVersion"] == 2  # a published entry works as a regression baseline
     page = (site / "leaderboard.html").read_text()
     assert page.startswith("<!DOCTYPE html>") and "<strong>70.0%</strong>" in page
     assert "prefers-color-scheme: dark" in page

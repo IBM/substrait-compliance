@@ -102,6 +102,10 @@ def gap(plan: Optional[Dict[str, Any]], sql: Optional[Dict[str, Any]]) -> str:
     return f"{'−' if d < 0 else '+'}{abs(d):.1f} pts"
 
 
+def older_suites(entry: Dict[str, Any]) -> List[str]:
+    return list((entry.get('provenance') or {}).get('olderSuites') or [])
+
+
 def engine_label(entry: Dict[str, Any]) -> str:
     return f"{entry.get('engineName', 'Unknown')} {entry.get('engineVersion', '')}".strip()
 
@@ -147,8 +151,31 @@ def shown_suites(entry: Dict[str, Any], qcols: List[Dict[str, Any]]) -> set:
     return shown
 
 
+def source_of(entry: Dict[str, Any]) -> str:
+    return (entry.get('provenance') or {}).get('source', 'ci')
+
+
+def one_per_engine(entries: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """One entry per engine name: a run in this repository's CI wins over a submission;
+    otherwise the latest."""
+    best: Dict[str, Dict[str, Any]] = {}
+    for e in entries:
+        key = str(e.get('engineName', '')).lower()
+        rank = (source_of(e) == 'ci', str(e.get('timestamp', '')))
+        if key not in best or rank > (source_of(best[key]) == 'ci', str(best[key].get('timestamp', ''))):
+            best[key] = e
+    return list(best.values())
+
+
+def source_cell(entry: Dict[str, Any]):
+    prov = entry.get('provenance') or {}
+    if source_of(entry) == 'ci':
+        return ("Run here", "link", prov['runUrl']) if prov.get('runUrl') else "Run here"
+    return ("Submitted", "link", prov['runUrl']) if prov.get('runUrl') else "Submitted"
+
+
 def build_model(reports: List[Dict[str, Any]]) -> Dict[str, Any]:
-    entries = sorted([r for r in reports if is_scored_entry(r)],
+    entries = sorted(one_per_engine([r for r in reports if is_scored_entry(r)]),
                      key=lambda r: (-(r.get('passRate') or 0.0), r.get('engineName', '')))
     unranked = [r for r in reports if not is_scored_entry(r)]
     qcols = query_columns(entries)
@@ -162,17 +189,17 @@ def build_model(reports: List[Dict[str, Any]]) -> Dict[str, Any]:
 
     rankings = {
         "headers": ["Rank", "Engine", "Overall", "Functions", "Queries",
-                    ("Functions via SQL (reference)", "ref"), "Substrait consumer"],
-        "align": ["r", "l", "r", "r", "r", "r", "l"],
+                    ("Functions via SQL (reference)", "ref"), "Substrait consumer", "Source"],
+        "align": ["r", "l", "r", "r", "r", "r", "l", "l"],
         "rows": [],
     }
     medals = {1: "🥇", 2: "🥈", 3: "🥉"}
     for i, e in enumerate(entries, 1):
         fs = function_suites(e)
         rankings["rows"].append([
-            medals.get(i, str(i)), engine_label(e),
+            medals.get(i, str(i)), engine_label(e) + (" †" if older_suites(e) else ""),
             (pct(e.get('passRate')), "strong"), cat_cell(e, 'functions'), cat_cell(e, 'queries'),
-            suite_cell(fs["sql"], "ref"), e.get('consumer') or "—",
+            suite_cell(fs["sql"], "ref"), e.get('consumer') or "—", source_cell(e),
         ])
 
     functions = {
@@ -236,7 +263,8 @@ def build_model(reports: List[Dict[str, Any]]) -> Dict[str, Any]:
     crashes = [(engine_label(e), n, s['engineCrashes']) for e in entries
                for n, s in (e.get('suites') or {}).items() if s.get('engineCrashes')]
 
-    return {"entries": entries, "unranked": unranked, "rankings": rankings, "functions": functions,
+    older = [(engine_label(e), older_suites(e)) for e in entries if older_suites(e)]
+    return {"entries": entries, "unranked": unranked, "older": older, "rankings": rankings, "functions": functions,
             "queries": queries, "extensions": extensions, "other": other, "crashes": crashes}
 
 
@@ -245,11 +273,21 @@ def build_model(reports: List[Dict[str, Any]]) -> Dict[str, Any]:
 # ---------------------------------------------------------------------------
 
 INTRO = ("How completely each engine's Substrait consumer runs Substrait plans. "
-         "Every result is measured in CI against the real engine.")
+         "Every result is measured against the real engine: in this repository's CI, or in the "
+         "engine team's own CI and submitted by pull request (see `submissions/README.md`).")
 
 RANKING_NOTE = ("**Overall** is the average of the Functions and Queries pass rates, so both "
                 "count equally however many cases each has; a category an engine does not run "
-                "counts as 0%. *Functions via SQL* is shown for reference and does not affect the ranking.")
+                "counts as 0%. *Functions via SQL* is shown for reference and does not affect the ranking. "
+                "**Source**: *Run here* = run by this repository's CI; *Submitted* = results an engine "
+                "team ran in its own CI and submitted by pull request, scored here with the same rules "
+                "(the link goes to their run).")
+
+
+def older_note(older) -> str:
+    return "† Run on an earlier revision of " + "; ".join(
+        f"{', '.join(f'`{n}`' for n in names)} ({e})" for e, names in older) + "."
+
 
 FUNCTIONS_NOTE = [
     "**Upstream** cases are the Substrait project's own function tests (`tests/cases` at v0.107.0); "
@@ -285,11 +323,27 @@ SCORING = [
 # Markdown
 # ---------------------------------------------------------------------------
 
+def md_escape(text: str) -> str:
+    """Plain text for a Markdown table cell: no line breaks, raw HTML, links or column breaks."""
+    text = re.sub(r"[\r\n\t]+", " ", str(text))
+    for ch, rep in (("\\", "\\\\"), ("|", "\\|"), ("[", "\\["), ("]", "\\]"), ("<", "&lt;"), (">", "&gt;")):
+        text = text.replace(ch, rep)
+    return text
+
+
 def md_cell(cell) -> str:
+    if isinstance(cell, tuple) and len(cell) == 3:  # (text, "link", url)
+        url = str(cell[2])
+        if not re.fullmatch(r"https://[^\s()<>\"'`\[\]|]+", url):
+            return md_escape(cell[0])
+        return f"[{md_escape(cell[0])}]({url})"
     if isinstance(cell, tuple):
         text, style = cell
-        return f"**{text}**" if style == "strong" else f"*{text}*"
-    return str(cell)
+        return f"**{md_escape(text)}**" if style == "strong" else f"*{md_escape(text)}*"
+    text = str(cell)
+    if re.fullmatch(r"`[A-Za-z0-9._-]+`", text):  # a suite name in code style
+        return text
+    return md_escape(text)
 
 
 def md_table(t: Dict[str, Any]) -> List[str]:
@@ -306,6 +360,8 @@ def generate_leaderboard_markdown(reports: List[Dict[str, Any]], output_path: Pa
     lines = ["# Substrait Consumer Compliance", "", INTRO, "", f"Last updated: {now}", ""]
     if m["entries"]:
         lines += ["## Rankings", ""] + md_table(m["rankings"]) + ["", RANKING_NOTE, ""]
+        if m["older"]:
+            lines += [older_note(m["older"]), ""]
         lines += ["## Functions", ""] + md_table(m["functions"]) + [""] + [f"- {n}" for n in FUNCTIONS_NOTE] + [""]
         if m["queries"]["headers"][1:]:
             lines += ["## Queries", ""] + md_table(m["queries"]) + ["", QUERIES_NOTE, ""]
@@ -341,6 +397,9 @@ def _inline(text: str) -> str:
 
 def html_cell(cell, tag: str, align: str) -> str:
     cls = ' class="num"' if align == "r" else ""
+    if isinstance(cell, tuple) and len(cell) == 3:  # (text, "link", url)
+        url = cell[2] if str(cell[2]).startswith("https://") else "#"
+        return f'<{tag}{cls}><a href="{html.escape(url)}">{html.escape(cell[0])}</a></{tag}>'
     if isinstance(cell, tuple):
         text, style = cell
         inner = f"<strong>{_inline(text)}</strong>" if style == "strong" else f'<span class="ref">{_inline(text)}</span>'
@@ -385,7 +444,8 @@ def generate_leaderboard_html(reports: List[Dict[str, Any]], output_path: Path, 
     parts = [f"<h1>Substrait Consumer Compliance</h1><p>{_inline(INTRO)}</p>"
              f'<p class="updated">Last updated: {now}</p>']
     if m["entries"]:
-        parts.append("<h2>Rankings</h2>" + html_table(m["rankings"]) + f"<p>{_inline(RANKING_NOTE)}</p>")
+        parts.append("<h2>Rankings</h2>" + html_table(m["rankings"]) + f"<p>{_inline(RANKING_NOTE)}</p>"
+                     + (f"<p>{_inline(older_note(m['older']))}</p>" if m["older"] else ""))
         parts.append("<h2>Functions</h2>" + html_table(m["functions"])
                      + "<ul>" + "".join(f"<li>{_inline(n)}</li>" for n in FUNCTIONS_NOTE) + "</ul>")
         if m["queries"]["headers"][1:]:
@@ -434,9 +494,11 @@ def generate_leaderboard_json(reports: List[Dict[str, Any]], output_path: Path):
     for i, e in enumerate(entries, 1):
         leaderboard["engines"].append({
             "rank": i,
+            "schemaVersion": e.get('schemaVersion', 2),  # usable as a regression baseline
             "engineName": e.get('engineName', 'Unknown'),
             "engineVersion": e.get('engineVersion', 'Unknown'),
             "consumer": e.get('consumer'),
+            "provenance": e.get('provenance') or {"source": "ci"},
             "passRate": e.get('passRate'),
             "categories": e.get('categories'),
             "passed": e.get('passed', 0), "failed": e.get('failed', 0),

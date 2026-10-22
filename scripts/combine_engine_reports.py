@@ -22,6 +22,10 @@ Scoring (schema 2):
   but are not scored: SQL-level runs, extended cases, older plan encodings, the
   legacy function suite. --informational is accepted as an alias.
 
+Provenance (--source, --run-url, --older-suite) records where the results come from:
+"ci" for engines run by this repository's workflows, "submitted" for results submitted
+by pull request (scripts/collect_submissions.py).
+
 The entry keeps "passRate" (= the overall score) and the summed counts of the scored
 suites at the top level, so existing consumers of the entry keep working.
 """
@@ -93,6 +97,12 @@ def main(argv=None):
                     help="scored: query plans (TPC-H, ...)")
     ap.add_argument("--reference", "--informational", action="append", default=[], dest="reference",
                     metavar="NAME=REPORT.json", help="shown on the leaderboard, not scored")
+    ap.add_argument("--source", choices=["ci", "submitted"], default="ci",
+                    help="ci: run by this repository's workflows; submitted: a pull-request submission")
+    ap.add_argument("--run-url", help="link to the run that produced the reports")
+    ap.add_argument("--submission", help="submission folder (for --source submitted)")
+    ap.add_argument("--older-suite", action="append", default=[], metavar="NAME",
+                    help="suite run on an earlier revision of its files")
     ap.add_argument("--output", type=Path, required=True)
     args = ap.parse_args(argv)
     if not (args.functions or args.queries):
@@ -138,6 +148,12 @@ def main(argv=None):
         "categories": categories,
         **totals,
         "suites": suites,
+        "provenance": {
+            "source": args.source,
+            **({"runUrl": args.run_url} if args.run_url else {}),
+            **({"submission": args.submission} if args.submission else {}),
+            **({"olderSuites": sorted(args.older_suite)} if args.older_suite else {}),
+        },
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(combined, indent=2))

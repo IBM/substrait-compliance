@@ -1,0 +1,52 @@
+{
+  "description": "Suites accepted in leaderboard submissions (submissions/README.md) and how the leaderboard uses them. role: functions or queries = scored in that category; reference = shown, not scored. mode: the run mode a function report must record. The hash of each suite's files is computed from this repository (scripts/submissions.py); a submission must have been run on the current files. reservedEngineNames: engines run by this repository's CI; submissions cannot use these names.",
+  "schemaVersion": 1,
+  "reservedEngineNames": [
+    "DuckDB",
+    "DataFusion"
+  ],
+  "suites": {
+    "functions-substrait-0.107": {
+      "role": "functions",
+      "required": true,
+      "kind": "cases",
+      "path": "test-suites/functions-substrait-0.107/upstream",
+      "mode": "plan",
+      "description": "Upstream Substrait function cases (v0.107.0), run as Substrait plans"
+    },
+    "tpch": {
+      "role": "queries",
+      "required": true,
+      "kind": "metadata",
+      "path": "test-suites/tpch/metadata.yaml",
+      "description": "TPC-H plans in the current (0.107.0) encoding"
+    },
+    "functions-substrait-0.107-sql": {
+      "role": "reference",
+      "kind": "cases",
+      "path": "test-suites/functions-substrait-0.107/upstream",
+      "mode": "sql",
+      "description": "The upstream function cases as the engine's own SQL"
+    },
+    "functions-substrait-0.107-extended": {
+      "role": "reference",
+      "kind": "cases",
+      "path": "test-suites/functions-substrait-0.107/extended",
+      "mode": "plan",
+      "description": "Function cases converted from the legacy suite, run as Substrait plans"
+    },
+    "functions-substrait-0.107-extended-sql": {
+      "role": "reference",
+      "kind": "cases",
+      "path": "test-suites/functions-substrait-0.107/extended",
+      "mode": "sql",
+      "description": "The extended function cases as the engine's own SQL"
+    },
+    "tpch-substrait-0.81": {
+      "role": "reference",
+      "kind": "metadata",
+      "path": "test-suites/tpch/metadata-substrait-0.81.yaml",
+      "description": "TPC-H plans in the legacy 0.81 encoding"
+    }
+  }
+}

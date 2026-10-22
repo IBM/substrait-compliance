@@ -1,0 +1,209 @@
+name: Submit Compliance Results
+
+# Reusable workflow for engine teams: packages the suite reports your CI produced as a
+# leaderboard submission and opens a pull request with it on IBM/substrait-compliance.
+# The pull request is checked automatically (submission-validation.yml); once merged,
+# the leaderboard is republished with your results. See submissions/README.md.
+#
+#   jobs:
+#     submit:
+#       needs: run-compliance
+#       uses: IBM/substrait-compliance/.github/workflows/submit-results.yml@<commit-sha>
+#       with:
+#         engine: Velox
+#         engine-version: 1.4.0
+#         consumer: velox-substrait 1.4.0
+#         reports-artifact: compliance-suite-reports   # <suite>.json files
+#       secrets:
+#         submission-token: ${{ secrets.SUBSTRAIT_COMPLIANCE_TOKEN }}
+#
+# Pin the workflow to a commit SHA, not @main: it receives your token.
+#
+# submission-token: a token of the account that opens the pull request, allowed to fork
+# public repositories and open pull requests - e.g. a classic personal access token with
+# the public_repo scope. Use a dedicated bot account with access to nothing else: such a
+# token can write to every public repository of its account. The submission is pushed to
+# that account's fork (fork-repository, default <account>/substrait-compliance); if the
+# account can push to the compliance repository itself, the branch is pushed there
+# instead. Leave the token out with dry-run: true to only build and check the submission
+# (uploaded as an artifact).
+
+on:
+  workflow_call:
+    inputs:
+      engine:
+        description: Engine name as shown on the leaderboard (must match the reports' engineName)
+        type: string
+        required: true
+      engine-version:
+        description: Engine version (must match the reports' engineVersion)
+        type: string
+        required: true
+      consumer:
+        description: The engine's Substrait consumer and its version
+        type: string
+        required: true
+      reports-artifact:
+        description: Name of an artifact of this run holding the suite reports as <suite>.json
+        type: string
+        required: true
+      homepage:
+        type: string
+        required: false
+        default: ''
+      sdk-language:
+        type: string
+        required: false
+        default: ''
+      sdk-version:
+        type: string
+        required: false
+        default: ''
+      compliance-repository:
+        description: Repository that hosts the leaderboard
+        type: string
+        required: false
+        default: IBM/substrait-compliance
+      compliance-ref:
+        description: Branch of that repository the suites were taken from and the pull request targets
+        type: string
+        required: false
+        default: main
+      fork-repository:
+        description: The token account's fork of the compliance repository (default <account>/<repository name>)
+        type: string
+        required: false
+        default: ''
+      dry-run:
+        description: Build and check the submission, but do not open a pull request
+        type: boolean
+        required: false
+        default: false
+    secrets:
+      submission-token:
+        required: false
+    outputs:
+      pull-request:
+        description: URL of the pull request opened
+        value: ${{ jobs.submit.outputs.pull-request }}
+
+permissions:
+  contents: read
+
+jobs:
+  submit:
+    name: Submit results to the leaderboard
+    runs-on: ubuntu-latest
+    outputs:
+      pull-request: ${{ steps.pr.outputs.url }}
+    env:
+      ENGINE: ${{ inputs.engine }}
+      ENGINE_VERSION: ${{ inputs.engine-version }}
+      CONSUMER: ${{ inputs.consumer }}
+      HOMEPAGE: ${{ inputs.homepage }}
+      SDK_LANGUAGE: ${{ inputs.sdk-language }}
+      SDK_VERSION: ${{ inputs.sdk-version }}
+      UPSTREAM: ${{ inputs.compliance-repository }}
+      UPSTREAM_REF: ${{ inputs.compliance-ref }}
+      FORK: ${{ inputs.fork-repository }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+    steps:
+      - name: Check out the compliance repository
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ inputs.compliance-repository }}
+          ref: ${{ inputs.compliance-ref }}
+          path: compliance
+          fetch-depth: 0          # the pull-request branch is pushed with its history
+          persist-credentials: false
+
+      - name: Download the suite reports
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.reports-artifact }}
+          path: suite-reports
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install the submission tools
+        run: pip install -e compliance/sdk/python "jsonschema==4.23.0"
+
+      - name: Build the submission
+        id: prepare
+        run: |
+          set -o pipefail
+          ARGS=()
+          [ -n "$HOMEPAGE" ] && ARGS+=(--homepage "$HOMEPAGE")
+          [ -n "$SDK_LANGUAGE" ] && ARGS+=(--sdk-language "$SDK_LANGUAGE")
+          [ -n "$SDK_VERSION" ] && ARGS+=(--sdk-version "$SDK_VERSION")
+          python compliance/scripts/prepare_submission.py --repo-root compliance \
+            --engine "$ENGINE" --version "$ENGINE_VERSION" --consumer "$CONSUMER" \
+            --run-url "$RUN_URL" --commit "$GITHUB_SHA" \
+            --reports-dir suite-reports --force "${ARGS[@]}" | tee prepare.log
+          echo "folder=$(tail -n 1 prepare.log)" >> "$GITHUB_OUTPUT"
+
+      - name: Check the submission (same rules as the pull-request check)
+        env:
+          FOLDER: ${{ steps.prepare.outputs.folder }}
+        run: python compliance/scripts/validate_submission.py --repo-root compliance "$FOLDER"
+
+      - name: Upload the submission
+        uses: actions/upload-artifact@v4
+        with:
+          name: leaderboard-submission
+          path: compliance/${{ steps.prepare.outputs.folder }}
+
+      - name: Open the pull request
+        id: pr
+        if: ${{ !inputs.dry-run }}
+        env:
+          GH_TOKEN: ${{ secrets.submission-token }}
+          FOLDER: ${{ steps.prepare.outputs.folder }}
+        run: |
+          set -euo pipefail
+          if [ -z "$GH_TOKEN" ]; then
+            echo "::error::submission-token is required unless dry-run is true"
+            exit 1
+          fi
+          LOGIN=$(gh api user --jq .login)
+          if [ "$(gh api "repos/$UPSTREAM" --jq .permissions.push)" = "true" ]; then
+            TARGET="$UPSTREAM"; HEAD_PREFIX=""
+          else
+            TARGET="${FORK:-$LOGIN/${UPSTREAM#*/}}"
+            if ! gh api "repos/$TARGET" --silent 2>/dev/null; then
+              gh repo fork "$UPSTREAM" --clone=false --remote=false
+              for _ in $(seq 1 20); do
+                gh api "repos/$TARGET" --silent 2>/dev/null && break
+                sleep 3
+              done
+            fi
+            PARENT=$(gh api "repos/$TARGET" --jq '.parent.full_name // ""')
+            if [ "${PARENT,,}" != "${UPSTREAM,,}" ]; then
+              echo "::error::$TARGET is not a fork of $UPSTREAM; set the fork-repository input to your fork"
+              exit 1
+            fi
+            HEAD_PREFIX="${TARGET%%/*}:"
+          fi
+          BRANCH="submission/$(basename "$(dirname "$FOLDER")")-$(basename "$FOLDER")-$GITHUB_RUN_ID"
+          cd compliance
+          git config user.name "$LOGIN"
+          git config user.email "$LOGIN@users.noreply.github.com"
+          git checkout -b "$BRANCH"
+          git add "$FOLDER"
+          git commit -q -m "submission: $ENGINE $ENGINE_VERSION" -m "Results from $RUN_URL"
+          git push -q "https://x-access-token:${GH_TOKEN}@github.com/${TARGET}.git" "HEAD:refs/heads/$BRANCH"
+          {
+            echo "Leaderboard submission for **$ENGINE $ENGINE_VERSION** ($CONSUMER)."
+            echo ""
+            echo "- Results from: $RUN_URL"
+            echo "- Files: \`$FOLDER\`"
+            echo ""
+            echo "Opened by the \`submit-results.yml\` workflow. The submission check scores it with the leaderboard's rules."
+          } > ../pr-body.md
+          URL=$(gh pr create --repo "$UPSTREAM" --base "$UPSTREAM_REF" --head "${HEAD_PREFIX}${BRANCH}" \
+            --title "submission: $ENGINE $ENGINE_VERSION" --body-file ../pr-body.md)
+          echo "url=$URL" >> "$GITHUB_OUTPUT"
+          echo "### Leaderboard submission opened: $URL" >> "$GITHUB_STEP_SUMMARY"
