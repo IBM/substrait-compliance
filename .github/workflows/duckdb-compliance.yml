@@ -176,11 +176,11 @@ jobs:
             exit 1
           fi
 
-          PASS_RATE=$(jq -r '.passRate // .summary.passRate // empty' "$REPORT_FILE")
-          PASSED=$(jq -r '.passed // .summary.passed // empty' "$REPORT_FILE")
+          PASS_RATE=$(jq -r '.overallPassRate // .passRate // .summary.passRate // empty' "$REPORT_FILE")
+          PASSED=$(jq -r '.totalPassed // .passed // .summary.passed // empty' "$REPORT_FILE")
           TOTAL=$(jq -r '.totalTests // .summary.totalTests // empty' "$REPORT_FILE")
-          FAILED=$(jq -r '.failed // .summary.failed // 0' "$REPORT_FILE")
-          SKIPPED=$(jq -r '.skipped // .summary.skipped // 0' "$REPORT_FILE")
+          FAILED=$(jq -r '.totalFailed // .failed // .summary.failed // 0' "$REPORT_FILE")
+          SKIPPED=$(jq -r '.totalSkipped // .skipped // .summary.skipped // 0' "$REPORT_FILE")
 
           if [ -z "$PASS_RATE" ] || [ -z "$PASSED" ] || [ -z "$TOTAL" ]; then
             echo "❌ Could not parse valid compliance metrics from $REPORT_FILE"
