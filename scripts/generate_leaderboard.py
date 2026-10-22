@@ -244,6 +244,8 @@ def main():
         sys.exit(1)
     
     print(f"📊 Loaded {len(reports)} compliance reports")
+
+    args.output.parent.mkdir(parents=True, exist_ok=True)
     
     # Generate leaderboard
     if args.format in ['markdown', 'both']:
