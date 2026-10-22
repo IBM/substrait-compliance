@@ -219,6 +219,12 @@ class DuckDBEngine:
     def create_table(self, name: str, select_sql: str):
         self.con.execute(f"CREATE OR REPLACE TABLE {name} AS {select_sql}")
 
+    def _version(self):
+        return self.version
+
+    def _extensions(self):
+        return dict(self.extensions)
+
     def run_plan(self, plan_bytes: bytes):
         """All rows of the plan's (single) output column."""
         return [row[0] for row in self.con.execute("SELECT * FROM from_substrait(?)", [plan_bytes]).fetchall()]
@@ -285,6 +291,12 @@ class DataFusionEngine:
     def create_table(self, name: str, select_sql: str):
         self.ctx.sql(f"CREATE OR REPLACE TABLE {name} AS {select_sql}").collect()
 
+    def _version(self):
+        return self.version
+
+    def _extensions(self):
+        return dict(self.extensions)
+
     def run_plan(self, plan_bytes: bytes):
         from datafusion import substrait as ss
         plan = ss.Serde.deserialize_bytes(plan_bytes)
@@ -313,6 +325,102 @@ class DataFusionEngine:
 
 
 ENGINES = {"duckdb": DuckDBEngine, "datafusion": DataFusionEngine}
+
+
+# ----------------------------------------------------------- crash isolation
+
+class EngineCrashed(Exception):
+    """The engine process died (e.g. a segmentation fault in a Substrait consumer)."""
+
+
+def _remote_error(name: str, message: str) -> Exception:
+    """An exception carrying the worker's exception class name and message, so the
+    engine's error classification still sees the original type name."""
+    return type(name, (Exception,), {})(message)
+
+
+def _engine_worker(engine_name, conn):
+    engine = ENGINES[engine_name]()
+    while True:
+        try:
+            method, args = conn.recv()
+        except EOFError:
+            return
+        try:
+            conn.send(("ok", getattr(engine, method)(*args)))
+        except (Exception, SystemExit) as exc:  # noqa: BLE001 - shipped back to the parent
+            conn.send(("error", (type(exc).__name__, str(exc))))
+
+
+class IsolatedEngine:
+    """Runs an engine in a child process, so a crash inside the engine (a consumer
+    segfaulting on a plan) fails that one case instead of ending the run. After a
+    crash a fresh process is started and the setup calls are replayed."""
+
+    def __init__(self, engine_name: str):
+        import multiprocessing as mp
+        self._mp = mp.get_context("spawn")
+        self._name = engine_name
+        cls = ENGINES[engine_name]
+        self.name, self.dialect, self.implemented_modes = cls.name, cls.dialect, cls.implemented_modes
+        self._setup = []        # calls replayed after a restart
+        self.crashes = 0
+        self._start()
+        self.version = self._call("_version")
+        self.extensions = {}
+
+    def _start(self):
+        self._conn, child = self._mp.Pipe()
+        self._proc = self._mp.Process(target=_engine_worker, args=(self._name, child), daemon=True)
+        self._proc.start()
+        child.close()
+
+    def _call(self, method, *args):
+        try:
+            self._conn.send((method, args))
+            status, value = self._conn.recv()
+        except (EOFError, BrokenPipeError, ConnectionResetError):
+            self._proc.join(timeout=5)
+            code = self._proc.exitcode
+            self.crashes += 1
+            self._start()
+            for m, a in self._setup:
+                self._call(m, *a)
+            raise EngineCrashed(f"{self.name} crashed (exit code {code}) while running {method}")
+        if status == "error":
+            raise _remote_error(*value)
+        return value
+
+    def setup(self, method, *args):
+        self._setup.append((method, args))
+        return self._call(method, *args)
+
+    def enable_plans(self):
+        self.setup("enable_plans")
+        self.extensions = self._call("_extensions")
+
+    def create_table(self, name, select_sql):
+        return self._call("create_table", name, select_sql)
+
+    def run_plan(self, plan_bytes):
+        return self._call("run_plan", plan_bytes)
+
+    def query(self, sql):
+        return self._call("query", sql)
+
+    def plan_error_kind(self, exc):
+        if isinstance(exc, EngineCrashed):
+            return "crashed", None
+        return ENGINES[self._name].plan_error_kind(None, exc)
+
+    def error_kind(self, exc):
+        return ENGINES[self._name].error_kind(None, exc)
+
+    def close(self):
+        try:
+            self._conn.close()
+        finally:
+            self._proc.join(timeout=5)
 
 
 def _classify_engine_error(engine, exc: Exception, sql: str):
@@ -420,6 +528,8 @@ def _run_plan_case(engine, kind, tc, source_lines, test_file, registry):
         rows_out = engine.run_plan(plan)
     except Exception as exc:  # noqa: BLE001 - the consumer's answer is the result
         msg = f"{type(exc).__name__}: {str(exc).splitlines()[0][:200]}"
+        if engine.plan_error_kind(exc)[0] == "crashed":
+            return FAILED, f"engine crashed on this plan: {msg}"
         if expected_sql is None:
             kind_, _ = engine.plan_error_kind(exc)
             if kind_ == "runtime":
@@ -710,14 +820,17 @@ def main(argv=None):
                          "(current-format suites only)")
     args = ap.parse_args(argv)
 
-    engine = ENGINES[args.engine]()
     registry = None
     if args.mode == "plan":
+        # plans run in a child process: a consumer crash fails one case, not the run
+        engine = IsolatedEngine(args.engine)
         engine.enable_plans()
-        engine.create_table("one_row", "SELECT CAST(1 AS INTEGER) AS dummy")  # input of scalar plans
+        engine.setup("create_table", "one_row", "SELECT CAST(1 AS INTEGER) AS dummy")  # scalar plans' input
         import validate_function_tests as vft
         m = re.search(r"substrait-(\d+\.\d+)", str(args.suites_dir.resolve()))
         registry, _ = vft.load_registry(m.group(1) if m else None)
+    else:
+        engine = ENGINES[args.engine]()
     parser = FunctionTestParser()
     files = sorted(args.suites_dir.rglob("*.test"))
     if not files:
@@ -726,6 +839,8 @@ def main(argv=None):
     categories, results = {}, []
     parse_errors, fatal_parse_errors = [], []
     for path in files:
+        if args.mode == "plan":
+            print(f"   {display_path(path)}", flush=True)  # shows where a slow or crashing run is
         category = str(path.parent.relative_to(args.suites_dir))
         cat = categories.setdefault(category, {"total": 0, PASSED: 0, FAILED: 0, SKIPPED: 0})
         if is_upstream_format(path):
@@ -794,6 +909,7 @@ def main(argv=None):
         "unmappedFunctions": unmapped,
         "extensions": engine.extensions,
         "parseErrors": parse_errors,
+        **({"engineCrashes": engine.crashes} if args.mode == "plan" else {}),
         "nonPassingResults": results,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
@@ -806,6 +922,10 @@ def main(argv=None):
         print(f"{name:<{width}} {c['total']:>6} {c[PASSED]:>6} {c[FAILED]:>6} {c[SKIPPED]:>6} {rate:>7}")
     print(f"{'TOTAL':<{width}} {totals['total']:>6} {totals[PASSED]:>6} {totals[FAILED]:>6} {totals[SKIPPED]:>6} {report['passRate']:>6.1f}%")
     print(f"{engine.name} {engine.version} — report written to {args.output}")
+    if args.mode == "plan":
+        if engine.crashes:
+            print(f"⚠️  the engine crashed {engine.crashes} time(s); those cases are reported as failed")
+        engine.close()
     if fatal_parse_errors:
         # a current-format file that does not parse would silently drop out of the totals
         print(f"❌ {len(fatal_parse_errors)} file(s) failed to parse: {', '.join(fatal_parse_errors)}")
