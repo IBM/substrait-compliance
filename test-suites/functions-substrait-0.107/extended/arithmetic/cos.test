@@ -1,0 +1,19 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
+
+# special_values: Special floating point values (NaN, Infinity)
+cos(nan::fp32) = nan::fp32
+cos(nan::fp64) = nan::fp64
+
+# zero_handling: Zero and negative zero handling
+cos(3.141592653589793::fp64) = -1.0::fp64
+cos(6.283185307179586::fp64) = 1.0::fp64
+cos(-3.141592653589793::fp64) = -1.0::fp64
+cos(3.14159265::fp32) = -1.0::fp32
+cos(-1.0::fp32) = 0.5403023::fp32
+cos(2.5::fp32) = -0.8011436::fp32
+cos(-2.5::fp32) = -0.8011436::fp32
+cos(10.0::fp32) = -0.8390715::fp32
+cos(-0.5::fp32) = 0.87758256::fp32
+cos(-10.0::fp64) = -0.8390715290764524::fp64
+cos(-100.0::fp64) = 0.8623188722876839::fp64

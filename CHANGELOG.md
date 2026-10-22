@@ -7,6 +7,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Added — function suite in the current Substrait format
+- **`test-suites/functions-substrait-0.107`**: function tests in the upstream Substrait test-case
+  format, validated against the Substrait 0.107.0 function definitions. Runs alongside
+  `test-suites/functions` as *informational* (shown per suite on the leaderboard, not in the
+  headline rate) until it replaces it.
+  - `upstream/`: the Substrait project's own 1,315 cases (v0.107.0), copied by
+    `scripts/sync_upstream_function_tests.py` with 55 documented fixes where upstream contradicts
+    its own YAMLs or miscomputes (e.g. `std_dev`/`variance` values, `logb` argument order,
+    `regexp_replace` occurrence, `extract` without its required `indexing` argument, `rpad`
+    truncation side, options no function declares). Listed in `upstream/UPSTREAM.md` for
+    reporting upstream.
+  - `extended/`: 2,180 legacy cases for standard functions, converted by
+    `scripts/convert_legacy_function_tests.py`, kept only if valid and reproduced by DuckDB or by
+    exact arithmetic; 227 valid-but-unverified cases are listed for review in `extended/CONVERSION.md`.
+- `scripts/validate_function_tests.py`: checks every case against the extension YAMLs
+  (signatures, enum values, options, return types, literal well-formedness); runs in CI.
+- `scripts/run_function_compliance.py` runs the current format (scalar, aggregate and window
+  cases) through `scripts/duckdb_function_sql.py`; legacy files still use the old path.
+- Python SDK: `substrait_compliance.function_cases`, reading `.test` files with the Substrait
+  project's own parser (vendored in `substrait_compliance/testcase_parser`, Apache-2.0; new
+  dependency `antlr4-python3-runtime==4.13.2`).
+- `scripts/combine_engine_reports.py --informational NAME=REPORT`: suites shown in the breakdown
+  but excluded from the headline pass rate.
+
 ### Changed — test-suite plan format
 - Java SDK: `YamlTestSuiteLoader` now ignores unknown metadata fields instead of failing the
   whole suite, so suites can gain optional fields without breaking engines.

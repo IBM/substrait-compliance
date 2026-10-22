@@ -1,0 +1,5 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# empty_values: Empty strings and collections
+ltrim('     '::str, ' '::str) = ''::str

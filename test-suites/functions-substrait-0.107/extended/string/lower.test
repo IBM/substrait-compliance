@@ -1,0 +1,13 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# whitespace_handling: Whitespace and control characters
+lower('  ABC  '::str) = '  abc  '::str
+
+# additional_coverage: Additional test coverage
+lower('ABC123!@#'::str) = 'abc123!@#'::str
+lower('Hello World'::str) = 'hello world'::str
+lower('123'::str) = '123'::str
+lower('ABC123xyz!@#'::str) = 'abc123xyz!@#'::str
+lower('Test-Case_2024'::str) = 'test-case_2024'::str
+lower('Price: $100.50'::str) = 'price: $100.50'::str

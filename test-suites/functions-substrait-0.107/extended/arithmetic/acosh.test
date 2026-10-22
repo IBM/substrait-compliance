@@ -1,0 +1,16 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
+
+# special_values: Special floating point values (NaN, Infinity)
+acosh(+inf::fp64) = +inf::fp64
+acosh(+inf::fp32) = +inf::fp32
+acosh(nan::fp64) = nan::fp64
+acosh(nan::fp32) = nan::fp32
+acosh(-1.0::fp64) [on_domain_error:NAN] = nan::fp64
+acosh(-1.0::fp32) [on_domain_error:NAN] = nan::fp32
+
+# zero_handling: Zero and negative zero handling
+acosh(1.0::fp32) = 0.0::fp32
+acosh(10.0005::fp32) = 2.9932730967481995::fp32
+acosh(2.0::fp32) = 1.3169578969248166::fp32
+acosh(1000000.0::fp64) = 14.508657738524219::fp64

@@ -1,0 +1,19 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# type_coverage: Various data type coverage
+char_length('hello world'::str) = 11::i64
+char_length('Hello😄World'::str) = 11::i64
+char_length('test_测试'::str) = 7::i64
+char_length('ABC123あいう'::str) = 9::i64
+char_length('你好'::str) = 2::i64
+char_length('こんにちは'::str) = 5::i64
+char_length('Привет'::str) = 6::i64
+char_length('مرحبا'::str) = 5::i64
+char_length('שלום'::str) = 4::i64
+char_length('🌍🌎🌏'::str) = 3::i64
+char_length('👨‍👩‍👧‍👦'::str) = 7::i64
+
+# unicode_handling: Unicode and special characters
+char_length('café'::str) = 4::i64
+char_length('naïve'::str) = 5::i64

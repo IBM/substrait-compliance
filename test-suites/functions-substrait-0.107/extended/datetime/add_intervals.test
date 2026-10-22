@@ -1,0 +1,30 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_datetime
+
+# edge_cases: Boundary values and extreme inputs
+add_intervals(P2147483646D::iday, P1D::iday) = P2147483647D::iday
+add_intervals(PT2147483646S::iday, PT1S::iday) = PT2147483647S::iday
+
+# null_handling_extended: Extended null handling scenarios
+add_intervals(P1Y::iyear, null::iyear?) = null::iyear?
+add_intervals(null::iyear?, null::iyear?) = null::iyear?
+add_intervals(P5D::iday, null::iday?) = null::iday?
+add_intervals(null::iday?, null::iday?) = null::iday?
+
+# negative_values: Negative number handling
+add_intervals(PT5H::iday, PT-3H::iday) = PT2H::iday
+add_intervals(P10D::iday, P-3D::iday) = P7D::iday
+add_intervals(P-1D::iday, P2D::iday) = P1D::iday
+add_intervals(P5Y::iyear, P-2Y::iyear) = P3Y::iyear
+add_intervals(P1Y6M::iyear, P-6M::iyear) = P1Y::iyear
+
+# additional_coverage: Additional test coverage
+add_intervals(P0D::iday, PT0H::iday) = P0D::iday
+add_intervals(P5D::iday, P0D::iday) = P5D::iday
+add_intervals(P0Y::iyear, P0M::iyear) = P0Y::iyear
+add_intervals(P2Y3M::iyear, P0Y::iyear) = P2Y3M::iyear
+add_intervals(P1Y::iyear, P2Y::iyear) = P3Y::iyear
+add_intervals(P1Y2M::iyear, P3M::iyear) = P1Y5M::iyear
+add_intervals(P0Y6M::iyear, P0Y8M::iyear) = P1Y2M::iyear
+add_intervals(P10Y::iyear, P5Y11M::iyear) = P15Y11M::iyear
+add_intervals(P0Y11M::iyear, P0Y3M::iyear) = P1Y2M::iyear

@@ -1,0 +1,12 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
+
+# null_handling_extended: Extended null handling scenarios
+shift_left(null::i32?, null::i32?) = null::i32?
+shift_left(null::i64?, null::i32?) = null::i64?
+
+# zero_handling: Zero and negative zero handling
+shift_left(0::i32, 5::i32) = 0::i32
+shift_left(1::i32, 0::i32) = 1::i32
+shift_left(0::i64, 10::i32) = 0::i64
+shift_left(1::i64, 0::i32) = 1::i64

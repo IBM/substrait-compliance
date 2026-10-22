@@ -21,6 +21,20 @@ limitations under the License.
 This project includes or depends on the following third-party components:
 
 --------------------------------------------------------------------------------
+Substrait function test cases and test-case parser
+Copyright the Substrait project contributors
+Licensed under the Apache License 2.0
+https://github.com/substrait-io/substrait
+(test-suites/functions-substrait-0.107/upstream,
+ sdk/python/substrait_compliance/testcase_parser)
+
+--------------------------------------------------------------------------------
+ANTLR 4 Python runtime (dependency)
+Copyright The ANTLR Project
+Licensed under the BSD 3-Clause License
+https://www.antlr.org/
+
+--------------------------------------------------------------------------------
 Spring Framework
 Copyright 2002-2024 Pivotal Software, Inc.
 Licensed under the Apache License 2.0

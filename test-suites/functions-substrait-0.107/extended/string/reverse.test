@@ -1,0 +1,26 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# unicode_handling: Unicode and special characters
+reverse('café'::str) = 'éfac'::str
+reverse('naïve'::str) = 'evïan'::str
+reverse('Hello世界'::str) = '界世olleH'::str
+reverse('test🎉123'::str) = '321🎉tset'::str
+reverse('café123☕'::str) = '☕321éfac'::str
+
+# whitespace_handling: Whitespace and control characters
+reverse('  '::str) = '  '::str
+
+# additional_coverage: Additional test coverage
+reverse('a'::str) = 'a'::str
+reverse('Z'::str) = 'Z'::str
+reverse('5'::str) = '5'::str
+reverse('123'::str) = '321'::str
+reverse('!@#$%'::str) = '%$#@!'::str
+reverse('123abc!@#'::str) = '#@!cba321'::str
+reverse('Hello World'::str) = 'dlroW olleH'::str
+reverse('Test123'::str) = '321tseT'::str
+reverse('ABC-def_123'::str) = '321_fed-CBA'::str
+reverse('résumé'::str) = 'émusér'::str
+reverse('a👨‍👩‍👧‍👦b'::str) = 'b👨‍👩‍👧‍👦a'::str
+reverse('🏴󠁧󠁢󠁥󠁮󠁧󠁿test'::str) = 'tset🏴󠁧󠁢󠁥󠁮󠁧󠁿'::str

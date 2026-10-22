@@ -1,0 +1,22 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# null_handling_extended: Extended null handling scenarios
+regexp_match_substring('abc'::str, 'a'::str, 1::i64, 5::i64, 0::i64) = null::str?
+regexp_match_substring('abc'::str, 'a'::str, 10::i64, 1::i64, 0::i64) = null::str?
+regexp_match_substring('hello'::str, 'xyz'::str, 1::i64, 1::i64, 0::i64) = null::str?
+regexp_match_substring('123'::str, '[a-z]+'::str, 1::i64, 1::i64, 0::i64) = null::str?
+regexp_match_substring('hello world'::str, '^world'::str, 1::i64, 1::i64, 0::i64) = null::str?
+
+# zero_handling: Zero and negative zero handling
+regexp_match_substring('foobarboopzoo'::str, 'o{1,}'::str, 1::i64, 2::i64, 0::i64) = 'oo'::str
+regexp_match_substring('abcabcacb'::str, '[bc]'::str, 1::i64, 2::i64, 0::i64) = 'c'::str
+regexp_match_substring('abcabcacb'::str, '[bc]'::str, 1::i64, 3::i64, 0::i64) = 'b'::str
+regexp_match_substring('foobarboopzoo'::str, 'o{1,}'::str, 5::i64, 1::i64, 0::i64) = 'oo'::str
+regexp_match_substring('abcabcacb'::str, 'abc'::str, 4::i64, 1::i64, 0::i64) = 'abc'::str
+regexp_match_substring('hello world'::str, 'o'::str, 6::i64, 1::i64, 0::i64) = 'o'::str
+regexp_match_substring(''::str, 'a*'::str, 1::i64, 1::i64, 0::i64) = ''::str
+regexp_match_substring(''::str, '.*'::str, 1::i64, 1::i64, 0::i64) = ''::str
+regexp_match_substring('abc'::str, ''::str, 1::i64, 1::i64, 0::i64) = ''::str
+regexp_match_substring('hello world'::str, '^hello'::str, 1::i64, 1::i64, 0::i64) = 'hello'::str
+regexp_match_substring('hello world'::str, 'world$'::str, 1::i64, 1::i64, 0::i64) = 'world'::str

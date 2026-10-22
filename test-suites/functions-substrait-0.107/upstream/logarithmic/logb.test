@@ -1,0 +1,18 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_logarithmic
+
+# basic: Basic examples without any special cases
+logb(100000::i64, 10::i64) = 5.0::fp64
+logb(1.0::fp64, 7::fp64) = 0::fp64
+logb(7::fp64, 2::fp64) = 2.8073549220576041::fp64
+
+# infinity: Examples with infinity as input
+logb(inf::fp64, 2.34::fp64) = inf::fp64
+logb(-inf::fp64, 10::fp64) [on_domain_error:ERROR] = <!ERROR>
+logb(-inf::fp64, 10::fp64) [on_domain_error:NAN] = nan::fp64
+logb(-inf::fp64, 10::fp64) [on_domain_error:NULL] = null::fp64?
+
+# log_zero: Examples with log zero
+logb(0.0::fp64, 2.0::fp64) [on_log_zero:ERROR] = <!ERROR>
+logb(0.0::fp64, 2.0::fp64) [on_log_zero:NAN] = nan::fp64
+logb(0.0::fp64, 2.0::fp64) [on_log_zero:MINUS_INFINITY] = -inf::fp64

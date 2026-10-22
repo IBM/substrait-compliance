@@ -1,0 +1,23 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
+
+# edge_cases: Boundary values and extreme inputs
+sin(0.5::fp32) = 0.479425538604203::fp32
+sin(-0.5::fp32) = -0.479425538604203::fp32
+
+# special_values: Special floating point values (NaN, Infinity)
+sin(nan::fp32) = nan::fp32
+sin(nan::fp64) = nan::fp64
+
+# zero_handling: Zero and negative zero handling
+sin(-0.0::fp32) = -0.0::fp32
+sin(-0.0::fp64) = -0.0::fp64
+sin(1.5707963267948966::fp64) = 1.0::fp64
+sin(4.71238898038469::fp64) = -1.0::fp64
+sin(1.5707963::fp32) = 1.0::fp32
+sin(2.5::fp32) = 0.5984721441039565::fp32
+sin(-2.5::fp32) = -0.5984721441039565::fp32
+sin(0.7853981633974483::fp64) = 0.7071067811865475::fp64
+sin(-0.7853981633974483::fp64) = -0.7071067811865475::fp64
+sin(2.0::fp32) = 0.9092974268256817::fp32
+sin(-2.0::fp32) = -0.9092974268256817::fp32

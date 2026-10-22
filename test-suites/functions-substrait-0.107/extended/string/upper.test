@@ -1,0 +1,14 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# unicode_handling: Unicode and special characters
+upper('café'::str) = 'CAFÉ'::str
+
+# additional_coverage: Additional test coverage
+upper('123abc'::str) = '123ABC'::str
+upper('hello world'::str) = 'HELLO WORLD'::str
+upper('!@#$%'::str) = '!@#$%'::str
+upper('aBc123XyZ'::str) = 'ABC123XYZ'::str
+upper('Test-Case_123'::str) = 'TEST-CASE_123'::str
+upper('a'::str) = 'A'::str
+upper('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'::str) = 'ABCDEFGHIJKLMNOPQRSTUVWXYZABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'::str

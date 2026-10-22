@@ -1,0 +1,58 @@
+### SUBSTRAIT_AGGREGATE_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# basic: Basic examples without any special cases
+(('a'), ('b'), ('c')) string_agg(col0::str, ','::str) = 'a,b,c'::str
+(('hello'), ('world')) string_agg(col0::str, ' '::str) = 'hello world'::str
+(('one'), ('two'), ('three')) string_agg(col0::str, '-'::str) = 'one-two-three'::str
+
+# empty_separator: Examples with empty separator
+(('a'), ('b'), ('c')) string_agg(col0::str, ''::str) = 'abc'::str
+(('hello'), ('world')) string_agg(col0::str, ''::str) = 'helloworld'::str
+
+# single_value: Examples with single value
+(('only')) string_agg(col0::str, ','::str) = 'only'::str
+(('single')) string_agg(col0::str, '-'::str) = 'single'::str
+
+# null_handling: Examples with null as input or output
+(('a'), (Null), ('c')) string_agg(col0::str, ','::str) = 'a,c'::str
+((Null), ('b'), ('c')) string_agg(col0::str, ','::str) = 'b,c'::str
+(('a'), ('b'), (Null)) string_agg(col0::str, ','::str) = 'a,b'::str
+((Null), (Null), (Null)) string_agg(col0::str, ','::str) = null::str?
+() string_agg(col0::str, ','::str) = null::str?
+
+# special_chars: Examples with special characters
+(('a'), ('b'), ('c')) string_agg(col0::str, '|'::str) = 'a|b|c'::str
+(('x'), ('y'), ('z')) string_agg(col0::str, '::'::str) = 'x::y::z'::str
+(('1'), ('2'), ('3')) string_agg(col0::str, ' -> '::str) = '1 -> 2 -> 3'::str
+
+# empty_strings: Examples with empty strings
+((''), ('b'), ('')) string_agg(col0::str, ','::str) = ',b,'::str
+(('a'), (''), ('c')) string_agg(col0::str, ','::str) = 'a,,c'::str
+
+# null_handling_extended: Extended null handling scenarios
+(('a'), ('b'), ('c')) string_agg(col0::str, null::str?) = null::str?
+((Null), ('a'), (Null), ('b'), (Null)) string_agg(col0::str, ','::str) = 'a,b'::str
+((Null), (Null), ('x'), (Null), ('y')) string_agg(col0::str, '-'::str) = 'x-y'::str
+(('first'), (Null), (Null), ('last')) string_agg(col0::str, ' '::str) = 'first last'::str
+
+# zero_handling: Zero and negative zero handling
+(('0'), ('00'), ('000')) string_agg(col0::str, '|'::str) = '0|00|000'::str
+
+# unicode_handling: Unicode and special characters
+(('café'), ('naïve'), ('résumé')) string_agg(col0::str, ', '::str) = 'café, naïve, résumé'::str
+(('日本'), ('中国'), ('한국')) string_agg(col0::str, '/'::str) = '日本/中国/한국'::str
+(('🎉'), ('🎊'), ('🎈')) string_agg(col0::str, ' '::str) = '🎉 🎊 🎈'::str
+(('Ω'), ('α'), ('β')) string_agg(col0::str, '-'::str) = 'Ω-α-β'::str
+
+# whitespace_handling: Whitespace and control characters
+(('  a  '), ('  b  '), ('  c  ')) string_agg(col0::str, ','::str) = '  a  ,  b  ,  c  '::str
+
+# additional_coverage: Additional test coverage
+(('a'), ('b')) string_agg(col0::str, '---'::str) = 'a---b'::str
+((' hello'), ('world ')) string_agg(col0::str, ' '::str) = ' hello world '::str
+(('123'), ('456'), ('789')) string_agg(col0::str, ','::str) = '123,456,789'::str
+(('1.5'), ('2.7'), ('3.9')) string_agg(col0::str, ';'::str) = '1.5;2.7;3.9'::str
+(('a,b'), ('c,d')) string_agg(col0::str, ','::str) = 'a,b,c,d'::str
+(('hello-world'), ('foo-bar')) string_agg(col0::str, '-'::str) = 'hello-world-foo-bar'::str
+(('x|y'), ('z|w')) string_agg(col0::str, '|'::str) = 'x|y|z|w'::str
