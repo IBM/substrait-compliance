@@ -151,9 +151,10 @@ def generate_leaderboard_markdown(reports: List[Dict[str, Any]], output_path: Pa
         for suite_name, suite in (report.get('suites') or {}).items():
             suite_rate = suite.get('passRate')
             rate_txt = 'n/a' if suite_rate is None else f"{suite_rate:.1f}%"
+            note = " _(informational: not in the headline pass rate)_" if suite.get('informational') else ""
             lines.append(
                 f"  - `{suite_name}`: {rate_txt} — {suite.get('passed', 0)} passed, "
-                f"{suite.get('failed', 0)} failed, {suite.get('skipped', 0)} skipped"
+                f"{suite.get('failed', 0)} failed, {suite.get('skipped', 0)} skipped{note}"
             )
         lines.append("")
     

@@ -1,0 +1,35 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_comparison
+
+# edge_cases: Boundary values and extreme inputs
+is_not_null(9223372036854775807::i64) = true::bool
+is_not_null(-9223372036854775808::i64) = true::bool
+
+# special_values: Special floating point values (NaN, Infinity)
+is_not_null(nan::fp32) = true::bool
+is_not_null(nan::fp64) = true::bool
+is_not_null(inf::fp32) = true::bool
+is_not_null(inf::fp64) = true::bool
+is_not_null(-inf::fp32) = true::bool
+is_not_null(-inf::fp64) = true::bool
+
+# null_handling_extended: Extended null handling scenarios
+is_not_null('hello'::str) = true::bool
+is_not_null(null::str?) = false::bool
+is_not_null(''::str) = true::bool
+is_not_null('test string'::str) = true::bool
+is_not_null(2023-01-01::date) = true::bool
+is_not_null(null::date?) = false::bool
+is_not_null(2023-01-01T12:30:45::pts<6>) = true::bool
+is_not_null(null::pts?<6>) = false::bool
+is_not_null(12:30:45::pt<6>) = true::bool
+is_not_null(null::pt?<6>) = false::bool
+is_not_null(0::i32) = true::bool
+is_not_null(0::i64) = true::bool
+is_not_null(-1::i64) = true::bool
+is_not_null(0.0::fp64) = true::bool
+is_not_null(-0.0::fp64) = true::bool
+is_not_null(null::binary?) = false::bool
+is_not_null(0.0::dec<10, 2>) = true::bool
+is_not_null(-123.456::dec<10, 3>) = true::bool
+is_not_null(null::dec?<10, 5>) = false::bool

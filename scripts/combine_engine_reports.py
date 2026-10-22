@@ -10,6 +10,11 @@ Combine per-suite compliance reports for one engine into a single leaderboard en
 The headline pass rate is passed / (passed + failed) summed across suites; skipped
 tests are reported but never counted as passes. Each suite's own figures are kept
 under "suites" so the leaderboard can show the breakdown.
+
+Suites passed with --informational instead of --suite are listed in the breakdown
+(marked "informational": true) but left out of the headline totals - e.g. a new
+suite that runs alongside the one it will replace, so the same functions are not
+counted twice.
 """
 
 import argparse
@@ -28,11 +33,13 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--engine", required=True)
     ap.add_argument("--suite", action="append", required=True, metavar="NAME=REPORT.json")
+    ap.add_argument("--informational", action="append", default=[], metavar="NAME=REPORT.json",
+                    help="shown per suite, excluded from the headline pass rate")
     ap.add_argument("--output", type=Path, required=True)
     args = ap.parse_args(argv)
 
     suites, versions = {}, set()
-    for spec in args.suite:
+    for spec, informational in [(s, False) for s in args.suite] + [(s, True) for s in args.informational]:
         name, _, path = spec.partition("=")
         if not path:
             ap.error(f"--suite must be NAME=PATH, got {spec!r}")
@@ -47,11 +54,13 @@ def main(argv=None):
             "engineVersion": report.get("engineVersion"),
             "totalTests": total, "passed": passed, "failed": failed, "skipped": skipped,
             "passRate": rate(passed, failed),
+            **({"informational": True} if informational else {}),
         }
         if report.get("engineVersion"):
             versions.add(str(report["engineVersion"]))
 
-    totals = {k: sum(s[k] for s in suites.values()) for k in ("totalTests", "passed", "failed", "skipped")}
+    scored = [s for s in suites.values() if not s.get("informational")]
+    totals = {k: sum(s[k] for s in scored) for k in ("totalTests", "passed", "failed", "skipped")}
     combined = {
         "engineName": args.engine,
         "engineVersion": " / ".join(sorted(versions)) or "unknown",

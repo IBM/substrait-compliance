@@ -1,0 +1,19 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
+
+# special_values: Special floating point values (NaN, Infinity)
+exp(nan::fp64) = nan::fp64
+exp(inf::fp64) = inf::fp64
+exp(-inf::fp64) = 0.0::fp64
+
+# zero_handling: Zero and negative zero handling
+exp(-1.0::fp64) = 0.36787944117144233::fp64
+exp(-10.0::fp64) = 0.000045399929762484854::fp64
+exp(-0.5::fp32) = 0.60653067::fp32
+exp(-0.0::fp64) = 1.0::fp64
+exp(0.001::fp64) = 1.0010005001667084::fp64
+exp(0.0001::fp32) = 1.0001::fp32
+
+# precision: Floating point precision and small values
+exp(-100::i64) = 3.720075976020836e-44::fp64
+exp(1e-10::fp64) = 1.0000000001::fp64

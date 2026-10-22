@@ -1,0 +1,20 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# type_coverage: Various data type coverage
+octet_length('abc😄def'::str) = 10::i64
+octet_length('🏴󠁧󠁢󠁥󠁮󠁧󠁿'::str) = 28::i64
+octet_length('👨‍👩‍👧‍👦'::str) = 25::i64
+octet_length('नमस्ते'::str) = 18::i64
+octet_length('你好'::str) = 6::i64
+octet_length('مرحبا'::str) = 10::i64
+octet_length('Привет'::str) = 12::i64
+octet_length('こんにちは'::str) = 15::i64
+octet_length('안녕하세요'::str) = 15::i64
+octet_length('Hello你好مرحبا'::str) = 21::i64
+octet_length('a'::str) = 1::i64
+octet_length('aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'::str) = 100::i64
+
+# unicode_handling: Unicode and special characters
+octet_length('Hello世界'::str) = 11::i64
+octet_length('café'::str) = 5::i64

@@ -1,0 +1,79 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_comparison
+
+# edge_cases: Boundary values and extreme inputs
+gt(127::i8, 127::i8) = false::bool
+gt(127::i8, 126::i8) = true::bool
+gt(-128::i8, -127::i8) = false::bool
+gt(-128::i8, -128::i8) = false::bool
+gt(32767::i16, 32767::i16) = false::bool
+gt(-32768::i16, -32767::i16) = false::bool
+gt(2147483647::i32, 2147483646::i32) = true::bool
+gt(2147483647::i32, 2147483647::i32) = false::bool
+gt(-2147483648::i32, -2147483647::i32) = false::bool
+gt(9223372036854775807::i64, 9223372036854775806::i64) = true::bool
+gt(-9223372036854775808::i64, -9223372036854775807::i64) = false::bool
+
+# special_values: Special floating point values (NaN, Infinity)
+gt(5.0::fp32, nan::fp32) = false::bool
+gt(nan::fp32, nan::fp32) = false::bool
+gt(inf::fp32, nan::fp32) = false::bool
+gt(5.0::fp64, nan::fp64) = false::bool
+gt(nan::fp64, nan::fp64) = false::bool
+gt(-inf::fp32, -inf::fp32) = false::bool
+gt(inf::fp32, inf::fp32) = false::bool
+gt(-inf::fp64, -inf::fp64) = false::bool
+gt(inf::fp64, inf::fp64) = false::bool
+gt(-inf::fp32, 0.0::fp32) = false::bool
+gt(0.0::fp64, inf::fp64) = false::bool
+
+# zero_handling: Zero and negative zero handling
+gt(0::i8, -1::i8) = true::bool
+gt(1::i8, 0::i8) = true::bool
+gt(0::i8, 0::i8) = false::bool
+gt(0::i16, -1::i16) = true::bool
+gt(0::i32, 0::i32) = false::bool
+gt(0::i64, 1::i64) = false::bool
+gt(0.0::fp32, -0.0::fp32) = false::bool
+gt(-0.0::fp64, 0.0::fp64) = false::bool
+gt(99999999999999999999999999999999999999::dec<38, 0>, 99999999999999999999999999999999999998::dec<38, 0>) = true::bool
+gt(-99999999999999999999999999999999999999::dec<38, 0>, -99999999999999999999999999999999999998::dec<38, 0>) = false::bool
+gt(0.00::dec<38, 2>, 0.00::dec<38, 2>) = false::bool
+gt(0.01::dec<38, 2>, 0.00::dec<38, 2>) = true::bool
+gt(-0.01::dec<38, 2>, 0.00::dec<38, 2>) = false::bool
+
+# negative_values: Negative number handling
+gt(-1::i64, -2::i64) = true::bool
+
+# null_handling_extended: Extended null handling scenarios
+gt(null::date?, null::date?) = null::bool?
+gt(null::pts?<6>, null::pts?<6>) = null::bool?
+gt(null::ptstz?<6>, null::ptstz?<6>) = null::bool?
+gt(null::iyear?, null::iyear?) = null::bool?
+
+# zero_handling: Zero and negative zero handling
+gt(1999-01-08T01:05:05+00:00::ptstz<6>, 1999-01-08T01:05:05+00:00::ptstz<6>) = false::bool
+gt(1999-01-08T01:05:05.999999-08:00::ptstz<6>, 1999-01-08T01:05:05.999998-08:00::ptstz<6>) = true::bool
+
+# negative_values: Negative number handling
+gt(2020-12-31::date, 2020-12-31::date) = false::bool
+gt(2018-12-31T13:30:15::pts<6>, 2018-12-31T13:30:15::pts<6>) = false::bool
+gt(2018-12-31T13:30:15.123456::pts<6>, 2018-12-31T13:30:15.123455::pts<6>) = true::bool
+gt(2018-12-31T13:30:15.123455::pts<6>, 2018-12-31T13:30:15.123456::pts<6>) = false::bool
+gt(9999-12-31::date, 0001-01-01::date) = true::bool
+gt(0001-01-01::date, 9999-12-31::date) = false::bool
+gt(P-5D::iday, P0D::iday) = false::bool
+gt(P0D::iday, P-5D::iday) = true::bool
+gt(P-1Y::iyear, P-2Y::iyear) = true::bool
+gt(2020-02-29::date, 2020-02-28::date) = true::bool
+gt(2020-02-28::date, 2020-02-29::date) = false::bool
+
+# additional_coverage: Additional test coverage
+gt(P0D::iday, P0D::iday) = false::bool
+gt(P0Y::iyear, P0Y::iyear) = false::bool
+gt(P1Y2M::iyear, P1Y1M::iyear) = true::bool
+gt(P2Y::iyear, P1Y11M::iyear) = true::bool
+gt(P1Y::iyear, P1Y::iyear) = false::bool
+gt(PT23H59M59S::iday, PT0S::iday) = true::bool
+gt(P1DT0H::iday, PT23H59M59S::iday) = true::bool
+gt(PT1S::iday, PT1S::iday) = false::bool

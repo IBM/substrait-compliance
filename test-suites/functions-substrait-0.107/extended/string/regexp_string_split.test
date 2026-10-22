@@ -1,0 +1,24 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# null_handling_extended: Extended null handling scenarios
+regexp_string_split(null::str?, 'pattern'::str) = null::list?<str>
+regexp_string_split(null::str?, null::str?) = null::list?<str>
+
+# empty_values: Empty strings and collections
+regexp_string_split(''::str, 'a'::str) = ['']::list<str>
+regexp_string_split(''::str, ''::str) = ['']::list<str>
+regexp_string_split('abc'::str, 'abc'::str) = ['', '']::list<str>
+regexp_string_split('aaa'::str, 'a'::str) = ['', '', '', '']::list<str>
+regexp_string_split('bbbbb'::str, 'b+'::str) = ['', '']::list<str>
+regexp_string_split('aaabbbccc'::str, '[abc]'::str) = ['', '', '', '', '', '', '', '', '', '']::list<str>
+
+# unicode_handling: Unicode and special characters
+regexp_string_split('café'::str, 'é'::str) = ['caf', '']::list<str>
+regexp_string_split('你好世界'::str, '好'::str) = ['你', '世界']::list<str>
+
+# additional_coverage: Additional test coverage
+regexp_string_split('abc'::str, 'xyz'::str) = ['abc']::list<str>
+regexp_string_split('hello world'::str, 'z+'::str) = ['hello world']::list<str>
+regexp_string_split('hello🌍world'::str, '🌍'::str) = ['hello', 'world']::list<str>
+regexp_string_split('AbCdEf'::str, '(?i)b'::str) = ['A', 'CdEf']::list<str>

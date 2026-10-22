@@ -1,0 +1,41 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_rounding
+
+# precision: Rounding to specific decimal places
+round(3.14159::fp64, 2::i32) = 3.14::fp64
+round(3.14159::fp64, 3::i32) = 3.142::fp64
+round(123.456::fp64, 1::i32) = 123.5::fp64
+round(123.456::fp64, 0::i32) = 123::fp64
+round(123.456::fp64, -1::i32) = 120::fp64
+round(123.456::fp64, -2::i32) = 100::fp64
+
+# null_handling: Examples with null as input
+round(3.14::fp64, null::i32?) = null::fp64?
+round(null::fp64?, 2::i32) = null::fp64?
+
+# types: Examples with different numeric types
+round(123.456::fp32, 1::i32) = 123.5::fp32
+
+# special_values: Special floating point values (NaN, Infinity)
+round(inf::fp64, 5::i32) = inf::fp64
+round(-inf::fp64, 5::i32) = -inf::fp64
+round(nan::fp64, 5::i32) = nan::fp64
+
+# zero_handling: Zero and negative zero handling
+round(-0.0::fp64, 2::i32) = -0::fp64
+round(123.456::fp64, -10::i32) = 0::fp64
+round(1.23456e100::fp64, -101::i32) = 0::fp64
+round(123.456::fp64, -308::i32) = 0::fp64
+round(0.0::fp64, -5::i32) = 0::fp64
+round(-0.0::fp64, -5::i32) = -0::fp64
+
+# negative_values: Negative number handling
+round(9.999e307::fp64, -307::i32) = 1e308::fp64
+
+# type_coverage: Various data type coverage
+round(123.456::fp64, 10::i32) = 123.456::fp64
+round(123.456::fp64, 15::i32) = 123.456::fp64
+round(123.456::fp64, 308::i32) = 123.456::fp64
+
+# mixed_magnitude: Mixed magnitude values
+round(1.23456e100::fp64, -100::i32) = 1e100::fp64

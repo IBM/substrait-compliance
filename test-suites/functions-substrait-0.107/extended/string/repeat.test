@@ -1,0 +1,19 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# null_handling_extended: Extended null handling scenarios
+repeat('abc'::str, null::i64?) = null::str?
+repeat(null::str?, null::i64?) = null::str?
+
+# empty_values: Empty strings and collections
+repeat('test'::str, -1::i64) = ''::str
+repeat('x'::str, -100::i64) = ''::str
+
+# type_coverage: Various data type coverage
+repeat('abc'::str, 1::i64) = 'abc'::str
+repeat('你好'::str, 2::i64) = '你好你好'::str
+
+# unicode_handling: Unicode and special characters
+repeat('🔥'::str, 3::i64) = '🔥🔥🔥'::str
+repeat('café'::str, 2::i64) = 'cafécafé'::str
+repeat('🎉🎊'::str, 3::i64) = '🎉🎊🎉🎊🎉🎊'::str

@@ -1,0 +1,15 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# basic: Basic examples without any special cases
+upper('abc'::str) = 'ABC'::str
+upper('aBc'::str) = 'ABC'::str
+upper('ABC'::str) = 'ABC'::str
+upper(''::str) = ''::str
+
+# null_input: Examples with null as input
+upper(null::str?) = null::str?
+
+# unicode: Examples with unicode characters as input
+upper('ææããa'::str) [char_set:UTF8] = 'ÆÆÃÃA'::str
+upper('😄'::str) = '😄'::str

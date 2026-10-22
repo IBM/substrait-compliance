@@ -1,0 +1,25 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# null_handling_extended: Extended null handling scenarios
+concat_ws(','::str, null::str?, null::str?, null::str?) = ''::str
+concat_ws('|'::str, 'A'::str, null::str?, 'C'::str) = 'A|C'::str
+concat_ws(','::str, 'A'::str, null::str?, 'C'::str, null::str?, 'E'::str, null::str?) = 'A,C,E'::str
+concat_ws(','::str, null::str?, 'Middle'::str, null::str?) = 'Middle'::str
+concat_ws(','::str, null::str?, null::str?, 'Last'::str) = 'Last'::str
+concat_ws(','::str, 'First'::str, null::str?, null::str?) = 'First'::str
+
+# empty_values: Empty strings and collections
+concat_ws(','::str, ''::str) = ''::str
+concat_ws(','::str, 'Apple'::str, ''::str, 'Melon'::str) = 'Apple,,Melon'::str
+concat_ws(','::str, ''::str, ''::str, ''::str) = ',,'::str
+concat_ws(','::str, ''::str, 'Apple'::str) = ',Apple'::str
+
+# additional_coverage: Additional test coverage
+concat_ws(','::str, 'Single'::str) = 'Single'::str
+concat_ws(','::str, 'Apple'::str) = 'Apple'::str
+concat_ws(':::'::str, 'A'::str, 'B'::str, 'C'::str) = 'A:::B:::C'::str
+concat_ws(' - '::str, 'First'::str, 'Second'::str, 'Third'::str) = 'First - Second - Third'::str
+concat_ws(','::str, 'Value with, comma'::str, 'Another'::str) = 'Value with, comma,Another'::str
+concat_ws('|'::str, 'Has|pipe'::str, 'Normal'::str) = 'Has|pipe|Normal'::str
+concat_ws(','::str, 'A'::str, 'B'::str, 'C'::str, 'D'::str, 'E'::str, 'F'::str) = 'A,B,C,D,E,F'::str

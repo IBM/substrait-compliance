@@ -1,0 +1,9 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# null_handling_extended: Extended null handling scenarios
+regexp_replace('test'::str, 'e'::str, null::str?, 1::i64, 0::i64) = null::str?
+regexp_replace('abc'::str, '[a-z]'::str, null::str?) = null::str?
+
+# zero_handling: Zero and negative zero handling
+regexp_replace(''::str, 'a'::str, 'b'::str, 1::i64, 0::i64) = ''::str

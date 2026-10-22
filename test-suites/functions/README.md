@@ -1,5 +1,13 @@
 # Substrait Function Test Suites
 
+> **Being replaced.** [`functions-substrait-0.107`](../functions-substrait-0.107/README.md) holds the
+> Substrait project's own test cases plus the cases from this suite that are valid for standard
+> functions and verified, in the current upstream format. It runs alongside this suite (as
+> informational) until it is made the scored suite; this suite will then be retired. A review of
+> this suite's problems — non-standard functions, signatures that do not match the Substrait
+> definitions, and wrong expected values — is summarised in
+> [`functions-substrait-0.107/extended/CONVERSION.md`](../functions-substrait-0.107/extended/CONVERSION.md).
+
 This directory contains comprehensive test suites for Substrait function implementations. These tests are designed to verify compliance with the Substrait specification across various query engines and implementations.
 
 ## Directory Structure

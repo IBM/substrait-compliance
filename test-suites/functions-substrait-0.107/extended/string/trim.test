@@ -1,0 +1,12 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# null_handling_extended: Extended null handling scenarios
+trim('abc'::str, null::str?) = null::str?
+trim(null::str?, null::str?) = null::str?
+
+# empty_values: Empty strings and collections
+trim('abc'::str, ''::str) = 'abc'::str
+
+# whitespace_handling: Whitespace and control characters
+trim('  a b c  '::str, ' '::str) = 'a b c'::str

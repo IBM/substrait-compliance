@@ -1,0 +1,6 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
+
+# null_handling_extended: Extended null handling scenarios
+rtrim('abc'::str, null::str?) = null::str?
+rtrim(null::str?, null::str?) = null::str?

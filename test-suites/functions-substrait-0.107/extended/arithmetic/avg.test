@@ -1,0 +1,38 @@
+### SUBSTRAIT_AGGREGATE_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
+
+# basic: Basic examples without any special cases
+avg((1.5, 2.5, 3.5, 4.5, 5.5)::fp64) = 3.5::fp64
+
+# negative: Examples with negative numbers
+avg((-5.5, -2.5, -1.0)::fp64) = -3.0::fp64
+
+# floating_exception: Examples demonstrating exceptional floating point cases
+avg((1.5e+308, 1.5e+308)::fp64) = inf::fp64
+avg((-1.5e+308, -1.5e+308)::fp64) = -inf::fp64
+avg((inf, 100.0, 200.0)::fp64) = inf::fp64
+avg((-inf, 100.0, 200.0)::fp64) = -inf::fp64
+
+# special_values: Special floating point values (NaN, Infinity)
+avg((NaN, 1.0, 2.0)::fp64) = nan::fp64
+avg((1.0, NaN, 3.0)::fp64) = nan::fp64
+avg((NaN, NaN)::fp64) = nan::fp64
+avg((inf, -inf)::fp64) = nan::fp64
+avg((NaN)::fp64) = nan::fp64
+
+# null_handling_extended: Extended null handling scenarios
+avg(()::fp64) = null::fp64?
+
+# zero_handling: Zero and negative zero handling
+avg((0.0, 0.0, 0.0)::fp64) = 0.0::fp64
+avg((0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1)::fp64) = 0.1::fp64
+avg((0.333333333333, 0.666666666667)::fp64) = 0.5::fp64
+avg((1e10, 1.0, 2.0)::fp64) = 3333333334.333333333333333::fp64
+avg((1e-10, 1e10)::fp64) = 5000000000.0::fp64
+
+# precision: Floating point precision and small values
+avg((1e-308, 1e-308)::fp64) = 1e-308::fp64
+avg((1e-100, 1e-100, 1e-100)::fp64) = 1e-100::fp64
+
+# single_value: Single value inputs
+avg((3.14)::fp64) = 3.14::fp64

@@ -1,0 +1,69 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
+
+# basic: Basic degree to radian conversion
+radians(0::fp64) = 0::fp64
+radians(90::fp64) = 1.5707963267948966::fp64
+radians(180::fp64) = 3.141592653589793::fp64
+radians(270::fp64) = 4.71238898038469::fp64
+radians(360::fp64) = 6.283185307179586::fp64
+
+# negative: Negative degree values
+radians(-90::fp64) = -1.5707963267948966::fp64
+radians(-180::fp64) = -3.141592653589793::fp64
+radians(-360::fp64) = -6.283185307179586::fp64
+
+# null_handling: Examples with null as input
+radians(null::fp64?) = null::fp64?
+
+# types: Examples with different numeric types
+radians(90::fp32) = 1.5707963267948966::fp32
+radians(180::fp32) = 3.141592653589793::fp32
+
+# edge_cases: Special floating point values
+radians(inf::fp64) = inf::fp64
+radians(-inf::fp64) = -inf::fp64
+radians(nan::fp64) = nan::fp64
+
+# precision: Various angle values
+radians(45::fp64) = 0.7853981633974483::fp64
+radians(30::fp64) = 0.5235987755982988::fp64
+radians(60::fp64) = 1.0471975511965976::fp64
+radians(1::fp64) = 0.017453292519943295::fp64
+
+# special_values: Special floating point values (NaN, Infinity)
+radians(inf::fp32) = inf::fp32
+radians(-inf::fp32) = -inf::fp32
+radians(nan::fp32) = nan::fp32
+
+# zero_handling: Zero and negative zero handling
+radians(0.001::fp64) = 0.000017453292519943295::fp64
+radians(0.0001::fp64) = 0.0000017453292519943296::fp64
+radians(-0.0::fp64) = -0.0::fp64
+radians(-0.0::fp32) = -0.0::fp32
+radians(45::fp32) = 0.7853981633974483::fp32
+radians(30::fp32) = 0.5235987755982988::fp32
+
+# precision: Floating point precision and small values
+radians(1e-10::fp64) = 1.7453292519943296e-12::fp64
+radians(-1e-10::fp64) = -1.7453292519943296e-12::fp64
+
+# negative_values: Negative number handling
+radians(-720::fp64) = -12.566370614359172::fp64
+radians(-10000::fp64) = -174.53292519943295::fp64
+radians(-1e308::fp64) = -1.7453292519943296e306::fp64
+radians(-90::fp32) = -1.5707963267948966::fp32
+radians(-180::fp32) = -3.141592653589793::fp32
+
+# type_coverage: Various data type coverage
+radians(720::fp64) = 12.566370614359172::fp64
+radians(1080::fp64) = 18.84955592153876::fp64
+radians(359.999::fp64) = 6.283167858376849::fp64
+radians(10000::fp64) = 174.53292519943295::fp64
+radians(1e308::fp64) = 1.7453292519943296e306::fp64
+radians(60::fp32) = 1.0471975511965976::fp32
+radians(270::fp32) = 4.71238898038469::fp32
+radians(360::fp32) = 6.283185307179586::fp32
+
+# mixed_magnitude: Mixed magnitude values
+radians(1000000::fp64) = 17453.292519943297::fp64

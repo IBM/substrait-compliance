@@ -1,0 +1,37 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_datetime
+
+# null_handling_extended: Extended null handling scenarios
+extract(YEAR::enum, null::date?) = null::i64?
+extract(MONTH::enum, ONE::enum, null::pts?<6>) = null::i64?
+
+# zero_handling: Zero and negative zero handling
+extract(ISO_YEAR::enum, 2020-01-01T00:00:00::pts<6>) = 2020::i64
+extract(ISO_YEAR::enum, 2021-01-01T00:00:00::pts<6>) = 2020::i64
+extract(HOUR::enum, 00:00:00::pt<6>) = 0::i64
+extract(MINUTE::enum, 00:00:00::pt<6>) = 0::i64
+extract(SECOND::enum, 00:00:00::pt<6>) = 0::i64
+
+# negative_values: Negative number handling
+extract(YEAR::enum, 0001-01-01::date) = 1::i64
+extract(YEAR::enum, 9999-12-31::date) = 9999::i64
+extract(MONTH::enum, ONE::enum, 0001-01-01::date) = 1::i64
+extract(DAY::enum, ONE::enum, 9999-12-31::date) = 31::i64
+extract(DAY::enum, ONE::enum, 2020-02-29::date) = 29::i64
+extract(MONTH::enum, ONE::enum, 2020-02-29::date) = 2::i64
+extract(DAY_OF_YEAR::enum, ONE::enum, 2020-02-29::date) = 60::i64
+extract(DAY_OF_YEAR::enum, ONE::enum, 2020-12-31::date) = 366::i64
+extract(DAY::enum, ONE::enum, 2019-02-28::date) = 28::i64
+extract(DAY_OF_YEAR::enum, ONE::enum, 2019-12-31::date) = 365::i64
+extract(QUARTER::enum, ONE::enum, 2020-01-01::date) = 1::i64
+extract(QUARTER::enum, ONE::enum, 2020-03-31::date) = 1::i64
+extract(QUARTER::enum, ONE::enum, 2020-04-01::date) = 2::i64
+extract(QUARTER::enum, ONE::enum, 2020-06-30::date) = 2::i64
+extract(QUARTER::enum, ONE::enum, 2020-07-01::date) = 3::i64
+extract(QUARTER::enum, ONE::enum, 2020-09-30::date) = 3::i64
+extract(QUARTER::enum, ONE::enum, 2020-10-01::date) = 4::i64
+
+# type_coverage: Various data type coverage
+extract(HOUR::enum, 23:59:59::pt<6>) = 23::i64
+extract(MINUTE::enum, 23:59:59::pt<6>) = 59::i64
+extract(SECOND::enum, 23:59:59::pt<6>) = 59::i64

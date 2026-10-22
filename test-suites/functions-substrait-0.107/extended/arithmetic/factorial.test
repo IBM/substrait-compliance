@@ -1,0 +1,15 @@
+### SUBSTRAIT_SCALAR_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
+
+# null_handling_extended: Extended null handling scenarios
+factorial(null::i64?) = null::i64?
+
+# zero_handling: Zero and negative zero handling
+factorial(0::i64) = 1::i64
+
+# type_coverage: Various data type coverage
+factorial(5::i32) = 120::i32
+factorial(10::i32) = 3628800::i32
+factorial(1::i64) = 1::i64
+factorial(5::i64) = 120::i64
+factorial(12::i32) = 479001600::i32

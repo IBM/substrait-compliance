@@ -2,6 +2,15 @@
 """
 Run the Substrait function test suites against a real engine (DuckDB).
 
+Two file formats are supported and detected per file:
+
+  * the current upstream Substrait format (``### SUBSTRAIT_INCLUDE: extension:...``),
+    used by test-suites/functions-substrait-0.107. These files are parsed with the
+    upstream parser (substrait_compliance.function_cases) and translated to SQL by
+    scripts/duckdb_function_sql.py; scalar, aggregate and window cases all run.
+  * the older format of test-suites/functions (quoted include paths), handled by the
+    regex-based SubstraitExpressionMapper as before.
+
 Unlike demo/runner/function_test_demo.py, which simulates several engines for the
 demo dashboard, this runner only reports results it actually measured:
 
@@ -24,6 +33,16 @@ Tests are SKIPPED (reported, but excluded from the pass rate) when:
 
 Pass rate = passed / (passed + failed) * 100.
 
+For current-format files, results are compared by the expected Substrait type:
+integers and decimals exactly, booleans only with booleans, floats with a relative
+tolerance only (1e-9, or 1e-6 for fp32), intervals and nanosecond timestamps by
+DuckDB's text form. A pinned option is scored normally when DuckDB implements that
+mode (DUCKDB_IMPLEMENTED_MODES), skipped up front for its other values, and
+otherwise turned from a failure into a skip ("mode not implemented"). <!ERROR>
+passes only on a runtime error, not when the engine cannot bind the call. A
+current-format file that does not parse makes the run fail. Legacy-format files
+keep the original rules above.
+
 Exit status is non-zero if the engine cannot be loaded or no test was executed,
 so CI can never silently fall back to made-up numbers.
 """
@@ -42,6 +61,12 @@ sys.path.insert(0, str(REPO_ROOT / "sdk" / "python"))
 
 from substrait_compliance.function_test_parser import FunctionTestParser, TestType  # noqa: E402
 from substrait_compliance.expression_mapper import SubstraitExpressionMapper as Mapper  # noqa: E402
+from substrait_compliance.function_cases import (  # noqa: E402
+    CaseLiteral, ParseError, SubstraitError, is_upstream_format, parse_case_file,
+)
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+import duckdb_function_sql as fsql  # noqa: E402
 
 PASSED, FAILED, SKIPPED = "passed", "failed", "skipped"
 
@@ -98,6 +123,8 @@ def values_equal(actual, expected, rel_tol=FLOAT_REL_TOL) -> bool:
         return len(actual) == len(expected) and all(values_equal(a, e, rel_tol) for a, e in zip(actual, expected))
     if isinstance(actual, dict) and isinstance(expected, dict):
         return actual.keys() == expected.keys() and all(values_equal(actual[k], expected[k], rel_tol) for k in actual)
+    if isinstance(actual, Decimal) and isinstance(expected, Decimal):
+        return actual == expected
     numeric = (int, float, Decimal)
     if isinstance(actual, numeric) and isinstance(expected, numeric) and not isinstance(actual, bool) and not isinstance(expected, bool):
         a, e = float(actual), float(expected)
@@ -149,6 +176,9 @@ class DuckDBEngine:
             raise SystemExit(f"❌ duckdb Python package is not installed: {exc}")
         self.version = duckdb.__version__
         self.con = duckdb.connect()
+        self.con.execute("SET TimeZone = 'UTC'")
+        # a test such as repeat('a', 2147483647) must fail, not exhaust the machine
+        self.con.execute("SET memory_limit = '1GB'")
         self.extensions = {}
         for ext in ("spatial",):
             try:
@@ -163,6 +193,188 @@ class DuckDBEngine:
 
     def query(self, sql: str):
         return self.con.execute(sql).fetchone()[0]
+
+
+def _classify_engine_error(exc: Exception, sql: str):
+    """(status, reason) for an exception raised while running a case's SQL."""
+    if _is_parser_error(exc):
+        return SKIPPED, f"untranslatable: {sql}"
+    ext = _needs_extension(exc)
+    if ext:
+        return SKIPPED, f"requires DuckDB {ext} extension (not available)"
+    missing = _missing_function(exc)
+    if missing:
+        return SKIPPED, f"no SQL mapping for function: {missing}"
+    return None
+
+
+INTERVAL_BASES = {"iday", "iyear", "icompound"}
+
+
+def compare_as_text(type_str: str) -> bool:
+    base, params = fsql.split_type(type_str)
+    if base == "list":
+        return compare_as_text(params)
+    if base in INTERVAL_BASES:
+        return True
+    return base in ("pts", "ptstz", "pt") and params.strip().isdigit() and int(params) > 6
+
+
+def file_kind(path: Path) -> str:
+    """'scalar', 'aggregate' or 'window' from the ### SUBSTRAIT_<KIND>_TEST header."""
+    with open(path, encoding="utf-8") as fh:
+        for line in fh:
+            m = re.match(r"###\s*SUBSTRAIT_(\w+?)_TEST", line)
+            if m:
+                return m.group(1).lower()
+    return "scalar"
+
+
+def frame_types_for(source_lines, line_no):
+    """Column types of the window frame (DEFINE line) that precedes a case."""
+    for i in range(line_no - 1, -1, -1):
+        if source_lines[i].lstrip().startswith("DEFINE"):
+            return fsql.frame_column_types(source_lines[i])
+    return {}
+
+
+# Option modes DuckDB is known to implement for every function that declares the
+# option. A case pinned to one of these modes is scored normally; a case pinned to
+# another value of the same option is skipped up front. For any other option the
+# runner cannot tell which mode DuckDB implements, so a failure is reported as
+# "mode not implemented" (skipped) rather than as a failure.
+DUCKDB_IMPLEMENTED_MODES = {
+    "overflow": {"ERROR"},
+    "division_type": {"TRUNCATE"},
+}
+
+
+def run_upstream_case(engine, kind, tc, source_lines):
+    """Run one case parsed from the upstream format (see the module docstring)."""
+    for key, value in tc.options.items():
+        modes = DUCKDB_IMPLEMENTED_MODES.get(key)
+        if modes is not None and str(value).upper() not in modes:
+            return SKIPPED, f"unsupported option {key}:{value} (engine implements {key}:{'/'.join(sorted(modes))})"
+    status, reason = _run_upstream_case(engine, kind, tc, source_lines)
+    unknown = {k: v for k, v in tc.options.items() if k not in DUCKDB_IMPLEMENTED_MODES}
+    if status == FAILED and unknown:
+        modes = ", ".join(f"{k}:{v}" for k, v in unknown.items())
+        return SKIPPED, f"option mode not implemented ({modes}): {reason}"
+    return status, reason
+
+
+def _is_bool(v):
+    return isinstance(v, bool)
+
+
+def _exact_number(v):
+    """Decimal for an int/Decimal/float value (floats via their shortest repr)."""
+    if isinstance(v, bool):
+        return None
+    if isinstance(v, (int, Decimal)):
+        return Decimal(v)
+    if isinstance(v, float) and math.isfinite(v):
+        return Decimal(repr(v))
+    return None
+
+
+EXACT_BASES = {"i8", "i16", "i32", "i64", "u!u8", "u!u16", "u!u32", "u!u64", "dec", "decimal"}
+FLOAT_BASES = {"fp32", "fp64"}
+
+
+def upstream_values_match(actual, expected, type_str) -> bool:
+    """Compare a result with the expected value, by the expected Substrait type:
+
+    * integers and decimals exactly (by value; DuckDB may widen i64 to HUGEINT),
+    * booleans only with booleans,
+    * floats with a relative tolerance only (1e-9; 1e-6 for fp32) - no absolute
+      slack, so 0.0 must be exactly 0 and 5e-324 is not 0,
+    * lists element by element with the element type,
+    * everything else (strings, temporal values) with ==, by value: a TIMESTAMP at
+      midnight equals the DATE it represents (result types are not scored).
+    """
+    if actual is None or expected is None:
+        return actual is None and expected is None
+    base = fsql.base_type(type_str) if type_str else ""
+    if isinstance(expected, (list, tuple)):
+        elem = fsql.list_element_type(type_str) if base == "list" else type_str
+        return isinstance(actual, (list, tuple)) and len(actual) == len(expected) and \
+            all(upstream_values_match(a, e, elem) for a, e in zip(actual, expected))
+    if _is_bool(expected) or _is_bool(actual):
+        return _is_bool(expected) and _is_bool(actual) and actual == expected
+    if base in EXACT_BASES:
+        a, e = _exact_number(actual), _exact_number(expected)
+        return a is not None and e is not None and a == e
+    if base in FLOAT_BASES or isinstance(expected, float):
+        if not isinstance(actual, (int, float, Decimal)):
+            return False
+        a, e = float(actual), float(expected)
+        if math.isnan(a) or math.isnan(e):
+            return math.isnan(a) and math.isnan(e)
+        if math.isinf(a) or math.isinf(e):
+            return a == e
+        rel = FP32_REL_TOL if base == "fp32" else FLOAT_REL_TOL
+        return math.isclose(a, e, rel_tol=rel, abs_tol=0.0)
+    if type(expected).__name__ == "date" and isinstance(actual, datetime):
+        return actual.date() == expected and actual.time() == datetime.min.time() and actual.tzinfo is None
+    return actual == expected
+
+
+def _run_upstream_case(engine, kind, tc, source_lines):
+    result = tc.result
+    if isinstance(result, SubstraitError) and result.error == "undefined":
+        return SKIPPED, "expected result is undefined"
+
+    tr = fsql.Translator(tc.options)
+    try:
+        if kind == "window":
+            actual_sql = tr.window_case(tc, frame_types_for(source_lines, tc.line))
+        elif tc.rows is not None or kind == "aggregate":
+            actual_sql = tr.aggregate_case(tc)
+        else:
+            actual_sql = tr.scalar_case(tc)
+        expected_sql = None if isinstance(result, SubstraitError) else tr.expected(result)
+    except fsql.Untranslatable as exc:
+        return SKIPPED, f"untranslatable: {exc}"
+
+    if isinstance(result, CaseLiteral) and compare_as_text(result.type):
+        # DuckDB returns intervals as timedeltas that fold months into 30 days, and
+        # nanosecond timestamps as microsecond datetimes; compare DuckDB's canonical
+        # text form instead.
+        actual_sql = f"SELECT CAST(({actual_sql}) AS VARCHAR)"
+        expected_sql = f"SELECT CAST(({expected_sql}) AS VARCHAR)"
+
+    if expected_sql is None:  # <!ERROR>
+        try:
+            value = engine.query(actual_sql)
+        except Exception as exc:
+            classified = _classify_engine_error(exc, actual_sql)
+            if classified:
+                return classified
+            if type(exc).__name__ == "BinderException":
+                # the engine could not even bind the call (e.g. no overload for these
+                # types): that is not the runtime error the case expects
+                return FAILED, f"expected a runtime error, got {type(exc).__name__}: " \
+                               f"{str(exc).splitlines()[0][:160]} [{actual_sql}]"
+            return PASSED, None
+        return FAILED, f"expected an error, got {value!r} [{actual_sql}]"
+
+    try:
+        expected_value = engine.query(expected_sql)
+    except Exception as exc:
+        return SKIPPED, f"untranslatable expected value {expected_sql}: {type(exc).__name__}"
+    try:
+        actual_value = engine.query(actual_sql)
+    except Exception as exc:
+        classified = _classify_engine_error(exc, actual_sql)
+        if classified:
+            return classified
+        msg = str(exc).splitlines()[0][:200]
+        return FAILED, f"{type(exc).__name__}: {msg} [{actual_sql}]"
+
+    if upstream_values_match(actual_value, expected_value, result.type):
+        return PASSED, None
+    return FAILED, f"got {actual_value!r}, expected {expected_value!r} [{actual_sql}]"
 
 
 def run_case(engine, suite_type, tc):
@@ -258,36 +470,54 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--suites-dir", type=Path, default=REPO_ROOT / "test-suites" / "functions")
     ap.add_argument("--output", type=Path, required=True, help="JSON report to write")
+    ap.add_argument("--suite-name", default="functions", help="suite name recorded in the report")
     args = ap.parse_args(argv)
 
     engine = DuckDBEngine()
     parser = FunctionTestParser()
-    files = sorted(args.suites_dir.glob("*/*.test"))
+    files = sorted(args.suites_dir.rglob("*.test"))
     if not files:
         raise SystemExit(f"❌ No .test files found under {args.suites_dir}")
 
     categories, results = {}, []
+    parse_errors, fatal_parse_errors = [], []
     for path in files:
-        category = path.parent.name
+        category = str(path.parent.relative_to(args.suites_dir))
         cat = categories.setdefault(category, {"total": 0, PASSED: 0, FAILED: 0, SKIPPED: 0})
-        try:
-            suite = parser.parse_file(path)
-        except Exception as exc:
-            print(f"⚠️  Could not parse {display_path(path)}: {exc}")
-            continue
-        for tc in suite.test_cases:
-            status, reason = run_case(engine, suite.test_type, tc)
+        if is_upstream_format(path):
+            try:
+                test_file = parse_case_file(path)
+            except Exception as exc:  # noqa: BLE001 - any parse failure
+                parse_errors.append(f"{display_path(path)}: {exc}")
+                fatal_parse_errors.append(display_path(path))
+                continue
+            source_lines = path.read_text(encoding="utf-8").splitlines()
+            kind = file_kind(path)
+            cases = [(tc, run_upstream_case(engine, kind, tc, source_lines),
+                      tc.line, source_lines[tc.line - 1].strip()) for tc in test_file.testcases]
+        else:
+            try:
+                suite = parser.parse_file(path)
+            except Exception as exc:
+                parse_errors.append(f"{display_path(path)}: {exc}")
+                continue
+            cases = [(tc, run_case(engine, suite.test_type, tc), tc.line_number,
+                      f"{tc.function_call} = {tc.expected_result}") for tc in suite.test_cases]
+        for tc, (status, reason), line, text in cases:
             cat["total"] += 1
             cat[status] += 1
             if status != PASSED:
+                call, _, expected = text.rpartition(" = ")
                 results.append({
                     "file": display_path(path),
-                    "line": tc.line_number,
-                    "test": tc.function_call,
-                    "expected": tc.expected_result,
+                    "line": line,
+                    "test": call or text,
+                    "expected": expected,
                     "status": status,
                     "reason": reason,
                 })
+    for err in parse_errors:
+        print(f"⚠️  Could not parse {err}")
 
     for cat in categories.values():
         cat["passRate"] = pass_rate(cat[PASSED], cat[FAILED])
@@ -301,7 +531,7 @@ def main(argv=None):
     report = {
         "engineName": engine.name,
         "engineVersion": engine.version,
-        "suite": "functions",
+        "suite": args.suite_name,
         "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "totalTests": totals["total"],
         "passed": totals[PASSED],
@@ -311,17 +541,23 @@ def main(argv=None):
         "categories": categories,
         "unmappedFunctions": unmapped,
         "extensions": engine.extensions,
+        "parseErrors": parse_errors,
         "nonPassingResults": results,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2))
 
-    print(f"{'Category':<12} {'Total':>6} {'Pass':>6} {'Fail':>6} {'Skip':>6} {'Rate':>7}")
+    width = max([12] + [len(n) for n in categories])
+    print(f"{'Category':<{width}} {'Total':>6} {'Pass':>6} {'Fail':>6} {'Skip':>6} {'Rate':>7}")
     for name, c in sorted(categories.items()):
         rate = "n/a" if c["passRate"] is None else f"{c['passRate']:.1f}%"
-        print(f"{name:<12} {c['total']:>6} {c[PASSED]:>6} {c[FAILED]:>6} {c[SKIPPED]:>6} {rate:>7}")
-    print(f"{'TOTAL':<12} {totals['total']:>6} {totals[PASSED]:>6} {totals[FAILED]:>6} {totals[SKIPPED]:>6} {report['passRate']:>6.1f}%")
+        print(f"{name:<{width}} {c['total']:>6} {c[PASSED]:>6} {c[FAILED]:>6} {c[SKIPPED]:>6} {rate:>7}")
+    print(f"{'TOTAL':<{width}} {totals['total']:>6} {totals[PASSED]:>6} {totals[FAILED]:>6} {totals[SKIPPED]:>6} {report['passRate']:>6.1f}%")
     print(f"DuckDB {engine.version} — report written to {args.output}")
+    if fatal_parse_errors:
+        # a current-format file that does not parse would silently drop out of the totals
+        print(f"❌ {len(fatal_parse_errors)} file(s) failed to parse: {', '.join(fatal_parse_errors)}")
+        return 1
     return 0
 
 

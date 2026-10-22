@@ -1,0 +1,21 @@
+### SUBSTRAIT_AGGREGATE_TEST: v1.0
+### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
+
+# basic: Basic examples without any special cases
+((2.0), (4.0), (6.0), (8.0)) std_dev(POPULATION::enum, col0::fp64) = 2.23606797749979::fp64
+
+# uniform: Examples with uniform values
+((10.0), (10.0), (10.0)) std_dev(POPULATION::enum, col0::fp64) = 0.0::fp64
+
+# negative: Examples with negative numbers
+((-2.5), (-1.5), (-0.5), (0.5), (1.5), (2.5)) std_dev(POPULATION::enum, col0::fp64) = 1.707825127659933::fp64
+
+# single_value: Examples with single value
+((3.14)) std_dev(POPULATION::enum, col0::fp64) = 0.0::fp64
+
+# zero_handling: Zero and negative zero handling
+((0.0), (0.0), (0.0)) std_dev(POPULATION::enum, col0::fp64) = 0.0::fp64
+
+# precision: Floating point precision and small values
+((1e-100), (2e-100), (3e-100)) std_dev(POPULATION::enum, col0::fp64) = 8.16496580927726e-101::fp64
+((1e-50), (2e-50), (3e-50), (4e-50)) std_dev(POPULATION::enum, col0::fp64) = 1.118033988749895e-50::fp64

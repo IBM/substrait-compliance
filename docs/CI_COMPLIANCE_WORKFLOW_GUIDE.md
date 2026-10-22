@@ -177,7 +177,18 @@ impl ComplianceEngine for DataFusionEngine {
 
 ## Substrait Operator & Type Mapping
 
-Substrait Function Test files (`.test`) declare functional AST signatures rather than SQL statements. The framework includes [`SubstraitExpressionMapper`](../sdk/python/substrait_compliance/expression_mapper.py:10) to recursively map Substrait operators, types, and functions to database-executable SQL expressions:
+Two function-test formats are supported, detected per file:
+
+- **Current upstream format** — [`test-suites/functions-substrait-0.107`](../test-suites/functions-substrait-0.107/README.md).
+  Files are parsed with the Substrait project's own parser
+  ([`substrait_compliance.function_cases`](../sdk/python/substrait_compliance/function_cases.py)), validated
+  against the extension YAMLs by [`scripts/validate_function_tests.py`](../scripts/validate_function_tests.py), and
+  translated to DuckDB SQL from the parsed values by [`scripts/duckdb_function_sql.py`](../scripts/duckdb_function_sql.py)
+  (scalar, aggregate and window cases).
+- **Legacy format** — [`test-suites/functions`](../test-suites/functions/README.md), mapped by the regex-based
+  mapper described below. This suite is being replaced by the one above.
+
+Substrait Function Test files (`.test`) declare functional AST signatures rather than SQL statements. For the legacy format, the framework includes [`SubstraitExpressionMapper`](../sdk/python/substrait_compliance/expression_mapper.py:10) to recursively map Substrait operators, types, and functions to database-executable SQL expressions:
 
 ```mermaid
 flowchart LR
