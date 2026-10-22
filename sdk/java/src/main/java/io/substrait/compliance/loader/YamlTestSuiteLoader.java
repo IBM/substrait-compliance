@@ -2,6 +2,7 @@ package io.substrait.compliance.loader;
 
 import io.substrait.compliance.*;
 import io.substrait.proto.Plan;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import java.io.IOException;
@@ -18,7 +19,10 @@ public class YamlTestSuiteLoader implements TestSuiteLoader {
     private final ObjectMapper mapper;
     
     public YamlTestSuiteLoader() {
-        this.mapper = new ObjectMapper(new YAMLFactory());
+        // Ignore metadata fields this SDK version doesn't know, so suites can gain new
+        // optional fields without breaking engines on older SDK releases.
+        this.mapper = new ObjectMapper(new YAMLFactory())
+            .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
     
     @Override

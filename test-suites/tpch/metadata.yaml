@@ -1,5 +1,7 @@
 name: "tpch"
 version: "1.0.0"
+# Substrait spec version of the plans in plans/: 0.107.0 (also recorded in each plan's version field).
+# Kept as a comment: released SDKs (e.g. Java 0.1.1) reject unknown metadata fields.
 description: "TPC-H Benchmark Compliance Suite - 22 queries at Scale Factor 0.01"
 scale_factor: 0.01
 total_rows: 86630
