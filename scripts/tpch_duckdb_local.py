@@ -40,9 +40,11 @@ def discover_suites():
     for meta in [SUITE / "metadata.yaml"] + sorted(SUITE.glob("metadata-substrait-*.yaml")):
         text = meta.read_text()
         name = re.search(r'^name:\s*"([^"]+)"', text, re.M).group(1)
-        version = re.search(r'^substraitVersion:\s*"([^"]+)"', text, re.M)
         folder = re.search(r'planBinary:\s*"([^"/]+)/', text).group(1)
-        suites.append((name, version.group(1) if version else "?", folder))
+        # The spec version is recorded in every plan's version field.
+        v = plan_json(SUITE / folder / "q01.json").get("version", {})
+        version = f"{v.get('majorNumber', 0)}.{v.get('minorNumber', 0)}.{v.get('patchNumber', 0)}"
+        suites.append((name, version, folder))
     return suites
 
 

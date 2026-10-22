@@ -38,8 +38,9 @@ this suite — if you see it, the expected files are missing from your checkout
 
 ## Plan encodings
 
-Each plan set is named after the **Substrait spec version** it conforms to, recorded as
-`substraitVersion` in the suite's metadata file and in every plan's `version` field:
+Each plan set is named after the **Substrait spec version** it conforms to. The version is
+recorded in every plan's `version` field and noted in a comment in the suite's metadata
+file (not as a metadata field: released SDKs such as Java 0.1.1 reject unknown fields):
 
 | Suite | Plans | Substrait | Meaning |
 |---|---|---|---|
@@ -86,7 +87,8 @@ When a spec change requires the plans to change:
 
 1. Copy `plans/` to `plans-substrait-<its current version>/` and add a matching
    `metadata-substrait-<version>.yaml` (suite `tpch-substrait-<version>`).
-2. Convert `plans/`, update `substraitVersion` in `metadata.yaml`, and verify.
+2. Convert `plans/` (bump `TARGET_VERSION` in the converter), update the version comment
+   in `metadata.yaml`, and verify.
 3. Keep at most one or two older plan sets; remove the oldest when adding a new one.
 
 Suite names therefore never change meaning: `tpch` is always the maintained plans,

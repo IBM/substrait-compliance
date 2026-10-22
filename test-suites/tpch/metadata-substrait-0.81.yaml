@@ -2,7 +2,8 @@
 # original ones in the Substrait 0.81 encoding (plans-substrait-0.81/). See README.md, "Plan encodings".
 name: "tpch-substrait-0.81"
 version: "1.0.0"
-substraitVersion: "0.81.0"    # spec version the plans in plans-substrait-0.81/ were produced with
+# Substrait spec version of the plans in plans-substrait-0.81/: 0.81.0 (also recorded in each plan's version field).
+# Kept as a comment: released SDKs (e.g. Java 0.1.1) reject unknown metadata fields.
 description: "TPC-H Benchmark Compliance Suite - the same 22 queries as tpch, with the original plans in the Substrait 0.81 encoding (per-grouping grouping_expressions, FetchRel offset/count; both since removed from the spec)"
 scale_factor: 0.01
 total_rows: 86630

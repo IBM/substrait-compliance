@@ -36,4 +36,23 @@ class YamlTestSuiteLoaderTest {
         assertThat(suite.getMetadata().getVersion()).isEqualTo("1.0.0");
         assertThat(suite.getTestCases()).isEmpty();
     }
+
+    @Test
+    void testUnknownMetadataFieldsAreIgnored(@TempDir Path tempDir) throws Exception {
+        // A suite gaining an optional top-level field (here substraitVersion) must still
+        // load rather than failing the whole suite.
+        String yaml = "name: \"test-suite\"\n" +
+                      "version: \"1.0.0\"\n" +
+                      "substraitVersion: \"0.107.0\"\n" +
+                      "description: \"Test suite\"\n" +
+                      "testCases: []\n";
+
+        Path yamlFile = tempDir.resolve("test.yaml");
+        Files.writeString(yamlFile, yaml);
+
+        TestSuite suite = new YamlTestSuiteLoader().load(yamlFile);
+
+        assertThat(suite.getName()).isEqualTo("test-suite");
+        assertThat(suite.getTestCases()).isEmpty();
+    }
 }
