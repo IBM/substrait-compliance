@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,12 +64,8 @@ public class ReportService {
                 .filter(r -> r.getStatus() == ReportSubmissionRequest.TestStatus.SKIPPED)
                 .count();
         
-        // Calculate compliance score
-        BigDecimal complianceScore = BigDecimal.valueOf(passedCount)
-                .multiply(BigDecimal.valueOf(100))
-                .divide(BigDecimal.valueOf(request.getTestResults().size()), 2, BigDecimal.ROUND_HALF_UP);
-        
-        // Create report entity
+        // Create report entity; its compliance score is passed / (total - skipped)
+        // (ReportEntity.calculateComplianceScore, the leaderboard's rule)
         ReportEntity report = ReportEntity.builder()
                 .engine(engine)
                 .testSuiteName(request.getTestSuiteName())
@@ -79,9 +74,9 @@ public class ReportService {
                 .passedCount((int) passedCount)
                 .failedCount((int) failedCount)
                 .skippedCount((int) skippedCount)
-                .complianceScore(complianceScore)
                 .metadata(request.getMetadata())
                 .build();
+        report.setComplianceScore(report.calculateComplianceScore());
         
         // Add test results
         for (ReportSubmissionRequest.TestResultDto testResultDto : request.getTestResults()) {

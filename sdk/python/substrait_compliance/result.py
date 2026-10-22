@@ -64,11 +64,13 @@ class ComplianceReport:
         return len(self.results)
     
     def get_pass_rate(self) -> float:
-        """Calculate pass rate as percentage."""
-        total = self.get_total_count()
-        if total == 0:
+        """Pass rate in percent: passed / (total - skipped). Skipped results count neither
+        way; failed and error results count as not passed. 0 when nothing was executed.
+        (sdk/conformance/pass-rate-vectors.csv)"""
+        executed = self.get_total_count() - self.get_skipped_count()
+        if executed == 0:
             return 0.0
-        return (self.get_passed_count() / total) * 100.0
+        return (self.get_passed_count() / executed) * 100.0
     
     def __str__(self) -> str:
         return (

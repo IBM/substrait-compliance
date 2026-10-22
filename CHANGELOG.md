@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Fixed — pass rate excludes skipped results in every SDK and the REST API
+- Pass rate is passed ÷ (total − skipped) everywhere, as on the leaderboard. Skipped results
+  count neither way; failed, error and unsupported results count as not passed. Before, every
+  SDK, the Java storage summaries, the DuckDB example and the REST API's `complianceScore`
+  divided by all results, so skipped tests lowered the score.
+  - **SDKs:** Python, Java, Go, TypeScript, Rust, Scala, C# and C++.
+  - **REST API:** `ReportService` now uses `ReportEntity.calculateComplianceScore`.
+- `sdk/conformance/pass-rate-vectors.csv`: shared vectors every SDK's tests check.
+- `sdk/conformance/comparison-vectors.json`: shared output-comparison vectors, checked against
+  the Java runner and the Python plan runner (the comparators that score the leaderboard).
+
 ### Added — leaderboard submissions by pull request
 - Engine teams run the suites in their own CI and submit the results by pull request:
   `submissions/<engine>/<version>/` holds a `manifest.json` (engine, consumer, CI run, suite

@@ -117,12 +117,17 @@ public class ReportEntity {
      * @return the compliance score as a percentage (0-100)
      */
     public BigDecimal calculateComplianceScore() {
-        if (totalTests == null || totalTests == 0) {
+        // passed / (total - skipped): skipped results count neither way, as on the leaderboard
+        // (sdk/conformance/pass-rate-vectors.csv)
+        int total = totalTests == null ? 0 : totalTests;
+        int skipped = skippedCount == null ? 0 : skippedCount;
+        int executed = total - skipped;
+        if (executed <= 0 || passedCount == null) {
             return BigDecimal.ZERO;
         }
         return BigDecimal.valueOf(passedCount)
             .multiply(BigDecimal.valueOf(100))
-            .divide(BigDecimal.valueOf(totalTests), 2, BigDecimal.ROUND_HALF_UP);
+            .divide(BigDecimal.valueOf(executed), 2, BigDecimal.ROUND_HALF_UP);
     }
 }
 

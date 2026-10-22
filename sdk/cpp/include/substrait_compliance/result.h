@@ -148,11 +148,15 @@ public:
     }
     
     /**
-     * @brief Calculate pass rate (0-100)
+     * @brief Pass rate in percent (0-100): passed / (total - skipped).
+     *
+     * Skipped results count neither way; failed, error and unsupported results count
+     * as not passed. 0 when nothing was executed (sdk/conformance/pass-rate-vectors.csv).
      */
     double pass_rate() const {
-        if (results_.empty()) return 0.0;
-        return (static_cast<double>(passed_count()) / results_.size()) * 100.0;
+        const size_t executed = results_.size() - skipped_count();
+        if (executed == 0) return 0.0;
+        return (static_cast<double>(passed_count()) / executed) * 100.0;
     }
     
     /**

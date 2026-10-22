@@ -139,7 +139,9 @@ public class DuckDBComplianceExample {
             }
         }
 
-        double passRate = totalTests > 0 ? (passedCount * 100.0) / totalTests : 0.0;
+        // passed / (total - skipped): skipped results count neither way
+        int executedCount = totalTests - skippedCount;
+        double passRate = executedCount > 0 ? (passedCount * 100.0) / executedCount : 0.0;
 
         // 5. Print results summary
         System.out.println();
