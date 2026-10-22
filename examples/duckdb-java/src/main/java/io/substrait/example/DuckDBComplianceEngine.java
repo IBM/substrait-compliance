@@ -98,8 +98,9 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
     ) throws ComplianceException {
         long startTime = System.currentTimeMillis();
         try {
-            // 1. Load input data into DuckDB
-            loadInputData(inputData);
+            // 1. Load input data into DuckDB, using the column names and types the
+            //    plan's read relations declare (the TPC-H CSVs have no header row).
+            loadInputData(inputData, PlanSchemas.namedTableSchemas(plan));
             
             // 2. Execute Substrait plan
             // Note: DuckDB's Substrait support would be used here
@@ -137,63 +138,82 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
         }
     }
     
-    private void loadInputData(Map<String, TableData> inputData) throws SQLException {
+    private void loadInputData(Map<String, TableData> inputData,
+                               Map<String, PlanSchemas.TableSchema> planSchemas) throws SQLException {
         for (Map.Entry<String, TableData> entry : inputData.entrySet()) {
             String tableName = entry.getKey();
             TableData data = entry.getValue();
-            
-            // Create table
-            createTable(tableName, data);
-            
-            // Insert data
+
+            List<String> columnNames = data.getColumnNames();
+            List<String> columnTypes = new ArrayList<>();
+            for (String type : data.getColumnTypes()) {
+                columnTypes.add(mapDataType(type));
+            }
+            // Prefer the plan's declared schema: it carries the real column names and
+            // types, while header-less CSVs only yield column_N / string.
+            PlanSchemas.TableSchema declared = planSchemas.get(tableName.toLowerCase(Locale.ROOT));
+            if (declared != null && declared.columnNames.size() == columnNames.size()) {
+                columnNames = declared.columnNames;
+                columnTypes = declared.sqlTypes;
+            }
+
+            createTable(tableName, columnNames, columnTypes);
             insertData(tableName, data);
         }
     }
-    
-    private void createTable(String tableName, TableData data) throws SQLException {
-        StringBuilder sql = new StringBuilder("CREATE TABLE ");
-        sql.append(tableName).append(" (");
-        
-        List<String> columnNames = data.getColumnNames();
-        List<String> columnTypes = data.getColumnTypes();
-        
+
+    private void createTable(String tableName, List<String> columnNames, List<String> sqlTypes)
+            throws SQLException {
+        // OR REPLACE: tables are reloaded for every test case, and several TPC-H
+        // queries share the same tables.
+        StringBuilder sql = new StringBuilder("CREATE OR REPLACE TABLE ");
+        sql.append(quoteIdentifier(tableName)).append(" (");
         for (int i = 0; i < columnNames.size(); i++) {
             if (i > 0) sql.append(", ");
-            sql.append(columnNames.get(i)).append(" ");
-            sql.append(mapDataType(columnTypes.get(i)));
+            sql.append(quoteIdentifier(columnNames.get(i))).append(" ").append(sqlTypes.get(i));
         }
-        
         sql.append(")");
-        
+
         try (Statement stmt = connection.createStatement()) {
             stmt.execute(sql.toString());
         }
     }
-    
+
+    private static final int INSERT_BATCH_ROWS = 1000;
+
     private void insertData(String tableName, TableData data) throws SQLException {
-        // Simplified - would use prepared statements in production
-        for (List<Object> row : data.getRows()) {
+        // Multi-row INSERTs: one statement per row is far too slow for lineitem (60k rows).
+        // String literals are cast by DuckDB to the column types (DATE, DECIMAL, ...).
+        List<List<Object>> rows = data.getRows();
+        for (int start = 0; start < rows.size(); start += INSERT_BATCH_ROWS) {
+            int end = Math.min(rows.size(), start + INSERT_BATCH_ROWS);
             StringBuilder sql = new StringBuilder("INSERT INTO ");
-            sql.append(tableName).append(" VALUES (");
-            
-            for (int i = 0; i < row.size(); i++) {
-                if (i > 0) sql.append(", ");
-                Object value = row.get(i);
-                if (value == null) {
-                    sql.append("NULL");
-                } else if (value instanceof String) {
-                    sql.append("'").append(value.toString().replace("'", "''")).append("'");
-                } else {
-                    sql.append(value);
+            sql.append(quoteIdentifier(tableName)).append(" VALUES ");
+            for (int r = start; r < end; r++) {
+                if (r > start) sql.append(", ");
+                sql.append("(");
+                List<Object> row = rows.get(r);
+                for (int i = 0; i < row.size(); i++) {
+                    if (i > 0) sql.append(", ");
+                    Object value = row.get(i);
+                    if (value == null) {
+                        sql.append("NULL");
+                    } else if (value instanceof String) {
+                        sql.append("'").append(value.toString().replace("'", "''")).append("'");
+                    } else {
+                        sql.append(value);
+                    }
                 }
+                sql.append(")");
             }
-            
-            sql.append(")");
-            
             try (Statement stmt = connection.createStatement()) {
                 stmt.execute(sql.toString());
             }
         }
+    }
+
+    private static String quoteIdentifier(String name) {
+        return "\"" + name.replace("\"", "\"\"") + "\"";
     }
     
     private TableData executeSubstraitPlan(Plan plan) throws SQLException {
