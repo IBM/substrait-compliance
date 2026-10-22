@@ -178,20 +178,36 @@ List all tested engines.
 Get historical compliance data for an engine.
 
 #### GET /api/v1/leaderboard
-Get compliance leaderboard.
+Get the compliance leaderboard: the published
+[`leaderboard.json`](https://ibm.github.io/substrait-compliance/leaderboard.json), returned as
+it is and cached for five minutes. Scores are computed by the repository's leaderboard
+workflow, not by the API ([docs/COMPLIANCE_LEADERBOARD.md](COMPLIANCE_LEADERBOARD.md)). Requires
+the `report:read` scope. Returns 503 if the published leaderboard cannot be fetched.
 
-**Response:**
+Configuration: `leaderboard.url` (default the GitHub Pages URL above) and
+`leaderboard.timeout-seconds` (default 10).
+
+**Response** (abridged):
 ```json
 {
+  "schemaVersion": 2,
+  "lastUpdated": "2026-10-22T23:22:00Z",
+  "scoring": "overall = average of the functions and queries category pass rates",
+  "totalEngines": 2,
   "engines": [
     {
       "rank": 1,
+      "schemaVersion": 2,
       "engineName": "DuckDB",
-      "engineVersion": "0.10.0",
-      "complianceScore": 95.5,
-      "totalTests": 22,
-      "passed": 21,
-      "failed": 1
+      "engineVersion": "1.5.6",
+      "consumer": "substrait community extension",
+      "provenance": {"source": "ci", "runUrl": "https://github.com/IBM/substrait-compliance/actions/runs/..."},
+      "passRate": 62.0,
+      "categories": {
+        "functions": {"suites": ["functions-substrait-0.107"], "passRate": 69.5},
+        "queries": {"suites": ["tpch"], "passRate": 54.5}
+      },
+      "suites": {"...": "per-suite figures"}
     }
   ]
 }

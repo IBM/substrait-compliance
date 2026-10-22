@@ -74,6 +74,11 @@ rate-limit:
   default-limit: ${RATE_LIMIT_DEFAULT:1000}
   refill-duration-minutes: ${RATE_LIMIT_REFILL_DURATION:60}
 
+# GET /api/v1/leaderboard serves the leaderboard published by the repository's workflow
+leaderboard:
+  url: ${LEADERBOARD_URL:https://ibm.github.io/substrait-compliance/leaderboard.json}
+  timeout-seconds: ${LEADERBOARD_TIMEOUT_SECONDS:10}
+
 webhook:
   retry-attempts: ${WEBHOOK_RETRY_ATTEMPTS:3}
   timeout-seconds: ${WEBHOOK_TIMEOUT_SECONDS:30}

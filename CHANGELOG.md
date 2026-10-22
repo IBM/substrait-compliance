@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Added — REST API `GET /api/v1/leaderboard`
+- Returns the published `leaderboard.json` as it is, cached for five minutes, so the API never
+  computes a ranking of its own. Requires `report:read`; 503 if the leaderboard cannot be
+  fetched. Configured by `leaderboard.url` and `leaderboard.timeout-seconds`.
+
 ### Added — leaderboard submissions by pull request
 - Engine teams run the suites in their own CI and submit the results by pull request:
   `submissions/<engine>/<version>/` holds a `manifest.json` (engine, consumer, CI run, suite

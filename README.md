@@ -1120,8 +1120,8 @@ python3 scripts/generate_leaderboard.py
 A Spring Boot REST API provides programmatic access to compliance results. It is an optional
 second route for results; the public leaderboard is published from pull-request submissions
 ([submissions/README.md](submissions/README.md)) and does not need it. `GET /api/v1/leaderboard`
-is not implemented yet: the published leaderboard data is
-[`leaderboard.json`](https://ibm.github.io/substrait-compliance/leaderboard.json).
+returns the published [`leaderboard.json`](https://ibm.github.io/substrait-compliance/leaderboard.json)
+as it is (cached for five minutes); the API does not compute scores of its own.
 
 **Features:** JWT authentication, report submission, data querying with filtering/pagination, webhooks, rate limiting, caching.
 
