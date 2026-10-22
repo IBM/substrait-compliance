@@ -53,7 +53,7 @@ import json
 import math
 import re
 import sys
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 from pathlib import Path
 
@@ -202,6 +202,27 @@ class DuckDBEngine:
     def query(self, sql: str):
         return self.con.execute(sql).fetchone()[0]
 
+    # -- plan mode -----------------------------------------------------------
+    def enable_plans(self):
+        """Load the substrait extension (community repository, as the Java runner does)."""
+        errors = []
+        for statement in ("INSTALL substrait FROM community", "INSTALL substrait"):
+            try:
+                self.con.execute(statement)
+                self.con.execute("LOAD substrait")
+                self.extensions["substrait"] = "loaded"
+                return
+            except Exception as exc:  # noqa: BLE001 - try the next source
+                errors.append(str(exc).splitlines()[0][:160])
+        raise SystemExit("❌ DuckDB substrait extension unavailable: " + " | ".join(errors))
+
+    def create_table(self, name: str, select_sql: str):
+        self.con.execute(f"CREATE OR REPLACE TABLE {name} AS {select_sql}")
+
+    def run_plan(self, plan_bytes: bytes):
+        """All rows of the plan's (single) output column."""
+        return [row[0] for row in self.con.execute("SELECT * FROM from_substrait(?)", [plan_bytes]).fetchall()]
+
     def error_kind(self, exc: Exception):
         """('parser'|'extension'|'missing'|'bind'|'runtime', detail)"""
         if _is_parser_error(exc):
@@ -214,6 +235,16 @@ class DuckDBEngine:
             return "missing", missing
         if type(exc).__name__ == "BinderException":
             return "bind", None
+        return "runtime", None
+
+    def plan_error_kind(self, exc: Exception):
+        """'rejected' when the substrait extension could not translate the plan,
+        'runtime' when the translated plan raised while running."""
+        name, msg = type(exc).__name__, str(exc)
+        if name in ("NotImplementedException", "BinderException", "ParserException", "CatalogException") \
+                or "not supported" in msg.lower() or "unsupported" in msg.lower() \
+                or "could not find" in msg.lower():
+            return "rejected", None
         return "runtime", None
 
 
@@ -246,6 +277,21 @@ class DataFusionEngine:
     def scalar(self, sql: str):
         return self.query(f"SELECT {sql}")
 
+    # -- plan mode -----------------------------------------------------------
+    def enable_plans(self):
+        from datafusion import substrait  # noqa: F401 - fail early if missing
+        self.extensions = {"substrait": "built in"}
+
+    def create_table(self, name: str, select_sql: str):
+        self.ctx.sql(f"CREATE OR REPLACE TABLE {name} AS {select_sql}").collect()
+
+    def run_plan(self, plan_bytes: bytes):
+        from datafusion import substrait as ss
+        plan = ss.Serde.deserialize_bytes(plan_bytes)
+        logical = ss.Consumer.from_substrait_plan(self.ctx, plan)
+        table = self.ctx.create_dataframe_from_logical_plan(logical).to_arrow_table()
+        return table.column(0).to_pylist()
+
     def error_kind(self, exc: Exception):
         msg = str(exc)
         if "ParserError" in msg or msg.startswith("SQL error"):
@@ -258,6 +304,12 @@ class DataFusionEngine:
         if "Error during planning" in msg or "not implemented" in msg or "Schema error" in msg:
             return "bind", None
         return "runtime", None
+
+    def plan_error_kind(self, exc: Exception):
+        msg = str(exc)
+        if "Optimizer rule" in msg or "Arrow error" in msg or "Execution error" in msg:
+            return "runtime", None
+        return "rejected", None
 
 
 ENGINES = {"duckdb": DuckDBEngine, "datafusion": DataFusionEngine}
@@ -304,6 +356,120 @@ def frame_types_for(source_lines, line_no):
         if source_lines[i].lstrip().startswith("DEFINE"):
             return fsql.frame_column_types(source_lines[i])
     return {}
+
+
+def _values_sql(engine, rows, types, with_row_number=False) -> str:
+    """SELECT for a data table: typed VALUES rows (or an empty typed SELECT)."""
+    names = (["rn"] if with_row_number else []) + [f"col{i}" for i in range(len(types))]
+    if not rows:
+        cols = (["CAST(NULL AS BIGINT) AS rn"] if with_row_number else []) + \
+               [f"CAST(NULL AS {fsql.sql_type(t, engine.dialect)}) AS col{i}" for i, t in enumerate(types)]
+        return f"SELECT {', '.join(cols)} WHERE FALSE"
+    tuples = []
+    for r, row in enumerate(rows):
+        if len(row) != len(types):
+            raise fsql.Untranslatable("row width does not match the declared columns")
+        vals = ([f"CAST({r + 1} AS BIGINT)"] if with_row_number else []) + \
+               [fsql.literal_sql(v, t, engine.dialect) for v, t in zip(row, types)]
+        tuples.append("(" + ", ".join(vals) + ")")
+    return f"SELECT * FROM (VALUES {', '.join(tuples)}) AS t({', '.join(names)})"
+
+
+def _column_types(args, frame_types=None):
+    columns = dict(frame_types or {})
+    for a in args:
+        if getattr(a, "column_name", "") and re.fullmatch(r"col\d+", a.column_name) and a.column_type:
+            columns[int(a.column_name[3:])] = a.column_type
+    return [columns[i] for i in range(max(columns) + 1)] if columns else []
+
+
+def _run_plan_case(engine, kind, tc, source_lines, test_file, registry):
+    """Like _run_upstream_case, but the function runs from a Substrait plan through
+    the engine's Substrait consumer. Only the expected literal and the input tables
+    use SQL."""
+    import function_plans as fp
+
+    result = tc.result
+    if isinstance(result, SubstraitError) and result.error == "undefined":
+        return SKIPPED, "expected result is undefined"
+    builder = fp.PlanBuilder(registry, test_file, kind)
+    tr = fsql.Translator(tc.options, engine.dialect)
+    try:
+        if kind == "window":
+            types = _column_types(tc.args, frame_types_for(source_lines, tc.line))
+            rows = [r for r in (tc.rows or []) if r]
+            engine.create_table(fp.DATA_TABLE, _values_sql(engine, rows, types, with_row_number=True))
+            plan = builder.window_plan(tc, [("rn", "i64")] + [(f"col{i}", t) for i, t in enumerate(types)])
+        elif tc.rows is not None or kind == "aggregate":
+            if tc.rows is None:
+                values = tc.args[0]
+                if not isinstance(values, CaseLiteral) or not isinstance(values.value, list):
+                    raise fsql.Untranslatable("aggregate input is not a value list")
+                types, rows = [values.type], [[v] for v in values.value]
+            else:
+                types, rows = _column_types(tc.args), [r for r in tc.rows if r]
+            engine.create_table(fp.DATA_TABLE, _values_sql(engine, rows, types))
+            plan = builder.aggregate_plan(tc, [(f"col{i}", t) for i, t in enumerate(types)])
+        else:
+            plan = builder.scalar_plan(tc)
+        expected_sql = None if isinstance(result, SubstraitError) else tr.expected(result)
+    except (fp.Unbuildable, fsql.Untranslatable) as exc:
+        return SKIPPED, f"plan not built: {exc}"
+
+    try:
+        rows_out = engine.run_plan(plan)
+    except Exception as exc:  # noqa: BLE001 - the consumer's answer is the result
+        msg = f"{type(exc).__name__}: {str(exc).splitlines()[0][:200]}"
+        if expected_sql is None:
+            kind_, _ = engine.plan_error_kind(exc)
+            if kind_ == "runtime":
+                return PASSED, None
+            return FAILED, f"expected a runtime error, but the consumer rejected the plan: {msg}"
+        return FAILED, msg
+    if expected_sql is None:
+        return FAILED, f"expected an error, got {rows_out!r}"
+
+    actual = rows_out if kind == "window" else (rows_out[0] if len(rows_out) == 1 else rows_out)
+    if kind != "window" and len(rows_out) != 1:
+        return FAILED, f"expected one result row, got {len(rows_out)}"
+    try:
+        expected_value = engine.query(expected_sql)
+        if isinstance(result, CaseLiteral) and compare_as_text(result.type):
+            # compare in the engine's text form, as the SQL mode does
+            if kind == "window":
+                raise fsql.Untranslatable("text comparison of window results")
+            expected_value = engine.query(f"SELECT CAST(({expected_sql}) AS VARCHAR)")
+            actual = engine.query(f"SELECT CAST({_python_literal_sql(engine, actual, result.type)} AS VARCHAR)")
+    except Exception as exc:  # noqa: BLE001
+        return SKIPPED, f"untranslatable expected value {expected_sql}: {type(exc).__name__}"
+    if upstream_values_match(actual, expected_value, result.type):
+        return PASSED, None
+    return FAILED, f"got {actual!r}, expected {expected_value!r}"
+
+
+def _python_literal_sql(engine, value, type_str):
+    """A Python value returned by the engine, back as an SQL literal of type_str (for
+    text comparisons of intervals and nanosecond timestamps)."""
+    if value is None:
+        return f"CAST(NULL AS {fsql.sql_type(type_str, engine.dialect)})"
+    if isinstance(value, timedelta):
+        micros = value // timedelta(microseconds=1)
+        return f"CAST('{micros} microseconds' AS INTERVAL)"
+    return f"CAST('{value}' AS {fsql.sql_type(type_str, engine.dialect)})"
+
+
+def run_plan_case(engine, kind, tc, source_lines, test_file, registry):
+    """Plan-mode counterpart of run_upstream_case (same option rules)."""
+    for key, value in tc.options.items():
+        modes = engine.implemented_modes.get(key)
+        if modes is not None and str(value).upper() not in modes:
+            return SKIPPED, f"unsupported option {key}:{value} (engine implements {key}:{'/'.join(sorted(modes))})"
+    status, reason = _run_plan_case(engine, kind, tc, source_lines, test_file, registry)
+    unknown = {k: v for k, v in tc.options.items() if k not in engine.implemented_modes}
+    if status == FAILED and unknown:
+        modes = ", ".join(f"{k}:{v}" for k, v in unknown.items())
+        return SKIPPED, f"option mode not implemented ({modes}): {reason}"
+    return status, reason
 
 
 def run_upstream_case(engine, kind, tc, source_lines):
@@ -538,9 +704,20 @@ def main(argv=None):
     ap.add_argument("--suite-name", default="functions", help="suite name recorded in the report")
     ap.add_argument("--engine", choices=sorted(ENGINES), default="duckdb",
                     help="engine to run on (legacy-format files: duckdb only)")
+    ap.add_argument("--mode", choices=("sql", "plan"), default="sql",
+                    help="sql: translate each case to the engine's SQL (default); plan: build a "
+                         "Substrait plan per case and run it through the engine's Substrait consumer "
+                         "(current-format suites only)")
     args = ap.parse_args(argv)
 
     engine = ENGINES[args.engine]()
+    registry = None
+    if args.mode == "plan":
+        engine.enable_plans()
+        engine.create_table("one_row", "SELECT CAST(1 AS INTEGER) AS dummy")  # input of scalar plans
+        import validate_function_tests as vft
+        m = re.search(r"substrait-(\d+\.\d+)", str(args.suites_dir.resolve()))
+        registry, _ = vft.load_registry(m.group(1) if m else None)
     parser = FunctionTestParser()
     files = sorted(args.suites_dir.rglob("*.test"))
     if not files:
@@ -560,10 +737,14 @@ def main(argv=None):
                 continue
             source_lines = path.read_text(encoding="utf-8").splitlines()
             kind = file_kind(path)
-            cases = [(tc, run_upstream_case(engine, kind, tc, source_lines),
-                      tc.line, source_lines[tc.line - 1].strip()) for tc in test_file.testcases]
+            if args.mode == "plan":
+                cases = [(tc, run_plan_case(engine, kind, tc, source_lines, test_file, registry),
+                          tc.line, source_lines[tc.line - 1].strip()) for tc in test_file.testcases]
+            else:
+                cases = [(tc, run_upstream_case(engine, kind, tc, source_lines),
+                          tc.line, source_lines[tc.line - 1].strip()) for tc in test_file.testcases]
         else:
-            if args.engine != "duckdb":
+            if args.engine != "duckdb" or args.mode == "plan":
                 raise SystemExit(f"❌ {display_path(path)} is in the legacy format, which only the "
                                  f"duckdb engine supports; use a current-format suite")
             try:
@@ -602,6 +783,7 @@ def main(argv=None):
         "engineName": engine.name,
         "engineVersion": engine.version,
         "suite": args.suite_name,
+        "mode": args.mode,
         "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "totalTests": totals["total"],
         "passed": totals[PASSED],
