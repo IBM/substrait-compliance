@@ -69,3 +69,34 @@ def test_cast_and_struct():
 def test_array_operations():
     res = SubstraitExpressionMapper.map_expression("array_contains([1, 2, 3]::list<i32>, 2::i32)")
     assert "list_contains" in res
+
+
+def test_negative_literals_are_parenthesized():
+    # -128::TINYINT would parse as -(128::TINYINT) and overflow
+    assert SubstraitExpressionMapper.clean_types("-128::i8") == "(-128)::TINYINT"
+    assert SubstraitExpressionMapper.clean_types("-1.5e+10::fp64") == "(-1.5e+10)::DOUBLE"
+    assert (SubstraitExpressionMapper.map_expression("add(-128::i8, 1::i8)")
+            == "((-128)::TINYINT + 1::TINYINT)")
+    assert (SubstraitExpressionMapper.map_expression("subtract(5::i32, -3::i32)")
+            == "(5::INTEGER - (-3)::INTEGER)")
+    # Special float literals keep their existing quoting
+    assert SubstraitExpressionMapper.clean_types("-inf::fp64") == "'-inf'::DOUBLE"
+
+
+def test_interval_literals():
+    M = SubstraitExpressionMapper
+    assert M.clean_types("'P5D'::iday") == "INTERVAL '5 days'"
+    assert M.clean_types("'P1Y2M'::iyear") == "INTERVAL '1 years 2 months'"
+    assert M.clean_types("'PT5H'::iday") == "INTERVAL '5 hours'"
+    assert M.clean_types("'P1DT10H0M0S'::iday") == "INTERVAL '1 days 10 hours 0 minutes 0 seconds'"
+    assert M.clean_types("'PT-1S'::iday") == "INTERVAL '-1 seconds'"
+
+
+def test_bitwise_and_truth_tests():
+    M = SubstraitExpressionMapper
+    assert M.map_expression("bitwise_and(12::i32, 10::i32)") == "(12::INTEGER & 10::INTEGER)"
+    assert M.map_expression("bitwise_xor(12::i32, 10::i32)") == "xor(12::INTEGER, 10::INTEGER)"
+    assert M.map_expression("bitwise_not(12::i32)") == "(~(12::INTEGER))"
+    assert M.map_expression("shift_left(1::i32, 3::i32)") == "(1::INTEGER << 3::INTEGER)"
+    assert M.map_expression("is_not_false(null::bool)") == "(null::BOOLEAN IS NOT FALSE)"
+    assert M.map_expression("octet_length('abc'::str)") == "strlen('abc'::VARCHAR)"

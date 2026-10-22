@@ -147,8 +147,15 @@ def generate_leaderboard_markdown(reports: List[Dict[str, Any]], output_path: Pa
             f"- **Failed**: {failed}",
             f"- **Skipped**: {skipped}",
             f"- **Last Updated**: {timestamp}",
-            ""
         ])
+        for suite_name, suite in (report.get('suites') or {}).items():
+            suite_rate = suite.get('passRate')
+            rate_txt = 'n/a' if suite_rate is None else f"{suite_rate:.1f}%"
+            lines.append(
+                f"  - `{suite_name}`: {rate_txt} — {suite.get('passed', 0)} passed, "
+                f"{suite.get('failed', 0)} failed, {suite.get('skipped', 0)} skipped"
+            )
+        lines.append("")
     
     # Add legend
     lines.extend([
@@ -196,7 +203,8 @@ def generate_leaderboard_json(reports: List[Dict[str, Any]], output_path: Path):
             "failed": report.get('failed', 0),
             "skipped": report.get('skipped', 0),
             "totalTests": report.get('totalTests', 0),
-            "timestamp": report.get('timestamp', 'Unknown')
+            "timestamp": report.get('timestamp', 'Unknown'),
+            **({"suites": report['suites']} if isinstance(report.get('suites'), dict) else {})
         })
     
     with open(output_path, 'w') as f:
@@ -213,6 +221,8 @@ def main():
                         help='Output file path (markdown or json)')
     parser.add_argument('--format', '-f', choices=['markdown', 'json', 'both'], default='markdown',
                         help='Output format')
+    parser.add_argument('--include-demo', action='store_true',
+                        help='Include reports marked "demo": true (excluded by default)')
     
     args = parser.parse_args()
     
@@ -221,7 +231,9 @@ def main():
     if args.input.is_dir():
         for report_file in args.input.glob('*.json'):
             report = load_compliance_report(report_file)
-            if report:
+            if report and report.get('demo') and not args.include_demo:
+                print(f"Skipping demo report {report_file.name} (use --include-demo to keep it)")
+            elif report:
                 reports.append(report)
     else:
         print(f"Error: {args.input} is not a directory", file=sys.stderr)

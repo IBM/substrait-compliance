@@ -7,6 +7,11 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [compliance-report-submitted]
+  # Publish as soon as a DuckDB compliance run on main finishes
+  workflow_run:
+    workflows: ["DuckDB Substrait Compliance CI"]
+    types: [completed]
+    branches: [main]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -19,29 +24,37 @@ jobs:
   collect-reports:
     name: Collect Compliance Reports
     runs-on: ubuntu-latest
-    
+    # On workflow_run, only publish results from a successful DuckDB run
+    if: github.event_name != 'workflow_run' || github.event.workflow_run.conclusion == 'success'
+    permissions:
+      contents: read
+      actions: read
+
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      
       - name: Create reports directory
         run: mkdir -p compliance-reports
-      
-      - name: Load MockDB demo report
-        run: |
-          echo '{"engineName":"MockDB","engineVersion":"1.0.0","passRate":85.4,"passed":19,"failed":3,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z","demo":true}' \
-            > compliance-reports/mockdb.json
 
-      - name: Load FastDB demo report
+      # Demo engines (MockDB, FastDB, CloudDB) are no longer published here; they
+      # remain in the local demo under demo/. Only measured results are listed.
+      - name: Download latest DuckDB compliance report
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          TRIGGER_RUN_ID: ${{ github.event.workflow_run.id }}
         run: |
-          echo '{"engineName":"FastDB","engineVersion":"1.0.0","passRate":95.5,"passed":21,"failed":1,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z","demo":true}' \
-            > compliance-reports/fastdb.json
+          RUN_ID="$TRIGGER_RUN_ID"
+          if [ -z "$RUN_ID" ]; then
+            RUN_ID=$(gh run list --workflow duckdb-compliance.yml --branch main --status success \
+              --limit 1 --json databaseId --jq '.[0].databaseId // empty')
+          fi
+          if [ -z "$RUN_ID" ]; then
+            echo "❌ No successful DuckDB compliance run on main yet; nothing real to publish"
+            exit 1
+          fi
+          echo "Using DuckDB compliance run $RUN_ID"
+          gh run download "$RUN_ID" --name duckdb-leaderboard-report --dir compliance-reports
+          ls -l compliance-reports
 
-      - name: Load CloudDB demo report
-        run: |
-          echo '{"engineName":"CloudDB","engineVersion":"1.0.0","passRate":77.3,"passed":17,"failed":5,"skipped":0,"totalTests":22,"timestamp":"2026-04-01T00:00:00Z","demo":true}' \
-            > compliance-reports/clouddb.json
-      
       - name: Upload collected reports
         uses: actions/upload-artifact@v4
         with:
@@ -83,45 +96,10 @@ jobs:
             docs/leaderboard.md
             docs/leaderboard.json
 
-  publish-leaderboard:
-    name: Publish Leaderboard
-    runs-on: ubuntu-latest
-    needs: generate-leaderboard
-    if: github.event_name != 'pull_request'
-    permissions:
-      contents: write
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          ref: main
-      
-      - name: Download leaderboard
-        uses: actions/download-artifact@v4
-        with:
-          name: leaderboard
-          path: docs
-      
-      - name: Commit and push leaderboard
-        run: |
-          git config user.name "GitHub Actions"
-          git config user.email "actions@github.com"
-          
-          git add docs/leaderboard.md docs/leaderboard.json
-          
-          if git diff --staged --quiet; then
-            echo "No changes to leaderboard"
-          else
-            git commit -m "Update compliance leaderboard [skip ci]"
-            git push
-            echo "✅ Leaderboard updated"
-          fi
-
   deploy-to-pages:
     name: Deploy to GitHub Pages
     runs-on: ubuntu-latest
-    needs: publish-leaderboard
+    needs: generate-leaderboard
     if: github.event_name != 'pull_request'
     permissions:
       contents: read
@@ -129,11 +107,12 @@ jobs:
       id-token: write
     
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - name: Download leaderboard
+        uses: actions/download-artifact@v4
         with:
-          ref: main
-      
+          name: leaderboard
+          path: docs
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
       
@@ -203,7 +182,7 @@ jobs:
           <body>
               <div class="container">
                   <h1>🏆 Substrait Compliance Leaderboard</h1>
-                  <p>⚠️ <strong>Demo data</strong> — results below are from mock engines included in the framework. Real engine submissions will replace this data as engines integrate with the test suite.</p>
+                  <p>Results from automated compliance runs against real engines. Pass rate = passed ÷ executed tests; skipped tests are reported separately and never counted as passes.</p>
                   <div id="leaderboard">Loading...</div>
                   <div class="footer">
                       <p>Last updated: <span id="last-updated"></span></p>
@@ -217,7 +196,7 @@ jobs:
                           document.getElementById('last-updated').textContent = new Date(data.lastUpdated).toLocaleString();
                           
                           let html = '<table><thead><tr>';
-                          html += '<th>Rank</th><th>Engine</th><th>Version</th><th>Pass Rate</th><th>Queries Passed</th><th>Status</th>';
+                          html += '<th>Rank</th><th>Engine</th><th>Version</th><th>Pass Rate</th><th>Passed / Executed</th><th>Skipped</th><th>Suites</th><th>Status</th>';
                           html += '</tr></thead><tbody>';
                           
                           data.engines.forEach(engine => {
@@ -241,7 +220,11 @@ jobs:
                               html += `<td><strong>${engine.engineName}</strong></td>`;
                               html += `<td>${engine.engineVersion}</td>`;
                               html += `<td class="${statusClass}">${engine.passRate.toFixed(1)}%</td>`;
-                              html += `<td>${engine.passed}/${engine.totalTests}</td>`;
+                              html += `<td>${engine.passed}/${engine.passed + engine.failed}</td>`;
+                              html += `<td>${engine.skipped}</td>`;
+                              const suites = Object.entries(engine.suites || {}).map(([name, s]) =>
+                                  `${name}: ${s.passRate === null ? 'n/a' : s.passRate.toFixed(1) + '%'}`).join('<br>');
+                              html += `<td>${suites || '—'}</td>`;
                               html += `<td>${statusEmoji}</td>`;
                               html += '</tr>';
                           });
@@ -270,8 +253,8 @@ jobs:
   notify:
     name: Send Notifications
     runs-on: ubuntu-latest
-    needs: [generate-leaderboard, publish-leaderboard]
-    if: always()
+    needs: [generate-leaderboard]
+    if: always() && needs.generate-leaderboard.result == 'success'
     
     steps:
       - name: Download leaderboard
@@ -312,7 +295,7 @@ jobs:
   summary:
     name: Workflow Summary
     runs-on: ubuntu-latest
-    needs: [collect-reports, generate-leaderboard, publish-leaderboard, deploy-to-pages]
+    needs: [collect-reports, generate-leaderboard, deploy-to-pages]
     if: always()
     
     steps:
@@ -324,7 +307,6 @@ jobs:
           echo "|------|--------|" >> $GITHUB_STEP_SUMMARY
           echo "| Collect Reports | ${{ needs.collect-reports.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Generate Leaderboard | ${{ needs.generate-leaderboard.result == 'success' && '✅ Success' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
-          echo "| Publish Leaderboard | ${{ needs.publish-leaderboard.result == 'success' && '✅ Success' || needs.publish-leaderboard.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
           echo "| Deploy to Pages | ${{ needs.deploy-to-pages.result == 'success' && '✅ Success' || needs.deploy-to-pages.result == 'skipped' && '⏭️ Skipped' || '❌ Failed' }} |" >> $GITHUB_STEP_SUMMARY
 
 # Made with Bob

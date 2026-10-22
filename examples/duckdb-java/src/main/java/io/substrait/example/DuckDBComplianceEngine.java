@@ -13,16 +13,23 @@ import java.util.*;
 public class DuckDBComplianceEngine implements ComplianceEngine {
     
     private final Connection connection;
+    private final String duckdbVersion;
     
     public DuckDBComplianceEngine() throws SQLException {
         // Initialize DuckDB in-memory database
         this.connection = DriverManager.getConnection("jdbc:duckdb:");
-        // Load the Substrait extension so that substrait() table function is available.
-        // This is a no-op if already loaded; throws if the extension cannot be installed.
-        try (Statement stmt = connection.createStatement()) {
-            stmt.execute("INSTALL substrait");
-            stmt.execute("LOAD substrait");
+        // Report the real engine version rather than a hard-coded string.
+        String version = connection.getMetaData().getDatabaseProductVersion();
+        this.duckdbVersion = version != null && version.startsWith("v") ? version.substring(1) : version;
+        // Load the Substrait extension so that the substrait() table function is available.
+        try {
+            loadSubstraitExtension();
         } catch (SQLException e) {
+            // CI sets COMPLIANCE_REQUIRE_SUBSTRAIT_EXTENSION=true so a missing extension fails
+            // the run instead of silently reporting every plan as a failure.
+            if ("true".equalsIgnoreCase(System.getenv("COMPLIANCE_REQUIRE_SUBSTRAIT_EXTENSION"))) {
+                throw new SQLException("DuckDB substrait extension could not be loaded", e);
+            }
             // Extension may not be installable in offline environments.
             // The execute_plan call will fail later with a clear message.
             System.err.println("Warning: DuckDB substrait extension could not be loaded: "
@@ -30,11 +37,23 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
         }
     }
     
+    /** Install substrait from DuckDB's core repository, falling back to the community one. */
+    private void loadSubstraitExtension() throws SQLException {
+        try (Statement stmt = connection.createStatement()) {
+            try {
+                stmt.execute("INSTALL substrait");
+            } catch (SQLException coreRepoError) {
+                stmt.execute("INSTALL substrait FROM community");
+            }
+            stmt.execute("LOAD substrait");
+        }
+    }
+
     @Override
     public EngineInfo getEngineInfo() {
         return new EngineInfo(
             "DuckDB",
-            "0.10.0",
+            duckdbVersion,
             "0.80.0"  // Substrait version
         );
     }
