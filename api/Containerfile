@@ -42,10 +42,15 @@ COPY api/src src
 RUN gradle bootJar --no-daemon -q
 
 # ── Stage 3: Runtime ──────────────────────────────────────────────────────────
-FROM eclipse-temurin:17-jre-jammy
+# Ubuntu 24.04 (noble) base; OS packages are upgraded at build time so the image
+# picks up security fixes released after the base image was published.
+FROM eclipse-temurin:17-jre-noble
 
-# Install curl for healthcheck
-RUN apt-get update -q && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+# Apply OS security updates and install curl for the healthcheck
+RUN apt-get update -q \
+    && apt-get upgrade -y --no-install-recommends \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 

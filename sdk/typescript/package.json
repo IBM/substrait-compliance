@@ -32,7 +32,7 @@
     "directory": "sdk/typescript"
   },
   "dependencies": {
-    "js-yaml": "^4.3.0"
+    "js-yaml": "^4.3.2"
   },
   "devDependencies": {
     "@types/jest": "^29.5.0",
@@ -96,6 +96,11 @@
     "rules": {
       "@typescript-eslint/no-explicit-any": "warn",
       "@typescript-eslint/explicit-module-boundary-types": "off"
+    }
+  },
+  "overrides": {
+    "@istanbuljs/load-nyc-config": {
+      "js-yaml": "^3.15.2"
     }
   }
 }
