@@ -2,6 +2,7 @@
 
 #include "result.h"
 #include "table_data.h"
+#include <algorithm>
 #include <string>
 #include <vector>
 #include <memory>
