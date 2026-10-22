@@ -1,10 +1,12 @@
 """Test suite loaders for various formats."""
 
+from __future__ import annotations
+
 from abc import ABC, abstractmethod
 import csv
 import io
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 import yaml
 from .test_suite import TestSuite, TestCase, TestSuiteMetadata
 from .table_data import Column, DataType, TableData

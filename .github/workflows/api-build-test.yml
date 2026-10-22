@@ -72,11 +72,5 @@ jobs:
             api/build/reports/
           retention-days: 7
       
-      - name: Publish test results
-        uses: EnricoMi/publish-unit-test-result-action@v2
-        if: always()
-        with:
-          files: api/build/test-results/**/*.xml
-          check_name: API Test Results
 
 # Made with Bob

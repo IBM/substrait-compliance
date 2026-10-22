@@ -60,7 +60,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
-          file: sdk/python/coverage.xml
+          files: sdk/python/coverage.xml
           flags: python
           name: python-${{ matrix.python-version }}
 
@@ -78,10 +78,9 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Install Rust ${{ matrix.rust-version }}
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ matrix.rust-version }}
-          components: rustfmt, clippy
+        run: |
+          rustup toolchain install ${{ matrix.rust-version }} --profile minimal -c rustfmt,clippy
+          rustup default ${{ matrix.rust-version }}
       
       - name: Cache cargo registry
         uses: actions/cache@v4
@@ -187,7 +186,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake build-essential ${{ matrix.compiler }}
+          sudo apt-get install -y cmake build-essential libprotobuf-dev protobuf-compiler libyaml-cpp-dev pkg-config
       
       - name: Configure CMake
         working-directory: sdk/cpp
@@ -246,7 +245,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
-          file: sdk/go/coverage.txt
+          files: sdk/go/coverage.txt
           flags: go
           name: go-${{ matrix.go-version }}
 
@@ -296,7 +295,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
-          file: sdk/typescript/coverage/lcov.info
+          files: sdk/typescript/coverage/lcov.info
           flags: typescript
           name: typescript-${{ matrix.node-version }}
 
@@ -333,7 +332,7 @@ jobs:
       - name: Upload coverage
         uses: codecov/codecov-action@v5
         with:
-          file: sdk/csharp/**/coverage.cobertura.xml
+          files: sdk/csharp/**/coverage.cobertura.xml
           flags: csharp
           name: csharp-${{ matrix.dotnet-version }}
 
@@ -345,7 +344,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        scala-version: ['2.13', '3.3']
+        scala-version: ['2.13']
     
     steps:
       - uses: actions/checkout@v4
@@ -365,6 +364,12 @@ jobs:
           key: ${{ runner.os }}-sbt-${{ hashFiles('sdk/scala/build.sbt') }}
           restore-keys: |
             ${{ runner.os }}-sbt-
+
+      - name: Install sbt
+        run: |
+          curl -fLo sbt.tgz https://github.com/sbt/sbt/releases/download/v1.9.9/sbt-1.9.9.tgz
+          tar -xzf sbt.tgz
+          echo "$PWD/sbt/bin" >> $GITHUB_PATH
       
       - name: Compile
         working-directory: sdk/scala

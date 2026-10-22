@@ -55,7 +55,7 @@ jobs:
       - name: Check test results
         run: |
           cd sdk/java
-          if [ -f build/test-results/test/TEST-*.xml ]; then
+          if compgen -G 'build/test-results/test/TEST-*.xml' > /dev/null; then
             echo "✅ Java SDK tests completed"
           else
             echo "❌ Java SDK tests failed"
@@ -66,8 +66,9 @@ jobs:
     name: Python SDK Build & Test
     runs-on: ubuntu-latest
     strategy:
+      fail-fast: false
       matrix:
-        python-version: ['3.8', '3.9', '3.10', '3.11']
+        python-version: ['3.9', '3.10', '3.11', '3.12']
     
     steps:
       - name: Checkout code
@@ -83,7 +84,8 @@ jobs:
         run: |
           cd sdk/python
           python -m pip install --upgrade pip
-          pip install -e .[dev]
+          pip install -e .
+          pip install pytest pytest-cov
       
       - name: Run Python SDK tests
         run: |
@@ -118,9 +120,7 @@ jobs:
         uses: actions/checkout@v4
       
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-        with:
-          components: rustfmt, clippy
+        run: rustup toolchain install stable --profile minimal -c rustfmt,clippy
       
       - name: Cache Rust dependencies
         uses: actions/cache@v4
@@ -250,8 +250,11 @@ jobs:
           distribution: 'temurin'
           cache: 'sbt'
 
-      - name: Set up sbt
-        uses: sbt/setup-sbt@v1
+      - name: Install sbt
+        run: |
+          curl -fLo sbt.tgz https://github.com/sbt/sbt/releases/download/v1.9.9/sbt-1.9.9.tgz
+          tar -xzf sbt.tgz
+          echo "$PWD/sbt/bin" >> $GITHUB_PATH
 
       - name: Build Scala SDK
         run: cd sdk/scala && sbt compile
@@ -407,8 +410,7 @@ jobs:
           # Verify the SDK imports cleanly
           from substrait_compliance import ComplianceEngine, EngineInfo, ComplianceRunner
           # Verify DataFusion imports cleanly
-          from datafusion import SessionContext
-          import datafusion_substrait  # noqa: F401
+          from datafusion import SessionContext, substrait  # noqa: F401
           import pyarrow as pa
           print("✅ All imports succeeded")
           EOF
@@ -426,7 +428,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        run: rustup toolchain install stable --profile minimal -c rustfmt,clippy
 
       - name: Cache Rust dependencies
         uses: actions/cache@v4
