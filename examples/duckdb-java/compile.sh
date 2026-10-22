@@ -22,7 +22,7 @@ if [ ! -f "$FAT_JAR" ]; then
         FAT_JAR=$(ls "$SDK_DIR"/build/libs/*-all.jar | head -n 1)
     fi
 fi
-DUCKDB_VERSION="1.3.1.0"
+DUCKDB_VERSION="${DUCKDB_JDBC_VERSION:-1.5.6.0}"
 DUCKDB_JAR="$SCRIPT_DIR/lib/duckdb_jdbc-${DUCKDB_VERSION}.jar"
 
 # ── SDK fat jar ──────────────────────────────────────────────────────────────

@@ -73,6 +73,18 @@ class SubstraitExpressionMapper:
         'like': 'LIKE',
         'is_not_distinct_from': 'IS NOT DISTINCT FROM',
         'is_distinct_from': 'IS DISTINCT FROM',
+        'bitwise_and': '&',
+        'bitwise_or': '|',
+        'shift_left': '<<',
+        'shift_right': '>>',
+    }
+
+    # Unary predicates written as postfix SQL tests
+    POSTFIX_TESTS: Dict[str, str] = {
+        'is_true': 'IS TRUE',
+        'is_false': 'IS FALSE',
+        'is_not_true': 'IS NOT TRUE',
+        'is_not_false': 'IS NOT FALSE',
     }
 
     # Builtin function renames
@@ -86,7 +98,25 @@ class SubstraitExpressionMapper:
         'array_contains': 'list_contains',
         'array_length': 'len',
         'list_length': 'len',
+        'octet_length': 'strlen',
+        'bitwise_xor': 'xor',
     }
+
+    ISO_DURATION = re.compile(
+        r"^(-)?P(?:(-?\d+)Y)?(?:(-?\d+)M)?(?:(-?\d+)W)?(?:(-?\d+)D)?"
+        r"(?:T(?:(-?\d+)H)?(?:(-?\d+)M)?(?:(-?\d+(?:\.\d+)?)S)?)?$")
+
+    @classmethod
+    def iso_duration_to_interval(cls, iso: str) -> Optional[str]:
+        """'P1Y2M3DT4H5M6S' -> "INTERVAL '1 years 2 months 3 days 4 hours 5 minutes 6 seconds'"."""
+        m = cls.ISO_DURATION.match(iso)
+        if not m or iso in ('P', 'PT', '-P'):
+            return None
+        sign = -1 if m.group(1) else 1
+        units = ['years', 'months', 'weeks', 'days', 'hours', 'minutes', 'seconds']
+        parts = [f"{sign * float(v) if '.' in v else sign * int(v)} {u}"
+                 for v, u in zip(m.groups()[1:], units) if v is not None]
+        return f"INTERVAL '{' '.join(parts) or '0 seconds'}'"
 
     @classmethod
     def clean_types(cls, expr: str) -> str:
@@ -103,6 +133,12 @@ class SubstraitExpressionMapper:
         s = re.sub(r'(?<!\w)\+inf::', r"'inf'::", s)
         s = re.sub(r'(?<!\w)inf::', r"'inf'::", s)
         s = re.sub(r'(?<!\w)nan::', r"'nan'::", s)
+        # ISO-8601 duration literals: 'P5D'::iday -> INTERVAL '5 days'
+        s = re.sub(r"'(-?P[0-9YMWDTHS.\-]*)'::(?:iday|iyear|interval\w*)(?:<[^>]*>)?",
+                   lambda m: cls.iso_duration_to_interval(m.group(1)) or m.group(0), s)
+        # Negative numeric literals: in SQL the cast binds tighter than unary minus, so
+        # -128::TINYINT means -(128::TINYINT) and overflows. Parenthesize the literal.
+        s = re.sub(r'(?<![\w.)\]])-(\d+(?:\.\d+)?(?:[eE][+-]?\d+)?)::', r'(-\1)::', s)
         # Type annotations
         for sub_t, duck_t in cls.TYPE_MAP.items():
             s = re.sub(re.escape(sub_t) + r'(?!\w)', duck_t, s)
@@ -181,6 +217,12 @@ class SubstraitExpressionMapper:
 
         if fn_name == 'is_not_null' and len(mapped_args) == 1:
             return f"({mapped_args[0]} IS NOT NULL)"
+
+        if fn_name in cls.POSTFIX_TESTS and len(mapped_args) == 1:
+            return f"({mapped_args[0]} {cls.POSTFIX_TESTS[fn_name]})"
+
+        if fn_name == 'bitwise_not' and len(mapped_args) == 1:
+            return f"(~({mapped_args[0]}))"
 
         # 4. Cast Operations (try_cast('42', i32) -> TRY_CAST('42' AS INTEGER))
         if fn_name in ('try_cast', 'cast') and len(mapped_args) == 2:

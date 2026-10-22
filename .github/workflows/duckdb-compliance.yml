@@ -8,6 +8,10 @@ on:
       - 'sdk/java/**'
       - 'test-suites/**'
       - 'test-suites-enhanced/**'
+      - 'sdk/python/**'
+      - 'scripts/run_function_compliance.py'
+      - 'scripts/combine_engine_reports.py'
+      - 'scripts/generate_leaderboard.py'
       - '.github/workflows/duckdb-compliance.yml'
   pull_request:
     branches: [ main, develop ]
@@ -16,6 +20,10 @@ on:
       - 'sdk/java/**'
       - 'test-suites/**'
       - 'test-suites-enhanced/**'
+      - 'sdk/python/**'
+      - 'scripts/run_function_compliance.py'
+      - 'scripts/combine_engine_reports.py'
+      - 'scripts/generate_leaderboard.py'
       - '.github/workflows/duckdb-compliance.yml'
   schedule:
     # Run weekly on Monday at 02:00 UTC
@@ -23,23 +31,17 @@ on:
   workflow_dispatch:
     inputs:
       compliance_threshold:
-        description: 'Minimum compliance pass rate percentage (0-100)'
+        description: 'Minimum combined pass rate percentage (0-100)'
         required: false
-        default: '45'
-      engine_name:
-        description: 'Target engine name'
-        required: false
-        default: 'DuckDB'
-      engine_version:
-        description: 'Target engine version'
-        required: false
-        default: '1.2.0'
+        default: '80'
 
 env:
-  ENGINE_NAME: ${{ github.event.inputs.engine_name || 'DuckDB' }}
-  ENGINE_VERSION: ${{ github.event.inputs.engine_version || '1.2.0' }}
+  # Python package and JDBC driver are pinned to the same DuckDB release so both
+  # suites measure one engine version.
+  DUCKDB_PY_VERSION: "1.5.6"
+  DUCKDB_JDBC_VERSION: "1.5.6.0"
   COMPLIANCE_SDK_VERSION: "0.1.1"
-  COMPLIANCE_THRESHOLD: ${{ github.event.inputs.compliance_threshold || 45 }}
+  COMPLIANCE_THRESHOLD: ${{ inputs.compliance_threshold || '80' }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -93,7 +95,7 @@ jobs:
   # 2. Implement & Execute Engine Compliance Tests
   # ============================================================================
   run-compliance:
-    name: Run Compliance Tests (${{ inputs.engine_name || 'DuckDB' }})
+    name: Run DuckDB Compliance Tests
     runs-on: ubuntu-latest
     needs: build-framework
     outputs:
@@ -102,6 +104,7 @@ jobs:
       total: ${{ steps.parse-results.outputs.total }}
       failed: ${{ steps.parse-results.outputs.failed }}
       skipped: ${{ steps.parse-results.outputs.skipped }}
+      engine-version: ${{ steps.parse-results.outputs.engine-version }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -125,143 +128,126 @@ jobs:
           cache: 'pip'
           cache-dependency-path: 'sdk/python/pyproject.toml'
 
-      - name: Install Python SDK & dependencies
+      - name: Install Python SDK & DuckDB
         run: |
           python -m pip install --upgrade pip
-          pip install -e sdk/python
+          pip install -e sdk/python "duckdb==${DUCKDB_PY_VERSION}"
 
       - name: Prepare DuckDB JDBC Driver and Compile Example
         run: |
           chmod +x examples/duckdb-java/download-deps.sh
-          examples/duckdb-java/download-deps.sh
+          examples/duckdb-java/download-deps.sh "$DUCKDB_JDBC_VERSION"
           examples/duckdb-java/compile.sh --no-sdk
 
       - name: Run Engine Smoke Test (Dry Run)
+        env:
+          COMPLIANCE_REQUIRE_SUBSTRAIT_EXTENSION: "true"
         run: |
           FAT_JAR="compliance-assets/libs/substrait-compliance-all.jar"
-          DUCKDB_JAR="examples/duckdb-java/lib/duckdb_jdbc-1.3.1.0.jar"
+          DUCKDB_JAR="examples/duckdb-java/lib/duckdb_jdbc-${DUCKDB_JDBC_VERSION}.jar"
           java -cp "examples/duckdb-java/build:$FAT_JAR:$DUCKDB_JAR" \
             io.substrait.example.DuckDBComplianceExample --dry-run
 
-      - name: Run Test Suites & Generate Compliance Reports
+      - name: Run TPC-H plans on DuckDB (Java, Substrait extension)
+        env:
+          COMPLIANCE_REQUIRE_SUBSTRAIT_EXTENSION: "true"
         run: |
           mkdir -p output/reports
           FAT_JAR="compliance-assets/libs/substrait-compliance-all.jar"
-          DUCKDB_JAR="examples/duckdb-java/lib/duckdb_jdbc-1.3.1.0.jar"
-
-          # 1. Run DuckDB Java compliance runner on TPC-H test suite
+          DUCKDB_JAR="examples/duckdb-java/lib/duckdb_jdbc-${DUCKDB_JDBC_VERSION}.jar"
           java -cp "examples/duckdb-java/build:$FAT_JAR:$DUCKDB_JAR" \
             io.substrait.example.DuckDBComplianceExample \
             --test-suite compliance-assets/test-suites/tpch/metadata.yaml \
-            --output-report output/reports/duckdb-tpch-report.json
+            --output-report output/reports/duckdb-tpch.json
 
-          # 2. Run Function compliance test runner
-          python3 demo/runner/function_test_demo.py
+      - name: Run function test suites on DuckDB (Python)
+        run: |
+          python scripts/run_function_compliance.py \
+            --suites-dir compliance-assets/test-suites/functions \
+            --output output/reports/duckdb-functions.json
 
-          # 3. Copy generated demo reports for DuckDB into output/reports
-          cp demo/output/DuckDB_function_tests.json output/reports/ || true
-          cp demo/output/duckdb-report.json output/reports/ || true
-          cp demo/output/function_tests_summary.json output/reports/ || true
+      - name: Combine into leaderboard entry
+        run: |
+          python scripts/combine_engine_reports.py --engine DuckDB \
+            --suite functions=output/reports/duckdb-functions.json \
+            --suite tpch=output/reports/duckdb-tpch.json \
+            --output output/leaderboard/duckdb.json
 
       - name: Parse Compliance Results
         id: parse-results
         run: |
-          REPORT_FILE="output/reports/DuckDB_function_tests.json"
-          if [ ! -f "$REPORT_FILE" ]; then
-            REPORT_FILE="output/reports/duckdb-report.json"
-          fi
+          REPORT_FILE="output/leaderboard/duckdb.json"
+          {
+            echo "pass-rate=$(jq -r '.passRate' "$REPORT_FILE")"
+            echo "passed=$(jq -r '.passed' "$REPORT_FILE")"
+            echo "total=$(jq -r '.totalTests' "$REPORT_FILE")"
+            echo "failed=$(jq -r '.failed' "$REPORT_FILE")"
+            echo "skipped=$(jq -r '.skipped' "$REPORT_FILE")"
+            echo "engine-version=$(jq -r '.engineVersion' "$REPORT_FILE")"
+          } >> "$GITHUB_OUTPUT"
+          jq -r '"📊 DuckDB \(.engineVersion): \(.passRate)% (\(.passed) passed, \(.failed) failed, \(.skipped) skipped)"' "$REPORT_FILE"
+          jq -r '.suites | to_entries[] | "   \(.key): \(.value.passRate)% (\(.value.passed) passed, \(.value.failed) failed, \(.value.skipped) skipped)"' "$REPORT_FILE"
 
-          if [ ! -f "$REPORT_FILE" ]; then
-            echo "❌ Report file not found at $REPORT_FILE"
-            exit 1
-          fi
-
-          PASS_RATE=$(jq -r '.overallPassRate // .passRate // .summary.passRate // empty' "$REPORT_FILE")
-          PASSED=$(jq -r '.totalPassed // .passed // .summary.passed // empty' "$REPORT_FILE")
-          TOTAL=$(jq -r '.totalTests // .summary.totalTests // empty' "$REPORT_FILE")
-          FAILED=$(jq -r '.totalFailed // .failed // .summary.failed // 0' "$REPORT_FILE")
-          SKIPPED=$(jq -r '.totalSkipped // .skipped // .summary.skipped // 0' "$REPORT_FILE")
-
-          if [ -z "$PASS_RATE" ] || [ -z "$PASSED" ] || [ -z "$TOTAL" ]; then
-            echo "❌ Could not parse valid compliance metrics from $REPORT_FILE"
-            exit 1
-          fi
-
-          echo "pass-rate=$PASS_RATE" >> $GITHUB_OUTPUT
-          echo "passed=$PASSED" >> $GITHUB_OUTPUT
-          echo "total=$TOTAL" >> $GITHUB_OUTPUT
-          echo "failed=$FAILED" >> $GITHUB_OUTPUT
-          echo "skipped=$SKIPPED" >> $GITHUB_OUTPUT
-
-          echo "📊 ${{ env.ENGINE_NAME }} Compliance Summary:"
-          echo "   Pass Rate: $PASS_RATE%"
-          echo "   Passed:    $PASSED / $TOTAL"
-          echo "   Failed:    $FAILED"
-          echo "   Skipped:   $SKIPPED"
-
-      - name: Upload Engine Compliance Reports
+      - name: Upload detailed reports
         uses: actions/upload-artifact@v4
         with:
           name: duckdb-compliance-reports
           path: output/reports/
 
+      # Consumed by compliance-leaderboard.yml (workflow_run trigger / latest successful run)
+      - name: Upload leaderboard entry
+        uses: actions/upload-artifact@v4
+        with:
+          name: duckdb-leaderboard-report
+          path: output/leaderboard/duckdb.json
+          retention-days: 90
+
       - name: Check Compliance Quality Threshold
+        env:
+          PASS_RATE: ${{ steps.parse-results.outputs.pass-rate }}
         run: |
-          PASS_RATE=${{ steps.parse-results.outputs.pass-rate }}
-          THRESHOLD=${{ env.COMPLIANCE_THRESHOLD }}
-          echo "Evaluating pass rate ($PASS_RATE%) against threshold ($THRESHOLD%)..."
-          if (( $(echo "$PASS_RATE < $THRESHOLD" | bc -l) )); then
-            echo "❌ Compliance rate $PASS_RATE% is below threshold $THRESHOLD%"
+          echo "Evaluating pass rate ($PASS_RATE%) against threshold ($COMPLIANCE_THRESHOLD%)..."
+          if (( $(echo "$PASS_RATE < $COMPLIANCE_THRESHOLD" | bc -l) )); then
+            echo "❌ Compliance rate $PASS_RATE% is below threshold $COMPLIANCE_THRESHOLD%"
             exit 1
           fi
           echo "✅ Compliance threshold met!"
 
   # ============================================================================
-  # 3. Update Dashboard and Leaderboard Data
+  # 3. Leaderboard preview (publishing happens in compliance-leaderboard.yml)
   # ============================================================================
-  update-dashboard:
-    name: Update Dashboard & Leaderboard
+  leaderboard-preview:
+    name: Leaderboard Preview
     runs-on: ubuntu-latest
     needs: run-compliance
-    if: always()
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Download Engine Compliance Reports
+      - name: Download leaderboard entry
         uses: actions/download-artifact@v4
         with:
-          name: duckdb-compliance-reports
-          path: output/reports
+          name: duckdb-leaderboard-report
+          path: output/leaderboard
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Regenerate Leaderboard & Dashboard JSON
+      - name: Generate leaderboard preview
         run: |
-          mkdir -p demo/dashboard/data
-          # Run leaderboard aggregation script across reports
-          INPUT_DIR="output/reports"
-          if ! compgen -G "$INPUT_DIR/*.json" > /dev/null; then
-            echo "❌ No compliance reports found in $INPUT_DIR; refusing to publish stale dashboard data"
-            exit 1
-          fi
-          python3 scripts/generate_leaderboard.py \
-            --input "$INPUT_DIR" \
-            --output demo/dashboard/data/leaderboard.json \
+          python scripts/generate_leaderboard.py \
+            --input output/leaderboard \
+            --output preview/leaderboard.md \
             --format both
+          cat preview/leaderboard.md >> "$GITHUB_STEP_SUMMARY"
 
-          # Update docs leaderboard as well
-          mkdir -p docs
-          cp demo/dashboard/data/leaderboard.md docs/leaderboard.md 2>/dev/null || true
-
-      - name: Upload Updated Dashboard Data
+      - name: Upload leaderboard preview
         uses: actions/upload-artifact@v4
         with:
-          name: dashboard-data
-          path: demo/dashboard/data/
+          name: leaderboard-preview
+          path: preview/
 
   # ============================================================================
   # 4. Generate GitHub Summary
@@ -269,34 +255,34 @@ jobs:
   summary:
     name: Compliance CI Summary
     runs-on: ubuntu-latest
-    needs: [run-compliance, update-dashboard]
+    needs: [run-compliance, leaderboard-preview]
     if: always()
     steps:
       - name: Post Job Summary
+        env:
+          STATUS: ${{ needs.run-compliance.result == 'success' && '✅ PASSED' || '❌ FAILED' }}
+          PASS_RATE: ${{ needs.run-compliance.outputs.pass-rate || 'N/A' }}
+          PASSED: ${{ needs.run-compliance.outputs.passed || '0' }}
+          TOTAL: ${{ needs.run-compliance.outputs.total || '0' }}
+          FAILED: ${{ needs.run-compliance.outputs.failed || '0' }}
+          SKIPPED: ${{ needs.run-compliance.outputs.skipped || '0' }}
+          ENGINE_VERSION: ${{ needs.run-compliance.outputs.engine-version || 'unknown' }}
         run: |
-          STATUS="${{ needs.run-compliance.result == 'success' && '✅ PASSED' || '❌ FAILED' }}"
-          PASS_RATE="${{ needs.run-compliance.outputs.pass-rate || 'N/A' }}"
-          PASSED="${{ needs.run-compliance.outputs.passed || '0' }}"
-          TOTAL="${{ needs.run-compliance.outputs.total || '0' }}"
-          FAILED="${{ needs.run-compliance.outputs.failed || '0' }}"
-          SKIPPED="${{ needs.run-compliance.outputs.skipped || '0' }}"
-
-          cat << EOF >> $GITHUB_STEP_SUMMARY
-          # 🦆 Substrait Compliance Report: ${{ env.ENGINE_NAME }}
+          cat << EOF >> "$GITHUB_STEP_SUMMARY"
+          # 🦆 Substrait Compliance Report: DuckDB
 
           ## Overall Status: $STATUS
 
           | Metric | Value |
           |---|---|
-          | **Engine** | \`${{ env.ENGINE_NAME }}\` |
-          | **Engine Version** | \`${{ env.ENGINE_VERSION }}\` |
-          | **Framework SDK** | \`${{ env.COMPLIANCE_SDK_VERSION }}\` |
-          | **Pass Rate** | **$PASS_RATE%** |
+          | **Engine** | \`DuckDB\` |
+          | **Engine Version** | \`$ENGINE_VERSION\` |
+          | **Framework SDK** | \`$COMPLIANCE_SDK_VERSION\` |
+          | **Pass Rate** | **$PASS_RATE%** (passed ÷ executed; skipped excluded) |
           | **Passed Tests** | $PASSED / $TOTAL |
           | **Failed Tests** | $FAILED |
           | **Skipped Tests** | $SKIPPED |
-          | **Threshold** | ${{ env.COMPLIANCE_THRESHOLD }}% |
+          | **Threshold** | $COMPLIANCE_THRESHOLD% |
 
-          ---
-          *Report generated automatically by Substrait Compliance CI workflow.*
+          Per-test reasons for every failure and skip are in the \`duckdb-compliance-reports\` artifact.
           EOF
