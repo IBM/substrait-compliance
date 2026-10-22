@@ -1,10 +1,10 @@
 # Substrait Function Test Suites
 
-> **Being replaced.** [`functions-substrait-0.107`](../functions-substrait-0.107/README.md) holds the
-> Substrait project's own test cases plus the cases from this suite that are valid for standard
-> functions and verified, in the current upstream format. It runs alongside this suite (as
-> informational) until it is made the scored suite; this suite will then be retired. A review of
-> this suite's problems — non-standard functions, signatures that do not match the Substrait
+> **Legacy — replaced and not scored.** [`functions-substrait-0.107`](../functions-substrait-0.107/README.md)
+> is the scored function suite: the Substrait project's own test cases plus the cases from this
+> suite that are valid for standard functions and verified, in the current upstream format. This
+> suite still runs and is shown on the leaderboard as `functions-legacy`, but does not count
+> towards the pass rate. A review of this suite's problems — non-standard functions, signatures that do not match the Substrait
 > definitions, and wrong expected values — is summarised in
 > [`functions-substrait-0.107/extended/CONVERSION.md`](../functions-substrait-0.107/extended/CONVERSION.md).
 

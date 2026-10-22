@@ -10,14 +10,17 @@ binaries, input data, and expected reference outputs.
 | [TPC-H](tpch/README.md) | 22 | 8 CSV (86,805 rows, scale 0.01) | 22 CSV | DuckDB 1.2.0 |
 | [TPC-DS](tpcds/README.md) | 99 | 24 CSV (scale 0.01) | 99 CSV | DuckDB 1.2.0 |
 | [Functions (Substrait 0.107)](functions-substrait-0.107/README.md) | — | — | inline in .test files | Substrait spec, validated against the 0.107.0 extension YAMLs |
-| [Functions (legacy)](functions/README.md) | — | — | inline in .test files | being replaced by the suite above |
+| [Functions (legacy)](functions/README.md) | — | — | inline in .test files | replaced by the suite above; shown as `functions-legacy`, not scored |
 
 ## Function Tests
 
 [`functions-substrait-0.107`](functions-substrait-0.107/README.md) is the current-format function
 suite: the Substrait project's own 1,315 cases (with documented fixes) plus 2,180 verified cases
 converted from the legacy suite. Every case is validated against the Substrait 0.107.0 function
-definitions. It is reported as informational until it replaces the legacy suite below.
+definitions. Its `upstream/` cases, run as Substrait plans through each engine's Substrait
+consumer, are the leaderboard's **Functions** score; the same cases as SQL and the `extended/`
+cases are shown next to it, not scored. The legacy suite below is shown as `functions-legacy`,
+not scored.
 
 The legacy suite has 136 `.test` files across 14 semantic categories with 5,041 individual test assertions.
 Expected values are embedded inline in each `.test` file — no separate expected-output directory.

@@ -1,4 +1,4 @@
-"""Tests for scripts/duckdb_function_sql.py (Substrait test case -> DuckDB SQL).
+"""Tests for scripts/function_sql.py (Substrait test case -> DuckDB / DataFusion SQL).
 
 These only check the generated SQL text, so they need neither DuckDB nor the
 extension YAMLs."""
@@ -10,7 +10,7 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[3] / "scripts"))
 
-import duckdb_function_sql as fsql  # noqa: E402
+import function_sql as fsql  # noqa: E402
 from substrait_compliance.function_cases import parse_case_text  # noqa: E402
 
 
@@ -95,7 +95,7 @@ def test_aggregates():
 def test_window():
     tc = case("DEFINE f1(i32) = ((1998), (1999))\nlag(col0) OVER f1 = (Null, 1998)::i32?", kind="WINDOW")
     sql = fsql.Translator().window_case(tc, {0: "i32"})
-    assert sql.startswith("SELECT coalesce(list(v ORDER BY rn), []) FROM (SELECT rn, lag(col0) OVER "
+    assert sql.startswith("SELECT coalesce(list(v ORDER BY rn), CAST([] AS INTEGER[])) FROM (SELECT rn, lag(col0) OVER "
                           "(ORDER BY rn ROWS BETWEEN UNBOUNDED PRECEDING AND UNBOUNDED FOLLOWING)")
 
 
@@ -110,3 +110,27 @@ def test_pad_defaults_to_space_and_huge_results_are_refused():
     huge = case("repeat('a'::str, 2147483647::i64) = 'a'::str", include="functions_string")
     with pytest.raises(fsql.Untranslatable):
         tr.scalar_case(huge)
+
+
+def test_datafusion_dialect():
+    df = fsql.Translator(dialect=fsql.DATAFUSION)
+    assert fsql.sql_type("pts<6>", fsql.DATAFUSION) == "TIMESTAMP(6)"
+    assert fsql.sql_type("u!u8", fsql.DATAFUSION) == "TINYINT UNSIGNED"
+    assert df.scalar_case(case("divide(-7::i32, 2::i32) = -3::i32")) == \
+        "SELECT (CAST(-7 AS INTEGER) / CAST(2 AS INTEGER))"
+    assert df.scalar_case(case("bitwise_xor(5::i8, 3::i8) = 6::i8")) == \
+        "SELECT (CAST(5 AS TINYINT) ^ CAST(3 AS TINYINT))"
+    extract = case("extract(MONTH::enum, ONE::enum, 2020-12-31::date) = 12::i64", include="functions_datetime")
+    assert df.scalar_case(extract) == "SELECT CAST(date_part('month', CAST('2020-12-31' AS DATE)) AS BIGINT)"
+    match = case("regexp_match_substring('abc'::str, 'b'::str) = 'b'::str", include="functions_string")
+    assert df.scalar_case(match) == "SELECT regexp_match('abc', '(' || 'b' || ')')[1]"
+
+
+def test_datafusion_reports_missing_features_as_untranslatable():
+    df = fsql.Translator(dialect=fsql.DATAFUSION)
+    lam = case("filter([1, 2, 3]::list<i32>, (x -> gt(x, 2::i32))::func<i32 -> bool>) = [3]::list<i32>",
+               include="functions_list")
+    with pytest.raises(fsql.Untranslatable, match="lambdas"):
+        df.scalar_case(lam)
+    with pytest.raises(fsql.Untranslatable, match="wider than 64"):
+        df.scalar_case(case("shift_right_unsigned(-1::i64, 1::i32) = 9223372036854775807::i64"))

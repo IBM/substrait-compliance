@@ -121,7 +121,30 @@ runner = ComplianceRunner(my_engine)
 report = runner.run_test_suite(suite)
 ```
 
-## Query Complexity
+## Engines
+
+| Engine | How the plans run | Runner | `tpch` (0.107.0) | `tpch-substrait-0.81` |
+|---|---|---|---:|---:|
+| DuckDB 1.5.6 | `substrait` community extension, `from_substrait()` (JDBC) | Java SDK, `examples/duckdb-java` | 12/22 | 3/22 |
+| DataFusion 55.0.0 | `datafusion.substrait` consumer (Python) | `scripts/run_plan_compliance.py` | 6/22 | 6/22 |
+
+`scripts/run_plan_compliance.py` loads inputs and scores results with the same rules as the Java
+runner (typed inputs from each plan's read schema, values trimmed; case-insensitive column names;
+numeric type family; rows in order; numbers within 1e-9 relative), so the two engines are judged
+alike:
+
+```bash
+pip install -e sdk/python "datafusion==55.0.0"
+python scripts/run_plan_compliance.py --engine datafusion \
+    --test-suite test-suites/tpch/metadata.yaml --output /tmp/datafusion-tpch.json
+```
+
+DataFusion 55.0.0's consumer does not support `varchar` literals (16 queries), nor the argument
+form q09 uses; q01 fails because DataFusion's decimal `avg` keeps 6 fractional digits while the
+expected output holds the full double; q18 fails on its expected header (`sum(l_quantity)`, where
+the plan names the column `total_qty`).
+
+
 
 - **SIMPLE** (3): Q1, Q6, Q14
 - **MEDIUM** (7): Q3, Q4, Q10, Q12, Q13, Q16, Q19

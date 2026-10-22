@@ -1,10 +1,10 @@
 """
 Translate parsed Substrait function test cases (upstream ``.test`` format) into
-DuckDB SQL.
+SQL for an engine: DuckDB (``DUCKDB``) or Apache DataFusion (``DATAFUSION``).
 
 Used by scripts/run_function_compliance.py for suites in the upstream format.
 Each case becomes one query that returns the function result, plus one query that
-evaluates the expected literal with the same DuckDB types, so both sides are
+evaluates the expected literal with the same engine types, so both sides are
 compared as Python values:
 
 * scalar     ``fn(a, b)``                  -> ``SELECT fn_sql(a, b)``
@@ -13,6 +13,12 @@ compared as Python values:
 * window     ``DEFINE f1(i32) = (...)``    -> ``SELECT list(v ORDER BY rn) FROM (SELECT rn, fn(col0)
              ``fn(col0) OVER f1``              OVER (ORDER BY rn ROWS BETWEEN UNBOUNDED PRECEDING AND
                                                 UNBOUNDED FOLLOWING) AS v FROM (VALUES ...))``
+
+A ``Dialect`` holds what differs between engines: type names, the SQL spelling of
+functions whose name or syntax differs, ``extract`` components, the list aggregate,
+and features an engine lacks (e.g. DataFusion has no list lambdas). Only direct
+spellings are mapped - a function an engine does not have is not emulated with
+other functions; such cases raise Untranslatable.
 
 Anything this module cannot express raises Untranslatable; the runner reports
 those cases as skipped, never as passed or failed.
@@ -33,7 +39,24 @@ from substrait_compliance.function_cases import (
 
 
 class Untranslatable(Exception):
-    """The case uses something this translator (or DuckDB) cannot express."""
+    """The case uses something this translator (or the engine) cannot express."""
+
+
+class Dialect:
+    """What one engine's SQL spells differently from the DuckDB defaults below."""
+
+    def __init__(self, name, type_names=None, scalar=None, aggregate=None, extract=None,
+                 list_agg="list", wide_int="HUGEINT"):
+        self.name = name
+        self.type_names = type_names or {}   # DuckDB type name -> this engine's name
+        self.scalar = scalar or {}           # Substrait name -> SQL builder (overrides)
+        self.aggregate = aggregate or {}
+        self.extract = extract or {}         # component -> template (overrides)
+        self.list_agg = list_agg             # ordered list aggregate for window results
+        self.wide_int = wide_int             # type wider than BIGINT, or None
+
+    def type_name(self, duckdb_name: str) -> str:
+        return self.type_names.get(duckdb_name, duckdb_name)
 
 
 # --------------------------------------------------------------------------- types
@@ -64,10 +87,15 @@ def base_type(type_str: str) -> str:
     return split_type(type_str)[0]
 
 
-def sql_type(type_str: str) -> str:
+def sql_type(type_str: str, dialect: "Dialect" = None) -> str:
+    dialect = dialect or DUCKDB
+    return dialect.type_name(_duckdb_type(type_str, dialect))
+
+
+def _duckdb_type(type_str: str, dialect) -> str:
     base, params = split_type(type_str)
     if base == "list":
-        return sql_type(params) + "[]"
+        return sql_type(params, dialect) + "[]"
     if base in ("dec", "decimal"):
         try:
             p, s = (int(x) for x in params.split(","))
@@ -93,7 +121,7 @@ def sql_type(type_str: str) -> str:
         return "TIME"
     if base in SIMPLE_TYPES:
         return SIMPLE_TYPES[base]
-    raise Untranslatable(f"type {type_str!r} has no DuckDB equivalent here")
+    raise Untranslatable(f"type {type_str!r} has no SQL equivalent here")
 
 
 def list_element_type(type_str: str) -> str:
@@ -156,19 +184,20 @@ def is_null_value(value) -> bool:
     return value is None or (isinstance(value, str) and value.lower() == "null")
 
 
-def literal_sql(value, type_str: str) -> str:
-    """One literal value of the given Substrait type as a DuckDB SQL expression."""
+def literal_sql(value, type_str: str, dialect: "Dialect" = None) -> str:
+    """One literal value of the given Substrait type as an SQL expression."""
+    dialect = dialect or DUCKDB
     base = base_type(type_str)
     if base == "enum":
         raise Untranslatable("enum argument outside a function that takes it")
-    target = sql_type(type_str)
+    target = sql_type(type_str, dialect)
     if is_null_value(value):
         return f"CAST(NULL AS {target})"
     if base == "list":
         if not isinstance(value, list):
             raise Untranslatable(f"list literal expected for {type_str}")
         elem = list_element_type(type_str)
-        return f"CAST([{', '.join(literal_sql(v, elem) for v in value)}] AS {target})"
+        return f"CAST([{', '.join(literal_sql(v, elem, dialect) for v in value)}] AS {target})"
     if base in UINT_TYPES:  # user-defined type literal ('25')::u!u8 -> value ["'25'"]
         raw = value[0] if isinstance(value, list) and len(value) == 1 else value
         raw = unescape_string(raw) if isinstance(raw, str) and raw.startswith("'") else str(raw)
@@ -193,7 +222,7 @@ def literal_sql(value, type_str: str) -> str:
     if base in ("str", "string", "vchar", "varchar", "fchar", "fixedchar"):
         return sql_string(unescape_string(text))
     if base in ("binary", "vbin", "fbin"):
-        return f"CAST({sql_string(unescape_string(text))} AS BLOB)"
+        return f"CAST({sql_string(unescape_string(text))} AS {dialect.type_name('BLOB')})"
     if base in INTERVAL_TYPES:
         return interval_sql(text)
     if base in ("date", "pts", "precision_timestamp", "ptstz", "precision_timestamp_tz",
@@ -236,8 +265,11 @@ def _shift_right_unsigned(a, ctx):
         raise Untranslatable("shift_right_unsigned on a non-integer type")
     mask = (1 << width) - 1
     signed = INT_TYPES[ctx.arg_base(0)]
+    wide = ctx.dialect.wide_int if width == 64 else "BIGINT"
+    if wide is None:
+        raise Untranslatable(f"{ctx.dialect.name} has no integer type wider than 64 bits")
     # reinterpret the bits as unsigned, shift, then reinterpret back
-    unsigned = f"(CAST({a[0]} AS HUGEINT) & {mask})"
+    unsigned = f"(CAST({a[0]} AS {wide}) & {mask})"
     shifted = f"({unsigned} >> CAST({a[1]} AS INTEGER))"
     return (f"CAST(CASE WHEN {shifted} >= {1 << (width - 1)} THEN {shifted} - {1 << width} "
             f"ELSE {shifted} END AS {signed})")
@@ -332,7 +364,7 @@ def _extract(a, ctx):
     comp = _enum_value(ctx.raw_args[0])
     if comp is None:
         raise Untranslatable("extract without an enum component")
-    template = EXTRACT.get(comp)
+    template = ctx.dialect.extract.get(comp, EXTRACT.get(comp))
     if template is None:
         raise Untranslatable(f"extract component {comp}")
     rest, sql_rest = ctx.raw_args[1:], a[1:]
@@ -477,9 +509,10 @@ WINDOW: Dict[str, Callable] = {
 
 
 class _Ctx:
-    def __init__(self, name, raw_args, options, lambda_types=None):
+    def __init__(self, name, raw_args, options, lambda_types=None, dialect=None):
         self.name, self.raw_args, self.options = name, raw_args, options
         self.lambda_types = lambda_types or {}
+        self.dialect = dialect or DUCKDB
 
     def arg_base(self, i):
         return base_type(node_type(self.raw_args[i], self.lambda_types)) if i < len(self.raw_args) else None
@@ -508,16 +541,17 @@ def lambda_param_types(func_type: str) -> List[str]:
 
 
 class Translator:
-    """Builds DuckDB SQL for one parsed test case."""
+    """Builds SQL for one parsed test case, in the given engine dialect."""
 
-    def __init__(self, options: Optional[dict] = None):
+    def __init__(self, options: Optional[dict] = None, dialect: Optional[Dialect] = None):
         self.options = {k: str(v) for k, v in (options or {}).items()}
+        self.dialect = dialect or DUCKDB
 
     # -- expressions -------------------------------------------------------
     def expr(self, node, lambda_types=None) -> str:
         lambda_types = lambda_types or {}
         if isinstance(node, CaseLiteral):
-            return literal_sql(node.value, node.type)
+            return literal_sql(node.value, node.type, self.dialect)
         if isinstance(node, Identifier):
             if node.name not in lambda_types:
                 raise Untranslatable(f"unbound identifier {node.name}")
@@ -534,10 +568,10 @@ class Translator:
         raise Untranslatable(f"argument {type(node).__name__}")
 
     def scalar_call(self, name, args, options, lambda_types=None) -> str:
-        fn = SCALAR.get(name)
+        fn = self.dialect.scalar.get(name, SCALAR.get(name))
         if fn is None:
-            raise Untranslatable(f"no DuckDB mapping for scalar function {name}")
-        ctx = _Ctx(name, args, options, lambda_types)
+            raise Untranslatable(f"no {self.dialect.name} mapping for scalar function {name}")
+        ctx = _Ctx(name, args, options, lambda_types, self.dialect)
         if name == "extract":
             sql_args = ["" if isinstance(a, CaseLiteral) and a.type == "enum" else self.expr(a, lambda_types)
                         for a in args]
@@ -563,16 +597,17 @@ class Translator:
             if sql_name is None:
                 raise Untranslatable(f"{name} needs a SAMPLE/POPULATION distribution argument")
             return f"{sql_name}({', '.join(sql_args[1:])})"
-        fn = AGGREGATE.get(name)
+        fn = self.dialect.aggregate.get(name, AGGREGATE.get(name))
         if fn is None:
-            raise Untranslatable(f"no DuckDB mapping for aggregate function {name}")
-        return fn(sql_args, _Ctx(name, raw_args, tc.options))
+            raise Untranslatable(f"no {self.dialect.name} mapping for aggregate function {name}")
+        return fn(sql_args, _Ctx(name, raw_args, tc.options, dialect=self.dialect))
 
     def _aggregate_over_list(self, tc) -> str:
         if not tc.args or not isinstance(tc.args[0], CaseLiteral) or not isinstance(tc.args[0].value, list):
             raise Untranslatable("aggregate input is not a value list")
         values = tc.args[0]
-        column = f"CAST({literal_sql(values.value, 'list<' + values.type + '>')} AS {sql_type(values.type)}[])"
+        column = (f"CAST({literal_sql(values.value, 'list<' + values.type + '>', self.dialect)} "
+                  f"AS {sql_type(values.type, self.dialect)}[])")
         extra = [self.expr(a) for a in tc.args[1:]]
         call_sql = self._aggregate_fn(tc, ["x"] + extra, tc.args)
         return f"SELECT {call_sql} FROM (SELECT UNNEST({column}) AS x)"
@@ -589,14 +624,14 @@ class Translator:
         names = (["rn"] if with_row_number else []) + [f"col{i}" for i in range(n_cols)]
         if not rows:
             cols = ([f"CAST(NULL AS BIGINT) AS rn"] if with_row_number else []) + \
-                   [f"CAST(NULL AS {sql_type(t)}) AS col{i}" for i, t in enumerate(types)]
+                   [f"CAST(NULL AS {sql_type(t, self.dialect)}) AS col{i}" for i, t in enumerate(types)]
             return f"(SELECT {', '.join(cols) or '1 AS dummy'} WHERE FALSE) AS t"
         tuples = []
         for r, row in enumerate(rows):
             if len(row) != n_cols:
                 raise Untranslatable("row width does not match the declared columns")
             vals = ([str(r + 1)] if with_row_number else []) + \
-                   [literal_sql(v, types[i]) for i, v in enumerate(row)]
+                   [literal_sql(v, types[i], self.dialect) for i, v in enumerate(row)]
             tuples.append("(" + ", ".join(vals) + ")")
         return f"(VALUES {', '.join(tuples)}) AS t({', '.join(names)})"
 
@@ -615,7 +650,7 @@ class Translator:
                 sql_args.append(f"col{idx}")
             elif a.scalar_value is not None:
                 sv = a.scalar_value
-                sql_args.append("" if sv.type == "enum" else literal_sql(sv.value, sv.type))
+                sql_args.append("" if sv.type == "enum" else literal_sql(sv.value, sv.type, self.dialect))
             else:
                 raise Untranslatable("empty aggregate argument")
         return columns, sql_args
@@ -631,25 +666,105 @@ class Translator:
         columns = {**(frame_types or {}), **columns}
         fn = WINDOW.get(tc.func_name)
         if fn is None:
-            raise Untranslatable(f"no DuckDB mapping for window function {tc.func_name}")
-        call_sql = fn(sql_args, _Ctx(tc.func_name, tc.args, tc.options))
+            raise Untranslatable(f"no {self.dialect.name} mapping for window function {tc.func_name}")
+        call_sql = fn(sql_args, _Ctx(tc.func_name, tc.args, tc.options, dialect=self.dialect))
         # tests/README.md: the frame's rows give the order, and the window frame spans
         # the whole partition
         inner = (f"SELECT rn, {call_sql} OVER (ORDER BY rn ROWS BETWEEN UNBOUNDED PRECEDING AND "
                  f"UNBOUNDED FOLLOWING) AS v FROM {self._table(tc.rows, columns, True)}")
-        return f"SELECT coalesce(list(v ORDER BY rn), []) FROM ({inner})"
+        empty = f"CAST([] AS {sql_type(tc.result.type, self.dialect)}[])" \
+            if isinstance(tc.result, CaseLiteral) else "[]"
+        return f"SELECT coalesce({self.dialect.list_agg}(v ORDER BY rn), {empty}) FROM ({inner})"
 
     # -- expected values ---------------------------------------------------
-    @staticmethod
-    def expected(result) -> str:
+    def expected(self, result) -> str:
         if isinstance(result, FuncCallArg):
             raise Untranslatable("expected value is an expression")
         if not isinstance(result, CaseLiteral):
             raise Untranslatable(f"expected value {result!r}")
         if isinstance(result.value, list) and base_type(result.type) not in ("list",) + tuple(UINT_TYPES):
             # window results: one value per row, written as (v1, v2, ...)::T
-            return "SELECT " + literal_sql(result.value, f"list<{result.type}>")
-        return "SELECT " + literal_sql(result.value, result.type)
+            return "SELECT " + literal_sql(result.value, f"list<{result.type}>", self.dialect)
+        return "SELECT " + literal_sql(result.value, result.type, self.dialect)
+
+
+# ------------------------------------------------------------------------ dialects
+
+DUCKDB = Dialect("DuckDB")
+
+
+def unsupported(what: str) -> Callable:
+    """The engine has no SQL spelling for this function (not emulated)."""
+    def fn(a, ctx):
+        raise Untranslatable(f"{ctx.dialect.name} has no {what}")
+    return fn
+
+
+def _df_regexp_count(a, ctx):
+    position = _const_int(ctx, 2, 1)
+    return f"regexp_count({a[0]}, {a[1]}, {position})" if position != 1 else f"regexp_count({a[0]}, {a[1]})"
+
+
+def _df_regexp_match(a, ctx):
+    position, occurrence, group = _const_int(ctx, 2, 1), _const_int(ctx, 3, 1), _const_int(ctx, 4, 0)
+    if occurrence != 1:
+        raise Untranslatable("DataFusion regexp_match returns the first match only")
+    subject = a[0] if position == 1 else f"substring({a[0]}, {position})"
+    # wrapping the pattern in a group makes element 1 the whole match, element g+1 group g
+    return f"regexp_match({subject}, '(' || {a[1]} || ')')[{group + 1}]"  # || keeps a NULL pattern NULL
+
+
+def _df_sort(a, ctx):
+    return _sort(a, ctx).replace("list_sort(", "array_sort(", 1)
+
+
+def _date_part(part):
+    return f"date_part('{part}', {{x}})"
+
+
+DATAFUSION = Dialect(
+    "DataFusion",
+    type_names={
+        "UTINYINT": "TINYINT UNSIGNED", "USMALLINT": "SMALLINT UNSIGNED",
+        "UINTEGER": "INT UNSIGNED", "UBIGINT": "BIGINT UNSIGNED",
+        # DataFusion's plain TIMESTAMP is nanosecond precision (years 1677-2262 only),
+        # so microsecond types are spelled out
+        "TIMESTAMP": "TIMESTAMP(6)", "TIMESTAMPTZ": "TIMESTAMP(6) WITH TIME ZONE",
+        "TIMESTAMP_NS": "TIMESTAMP(9)", "BLOB": "BYTEA",
+    },
+    scalar={
+        "divide": _arity(2, 2, infix("/")),  # integer '/' truncates in DataFusion
+        "sign": call("signum"), "power": call("power"), "factorial": call("factorial"),
+        "bitwise_xor": infix("^"),
+        "bitwise_not": unsupported("bitwise NOT operator"),
+        "is_finite": unsupported("isfinite function"), "is_infinite": unsupported("isinf function"),
+        "char_length": call("character_length"), "octet_length": call("octet_length"),
+        "trim": call("btrim"),
+        "regexp_count_substring": _arity(2, 3, _df_regexp_count),
+        "regexp_match_substring": _arity(2, 5, _df_regexp_match),
+        "regexp_string_split": unsupported("regexp split function"),
+        "string_split": _arity(2, 2, call("string_to_array")),
+        "cardinality": call("cardinality"), "sort": _df_sort,
+        "filter": unsupported("list lambdas"), "transform": unsupported("list lambdas"),
+        "any_match": unsupported("list lambdas"), "all_match": unsupported("list lambdas"),
+    },
+    aggregate={"approx_count_distinct": call("approx_distinct")},
+    extract={
+        "YEAR": _date_part("year"), "ISO_YEAR": _date_part("isoyear"), "QUARTER": _date_part("quarter"),
+        "MONTH": _date_part("month"), "DAY": _date_part("day"), "DAY_OF_YEAR": _date_part("doy"),
+        "MONDAY_DAY_OF_WEEK": _date_part("isodow"), "SUNDAY_DAY_OF_WEEK": "(date_part('dow', {x}) + 1)",
+        "ISO_WEEK": _date_part("week"), "HOUR": _date_part("hour"), "MINUTE": _date_part("minute"),
+        "SECOND": _date_part("second"),
+        "MILLISECOND": "(date_part('millisecond', {x}) % 1000)",
+        "MICROSECOND": "(date_part('microsecond', {x}) % 1000)",
+        "SUBSECOND": "(date_part('microsecond', {x}) % 1000000)",
+        "UNIX_TIME": "CAST(floor(date_part('epoch', {x})) AS BIGINT)",
+    },
+    list_agg="array_agg",
+    wide_int=None,
+)
+
+DIALECTS = {"duckdb": DUCKDB, "datafusion": DATAFUSION}
 
 
 def split_types(text: str) -> List[str]:

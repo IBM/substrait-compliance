@@ -1,10 +1,12 @@
 # Function tests — Substrait 0.107
 
 Function test cases in the **current upstream Substrait test-case format**, checked against the
-function definitions of Substrait **v0.107.0**. This suite replaces
-[`test-suites/functions`](../functions/README.md) once it has run alongside it for a while; until
-then it is reported as *informational* on the leaderboard (shown per suite, not in the headline
-pass rate), so the same functions are not counted twice.
+function definitions of Substrait **v0.107.0**. Its `upstream/` cases, run as **Substrait plans**
+through each engine's Substrait consumer, are the leaderboard's **Functions** score (the overall
+score averages it with the Queries score). The `extended/` cases and both parts run as SQL are shown
+next to it, not scored. It replaces
+[`test-suites/functions`](../functions/README.md), which still runs and is shown on the leaderboard
+as `functions-legacy`, marked *not scored*.
 
 | Part | Cases | What it is |
 |---|---:|---|
@@ -47,11 +49,42 @@ declared options and option values; expect the signature's return type; and use 
 literals (decimals with a precision and scale that fit the value, integers within range). This is stricter than upstream's own coverage check,
 which is how the upstream problems listed in [`upstream/UPSTREAM.md`](upstream/UPSTREAM.md) were found.
 
-## How cases are scored
+## How cases are run: Substrait plans (scored) and SQL
 
-[`scripts/run_function_compliance.py`](../../scripts/run_function_compliance.py) runs each case on the
-engine (today DuckDB, through [`scripts/duckdb_function_sql.py`](../../scripts/duckdb_function_sql.py))
-and compares the result with the expected literal evaluated by the same engine:
+[`scripts/run_function_compliance.py`](../../scripts/run_function_compliance.py) runs each case on an
+engine — DuckDB (default) or Apache DataFusion (`--engine datafusion`) — in one of two modes:
+
+- **`--mode plan` (scored).** [`scripts/function_plans.py`](../../scripts/function_plans.py) builds a
+  Substrait 0.107.0 protobuf plan for the case — the function bound by extension URN and compound
+  signature name (e.g. `add:i8_i8`), its arguments as typed Substrait literals, its options and enum
+  arguments in the plan — and the engine runs it through its own Substrait consumer (DuckDB: the
+  `substrait` extension's `from_substrait()`; DataFusion: `datafusion.substrait`). Only the input
+  tables and the expected value use SQL. A plan the consumer rejects is a failure. The engine runs in
+  a child process, so a plan that crashes the consumer fails that case and the run continues. Cases
+  the builder cannot express yet (unsigned `u!` types, lambdas) are skipped.
+- **`--mode sql` (not scored, the `*-sql` rows).** Each case is translated to the engine's SQL with
+  [`scripts/function_sql.py`](../../scripts/function_sql.py). This measures the engine's SQL functions
+  without its Substrait consumer. Only direct SQL spellings are mapped; a function an engine lacks
+  is not emulated, and its cases are skipped.
+
+| Engine | `upstream/` plans | `extended/` plans | `upstream/` SQL | `extended/` SQL | CI |
+|---|---:|---:|---:|---:|---|
+| DuckDB 1.5.6 | **69.5%** (808 / 355 / 152 skipped) | 90.0% (1,927 / 215 / 38) | 93.9% | 99.9% | `duckdb-compliance.yml` |
+| DataFusion 55.0.0 | **71.2%** (820 / 332 / 163) | 86.5% (1,859 / 289 / 32) | 93.2% | 99.4% | `datafusion-compliance.yml` |
+
+Only the `upstream/` plan rate (bold) is scored.
+
+The gap between the two modes is the engines' Substrait consumers: functions they do not map
+(DuckDB: `negate`, `shift_*`, `bitwise_not`, `and_not`, `is_true`, `regexp_*_substring`, …; DataFusion:
+`regexp_*`, `shift_*`, `sign`, `std_dev`, `variance`, …), enum arguments (DataFusion rejects them;
+DuckDB's extension crashes on `std_dev`/`variance` plans), typed null literals (DuckDB loses the
+type), window functions (DuckDB) and wrong mappings (DuckDB maps list `cardinality` to its map-only
+function and `extract(MILLISECOND)` to a different definition).
+
+Because DuckDB is one of the verifiers of `extended/`, that part favours DuckDB; compare engines on
+`upstream/`.
+
+For each case:
 
 - **passed / failed** — the engine's result does or does not match the expected value, compared by
   the expected type: integers and decimals exactly; booleans only with booleans; floats with a
@@ -69,6 +102,18 @@ and compares the result with the expected literal evaluated by the same engine:
 
 Pass rate = passed / (passed + failed). Every non-passing case is listed with its reason in the
 report. A suite file that does not parse fails the run.
+
+## Running on another engine
+
+```bash
+pip install -e sdk/python "datafusion==55.0.0"
+python scripts/run_function_compliance.py --engine datafusion --output /tmp/df.json \
+    --suites-dir test-suites/functions-substrait-0.107/upstream --suite-name functions-substrait-0.107
+```
+
+To add an engine, give it a `Dialect` in `scripts/function_sql.py` (type names and the functions it
+spells differently) and an engine class in `scripts/run_function_compliance.py` (how to run a query,
+how its errors classify, which option modes it implements).
 
 ## Regenerating
 
@@ -97,17 +142,17 @@ DuckDB version.
 
 1. Create `functions-substrait-<new>` with the commands above at the new tag and the matching
    `substrait-extensions` version; review which `FIXES` upstream has resolved.
-2. Run it next to this suite as informational; compare the per-case reports.
+2. Run it next to this suite, not scored (`combine_engine_reports.py --reference`); compare the
+   per-case reports.
 3. Make it the scored suite and deprecate this one — the same steps as for the legacy suite below.
 
-## Replacing the legacy suite
+## The legacy suite
 
-When this suite has run alongside [`test-suites/functions`](../functions/README.md) long enough to
-be trusted:
+[`test-suites/functions`](../functions/README.md) has been replaced by this suite. It still runs in
+CI and appears on the leaderboard as `functions-legacy` (passed to `combine_engine_reports.py` with
+`--reference`, so it is shown but *not scored*). Remaining clean-up, when wanted:
 
-1. In `.github/workflows/duckdb-compliance.yml`, pass `functions-substrait-0.107` (and `-extended`)
-   to `combine_engine_reports.py` with `--suite` instead of `--informational`, and drop the legacy
-   `functions` run.
-2. Review the quarantined cases in [`extended/CONVERSION.md`](extended/CONVERSION.md) — they are
+1. Review the quarantined cases in [`extended/CONVERSION.md`](extended/CONVERSION.md) — they are
    valid but unverified — and add the ones that are right.
-3. Remove `test-suites/functions` (or move it to an archive) and its regex-based runner path.
+2. Stop running the legacy suite and remove `test-suites/functions` (or move it to an archive)
+   together with its regex-based runner path.

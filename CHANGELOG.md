@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Added — DataFusion runs (TPC-H plans and functions)
+- `scripts/run_plan_compliance.py --engine datafusion` runs plan suites (TPC-H, both encodings)
+  through DataFusion's Substrait consumer, loading inputs and scoring results with the same rules
+  as the Java runner that scores DuckDB; reports use the Java report's fields.
+  DataFusion 55.0.0: 6/22 in both encodings.
+- `scripts/run_function_compliance.py --engine datafusion` runs the current-format function suite
+  on Apache DataFusion (Python bindings).
+- New workflow `datafusion-compliance.yml` (DataFusion 55.0.0) runs both, publishes the reports as
+  an artifact and in the job summary, and puts DataFusion on the leaderboard.
+- `scripts/duckdb_function_sql.py` is now `scripts/function_sql.py`, with a `Dialect` per engine
+  (DuckDB, DataFusion). Only direct SQL spellings are mapped; functions an engine lacks are
+  reported as untranslatable (skipped), not emulated. DuckDB results are unchanged.
+- Window results over an empty frame are typed (`CAST([] AS T[])`); a timestamp at midnight now
+  also matches an expected date the other way round (value comparison, as for DuckDB).
+
 ### Added — function suite in the current Substrait format
 - **`test-suites/functions-substrait-0.107`**: function tests in the upstream Substrait test-case
   format, validated against the Substrait 0.107.0 function definitions. Runs alongside
@@ -24,12 +39,45 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/validate_function_tests.py`: checks every case against the extension YAMLs
   (signatures, enum values, options, return types, literal well-formedness); runs in CI.
 - `scripts/run_function_compliance.py` runs the current format (scalar, aggregate and window
-  cases) through `scripts/duckdb_function_sql.py`; legacy files still use the old path.
+  cases) through `scripts/function_sql.py`; legacy files still use the old path.
 - Python SDK: `substrait_compliance.function_cases`, reading `.test` files with the Substrait
   project's own parser (vendored in `substrait_compliance/testcase_parser`, Apache-2.0; new
   dependency `antlr4-python3-runtime==4.13.2`).
 - `scripts/combine_engine_reports.py --informational NAME=REPORT`: suites shown in the breakdown
   but excluded from the headline pass rate.
+
+### Changed — the current-format function suite is now scored, as Substrait plans
+- `functions-substrait-0.107` and `functions-substrait-0.107-extended` count towards the headline
+  pass rate on the leaderboard, run with `--mode plan`: each case is a Substrait 0.107.0 plan
+  (`scripts/function_plans.py`) executed by the engine's Substrait consumer, in a child process so a
+  consumer crash fails one case. The same cases translated to SQL are shown as
+  `functions-substrait-0.107-sql` / `-extended-sql`, not scored. DuckDB 1.5.6 via plans: 69.5% /
+  90.0% (via SQL: 93.9% / 99.9%).
+- The legacy suite (`test-suites/functions`, folder unchanged) still runs and is shown as
+  `functions-legacy`, marked *not scored*. Suites passed with `--informational` are now labelled
+  "not scored" on the leaderboard and in the CI summary.
+
+### Changed — the leaderboard is scored by category
+- Engines are ranked by an **overall score**: the average of two category pass rates,
+  **Functions** (the `upstream/` function cases run as Substrait plans) and **Queries** (TPC-H
+  plans in the current encoding). Pooling all test counts let 3,000+ function cases drown the 22
+  queries; now each category counts equally. A category an engine does not run counts as 0%.
+  DuckDB 1.5.6: 62.0% (functions 69.5%, queries 54.5%); DataFusion 55.0.0: 49.2% (71.2%, 27.3%).
+- Shown but not scored: the same function cases as SQL (with the consumer gap, plans − SQL),
+  `extended/` (verified on DuckDB, so it favours DuckDB), TPC-H in the 0.81 encoding, and
+  `functions-legacy`. A per-extension table shows plan and SQL pass rates side by side.
+- `scripts/combine_engine_reports.py` (entry schema 2): `--functions`, `--queries` and
+  `--reference` (`--informational` still accepted) replace `--suite`; entries carry
+  `categories`, per-extension figures and the consumer's name.
+- `scripts/generate_leaderboard.py --format all` also writes the GitHub Pages page
+  (`leaderboard.html`, light and dark), replacing the HTML that was inlined in the workflow.
+- `compliance-leaderboard.yml` publishes every engine with a successful run on `main` (DuckDB and
+  DataFusion) and also runs when a DataFusion run finishes.
+- The 80% minimum pass rate in `duckdb-compliance.yml` is replaced by a regression check
+  (`scripts/check_compliance_regression.py`): CI fails when the overall score or a category drops
+  by more than `MAX_REGRESSION` (1.0) points from the last published result. DataFusion has the
+  same check. A pull request labelled `compliance-regression-ok` reports the drop without
+  failing; the first run after this change compares nothing (the published entry is in the old format).
 
 ### Changed — test-suite plan format
 - Java SDK: `YamlTestSuiteLoader` now ignores unknown metadata fields instead of failing the
