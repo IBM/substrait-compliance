@@ -19,9 +19,12 @@ on:
     types: [completed]
     branches: [main]
 
+# Several triggers often fire together (a merge, then each engine's run finishing).
+# A publish that has started always finishes; a newer run waits and replaces any
+# run still waiting, so the last one published has the latest entries.
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: false
 
 permissions:
   contents: read
