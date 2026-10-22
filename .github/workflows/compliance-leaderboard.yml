@@ -8,6 +8,10 @@ on:
   repository_dispatch:
     types: [compliance-report-submitted]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 

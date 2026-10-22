@@ -27,9 +27,12 @@ jobs:
       
       - name: Get version from tag or input
         id: get-version
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_VERSION: ${{ inputs.version || github.event.inputs.version }}
         run: |
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
+          if [ "$EVENT_NAME" = "workflow_dispatch" ]; then
+            VERSION="$INPUT_VERSION"
           else
             VERSION=${GITHUB_REF#refs/tags/v}
           fi
@@ -37,8 +40,9 @@ jobs:
           echo "📦 Release version: $VERSION"
       
       - name: Validate version format
+        env:
+          VERSION: ${{ steps.get-version.outputs.version }}
         run: |
-          VERSION="${{ steps.get-version.outputs.version }}"
           if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             echo "❌ Invalid version format: $VERSION"
             echo "Expected format: X.Y.Z (e.g., 1.0.0)"
@@ -354,7 +358,7 @@ jobs:
       - name: Smoke test C++ example binary
         run: |
           cd sdk/cpp/build
-          ctest --output-on-failure || true
+          ctest --output-on-failure
           find . -type f | head
 
       - name: Upload C++ artifacts
