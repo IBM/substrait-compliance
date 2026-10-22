@@ -27,7 +27,7 @@ message.
 
 Real DuckDB integration via JDBC. The `executePlan` method:
 1. Loads input `TableData` into DuckDB via `CREATE TABLE` + `INSERT`
-2. Base64-encodes the plan bytes and calls `SELECT * FROM substrait('<base64>')`
+2. Binds the serialized plan bytes as a BLOB and calls `SELECT * FROM from_substrait(?)` (substrait community extension)
 3. Reads the `ResultSet` back into a `TableData` using JDBC metadata for types
 
 **Run:**

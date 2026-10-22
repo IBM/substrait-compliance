@@ -37,16 +37,29 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
         }
     }
     
-    /** Install substrait from DuckDB's core repository, falling back to the community one. */
+    /**
+     * Install and load the substrait extension. It is published in DuckDB's community
+     * repository (https://duckdb.org/community_extensions/extensions/substrait); the core
+     * repository is tried second for older setups.
+     */
     private void loadSubstraitExtension() throws SQLException {
-        try (Statement stmt = connection.createStatement()) {
-            try {
-                stmt.execute("INSTALL substrait");
-            } catch (SQLException coreRepoError) {
-                stmt.execute("INSTALL substrait FROM community");
+        SQLException failure = null;
+        for (String install : new String[] {"INSTALL substrait FROM community", "INSTALL substrait"}) {
+            // DuckDB's JDBC driver closes a statement after an error, so each attempt
+            // needs its own statement.
+            try (Statement stmt = connection.createStatement()) {
+                stmt.execute(install);
+                stmt.execute("LOAD substrait");
+                return;
+            } catch (SQLException e) {
+                if (failure == null) {
+                    failure = e;
+                } else {
+                    failure.addSuppressed(e);
+                }
             }
-            stmt.execute("LOAD substrait");
         }
+        throw failure;
     }
 
     @Override
@@ -184,18 +197,9 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
     }
     
     private TableData executeSubstraitPlan(Plan plan) throws SQLException {
-        // Option A: DuckDB's native Substrait support via JDBC.
-        //
-        // DuckDB exposes a substrait() table function that accepts a Base64-encoded
-        // serialized Substrait plan and returns a result set.  The from_substrait()
-        // function accepts raw bytes via a prepared-statement BLOB parameter.
-        //
-        // We call from_substrait_json() here because it is reliably available in
-        // DuckDB >= 0.8 without an additional extension load, while the binary
-        // variant requires `INSTALL substrait; LOAD substrait;` which may not be
-        // present in every environment.  If the JSON plan is unavailable (null
-        // plan bytes), we fall back gracefully and return an empty result so the
-        // test is marked SKIPPED rather than erroring out.
+        // The substrait extension's from_substrait() table function executes a
+        // serialized (binary) Substrait plan, bound here as a BLOB parameter.
+        // If there are no plan bytes we return an empty result.
         byte[] planBytes = plan.toByteArray();
         if (planBytes == null || planBytes.length == 0) {
             return new TableData(
@@ -205,17 +209,13 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
             );
         }
 
-        // Encode as Base64 and use DuckDB's from_substrait() scalar function.
-        // DuckDB >= 0.10 exposes:  SELECT * FROM substrait('<base64>')
-        String encoded = java.util.Base64.getEncoder().encodeToString(planBytes);
-        String sql = "SELECT * FROM substrait('" + encoded + "')";
-
-        try (java.sql.Statement stmt = connection.createStatement();
-             java.sql.ResultSet rs = stmt.executeQuery(sql)) {
-            return resultSetToTableData(rs);
+        try (PreparedStatement stmt = connection.prepareStatement("SELECT * FROM from_substrait(?)")) {
+            stmt.setBytes(1, planBytes);
+            try (java.sql.ResultSet rs = stmt.executeQuery()) {
+                return resultSetToTableData(rs);
+            }
         } catch (SQLException e) {
-            // DuckDB may throw if the substrait extension is not loaded.
-            // Return empty so the test is marked FAILED rather than throwing.
+            // Surface the engine error so the test is recorded as FAILED with a reason.
             throw new SQLException(
                 "DuckDB Substrait execution failed (is the substrait extension loaded?): "
                     + e.getMessage(), e);

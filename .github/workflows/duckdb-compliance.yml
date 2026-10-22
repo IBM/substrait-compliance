@@ -38,8 +38,8 @@ on:
 env:
   # Python package and JDBC driver are pinned to the same DuckDB release so both
   # suites measure one engine version.
-  DUCKDB_PY_VERSION: "1.3.1"
-  DUCKDB_JDBC_VERSION: "1.3.1.0"
+  DUCKDB_PY_VERSION: "1.5.6"
+  DUCKDB_JDBC_VERSION: "1.5.6.0"
   COMPLIANCE_SDK_VERSION: "0.1.1"
   COMPLIANCE_THRESHOLD: ${{ inputs.compliance_threshold || '80' }}
 

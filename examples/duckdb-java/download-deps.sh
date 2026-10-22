@@ -3,12 +3,12 @@
 # can pick it up without requiring Maven or Gradle to be installed.
 #
 # Usage: ./download-deps.sh [version]
-#   version  DuckDB JDBC version to download (default: 1.3.1.0)
+#   version  DuckDB JDBC version to download (default: $DUCKDB_JDBC_VERSION or 1.5.6.0)
 
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-DUCKDB_VERSION="${1:-1.3.1.0}"
+DUCKDB_VERSION="${1:-${DUCKDB_JDBC_VERSION:-1.5.6.0}}"
 LIB_DIR="$SCRIPT_DIR/lib"
 JAR="$LIB_DIR/duckdb_jdbc-${DUCKDB_VERSION}.jar"
 

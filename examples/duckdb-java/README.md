@@ -23,7 +23,7 @@ cd ../../sdk/java && ./gradlew shadowJar && cd -
 
 # 4. Run the example
 FAT_JAR=../../sdk/java/build/libs/substrait-compliance-0.1.1-all.jar
-DUCKDB_JAR=lib/duckdb_jdbc-1.3.1.0.jar
+DUCKDB_JAR=lib/duckdb_jdbc-1.5.6.0.jar
 java -cp "build:$FAT_JAR:$DUCKDB_JAR" io.substrait.example.DuckDBComplianceExample
 
 # CLI Options:
@@ -48,7 +48,7 @@ duckdb-java/
 ├── compile.sh                                  # Build script
 ├── download-deps.sh                            # Fetches DuckDB JDBC jar
 ├── lib/                                        # Runtime JARs (git-ignored)
-│   └── duckdb_jdbc-1.3.1.0.jar
+│   └── duckdb_jdbc-1.5.6.0.jar
 └── src/main/java/io/substrait/example/
     ├── DuckDBComplianceEngine.java             # ComplianceEngine implementation
     └── DuckDBComplianceExample.java            # Entry point
@@ -106,7 +106,7 @@ implements the full interface:
 |--------|-------------|
 | `getEngineInfo()` | Returns name, version, Substrait version |
 | `getCapabilities()` | Declares supported relations and functions |
-| `executePlan(plan, inputData)` | Loads `inputData` into DuckDB tables, then calls `SELECT * FROM substrait('<base64-plan>')` |
+| `executePlan(plan, inputData)` | Loads `inputData` into DuckDB tables, then runs `SELECT * FROM from_substrait(?)` with the serialized plan bound as a BLOB (requires the `substrait` community extension) |
 | `validatePlan(plan)` | Returns `supported()` if the plan is non-null and non-empty |
 
 The DuckDB `substrait` extension is installed and loaded in the constructor:
@@ -125,7 +125,7 @@ construction time.
 | Artifact | Version | Notes |
 |----------|---------|-------|
 | `substrait-compliance SDK | 0.1.1 | Fat jar from `sdk/java` |
-| `org.duckdb:duckdb_jdbc` | 1.3.1.0 | Fetched by `download-deps.sh` |
+| `org.duckdb:duckdb_jdbc` | 1.5.6.0 | Fetched by `download-deps.sh` |
 
 The JDBC jar is downloaded from Maven Central. No Maven or Gradle installation
 is required on the developer machine.
