@@ -4,7 +4,8 @@ name: DataFusion Compliance
 #   * the TPC-H plans, through DataFusion's own Substrait consumer, in the current
 #     (0.107.0) and the legacy (0.81) plan encodings - scored with the same rules
 #     as the Java runner uses for DuckDB (scripts/run_plan_compliance.py);
-#   * the current-format function suite (test-suites/functions-substrait-0.107).
+#   * the current-format function suite (test-suites/functions-substrait-0.107), as
+#     Substrait plans through the same consumer, and as SQL for comparison.
 # Results are published as a report artifact and in the job summary; they are not
 # on the leaderboard yet.
 
@@ -18,6 +19,7 @@ on:
       - 'sdk/python/**'
       - 'scripts/run_function_compliance.py'
       - 'scripts/function_sql.py'
+      - 'scripts/function_plans.py'
       - 'scripts/validate_function_tests.py'
       - '.github/workflows/datafusion-compliance.yml'
   pull_request:
@@ -29,6 +31,7 @@ on:
       - 'sdk/python/**'
       - 'scripts/run_function_compliance.py'
       - 'scripts/function_sql.py'
+      - 'scripts/function_plans.py'
       - 'scripts/validate_function_tests.py'
       - '.github/workflows/datafusion-compliance.yml'
   schedule:
@@ -66,7 +69,8 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           pip install -e sdk/python "datafusion==${DATAFUSION_PY_VERSION}" \
-            "substrait-extensions==${SUBSTRAIT_EXTENSIONS_VERSION}"
+            "substrait-extensions==${SUBSTRAIT_EXTENSIONS_VERSION}" \
+            "substrait-protobuf==${SUBSTRAIT_EXTENSIONS_VERSION}"
 
       - name: Run TPC-H plans on DataFusion (Substrait consumer)
         run: |
@@ -83,17 +87,28 @@ jobs:
           python scripts/validate_function_tests.py test-suites/functions-substrait-0.107 \
             --substrait-version "${SUBSTRAIT_EXTENSIONS_VERSION%.*}"
 
-      - name: Run functions-substrait-0.107 on DataFusion
+      - name: Run functions-substrait-0.107 as Substrait plans on DataFusion
         run: |
           mkdir -p output/reports
-          python scripts/run_function_compliance.py --engine datafusion \
+          python scripts/run_function_compliance.py --engine datafusion --mode plan \
             --suites-dir test-suites/functions-substrait-0.107/upstream \
             --suite-name functions-substrait-0.107 \
             --output output/reports/datafusion-functions-substrait-0.107.json
-          python scripts/run_function_compliance.py --engine datafusion \
+          python scripts/run_function_compliance.py --engine datafusion --mode plan \
             --suites-dir test-suites/functions-substrait-0.107/extended \
             --suite-name functions-substrait-0.107-extended \
             --output output/reports/datafusion-functions-substrait-0.107-extended.json
+
+      - name: Run functions-substrait-0.107 as SQL on DataFusion
+        run: |
+          python scripts/run_function_compliance.py --engine datafusion \
+            --suites-dir test-suites/functions-substrait-0.107/upstream \
+            --suite-name functions-substrait-0.107-sql \
+            --output output/reports/datafusion-functions-substrait-0.107-sql.json
+          python scripts/run_function_compliance.py --engine datafusion \
+            --suites-dir test-suites/functions-substrait-0.107/extended \
+            --suite-name functions-substrait-0.107-extended-sql \
+            --output output/reports/datafusion-functions-substrait-0.107-extended-sql.json
 
       - name: Post results
         if: always()

@@ -46,9 +46,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/combine_engine_reports.py --informational NAME=REPORT`: suites shown in the breakdown
   but excluded from the headline pass rate.
 
-### Changed — the current-format function suite is now scored
+### Changed — the current-format function suite is now scored, as Substrait plans
 - `functions-substrait-0.107` and `functions-substrait-0.107-extended` count towards the headline
-  pass rate on the leaderboard.
+  pass rate on the leaderboard, run with `--mode plan`: each case is a Substrait 0.107.0 plan
+  (`scripts/function_plans.py`) executed by the engine's Substrait consumer, in a child process so a
+  consumer crash fails one case. The same cases translated to SQL are shown as
+  `functions-substrait-0.107-sql` / `-extended-sql`, not scored. DuckDB 1.5.6 via plans: 69.5% /
+  90.0% (via SQL: 93.9% / 99.9%).
 - The legacy suite (`test-suites/functions`, folder unchanged) still runs and is shown as
   `functions-legacy`, marked *not scored*. Suites passed with `--informational` are now labelled
   "not scored" on the leaderboard and in the CI summary.

@@ -1,8 +1,10 @@
 # Function tests — Substrait 0.107
 
 Function test cases in the **current upstream Substrait test-case format**, checked against the
-function definitions of Substrait **v0.107.0**. This is the **scored** function suite: both parts
-count towards an engine's headline pass rate on the leaderboard. It replaces
+function definitions of Substrait **v0.107.0**. This is the **scored** function suite: both parts,
+run as **Substrait plans** through each engine's Substrait consumer, count towards an engine's
+headline pass rate on the leaderboard (the same cases run as SQL are shown as `*-sql` rows, not
+scored). It replaces
 [`test-suites/functions`](../functions/README.md), which still runs and is shown on the leaderboard
 as `functions-legacy`, marked *not scored*.
 
@@ -47,19 +49,35 @@ declared options and option values; expect the signature's return type; and use 
 literals (decimals with a precision and scale that fit the value, integers within range). This is stricter than upstream's own coverage check,
 which is how the upstream problems listed in [`upstream/UPSTREAM.md`](upstream/UPSTREAM.md) were found.
 
-## How cases are scored
+## How cases are run: Substrait plans (scored) and SQL
 
 [`scripts/run_function_compliance.py`](../../scripts/run_function_compliance.py) runs each case on an
-engine — DuckDB (default) or Apache DataFusion (`--engine datafusion`) — translating it to that
-engine's SQL with [`scripts/function_sql.py`](../../scripts/function_sql.py), and compares the result
-with the expected literal evaluated by the same engine. Only direct SQL spellings are mapped: a
-function an engine lacks (e.g. DataFusion has no list lambdas, `isfinite` or bitwise NOT) is not
-emulated, and its cases are skipped as untranslatable.
+engine — DuckDB (default) or Apache DataFusion (`--engine datafusion`) — in one of two modes:
 
-| Engine | `upstream/` | `extended/` | CI |
-|---|---|---|---|
-| DuckDB 1.5.6 | 93.9% (1,189 passed, 77 failed, 49 skipped) | 99.9% (2,151 / 2 / 27) | `duckdb-compliance.yml`, on the leaderboard |
-| DataFusion 55.0.0 | 93.2% (1,089 passed, 80 failed, 146 skipped) | 99.4% (2,068 / 12 / 100) | `datafusion-compliance.yml`, report artifact |
+- **`--mode plan` (scored).** [`scripts/function_plans.py`](../../scripts/function_plans.py) builds a
+  Substrait 0.107.0 protobuf plan for the case — the function bound by extension URN and compound
+  signature name (e.g. `add:i8_i8`), its arguments as typed Substrait literals, its options and enum
+  arguments in the plan — and the engine runs it through its own Substrait consumer (DuckDB: the
+  `substrait` extension's `from_substrait()`; DataFusion: `datafusion.substrait`). Only the input
+  tables and the expected value use SQL. A plan the consumer rejects is a failure. The engine runs in
+  a child process, so a plan that crashes the consumer fails that case and the run continues. Cases
+  the builder cannot express yet (unsigned `u!` types, lambdas) are skipped.
+- **`--mode sql` (not scored, the `*-sql` rows).** Each case is translated to the engine's SQL with
+  [`scripts/function_sql.py`](../../scripts/function_sql.py). This measures the engine's SQL functions
+  without its Substrait consumer. Only direct SQL spellings are mapped; a function an engine lacks
+  is not emulated, and its cases are skipped.
+
+| Engine | `upstream/` plans | `extended/` plans | `upstream/` SQL | `extended/` SQL | CI |
+|---|---:|---:|---:|---:|---|
+| DuckDB 1.5.6 | **69.5%** (808 / 355 / 152 skipped) | **90.0%** (1,927 / 215 / 38) | 93.9% | 99.9% | `duckdb-compliance.yml`, on the leaderboard |
+| DataFusion 55.0.0 | **71.2%** (820 / 332 / 163) | **86.5%** (1,859 / 289 / 32) | 93.2% | 99.4% | `datafusion-compliance.yml`, report artifact |
+
+The gap between the two modes is the engines' Substrait consumers: functions they do not map
+(DuckDB: `negate`, `shift_*`, `bitwise_not`, `and_not`, `is_true`, `regexp_*_substring`, …; DataFusion:
+`regexp_*`, `shift_*`, `sign`, `std_dev`, `variance`, …), enum arguments (DataFusion rejects them;
+DuckDB's extension crashes on `std_dev`/`variance` plans), typed null literals (DuckDB loses the
+type), window functions (DuckDB) and wrong mappings (DuckDB maps list `cardinality` to its map-only
+function and `extract(MILLISECOND)` to a different definition).
 
 Because DuckDB is one of the verifiers of `extended/`, that part favours DuckDB; compare engines on
 `upstream/`.
