@@ -15,9 +15,12 @@ on:
       - 'scripts/validate_function_tests.py'
       - 'scripts/combine_engine_reports.py'
       - 'scripts/generate_leaderboard.py'
+      - 'scripts/check_compliance_regression.py'
       - '.github/workflows/duckdb-compliance.yml'
   pull_request:
     branches: [ main, develop ]
+    # labeled: adding compliance-regression-ok re-runs the check
+    types: [ opened, synchronize, reopened, labeled ]
     paths:
       - 'examples/duckdb-java/**'
       - 'sdk/java/**'
@@ -30,16 +33,22 @@ on:
       - 'scripts/validate_function_tests.py'
       - 'scripts/combine_engine_reports.py'
       - 'scripts/generate_leaderboard.py'
+      - 'scripts/check_compliance_regression.py'
       - '.github/workflows/duckdb-compliance.yml'
   schedule:
     # Run weekly on Monday at 02:00 UTC
     - cron: '0 2 * * 1'
   workflow_dispatch:
     inputs:
-      compliance_threshold:
-        description: 'Minimum combined pass rate percentage (0-100)'
+      max_regression:
+        description: 'Largest allowed drop from the last published result, in percentage points'
         required: false
-        default: '80'
+        default: '1.0'
+      allow_regression:
+        description: 'Report a regression without failing (for an intentional change)'
+        type: boolean
+        required: false
+        default: false
 
 env:
   # Python package and JDBC driver are pinned to the same DuckDB release so both
@@ -49,7 +58,11 @@ env:
   COMPLIANCE_SDK_VERSION: "0.1.1"
   # Function definitions the functions-substrait-0.107 suite is validated against
   SUBSTRAIT_EXTENSIONS_VERSION: "0.107.0"
-  COMPLIANCE_THRESHOLD: ${{ inputs.compliance_threshold || '80' }}
+  # CI fails when the overall score or a category drops by more than this many points
+  # from the last published result (scripts/check_compliance_regression.py). A pull
+  # request labelled compliance-regression-ok reports the drop without failing.
+  MAX_REGRESSION: ${{ inputs.max_regression || '1.0' }}
+  ALLOW_REGRESSION: ${{ inputs.allow_regression || contains(github.event.pull_request.labels.*.name, 'compliance-regression-ok') }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -106,12 +119,13 @@ jobs:
     name: Run DuckDB Compliance Tests
     runs-on: ubuntu-latest
     needs: build-framework
+    permissions:
+      contents: read
+      actions: read   # download the last published entry for the regression check
     outputs:
       pass-rate: ${{ steps.parse-results.outputs.pass-rate }}
-      passed: ${{ steps.parse-results.outputs.passed }}
-      total: ${{ steps.parse-results.outputs.total }}
-      failed: ${{ steps.parse-results.outputs.failed }}
-      skipped: ${{ steps.parse-results.outputs.skipped }}
+      functions: ${{ steps.parse-results.outputs.functions }}
+      queries: ${{ steps.parse-results.outputs.queries }}
       engine-version: ${{ steps.parse-results.outputs.engine-version }}
     steps:
       - name: Checkout repository
@@ -227,16 +241,19 @@ jobs:
             --suite-name functions-legacy \
             --output output/reports/duckdb-functions-legacy.json
 
+      # Scored: functions = upstream cases as plans; queries = TPC-H in the current
+      # encoding. Overall = the average of the two. Everything else is reference.
       - name: Combine into leaderboard entry
         run: |
           python scripts/combine_engine_reports.py --engine DuckDB \
-            --suite functions-substrait-0.107=output/reports/duckdb-functions-substrait-0.107.json \
-            --suite functions-substrait-0.107-extended=output/reports/duckdb-functions-substrait-0.107-extended.json \
-            --suite tpch=output/reports/duckdb-tpch.json \
-            --suite tpch-substrait-0.81=output/reports/duckdb-tpch-substrait-0.81.json \
-            --informational functions-substrait-0.107-sql=output/reports/duckdb-functions-substrait-0.107-sql.json \
-            --informational functions-substrait-0.107-extended-sql=output/reports/duckdb-functions-substrait-0.107-extended-sql.json \
-            --informational functions-legacy=output/reports/duckdb-functions-legacy.json \
+            --consumer "substrait community extension" \
+            --functions functions-substrait-0.107=output/reports/duckdb-functions-substrait-0.107.json \
+            --queries tpch=output/reports/duckdb-tpch.json \
+            --reference functions-substrait-0.107-sql=output/reports/duckdb-functions-substrait-0.107-sql.json \
+            --reference functions-substrait-0.107-extended=output/reports/duckdb-functions-substrait-0.107-extended.json \
+            --reference functions-substrait-0.107-extended-sql=output/reports/duckdb-functions-substrait-0.107-extended-sql.json \
+            --reference tpch-substrait-0.81=output/reports/duckdb-tpch-substrait-0.81.json \
+            --reference functions-legacy=output/reports/duckdb-functions-legacy.json \
             --output output/leaderboard/duckdb.json
 
       - name: Parse Compliance Results
@@ -245,14 +262,12 @@ jobs:
           REPORT_FILE="output/leaderboard/duckdb.json"
           {
             echo "pass-rate=$(jq -r '.passRate' "$REPORT_FILE")"
-            echo "passed=$(jq -r '.passed' "$REPORT_FILE")"
-            echo "total=$(jq -r '.totalTests' "$REPORT_FILE")"
-            echo "failed=$(jq -r '.failed' "$REPORT_FILE")"
-            echo "skipped=$(jq -r '.skipped' "$REPORT_FILE")"
+            echo "functions=$(jq -r '.categories.functions.passRate' "$REPORT_FILE")"
+            echo "queries=$(jq -r '.categories.queries.passRate' "$REPORT_FILE")"
             echo "engine-version=$(jq -r '.engineVersion' "$REPORT_FILE")"
           } >> "$GITHUB_OUTPUT"
-          jq -r '"📊 DuckDB \(.engineVersion): \(.passRate)% (\(.passed) passed, \(.failed) failed, \(.skipped) skipped)"' "$REPORT_FILE"
-          jq -r '.suites | to_entries[] | "   \(.key): \(.value.passRate)% (\(.value.passed) passed, \(.value.failed) failed, \(.value.skipped) skipped)"' "$REPORT_FILE"
+          jq -r '"📊 DuckDB \(.engineVersion): overall \(.passRate)% (functions \(.categories.functions.passRate)%, queries \(.categories.queries.passRate)%)"' "$REPORT_FILE"
+          jq -r '.suites | to_entries[] | "   \(.key)\(if .value.informational then " (not scored)" else "" end): \(.value.passRate)% (\(.value.passed) passed, \(.value.failed) failed, \(.value.skipped) skipped)"' "$REPORT_FILE"
 
       - name: Upload detailed reports
         uses: actions/upload-artifact@v4
@@ -268,16 +283,29 @@ jobs:
           path: output/leaderboard/duckdb.json
           retention-days: 90
 
-      - name: Check Compliance Quality Threshold
+      # The entry of the last successful run on main is what the leaderboard publishes.
+      - name: Download the last published entry
         env:
-          PASS_RATE: ${{ steps.parse-results.outputs.pass-rate }}
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
         run: |
-          echo "Evaluating pass rate ($PASS_RATE%) against threshold ($COMPLIANCE_THRESHOLD%)..."
-          if (( $(echo "$PASS_RATE < $COMPLIANCE_THRESHOLD" | bc -l) )); then
-            echo "❌ Compliance rate $PASS_RATE% is below threshold $COMPLIANCE_THRESHOLD%"
-            exit 1
+          RUN_ID=$(gh run list --workflow duckdb-compliance.yml --branch main --status success \
+            --limit 1 --json databaseId --jq '.[0].databaseId // empty' || true)
+          if [ -n "$RUN_ID" ] && gh run download "$RUN_ID" --name duckdb-leaderboard-report --dir baseline; then
+            echo "BASELINE_DESC=the last published result (run $RUN_ID)" >> "$GITHUB_ENV"
+          else
+            echo "No published entry found; the regression check will be skipped."
           fi
-          echo "✅ Compliance threshold met!"
+
+      - name: Check for a compliance regression
+        run: |
+          ARGS=()
+          if [ "$ALLOW_REGRESSION" = "true" ]; then ARGS+=(--allow-regression); fi
+          python scripts/check_compliance_regression.py \
+            --current output/leaderboard/duckdb.json \
+            --baseline baseline/duckdb.json \
+            --baseline-desc "${BASELINE_DESC:-the last published result}" \
+            --max-drop "$MAX_REGRESSION" "${ARGS[@]}"
 
   # ============================================================================
   # 3. Leaderboard preview (publishing happens in compliance-leaderboard.yml)
@@ -328,10 +356,8 @@ jobs:
         env:
           STATUS: ${{ needs.run-compliance.result == 'success' && '✅ PASSED' || '❌ FAILED' }}
           PASS_RATE: ${{ needs.run-compliance.outputs.pass-rate || 'N/A' }}
-          PASSED: ${{ needs.run-compliance.outputs.passed || '0' }}
-          TOTAL: ${{ needs.run-compliance.outputs.total || '0' }}
-          FAILED: ${{ needs.run-compliance.outputs.failed || '0' }}
-          SKIPPED: ${{ needs.run-compliance.outputs.skipped || '0' }}
+          FUNCTIONS: ${{ needs.run-compliance.outputs.functions || 'N/A' }}
+          QUERIES: ${{ needs.run-compliance.outputs.queries || 'N/A' }}
           ENGINE_VERSION: ${{ needs.run-compliance.outputs.engine-version || 'unknown' }}
         run: |
           cat << EOF >> "$GITHUB_STEP_SUMMARY"
@@ -344,11 +370,10 @@ jobs:
           | **Engine** | \`DuckDB\` |
           | **Engine Version** | \`$ENGINE_VERSION\` |
           | **Framework SDK** | \`$COMPLIANCE_SDK_VERSION\` |
-          | **Pass Rate** | **$PASS_RATE%** (passed ÷ executed; skipped excluded) |
-          | **Passed Tests** | $PASSED / $TOTAL |
-          | **Failed Tests** | $FAILED |
-          | **Skipped Tests** | $SKIPPED |
-          | **Threshold** | $COMPLIANCE_THRESHOLD% |
+          | **Overall** | **$PASS_RATE%** (average of functions and queries) |
+          | **Functions** (upstream cases as Substrait plans) | $FUNCTIONS% |
+          | **Queries** (TPC-H plans) | $QUERIES% |
+          | **Gate** | no drop of more than $MAX_REGRESSION pts from the last published result |
 
           EOF
 
@@ -368,7 +393,7 @@ jobs:
             echo ""
             echo "| Suite | Pass Rate | Passed | Failed | Skipped | Total |"
             echo "|---|---|---|---|---|---|"
-            jq -r '.suites | to_entries[] | "| \(.key)\(if .value.informational then " _(not scored)_" else "" end) | \(if .value.passRate == null then "n/a" else "\(.value.passRate)%" end) | \(.value.passed) | \(.value.failed) | \(.value.skipped) | \(.value.totalTests) |"' leaderboard/duckdb.json
+            jq -r '.suites | to_entries[] | "| \(.key)\(if .value.informational then " _(not scored)_" else " (\(.value.category))" end) | \(if .value.passRate == null then "n/a" else "\(.value.passRate)%" end) | \(.value.passed) | \(.value.failed) | \(.value.skipped) | \(.value.totalTests) |"' leaderboard/duckdb.json
             echo ""
             echo "Per-test reasons for every failure and skip are in the \`duckdb-compliance-reports\` artifact."
           } >> "$GITHUB_STEP_SUMMARY"

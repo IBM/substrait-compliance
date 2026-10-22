@@ -14,8 +14,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   DataFusion 55.0.0: 6/22 in both encodings.
 - `scripts/run_function_compliance.py --engine datafusion` runs the current-format function suite
   on Apache DataFusion (Python bindings).
-- New workflow `datafusion-compliance.yml` (DataFusion 55.0.0) runs both and publishes the reports
-  as an artifact and in the job summary (not on the leaderboard yet).
+- New workflow `datafusion-compliance.yml` (DataFusion 55.0.0) runs both, publishes the reports as
+  an artifact and in the job summary, and puts DataFusion on the leaderboard.
 - `scripts/duckdb_function_sql.py` is now `scripts/function_sql.py`, with a `Dialect` per engine
   (DuckDB, DataFusion). Only direct SQL spellings are mapped; functions an engine lacks are
   reported as untranslatable (skipped), not emulated. DuckDB results are unchanged.
@@ -56,6 +56,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - The legacy suite (`test-suites/functions`, folder unchanged) still runs and is shown as
   `functions-legacy`, marked *not scored*. Suites passed with `--informational` are now labelled
   "not scored" on the leaderboard and in the CI summary.
+
+### Changed — the leaderboard is scored by category
+- Engines are ranked by an **overall score**: the average of two category pass rates,
+  **Functions** (the `upstream/` function cases run as Substrait plans) and **Queries** (TPC-H
+  plans in the current encoding). Pooling all test counts let 3,000+ function cases drown the 22
+  queries; now each category counts equally. A category an engine does not run counts as 0%.
+  DuckDB 1.5.6: 62.0% (functions 69.5%, queries 54.5%); DataFusion 55.0.0: 49.2% (71.2%, 27.3%).
+- Shown but not scored: the same function cases as SQL (with the consumer gap, plans − SQL),
+  `extended/` (verified on DuckDB, so it favours DuckDB), TPC-H in the 0.81 encoding, and
+  `functions-legacy`. A per-extension table shows plan and SQL pass rates side by side.
+- `scripts/combine_engine_reports.py` (entry schema 2): `--functions`, `--queries` and
+  `--reference` (`--informational` still accepted) replace `--suite`; entries carry
+  `categories`, per-extension figures and the consumer's name.
+- `scripts/generate_leaderboard.py --format all` also writes the GitHub Pages page
+  (`leaderboard.html`, light and dark), replacing the HTML that was inlined in the workflow.
+- `compliance-leaderboard.yml` publishes every engine with a successful run on `main` (DuckDB and
+  DataFusion) and also runs when a DataFusion run finishes.
+- The 80% minimum pass rate in `duckdb-compliance.yml` is replaced by a regression check
+  (`scripts/check_compliance_regression.py`): CI fails when the overall score or a category drops
+  by more than `MAX_REGRESSION` (1.0) points from the last published result. DataFusion has the
+  same check. A pull request labelled `compliance-regression-ok` reports the drop without
+  failing; the first run after this change compares nothing (the published entry is in the old format).
 
 ### Changed — test-suite plan format
 - Java SDK: `YamlTestSuiteLoader` now ignores unknown metadata fields instead of failing the

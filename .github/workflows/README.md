@@ -33,7 +33,8 @@ outputs). Runs on push to `main` and on schedule.
 
 End-to-end working CI workflow demonstrating how DuckDB integrates the Substrait compliance
 framework, compiles and executes tests using the `ComplianceEngine` interface, generates
-compliance reports, validates pass-rate thresholds, and updates the compliance dashboard data.
+compliance reports, fails on a regression from the last published result
+(`scripts/check_compliance_regression.py`), and updates the compliance dashboard data.
 This workflow serves as a reference implementation that can be parameterized for any database engine.
 See the comprehensive [Engine CI Integration Guide](../../docs/CI_COMPLIANCE_WORKFLOW_GUIDE.md) for step-by-step setup instructions and CLI commands.
 
@@ -89,8 +90,11 @@ freshness check independent of developer commits.
 ### `compliance-leaderboard.yml` — Leaderboard aggregation
 
 Runs weekly (Sunday 00:00 UTC), on `workflow_dispatch`, and on `repository_dispatch` events of
-type `compliance-report-submitted`. Collects compliance reports from participating engines and
-regenerates the public leaderboard JSON.
+type `compliance-report-submitted`, and when a DuckDB or DataFusion compliance run on `main`
+finishes. Collects each engine's leaderboard entry from its latest successful run on `main` and
+regenerates the public leaderboard (`scripts/generate_leaderboard.py --format all`: Markdown, JSON
+and the GitHub Pages page). Engines are ranked by the average of their Functions and Queries pass
+rates.
 
 ## Notes
 

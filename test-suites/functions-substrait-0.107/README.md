@@ -1,10 +1,10 @@
 # Function tests — Substrait 0.107
 
 Function test cases in the **current upstream Substrait test-case format**, checked against the
-function definitions of Substrait **v0.107.0**. This is the **scored** function suite: both parts,
-run as **Substrait plans** through each engine's Substrait consumer, count towards an engine's
-headline pass rate on the leaderboard (the same cases run as SQL are shown as `*-sql` rows, not
-scored). It replaces
+function definitions of Substrait **v0.107.0**. Its `upstream/` cases, run as **Substrait plans**
+through each engine's Substrait consumer, are the leaderboard's **Functions** score (the overall
+score averages it with the Queries score). The `extended/` cases and both parts run as SQL are shown
+next to it, not scored. It replaces
 [`test-suites/functions`](../functions/README.md), which still runs and is shown on the leaderboard
 as `functions-legacy`, marked *not scored*.
 
@@ -69,8 +69,10 @@ engine — DuckDB (default) or Apache DataFusion (`--engine datafusion`) — in 
 
 | Engine | `upstream/` plans | `extended/` plans | `upstream/` SQL | `extended/` SQL | CI |
 |---|---:|---:|---:|---:|---|
-| DuckDB 1.5.6 | **69.5%** (808 / 355 / 152 skipped) | **90.0%** (1,927 / 215 / 38) | 93.9% | 99.9% | `duckdb-compliance.yml`, on the leaderboard |
-| DataFusion 55.0.0 | **71.2%** (820 / 332 / 163) | **86.5%** (1,859 / 289 / 32) | 93.2% | 99.4% | `datafusion-compliance.yml`, report artifact |
+| DuckDB 1.5.6 | **69.5%** (808 / 355 / 152 skipped) | 90.0% (1,927 / 215 / 38) | 93.9% | 99.9% | `duckdb-compliance.yml` |
+| DataFusion 55.0.0 | **71.2%** (820 / 332 / 163) | 86.5% (1,859 / 289 / 32) | 93.2% | 99.4% | `datafusion-compliance.yml` |
+
+Only the `upstream/` plan rate (bold) is scored.
 
 The gap between the two modes is the engines' Substrait consumers: functions they do not map
 (DuckDB: `negate`, `shift_*`, `bitwise_not`, `and_not`, `is_true`, `regexp_*_substring`, …; DataFusion:
@@ -140,14 +142,15 @@ DuckDB version.
 
 1. Create `functions-substrait-<new>` with the commands above at the new tag and the matching
    `substrait-extensions` version; review which `FIXES` upstream has resolved.
-2. Run it next to this suite, not scored (`--informational`); compare the per-case reports.
+2. Run it next to this suite, not scored (`combine_engine_reports.py --reference`); compare the
+   per-case reports.
 3. Make it the scored suite and deprecate this one — the same steps as for the legacy suite below.
 
 ## The legacy suite
 
 [`test-suites/functions`](../functions/README.md) has been replaced by this suite. It still runs in
 CI and appears on the leaderboard as `functions-legacy` (passed to `combine_engine_reports.py` with
-`--informational`, so it is shown but *not scored*). Remaining clean-up, when wanted:
+`--reference`, so it is shown but *not scored*). Remaining clean-up, when wanted:
 
 1. Review the quarantined cases in [`extended/CONVERSION.md`](extended/CONVERSION.md) — they are
    valid but unverified — and add the ones that are right.

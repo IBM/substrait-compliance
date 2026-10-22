@@ -6,8 +6,8 @@ name: DataFusion Compliance
 #     as the Java runner uses for DuckDB (scripts/run_plan_compliance.py);
 #   * the current-format function suite (test-suites/functions-substrait-0.107), as
 #     Substrait plans through the same consumer, and as SQL for comparison.
-# Results are published as a report artifact and in the job summary; they are not
-# on the leaderboard yet.
+# The combined entry (output/leaderboard/datafusion.json) is published on the
+# leaderboard by compliance-leaderboard.yml, scored the same way as DuckDB's.
 
 on:
   push:
@@ -21,9 +21,13 @@ on:
       - 'scripts/function_sql.py'
       - 'scripts/function_plans.py'
       - 'scripts/validate_function_tests.py'
+      - 'scripts/combine_engine_reports.py'
+      - 'scripts/check_compliance_regression.py'
       - '.github/workflows/datafusion-compliance.yml'
   pull_request:
     branches: [ main, develop ]
+    # labeled: adding compliance-regression-ok re-runs the check
+    types: [ opened, synchronize, reopened, labeled ]
     paths:
       - 'test-suites/functions-substrait-0.107/**'
       - 'test-suites/tpch/**'
@@ -33,15 +37,29 @@ on:
       - 'scripts/function_sql.py'
       - 'scripts/function_plans.py'
       - 'scripts/validate_function_tests.py'
+      - 'scripts/combine_engine_reports.py'
+      - 'scripts/check_compliance_regression.py'
       - '.github/workflows/datafusion-compliance.yml'
   schedule:
     # Weekly on Monday at 02:30 UTC, after the DuckDB run
     - cron: '30 2 * * 1'
   workflow_dispatch:
+    inputs:
+      max_regression:
+        description: 'Largest allowed drop from the last published result, in percentage points'
+        required: false
+        default: '1.0'
+      allow_regression:
+        description: 'Report a regression without failing (for an intentional change)'
+        type: boolean
+        required: false
+        default: false
 
 env:
   DATAFUSION_PY_VERSION: "55.0.0"
   SUBSTRAIT_EXTENSIONS_VERSION: "0.107.0"
+  MAX_REGRESSION: ${{ inputs.max_regression || '1.0' }}
+  ALLOW_REGRESSION: ${{ inputs.allow_regression || contains(github.event.pull_request.labels.*.name, 'compliance-regression-ok') }}
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -54,6 +72,9 @@ jobs:
   run-compliance:
     name: Run TPC-H and function suites on DataFusion
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read   # download the last published entry for the regression check
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -110,12 +131,28 @@ jobs:
             --suite-name functions-substrait-0.107-extended-sql \
             --output output/reports/datafusion-functions-substrait-0.107-extended-sql.json
 
+      - name: Combine into leaderboard entry
+        run: |
+          python scripts/combine_engine_reports.py --engine DataFusion \
+            --consumer "datafusion.substrait ${DATAFUSION_PY_VERSION}" \
+            --functions functions-substrait-0.107=output/reports/datafusion-functions-substrait-0.107.json \
+            --queries tpch=output/reports/datafusion-tpch.json \
+            --reference functions-substrait-0.107-sql=output/reports/datafusion-functions-substrait-0.107-sql.json \
+            --reference functions-substrait-0.107-extended=output/reports/datafusion-functions-substrait-0.107-extended.json \
+            --reference functions-substrait-0.107-extended-sql=output/reports/datafusion-functions-substrait-0.107-extended-sql.json \
+            --reference tpch-substrait-0.81=output/reports/datafusion-tpch-substrait-0.81.json \
+            --output output/leaderboard/datafusion.json
+
       - name: Post results
         if: always()
         run: |
           {
             echo "## DataFusion ${DATAFUSION_PY_VERSION}"
             echo ""
+            if [ -f output/leaderboard/datafusion.json ]; then
+              jq -r '"**Overall \(.passRate)%**: functions \(.categories.functions.passRate)%, queries \(.categories.queries.passRate)%"' output/leaderboard/datafusion.json
+              echo ""
+            fi
             echo "| Suite | Pass Rate | Passed | Failed | Skipped | Total |"
             echo "|---|---|---|---|---|---|"
             for f in output/reports/datafusion-*.json; do
@@ -140,3 +177,34 @@ jobs:
           name: datafusion-compliance-reports
           path: output/reports/
           retention-days: 30
+
+      # Consumed by compliance-leaderboard.yml (workflow_run trigger / latest successful run)
+      - name: Upload leaderboard entry
+        uses: actions/upload-artifact@v4
+        with:
+          name: datafusion-leaderboard-report
+          path: output/leaderboard/datafusion.json
+          retention-days: 90
+
+      - name: Download the last published entry
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          RUN_ID=$(gh run list --workflow datafusion-compliance.yml --branch main --status success \
+            --limit 1 --json databaseId --jq '.[0].databaseId // empty' || true)
+          if [ -n "$RUN_ID" ] && gh run download "$RUN_ID" --name datafusion-leaderboard-report --dir baseline; then
+            echo "BASELINE_DESC=the last published result (run $RUN_ID)" >> "$GITHUB_ENV"
+          else
+            echo "No published entry found; the regression check will be skipped."
+          fi
+
+      - name: Check for a compliance regression
+        run: |
+          ARGS=()
+          if [ "$ALLOW_REGRESSION" = "true" ]; then ARGS+=(--allow-regression); fi
+          python scripts/check_compliance_regression.py \
+            --current output/leaderboard/datafusion.json \
+            --baseline baseline/datafusion.json \
+            --baseline-desc "${BASELINE_DESC:-the last published result}" \
+            --max-drop "$MAX_REGRESSION" "${ARGS[@]}"
