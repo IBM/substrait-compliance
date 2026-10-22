@@ -91,16 +91,17 @@ public class ComplianceRunner {
                     "No expected output — cannot verify correctness");
             }
 
-            boolean matches = compareResults(
+            String mismatch = describeMismatch(
                 testCase.getExpectedOutput(),
                 result.getOutputData()
             );
 
-            if (matches) {
+            if (mismatch == null) {
                 return TestResult.passed(testCase.getId(), duration);
             } else {
+                // Say exactly what differed so failures can be diagnosed from the report.
                 return TestResult.failed(testCase.getId(),
-                    "Output mismatch", duration);
+                    "Output mismatch: " + mismatch, duration);
             }
             
         } catch (Exception e) {
@@ -111,33 +112,68 @@ public class ComplianceRunner {
     
     /**
      * Compare expected and actual results.
+     *
+     * @return null when the outputs match, otherwise a description of the first difference
      */
-    private boolean compareResults(TableData expected, TableData actual) {
+    String describeMismatch(TableData expected, TableData actual) {
         if (actual == null) {
-            return false;
+            return "engine returned no output";
         }
         if (expected.getRowCount() != actual.getRowCount()) {
-            return false;
+            return "expected " + expected.getRowCount() + " rows, got " + actual.getRowCount()
+                + (actual.getRowCount() > 0 ? "; first row " + rowPreview(actual, 0) : "");
         }
         if (expected.getColumnCount() != actual.getColumnCount()) {
-            return false;
+            return "expected " + expected.getColumnCount() + " columns " + expected.getColumnNames()
+                + ", got " + actual.getColumnCount() + " " + actual.getColumnNames();
         }
         if (!columnNamesMatch(expected.getColumnNames(), actual.getColumnNames())) {
-            return false;
+            return "expected column names " + expected.getColumnNames()
+                + ", got " + actual.getColumnNames();
         }
         if (!compareColumnTypes(expected.getColumnTypes(), actual.getColumnTypes())) {
-            return false;
+            return "expected column types " + expected.getColumnTypes()
+                + ", got " + actual.getColumnTypes();
         }
 
         for (int row = 0; row < expected.getRowCount(); row++) {
             for (int col = 0; col < expected.getColumnCount(); col++) {
-                if (!valuesMatch(expected.getValue(row, col), actual.getValue(row, col))) {
-                    return false;
+                Object expectedValue = expected.getValue(row, col);
+                Object actualValue = actual.getValue(row, col);
+                if (!valuesMatch(expectedValue, actualValue)) {
+                    return "row " + row + ", column " + expected.getColumnNames().get(col)
+                        + ": expected " + describeValue(expectedValue)
+                        + ", got " + describeValue(actualValue)
+                        + " (actual type " + actual.getColumnTypes().get(col) + ")";
                 }
             }
         }
 
-        return true;
+        return null;
+    }
+
+    private static String describeValue(Object value) {
+        if (value == null) {
+            return "NULL";
+        }
+        String text = value instanceof java.math.BigDecimal
+            ? ((java.math.BigDecimal) value).toPlainString()
+            : String.valueOf(value);
+        if (text.length() > 80) {
+            text = text.substring(0, 77) + "...";
+        }
+        return value instanceof String ? "'" + text + "'" : text;
+    }
+
+    private static String rowPreview(TableData data, int row) {
+        StringBuilder sb = new StringBuilder("(");
+        for (int col = 0; col < data.getColumnCount(); col++) {
+            if (col > 0) {
+                sb.append(", ");
+            }
+            sb.append(describeValue(data.getValue(row, col)));
+        }
+        return sb.append(")").toString();
     }
 
     /**

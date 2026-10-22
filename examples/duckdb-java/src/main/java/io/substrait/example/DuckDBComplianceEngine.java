@@ -269,16 +269,25 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
     }
 
     /** Map a JDBC type name to a Substrait canonical type string. */
-    private String jdbcTypeToSubstraitType(String jdbcType) {
+    static String jdbcTypeToSubstraitType(String jdbcType) {
         if (jdbcType == null) return "string";
-        switch (jdbcType.toUpperCase()) {
-            case "INTEGER": case "INT": case "INT4": case "SMALLINT": return "integer";
-            case "BIGINT": case "INT8": case "INT64":                 return "bigint";
-            case "DOUBLE": case "FLOAT8": case "HUGEINT":             return "double";
-            case "FLOAT": case "FLOAT4":                              return "float";
+        // DuckDB reports parameterized names such as DECIMAL(38,4) or VARCHAR(25);
+        // drop the parameters before mapping.
+        String base = jdbcType.trim().toUpperCase(Locale.ROOT);
+        int paren = base.indexOf('(');
+        if (paren > 0) {
+            base = base.substring(0, paren).trim();
+        }
+        switch (base) {
+            case "TINYINT": case "INT1": case "UTINYINT":
+            case "SMALLINT": case "INT2": case "USMALLINT":
+            case "INTEGER": case "INT": case "INT4": case "UINTEGER": return "integer";
+            case "BIGINT": case "INT8": case "INT64": case "UBIGINT": return "bigint";
+            case "HUGEINT": case "UHUGEINT":                          return "bigint";
+            case "DOUBLE": case "FLOAT8":                             return "double";
+            case "FLOAT": case "FLOAT4": case "REAL":                  return "float";
             case "BOOLEAN": case "BOOL":                              return "boolean";
-            case "DATE": case "TIMESTAMP":                            return "string";
-            case "DECIMAL": case "NUMERIC":                           return "double";
+            case "DECIMAL": case "NUMERIC":                           return "decimal";
             default:                                                   return "string";
         }
     }

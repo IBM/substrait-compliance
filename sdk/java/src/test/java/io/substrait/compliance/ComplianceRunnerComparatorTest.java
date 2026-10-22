@@ -210,6 +210,22 @@ class ComplianceRunnerComparatorTest {
                 .isEqualTo(TestResult.Status.FAILED);
     }
 
+    @Test
+    void mismatchMessageNamesRowColumnAndBothValues() {
+        ComplianceRunner runner = new ComplianceRunner(new PassThroughEngine());
+        TableData expected = new TableData(
+                Collections.singletonList("promo_revenue"), Collections.singletonList("double"),
+                Collections.singletonList(Collections.singletonList((Object) 15.486545812284072)));
+        TableData actual = new TableData(
+                Collections.singletonList("PROMO_REVENUE"), Collections.singletonList("DECIMAL(19,6)"),
+                Collections.singletonList(Collections.singletonList((Object) new java.math.BigDecimal("15.486500"))));
+
+        assertThat(runner.describeMismatch(expected, actual))
+                .isEqualTo("row 0, column promo_revenue: expected 15.486545812284072, got 15.486500"
+                        + " (actual type DECIMAL(19,6))");
+        assertThat(runner.describeMismatch(expected, expected)).isNull();
+    }
+
     private TestResult.Status runSingleRow(Path tempDir, String expectedCsv, Object revenue, Object count)
             throws Exception {
         Path dir = Files.createTempDirectory(tempDir, "case");
