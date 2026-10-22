@@ -1,14 +1,20 @@
-name: DataFusion Function Compliance
+name: DataFusion Compliance
 
-# Runs the current-format function suite (test-suites/functions-substrait-0.107)
-# on Apache DataFusion through its Python bindings. Results are published as a
-# report artifact and in the job summary; they are not on the leaderboard yet.
+# Runs Apache DataFusion (Python bindings) on
+#   * the TPC-H plans, through DataFusion's own Substrait consumer, in the current
+#     (0.107.0) and the legacy (0.81) plan encodings - scored with the same rules
+#     as the Java runner uses for DuckDB (scripts/run_plan_compliance.py);
+#   * the current-format function suite (test-suites/functions-substrait-0.107).
+# Results are published as a report artifact and in the job summary; they are not
+# on the leaderboard yet.
 
 on:
   push:
     branches: [ main, develop ]
     paths:
       - 'test-suites/functions-substrait-0.107/**'
+      - 'test-suites/tpch/**'
+      - 'scripts/run_plan_compliance.py'
       - 'sdk/python/**'
       - 'scripts/run_function_compliance.py'
       - 'scripts/function_sql.py'
@@ -18,6 +24,8 @@ on:
     branches: [ main, develop ]
     paths:
       - 'test-suites/functions-substrait-0.107/**'
+      - 'test-suites/tpch/**'
+      - 'scripts/run_plan_compliance.py'
       - 'sdk/python/**'
       - 'scripts/run_function_compliance.py'
       - 'scripts/function_sql.py'
@@ -40,8 +48,8 @@ permissions:
   contents: read
 
 jobs:
-  run-functions:
-    name: Run function suite on DataFusion
+  run-compliance:
+    name: Run TPC-H and function suites on DataFusion
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -59,6 +67,16 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e sdk/python "datafusion==${DATAFUSION_PY_VERSION}" \
             "substrait-extensions==${SUBSTRAIT_EXTENSIONS_VERSION}"
+
+      - name: Run TPC-H plans on DataFusion (Substrait consumer)
+        run: |
+          mkdir -p output/reports
+          python scripts/run_plan_compliance.py --engine datafusion \
+            --test-suite test-suites/tpch/metadata.yaml \
+            --output output/reports/datafusion-tpch.json
+          python scripts/run_plan_compliance.py --engine datafusion \
+            --test-suite test-suites/tpch/metadata-substrait-0.81.yaml \
+            --output output/reports/datafusion-tpch-substrait-0.81.json
 
       - name: Validate functions-substrait-0.107 against the extension YAMLs
         run: |
@@ -81,22 +99,29 @@ jobs:
         if: always()
         run: |
           {
-            echo "## DataFusion ${DATAFUSION_PY_VERSION} — function suite"
+            echo "## DataFusion ${DATAFUSION_PY_VERSION}"
             echo ""
             echo "| Suite | Pass Rate | Passed | Failed | Skipped | Total |"
             echo "|---|---|---|---|---|---|"
             for f in output/reports/datafusion-*.json; do
               [ -f "$f" ] || continue
-              jq -r '"| \(.suite) | \(if .passRate == null then "n/a" else "\(.passRate)%" end) | \(.passed) | \(.failed) | \(.skipped) | \(.totalTests) |"' "$f"
+              jq -r '"| \(.suite // .testSuiteName) | \(if .passRate == null then "n/a" else "\(.passRate)%" end) | \(.passed) | \(.failed) | \(.skipped) | \(.totalTests) |"' "$f"
             done
             echo ""
-            echo "Per-test reasons for every failure and skip are in the \`datafusion-function-reports\` artifact."
+            echo "### TPC-H failures"
+            echo ""
+            for f in output/reports/datafusion-tpch*.json; do
+              [ -f "$f" ] || continue
+              jq -r '.testSuiteName as $s | .testResults[] | select(.status != "PASSED") | "- \($s) \(.testId): \(.message // "" | .[0:200])"' "$f"
+            done
+            echo ""
+            echo "Per-test reasons for every failure and skip are in the \`datafusion-compliance-reports\` artifact."
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload reports
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: datafusion-function-reports
+          name: datafusion-compliance-reports
           path: output/reports/
           retention-days: 30

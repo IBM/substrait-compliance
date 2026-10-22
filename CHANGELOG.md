@@ -7,10 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
-### Added — DataFusion function runs
+### Added — DataFusion runs (TPC-H plans and functions)
+- `scripts/run_plan_compliance.py --engine datafusion` runs plan suites (TPC-H, both encodings)
+  through DataFusion's Substrait consumer, loading inputs and scoring results with the same rules
+  as the Java runner that scores DuckDB; reports use the Java report's fields.
+  DataFusion 55.0.0: 6/22 in both encodings.
 - `scripts/run_function_compliance.py --engine datafusion` runs the current-format function suite
-  on Apache DataFusion (Python bindings); new workflow `datafusion-compliance.yml` (DataFusion
-  55.0.0) publishes the reports as an artifact and in the job summary.
+  on Apache DataFusion (Python bindings).
+- New workflow `datafusion-compliance.yml` (DataFusion 55.0.0) runs both and publishes the reports
+  as an artifact and in the job summary (not on the leaderboard yet).
 - `scripts/duckdb_function_sql.py` is now `scripts/function_sql.py`, with a `Dialect` per engine
   (DuckDB, DataFusion). Only direct SQL spellings are mapped; functions an engine lacks are
   reported as untranslatable (skipped), not emulated. DuckDB results are unchanged.
