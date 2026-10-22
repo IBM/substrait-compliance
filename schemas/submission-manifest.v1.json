@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/IBM/substrait-compliance/schemas/submission-manifest.v1.json",
+  "title": "Leaderboard submission manifest (v1)",
+  "description": "submissions/<engine>/<version>/manifest.json. Describes one compliance run of one engine version; each suite's results are in reports/<suite>.json. See submissions/README.md.",
+  "type": "object",
+  "required": ["schemaVersion", "engine", "run", "suites"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": {"const": 1},
+    "engine": {
+      "type": "object",
+      "required": ["name", "version", "consumer"],
+      "additionalProperties": false,
+      "properties": {
+        "name": {"type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[A-Za-z0-9][A-Za-z0-9 ._+#-]*$",
+                 "description": "Engine name as shown on the leaderboard; also the reports' engineName"},
+        "version": {"type": "string", "minLength": 1, "maxLength": 80, "pattern": "^[A-Za-z0-9][A-Za-z0-9._+-]*$"},
+        "consumer": {"type": "string", "minLength": 1, "maxLength": 120, "pattern": "^[A-Za-z0-9][A-Za-z0-9 ._+#:/@-]*$",
+                     "description": "The engine's Substrait consumer and its version"},
+        "homepage": {"type": "string", "maxLength": 300, "pattern": "^https://[^\\s()<>\"'`\\[\\]|]+$"}
+      }
+    },
+    "run": {
+      "type": "object",
+      "required": ["url", "date"],
+      "additionalProperties": false,
+      "properties": {
+        "url": {"type": "string", "maxLength": 500, "pattern": "^https://[^\\s()<>\"'`\\[\\]|]+$",
+                "description": "The CI run that produced the reports"},
+        "date": {"type": "string", "format": "date-time",
+                 "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2})$"},
+        "commit": {"type": "string", "maxLength": 80, "pattern": "^[0-9a-fA-F]{7,64}$",
+                   "description": "Commit of the engine repository that was tested"},
+        "complianceCommit": {"type": "string", "pattern": "^[0-9a-f]{40}$",
+                             "description": "Commit of this repository the suites were taken from"}
+      }
+    },
+    "sdk": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "language": {"type": "string", "maxLength": 40, "pattern": "^[A-Za-z0-9._+#-]+$"},
+        "version": {"type": "string", "maxLength": 40, "pattern": "^[A-Za-z0-9._+-]+$"}
+      }
+    },
+    "suites": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "suiteHash"],
+        "additionalProperties": false,
+        "properties": {
+          "name": {"type": "string", "pattern": "^[A-Za-z0-9._-]+$",
+                   "description": "A suite listed in test-suites/registry.json; its report is reports/<name>.json"},
+          "suiteHash": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$",
+                        "description": "scripts/suite_hash.py of the suite files the run used"}
+        }
+      }
+    }
+  }
+}

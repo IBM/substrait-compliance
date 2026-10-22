@@ -1,0 +1,16 @@
+# Code owners. Takes effect when branch protection on main requires review from code owners.
+
+# Leaderboard submissions (submissions/README.md). A maintainer approves a new engine.
+# Once an engine is listed, add a line for its folder so its team approves its own updates:
+#   /submissions/velox/  @acme/velox-maintainers
+/submissions/                 @RanjanSinha-GH
+
+# The rules submissions are checked and scored against
+/test-suites/registry.json    @RanjanSinha-GH
+/schemas/                     @RanjanSinha-GH
+/scripts/submissions.py       @RanjanSinha-GH
+/scripts/validate_submission.py  @RanjanSinha-GH
+/scripts/collect_submissions.py  @RanjanSinha-GH
+/scripts/combine_engine_reports.py  @RanjanSinha-GH
+/.github/workflows/submission-validation.yml  @RanjanSinha-GH
+/.github/workflows/compliance-leaderboard.yml  @RanjanSinha-GH

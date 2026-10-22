@@ -2,6 +2,11 @@
 
 REST API for programmatic submission and querying of Substrait compliance test results.
 
+> The public leaderboard does not depend on this API: engine teams submit results by pull
+> request ([submissions/README.md](../submissions/README.md)). The API is an optional second
+> route; a submission accepted here should use the same content as a pull-request submission
+> (manifest plus per-suite reports, [schemas/](../schemas/)).
+
 > Status: pre-release API surface. The module is buildable and locally deployable, but it should not yet be presented as a stable hosted service contract until release validation, support ownership, and production operations are finalized.
 
 ## Features

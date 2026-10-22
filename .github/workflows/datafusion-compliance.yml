@@ -134,6 +134,7 @@ jobs:
       - name: Combine into leaderboard entry
         run: |
           python scripts/combine_engine_reports.py --engine DataFusion \
+            --source ci --run-url "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             --consumer "datafusion.substrait ${DATAFUSION_PY_VERSION}" \
             --functions functions-substrait-0.107=output/reports/datafusion-functions-substrait-0.107.json \
             --queries tpch=output/reports/datafusion-tpch.json \

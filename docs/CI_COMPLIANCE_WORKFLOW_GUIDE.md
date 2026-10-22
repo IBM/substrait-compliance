@@ -2,7 +2,9 @@
 
 This guide explains how database engine developers and integration teams can adopt, run, and automate the **Substrait Compliance Framework** within their Continuous Integration (CI) pipelines using GitHub Actions.
 
-The framework provides an engine-agnostic compliance runner, standardized interfaces, test suites (TPC-H, TPC-DS, and Scalar/Aggregate Functions), and automated dashboard/leaderboard generators.
+The framework provides an engine-agnostic compliance runner, standardized interfaces, test suites (TPC-H, TPC-DS, and Scalar/Aggregate Functions), and the public compliance leaderboard.
+
+> **To put your engine on the leaderboard,** run the suites in your CI and submit the results by pull request. The reusable workflow `submit-results.yml` does it for you; see [submissions/README.md](../submissions/README.md). How the leaderboard is scored and published, for engines run in this repository and for submitted ones, is described in [COMPLIANCE_LEADERBOARD.md](COMPLIANCE_LEADERBOARD.md).
 
 ---
 
@@ -19,11 +21,11 @@ The framework provides an engine-agnostic compliance runner, standardized interf
 5. [Local CLI Commands](#local-cli-commands)
    - [Running Python Compliance Runner](#running-python-compliance-runner)
    - [Running Java Compliance Runner (DuckDB Example)](#running-java-compliance-runner-duckdb-example)
-   - [Generating Leaderboards & Dashboard Data](#generating-leaderboards--dashboard-data)
+   - [Previewing the Leaderboard Locally](#previewing-the-leaderboard-locally)
 5. [GitHub Actions CI Setup](#github-actions-ci-setup)
    - [Workflow Configuration File](#workflow-configuration-file)
-   - [Workflow Dispatch Parameters](#workflow-dispatch-parameters)
-   - [Enforcing Compliance Thresholds & Regressions](#enforcing-compliance-thresholds--regressions)
+   - [Submitting to the Leaderboard](#submitting-to-the-leaderboard)
+   - [Regression Checks](#regression-checks)
 6. [Adapting for Other Engines](#adapting-for-other-engines)
    - [DataFusion (Rust / Python)](#datafusion-rust--python)
    - [Velox / Native C++ Engines](#velox--native-c-engines)
@@ -38,36 +40,37 @@ The compliance workflow provides a decentralized mechanism for query engines to 
 
 ```mermaid
 flowchart TD
-    subgraph EngineRepo [Engine CI / PR Pipeline]
-        A[Trigger: Push / PR / Schedule / Manual] --> B[Stage 1: Build Framework SDK & Assets]
-        B --> C[Stage 2: Engine Smoke Test & Extension Loading]
-        C --> D[Stage 3: Execute Compliance Test Suites]
-        D --> E{Pass Rate >= Threshold?}
-        E -->|Yes| F[Stage 4: Update Leaderboard & Dashboard]
-        E -->|No| G[Fail Job & Flag Regression]
-        D --> H[Stage 5: Post PR Summary / Markdown Table]
+    subgraph EngineRepo [Engine CI]
+        A[Trigger: Push / Schedule / Manual] --> B[Build or install the engine]
+        B --> C[Run the suites: function cases as Substrait plans, TPC-H plans]
+        C --> D[suite-reports/&lt;suite&gt;.json]
+        C --> E{Optional: regression check against the published leaderboard}
+        D --> F[submit-results.yml: build and check the submission, open a pull request]
     end
-
-    subgraph Artifacts [Outputs & Reporting]
-        F --> I[docs/leaderboard.md]
-        F --> J[demo/dashboard/data/leaderboard.json]
-        F --> K[engine-compliance-report.json]
+    subgraph ComplianceRepo [IBM/substrait-compliance]
+        F --> G[submission-validation.yml: checks the PR, previews the ranking]
+        G --> H[Merge]
+        H --> I[compliance-leaderboard.yml]
+        I --> J[GitHub Pages: leaderboard]
     end
 ```
+
+Engines run by this repository's own CI (DuckDB, DataFusion) reach the same leaderboard through their workflows' artifacts; see [COMPLIANCE_LEADERBOARD.md](COMPLIANCE_LEADERBOARD.md).
 
 ---
 
 ## Workflow Pipeline Stages
 
-The reference workflow [`.github/workflows/duckdb-compliance.yml`](../.github/workflows/duckdb-compliance.yml) executes five automated stages:
+The reference workflow [`.github/workflows/duckdb-compliance.yml`](../.github/workflows/duckdb-compliance.yml) runs DuckDB in this repository's CI:
 
 | Stage | Job Name | Purpose | Output / Artifact |
 |---|---|---|---|
-| **1** | `build-framework` | Compiles the Java SDK fat JAR and packages standard test suites. | `compliance-assets` (Fat JAR + Test Suites) |
-| **2** | `duckdb-smoke-test` | Verifies JDBC connectivity, driver loading, and native extension availability. | Console verification |
-| **3** | `run-compliance` | Runs real query execution via the engine's `ComplianceEngine` implementation and type-aware comparator. | `duckdb-compliance-report.json` |
-| **4** | `update-dashboard` | Runs `scripts/generate_leaderboard.py` to regenerate leaderboard Markdown and JSON for the dashboard. | `docs/leaderboard.md`, `demo/dashboard/data/leaderboard.json` |
-| **5** | `compliance-summary` | Parses results and generates a rich GitHub Actions Step Summary and PR comment. | GitHub Actions Job Summary |
+| **1** | `build-framework` | Builds the Java SDK fat JAR and packages the test suites. | `compliance-assets` |
+| **2** | `run-compliance` | Runs TPC-H in both plan encodings (Java runner), validates the function suite, and runs it as Substrait plans (scored) and as SQL (reference), plus the legacy suite. It combines the reports into DuckDB's leaderboard entry (`combine_engine_reports.py --source ci`) and runs the regression check against the last published entry. | `duckdb-compliance-reports`, `duckdb-leaderboard-report` |
+| **3** | `leaderboard-preview` | Renders the entry as the leaderboard would show it. | job summary, `leaderboard-preview` |
+| **4** | `summary` | Overall, Functions and Queries scores, and per-suite results. | job summary |
+
+Publishing is a separate workflow, [`compliance-leaderboard.yml`](../.github/workflows/compliance-leaderboard.yml), which takes the entry of the latest successful run on `main`. [`datafusion-compliance.yml`](../.github/workflows/datafusion-compliance.yml) does the same for DataFusion with the Python runners only.
 
 ---
 
@@ -281,21 +284,21 @@ java -Dduckdb.native=true \
   --output-report reports/duckdb-compliance-report.json
 ```
 
-### Generating Leaderboards & Dashboard Data
+### Previewing the Leaderboard Locally
 
-Aggregate multiple engine compliance reports into Markdown and Dashboard JSON:
+Combine one engine's suite reports into a leaderboard entry, then render the leaderboard from entries:
 
 ```bash
-# Aggregate all JSON reports in reports/ directory
-python3 scripts/generate_leaderboard.py \
-  --input reports/ \
-  --output docs/leaderboard \
-  --format both
-
-# Outputs generated:
-#  - docs/leaderboard.md   (Markdown table for documentation/PR)
-#  - docs/leaderboard.json (JSON data for dashboard)
+python3 scripts/combine_engine_reports.py --engine MyEngine --consumer "my-substrait 1.0" \
+  --functions functions-substrait-0.107=suite-reports/functions-substrait-0.107.json \
+  --queries tpch=suite-reports/tpch.json \
+  --reference functions-substrait-0.107-sql=suite-reports/functions-substrait-0.107-sql.json \
+  --output entries/myengine.json
+python3 scripts/generate_leaderboard.py --input entries/ --output preview/leaderboard.md --format all
+# preview/leaderboard.md, leaderboard.json and leaderboard.html (the page published on GitHub Pages)
 ```
+
+The public leaderboard is generated only by this repository's `compliance-leaderboard.yml`; do not commit leaderboard files. See [COMPLIANCE_LEADERBOARD.md](COMPLIANCE_LEADERBOARD.md) for how engines are scored.
 
 ---
 
@@ -303,89 +306,90 @@ python3 scripts/generate_leaderboard.py \
 
 ### Workflow Configuration File
 
-Create `.github/workflows/compliance.yml` in your repository:
+Create `.github/workflows/compliance.yml` in your repository. It runs the suites from a checkout of this repository and keeps one report per suite. Your engine is a class of your own (`--engine package.module:Class`); see [submissions/README.md](../submissions/README.md#your-engine-class).
 
 ```yaml
-name: Substrait Compliance CI
+name: Substrait Compliance
 
 on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
   schedule:
     - cron: '0 2 * * 1' # Weekly Monday run
   workflow_dispatch:
-    inputs:
-      compliance_threshold:
-        description: 'Minimum required pass rate percentage'
-        required: false
-        default: '80'
-      engine_name:
-        description: 'Engine Name'
-        required: false
-        default: 'MyEngine'
 
-env:
-  ENGINE_NAME: ${{ github.event.inputs.engine_name || 'MyEngine' }}
-  COMPLIANCE_THRESHOLD: ${{ github.event.inputs.compliance_threshold || 80 }}
+permissions:
+  contents: read
 
 jobs:
   run-compliance:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v4              # your engine and its compliance adapter
 
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/checkout@v4              # the suites and runners, from main
+        with:
+          repository: IBM/substrait-compliance
+          path: compliance
+
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      - name: Install Framework & Engine
+      - name: Install the framework and the engine
         run: |
-          pip install -e sdk/python
+          pip install -e compliance/sdk/python "substrait-extensions==0.107.0" "substrait-protobuf==0.107.0"
           pip install my-database-engine
 
-      - name: Execute Compliance Suite
+      - name: Run the suites
+        env:
+          PYTHONPATH: ${{ github.workspace }}/compliance-adapter   # where my_engine.py lives
         run: |
-          mkdir -p reports
-          python3 run_engine_compliance.py \
-            --test-suites test-suites \
-            --output reports/${{ env.ENGINE_NAME }}-report.json
+          cd compliance
+          mkdir -p ../suite-reports
+          python scripts/run_function_compliance.py --engine my_engine:MyFunctionEngine --mode plan \
+            --suites-dir test-suites/functions-substrait-0.107/upstream \
+            --suite-name functions-substrait-0.107 --output ../suite-reports/functions-substrait-0.107.json
+          python scripts/run_plan_compliance.py --engine my_engine:MyPlanEngine \
+            --test-suite test-suites/tpch/metadata.yaml --output ../suite-reports/tpch.json
 
-      - name: Validate Compliance Threshold
-        run: |
-          python3 -c "
-          import json, sys
-          with open('reports/${{ env.ENGINE_NAME }}-report.json') as f:
-              data = json.load(f)
-          pass_rate = data.get('passRate', data.get('overallPassRate', 0))
-          threshold = float('${{ env.COMPLIANCE_THRESHOLD }}')
-          print(f'Compliance Pass Rate: {pass_rate:.1f}% (Threshold: {threshold}%)')
-          if pass_rate < threshold:
-              print(f'❌ Pass rate below threshold!')
-              sys.exit(1)
-          print('✅ Compliance threshold met!')
-          "
-
-      - name: Update Leaderboard
-        if: github.ref == 'refs/heads/main'
-        run: |
-          python3 scripts/generate_leaderboard.py \
-            --input reports/ \
-            --output docs/leaderboard \
-            --format both
+      - uses: actions/upload-artifact@v4
+        with:
+          name: compliance-suite-reports
+          path: suite-reports/
 ```
 
-### Workflow Dispatch Parameters
+### Submitting to the Leaderboard
 
-Teams can trigger ad-hoc compliance tests via the GitHub Actions UI:
+Add a job that calls the reusable workflow. It builds and checks the submission, then opens the pull request:
 
-| Parameter | Default | Description |
-|---|---|---|
-| `compliance_threshold` | `60` | Minimum pass rate required before CI fails. |
-| `engine_name` | `DuckDB` | Target engine identifier for reporting. |
-| `engine_version` | `0.10.0` | Target engine release version. |
+```yaml
+  submit:
+    needs: run-compliance
+    if: github.ref == 'refs/heads/main'
+    uses: IBM/substrait-compliance/.github/workflows/submit-results.yml@<commit-sha>   # pin it
+    with:
+      engine: MyEngine
+      engine-version: 1.0.0
+      consumer: my-substrait 1.0.0
+      reports-artifact: compliance-suite-reports
+      # dry-run: true   # build and check only, no pull request
+    secrets:
+      submission-token: ${{ secrets.SUBSTRAIT_COMPLIANCE_TOKEN }}
+```
+
+Use a token from a dedicated bot account; [submissions/README.md](../submissions/README.md) has the details and the rules a submission must meet.
+
+### Regression Checks
+
+A fixed minimum pass rate is not used. Engines start from very different places, so what CI should catch is a result getting worse. To fail your own CI on a drop, compare your new entry with your engine's entry in the published [`leaderboard.json`](https://ibm.github.io/substrait-compliance/leaderboard.json):
+
+```bash
+curl -sf https://ibm.github.io/substrait-compliance/leaderboard.json \
+  | jq '.engines[] | select(.engineName == "MyEngine")' > baseline.json
+python3 compliance/scripts/check_compliance_regression.py \
+  --current entries/myengine.json --baseline baseline.json --max-drop 1.0
+```
+
+The check compares Overall and each category, and passes with a notice when there is nothing to compare yet. This repository's own workflows use it with their last successful run's entry; see [COMPLIANCE_LEADERBOARD.md](COMPLIANCE_LEADERBOARD.md#the-regression-check).
 
 ---
 

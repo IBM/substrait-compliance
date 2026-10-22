@@ -7,7 +7,7 @@
 # 1. Copy this file to your repository's .github/workflows/ directory
 # 2. Update ENGINE_NAME, ENGINE_VERSION, and COMPLIANCE_SDK_VERSION below
 # 3. Customize the build-engine and implement-compliance-engine job steps
-# 4. Set up secrets if needed (e.g., for publishing results)
+# 4. To publish on the leaderboard, enable the submit-results job (see its comment)
 # 5. Adjust COMPLIANCE_THRESHOLD as needed
 
 name: Substrait Compliance
@@ -273,6 +273,16 @@ jobs:
         with:
           name: compliance-report
           path: compliance-report.json
+
+      # For the leaderboard submission (job submit-results): one report per accepted
+      # suite, named <suite>.json - e.g. suite-reports/functions-substrait-0.107.json,
+      # suite-reports/tpch.json. Accepted suites: test-suites/registry.json.
+      - name: Upload suite reports for the leaderboard
+        uses: actions/upload-artifact@v4
+        with:
+          name: compliance-suite-reports
+          path: suite-reports/
+          if-no-files-found: warn
       
       - name: Check compliance threshold
         run: |
@@ -343,30 +353,30 @@ jobs:
           git diff --staged --quiet || git commit -m "Update compliance badge: ${PASS_RATE}%"
           git push
 
-  publish-results:
-    name: Publish Compliance Results
-    runs-on: ubuntu-latest
+  # Submit the results to the public Substrait compliance leaderboard: opens a pull
+  # request on IBM/substrait-compliance with your suite reports; it is checked and
+  # scored automatically, and published once merged. See
+  # https://github.com/IBM/substrait-compliance/blob/main/submissions/README.md
+  # To enable: set the repository variable SUBMIT_COMPLIANCE_RESULTS=true, add a
+  # SUBSTRAIT_COMPLIANCE_TOKEN secret (classic token with public_repo scope, from a
+  # dedicated bot account), and make
+  # run-compliance-tests write one report per accepted suite into suite-reports/
+  # (at least functions-substrait-0.107 run with --mode plan, and tpch).
+  submit-results:
+    name: Submit to the leaderboard
     needs: run-compliance-tests
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
-    steps:
-      - name: Download compliance report
-        uses: actions/download-artifact@v4
-        with:
-          name: compliance-report
-      
-      - name: Publish to compliance registry (optional)
-        run: |
-          # OPTIONAL: Publish results to a central compliance registry
-          # This allows the Substrait community to track compliance across engines
-          
-          # Example:
-          # curl -X POST https://compliance.substrait.io/api/reports \
-          #   -H "Authorization: Bearer ${{ secrets.COMPLIANCE_REGISTRY_TOKEN }}" \
-          #   -H "Content-Type: application/json" \
-          #   -d @compliance-report.json
-          
-          echo "ℹ️ OPTIONAL: Publish results to compliance registry"
+    if: vars.SUBMIT_COMPLIANCE_RESULTS == 'true' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+    # Pin to a commit SHA of IBM/substrait-compliance (the workflow receives your token)
+    uses: IBM/substrait-compliance/.github/workflows/submit-results.yml@main
+    with:
+      engine: YourEngine                  # CHANGE THIS: same as ENGINE_NAME
+      engine-version: 1.0.0               # CHANGE THIS: same as ENGINE_VERSION
+      consumer: your-substrait-consumer 1.0.0  # CHANGE THIS: your Substrait consumer and version
+      reports-artifact: compliance-suite-reports
+    secrets:
+      submission-token: ${{ secrets.SUBSTRAIT_COMPLIANCE_TOKEN }}
 
   summary:
     name: Compliance Summary

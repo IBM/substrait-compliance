@@ -1,0 +1,64 @@
+name: Leaderboard Submission Check
+
+# Checks a pull request that adds or updates a leaderboard submission
+# (submissions/<engine>/<version>/, see submissions/README.md) and previews its scores.
+#
+# Security: the submitted files are data. The checker, the suites, the registry and the
+# schemas all come from the base branch (main), never from the pull request, so a
+# submission cannot change the rules it is judged by. The pull_request trigger gives
+# fork pull requests a read-only token and no secrets.
+
+on:
+  pull_request:
+    branches: [ main ]
+    paths:
+      # engine folders only: submissions/README.md and code changes do not trigger it
+      - 'submissions/*/**'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: Check submission
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the base branch (checker, suites, rules)
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          path: base
+          persist-credentials: false
+
+      - name: Check out the pull request (submitted files)
+        uses: actions/checkout@v4
+        with:
+          path: pr
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+          cache-dependency-path: 'base/sdk/python/pyproject.toml'
+
+      - name: Install the checker (from the base branch)
+        run: pip install -e base/sdk/python "jsonschema==4.23.0"
+
+      - name: List the files the pull request changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          git -C pr diff --name-only --no-renames "$BASE_SHA" HEAD > changed-files.txt
+          cat changed-files.txt
+
+      - name: Check the submission
+        run: |
+          python base/scripts/validate_submission.py \
+            --repo-root base --data-root pr --changed-files changed-files.txt

@@ -327,6 +327,29 @@ class DataFusionEngine:
 ENGINES = {"duckdb": DuckDBEngine, "datafusion": DataFusionEngine}
 
 
+def suite_files_hash(suites_dir: Path):
+    """Hash of the .test files run (scripts/submissions.py), recorded for submissions."""
+    import submissions
+    return submissions.hash_suite_path(suites_dir, "cases")
+
+
+def resolve_engine(spec: str):
+    """An engine class: a built-in name (duckdb, datafusion) or "package.module:ClassName" for an
+    engine defined outside this repository (importable on PYTHONPATH)."""
+    if spec in ENGINES:
+        return ENGINES[spec]
+    module, sep, cls_name = spec.partition(":")
+    if not sep or not module or not cls_name:
+        raise SystemExit(f"❌ unknown engine {spec!r}: use one of {', '.join(sorted(ENGINES))} "
+                         "or package.module:ClassName")
+    import importlib
+    try:
+        cls = getattr(importlib.import_module(module), cls_name)
+    except (ImportError, AttributeError) as exc:
+        raise SystemExit(f"❌ cannot load engine {spec!r}: {exc}")
+    return cls
+
+
 # ----------------------------------------------------------- crash isolation
 
 class EngineCrashed(Exception):
@@ -340,7 +363,7 @@ def _remote_error(name: str, message: str) -> Exception:
 
 
 def _engine_worker(engine_name, conn):
-    engine = ENGINES[engine_name]()
+    engine = resolve_engine(engine_name)()
     while True:
         try:
             method, args = conn.recv()
@@ -361,7 +384,7 @@ class IsolatedEngine:
         import multiprocessing as mp
         self._mp = mp.get_context("spawn")
         self._name = engine_name
-        cls = ENGINES[engine_name]
+        cls = resolve_engine(engine_name)
         self.name, self.dialect, self.implemented_modes = cls.name, cls.dialect, cls.implemented_modes
         self._setup = []        # calls replayed after a restart
         self.crashes = 0
@@ -411,10 +434,10 @@ class IsolatedEngine:
     def plan_error_kind(self, exc):
         if isinstance(exc, EngineCrashed):
             return "crashed", None
-        return ENGINES[self._name].plan_error_kind(None, exc)
+        return resolve_engine(self._name).plan_error_kind(None, exc)
 
     def error_kind(self, exc):
-        return ENGINES[self._name].error_kind(None, exc)
+        return resolve_engine(self._name).error_kind(None, exc)
 
     def close(self):
         try:
@@ -812,14 +835,16 @@ def main(argv=None):
     ap.add_argument("--suites-dir", type=Path, default=REPO_ROOT / "test-suites" / "functions")
     ap.add_argument("--output", type=Path, required=True, help="JSON report to write")
     ap.add_argument("--suite-name", default="functions", help="suite name recorded in the report")
-    ap.add_argument("--engine", choices=sorted(ENGINES), default="duckdb",
-                    help="engine to run on (legacy-format files: duckdb only)")
+    ap.add_argument("--engine", default="duckdb",
+                    help="engine to run on: duckdb, datafusion, or package.module:ClassName for your "
+                         "own engine class (see submissions/README.md); legacy-format files: duckdb only")
     ap.add_argument("--mode", choices=("sql", "plan"), default="sql",
                     help="sql: translate each case to the engine's SQL (default); plan: build a "
                          "Substrait plan per case and run it through the engine's Substrait consumer "
                          "(current-format suites only)")
     args = ap.parse_args(argv)
 
+    resolve_engine(args.engine)  # fail early on an unknown engine
     registry = None
     if args.mode == "plan":
         # plans run in a child process: a consumer crash fails one case, not the run
@@ -830,7 +855,7 @@ def main(argv=None):
         m = re.search(r"substrait-(\d+\.\d+)", str(args.suites_dir.resolve()))
         registry, _ = vft.load_registry(m.group(1) if m else None)
     else:
-        engine = ENGINES[args.engine]()
+        engine = resolve_engine(args.engine)()
     parser = FunctionTestParser()
     files = sorted(args.suites_dir.rglob("*.test"))
     if not files:
@@ -899,6 +924,7 @@ def main(argv=None):
         "engineVersion": engine.version,
         "suite": args.suite_name,
         "mode": args.mode,
+        "suiteHash": suite_files_hash(args.suites_dir),
         "timestamp": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "totalTests": totals["total"],
         "passed": totals[PASSED],
