@@ -239,6 +239,15 @@ def _run_case(engine, suite_type, tc):
     return FAILED, f"got {actual_value!r}, expected {expected_value!r} [{actual_sql}]"
 
 
+def display_path(path: Path) -> str:
+    """Path relative to the repo when possible (works for relative --suites-dir too)."""
+    resolved = path.resolve()
+    try:
+        return str(resolved.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
+
+
 def pass_rate(passed, failed):
     """Percentage of executed tests that passed; None when nothing was executed."""
     executed = passed + failed
@@ -264,7 +273,7 @@ def main(argv=None):
         try:
             suite = parser.parse_file(path)
         except Exception as exc:
-            print(f"⚠️  Could not parse {path.relative_to(REPO_ROOT)}: {exc}")
+            print(f"⚠️  Could not parse {display_path(path)}: {exc}")
             continue
         for tc in suite.test_cases:
             status, reason = run_case(engine, suite.test_type, tc)
@@ -272,7 +281,7 @@ def main(argv=None):
             cat[status] += 1
             if status != PASSED:
                 results.append({
-                    "file": str(path.relative_to(REPO_ROOT)),
+                    "file": display_path(path),
                     "line": tc.line_number,
                     "test": tc.function_call,
                     "expected": tc.expected_result,
