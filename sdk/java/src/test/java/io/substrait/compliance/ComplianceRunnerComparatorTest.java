@@ -193,6 +193,54 @@ class ComplianceRunnerComparatorTest {
     }
 
     /**
+     * Reproduces TPC-H Q6 as executed by DuckDB: the plan names the output REVENUE and
+     * computes it as DECIMAL, while the reference CSV has "revenue:double". The values
+     * agree, so the test must PASS; a genuinely different value must still FAIL.
+     */
+    @Test
+    void decimalEngineOutputMatchesDoubleReferenceIgnoringNameCase(@TempDir Path tempDir) throws Exception {
+        assertThat(runSingleRow(tempDir, "revenue:double|count_order:integer\n1193053.225299999|14876\n",
+                new java.math.BigDecimal("1193053.2253"), 14876L))
+                .as("DECIMAL(38,4) 1193053.2253 / BIGINT vs double 1193053.225299999 / integer must PASS")
+                .isEqualTo(TestResult.Status.PASSED);
+
+        assertThat(runSingleRow(tempDir, "revenue:double|count_order:integer\n1193053.225299999|14876\n",
+                new java.math.BigDecimal("1193053.3300"), 14876L))
+                .as("A different revenue value must still FAIL")
+                .isEqualTo(TestResult.Status.FAILED);
+    }
+
+    private TestResult.Status runSingleRow(Path tempDir, String expectedCsv, Object revenue, Object count)
+            throws Exception {
+        Path dir = Files.createTempDirectory(tempDir, "case");
+        Files.write(dir.resolve("q00.bin"), new byte[]{});
+        Files.writeString(dir.resolve("expected.csv"), expectedCsv);
+        Files.writeString(dir.resolve("metadata.yaml"),
+                "name: \"unit-test-suite\"\n"
+              + "version: \"1.0.0\"\n"
+              + "description: \"decimal vs double\"\n"
+              + "testCases:\n"
+              + "  - id: \"q00\"\n"
+              + "    description: \"decimal vs double\"\n"
+              + "    planBinary: \"q00.bin\"\n"
+              + "    inputTables: []\n"
+              + "    expectedOutput: \"expected.csv\"\n");
+        TestSuite suite = new YamlTestSuiteLoader().load(dir.resolve("metadata.yaml"));
+
+        TableData engineOutput = new TableData(
+                Arrays.asList("REVENUE", "COUNT_ORDER"),
+                Arrays.asList("DECIMAL(38,4)", "BIGINT"),
+                Collections.singletonList(Arrays.asList(revenue, count)));
+        PassThroughEngine engine = new PassThroughEngine();
+        engine.register(suite.getTestCases().get(0).getPlan(), engineOutput);
+
+        ComplianceRunner runner = new ComplianceRunner(engine);
+        runner.registerTestSuite(suite);
+        ComplianceReport report = runner.runTestSuite("unit-test-suite");
+        return report.getTestResults().get(0).getStatus();
+    }
+
+    /**
      * Verifies the Number/String cross-type matching added to valuesMatch():
      * when an expected CSV carries a String value that looks like a number (e.g. a
      * column typed "string" whose value is "1.5") and the engine returns a Double,

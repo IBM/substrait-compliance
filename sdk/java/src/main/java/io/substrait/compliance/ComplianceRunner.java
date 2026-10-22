@@ -122,7 +122,7 @@ public class ComplianceRunner {
         if (expected.getColumnCount() != actual.getColumnCount()) {
             return false;
         }
-        if (!Objects.equals(expected.getColumnNames(), actual.getColumnNames())) {
+        if (!columnNamesMatch(expected.getColumnNames(), actual.getColumnNames())) {
             return false;
         }
         if (!compareColumnTypes(expected.getColumnTypes(), actual.getColumnTypes())) {
@@ -137,6 +137,29 @@ public class ComplianceRunner {
             }
         }
 
+        return true;
+    }
+
+    /**
+     * Column names are compared case-insensitively: SQL identifiers are case-insensitive, and
+     * plan producers commonly upper-case output names (REVENUE vs revenue).
+     */
+    private boolean columnNamesMatch(List<String> expectedNames, List<String> actualNames) {
+        if (expectedNames == null || actualNames == null) {
+            return expectedNames == actualNames;
+        }
+        if (expectedNames.size() != actualNames.size()) {
+            return false;
+        }
+        for (int i = 0; i < expectedNames.size(); i++) {
+            String expected = expectedNames.get(i);
+            String actual = actualNames.get(i);
+            if (expected == null || actual == null
+                    ? expected != actual
+                    : !expected.trim().equalsIgnoreCase(actual.trim())) {
+                return false;
+            }
+        }
         return true;
     }
 
@@ -164,6 +187,11 @@ public class ComplianceRunner {
         }
 
         String normalized = type.trim().toLowerCase(Locale.ROOT);
+        // Drop type parameters such as DECIMAL(15,2), VARCHAR(25), CHAR(1).
+        int paren = normalized.indexOf('(');
+        if (paren > 0) {
+            normalized = normalized.substring(0, paren).trim();
+        }
         switch (normalized) {
             case "int":
             case "integer":
@@ -174,24 +202,31 @@ public class ComplianceRunner {
             case "int4":
             case "smallint":
             case "tinyint":
-                return "integer";
             case "long":
             case "bigint":
             case "i64":
             case "int8":
-                return "bigint";
+            case "hugeint":
+            case "int128":
+            case "utinyint":
+            case "usmallint":
+            case "uinteger":
+            case "ubigint":
+            case "uhugeint":
             case "float":
             case "fp32":
             case "real":
             case "float4":
-                return "float";
             case "double":
             case "fp64":
             case "decimal":
             case "numeric":
             case "float8":
             case "number":
-                return "double";
+                // One numeric family: reference outputs and engines legitimately differ in
+                // width and representation (e.g. TPC-H money columns are DECIMAL in the plan
+                // but double in the expected CSVs). Values are still compared numerically.
+                return "numeric";
             case "bool":
             case "boolean":
                 return "boolean";
@@ -211,16 +246,30 @@ public class ComplianceRunner {
         }
     }
 
+    /** Absolute tolerance near zero; relative tolerance for larger magnitudes. */
+    static final double NUMERIC_ABS_TOLERANCE = 1e-9;
+    static final double NUMERIC_REL_TOLERANCE = 1e-9;
+
+    static boolean numbersClose(double expected, double actual) {
+        if (Double.isNaN(expected) || Double.isNaN(actual)) {
+            return Double.isNaN(expected) && Double.isNaN(actual);
+        }
+        if (Double.isInfinite(expected) || Double.isInfinite(actual)) {
+            return expected == actual;
+        }
+        double scale = Math.max(Math.abs(expected), Math.abs(actual));
+        return Math.abs(expected - actual)
+            <= Math.max(NUMERIC_ABS_TOLERANCE, NUMERIC_REL_TOLERANCE * scale);
+    }
+
     private boolean valuesMatch(Object expected, Object actual) {
         if (expected == null || actual == null) {
             return expected == actual;
         }
 
-        // Both numeric — use epsilon comparison to absorb floating-point representation differences.
+        // Both numeric — tolerance absorbs floating-point and decimal representation differences.
         if (expected instanceof Number && actual instanceof Number) {
-            double expectedValue = ((Number) expected).doubleValue();
-            double actualValue = ((Number) actual).doubleValue();
-            return Math.abs(expectedValue - actualValue) < 1e-9;
+            return numbersClose(((Number) expected).doubleValue(), ((Number) actual).doubleValue());
         }
 
         // One side is a Number, the other a String — try parsing the String as a number.
@@ -229,7 +278,7 @@ public class ComplianceRunner {
         if (expected instanceof Number && actual instanceof String) {
             try {
                 double actualValue = Double.parseDouble((String) actual);
-                return Math.abs(((Number) expected).doubleValue() - actualValue) < 1e-9;
+                return numbersClose(((Number) expected).doubleValue(), actualValue);
             } catch (NumberFormatException ignored) {
                 // Fall through to string comparison.
             }
@@ -237,7 +286,7 @@ public class ComplianceRunner {
         if (actual instanceof Number && expected instanceof String) {
             try {
                 double expectedValue = Double.parseDouble((String) expected);
-                return Math.abs(expectedValue - ((Number) actual).doubleValue()) < 1e-9;
+                return numbersClose(expectedValue, ((Number) actual).doubleValue());
             } catch (NumberFormatException ignored) {
                 // Fall through to string comparison.
             }
