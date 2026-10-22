@@ -284,5 +284,25 @@ jobs:
           | **Skipped Tests** | $SKIPPED |
           | **Threshold** | $COMPLIANCE_THRESHOLD% |
 
-          Per-test reasons for every failure and skip are in the \`duckdb-compliance-reports\` artifact.
           EOF
+
+      - name: Download leaderboard entry
+        if: needs.run-compliance.outputs.pass-rate != ''
+        uses: actions/download-artifact@v4
+        with:
+          name: duckdb-leaderboard-report
+          path: leaderboard
+
+      - name: Post per-suite results
+        if: needs.run-compliance.outputs.pass-rate != ''
+        run: |
+          {
+            echo ""
+            echo "## Results by suite"
+            echo ""
+            echo "| Suite | Pass Rate | Passed | Failed | Skipped | Total |"
+            echo "|---|---|---|---|---|---|"
+            jq -r '.suites | to_entries[] | "| \(.key) | \(if .value.passRate == null then "n/a" else "\(.value.passRate)%" end) | \(.value.passed) | \(.value.failed) | \(.value.skipped) | \(.value.totalTests) |"' leaderboard/duckdb.json
+            echo ""
+            echo "Per-test reasons for every failure and skip are in the \`duckdb-compliance-reports\` artifact."
+          } >> "$GITHUB_STEP_SUMMARY"

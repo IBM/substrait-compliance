@@ -44,11 +44,12 @@ echo "🔨 Compiling DuckDB Java example..."
 cd "$SCRIPT_DIR"
 mkdir -p build
 
+# Compile every source file in the example so new helper classes are picked up.
+SOURCES=(src/main/java/io/substrait/example/*.java)
 javac -proc:none \
     -cp "$FAT_JAR:$DUCKDB_JAR" \
     -d build \
-    src/main/java/io/substrait/example/DuckDBComplianceEngine.java \
-    src/main/java/io/substrait/example/DuckDBComplianceExample.java
+    "${SOURCES[@]}"
 
 echo "✅ Compilation successful."
 echo ""
