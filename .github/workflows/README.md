@@ -53,6 +53,9 @@ Triggered by a semver tag (`v*.*.*`). Builds the Java SDK fat jar and the Python
 publishes both as GitHub Release assets. Maven Central and PyPI publishing require credentials
 stored as repository secrets; they are wired but gated on the secrets being present.
 
+The REST API is released separately by `api-release.yml`, which triggers on `api-v*.*.*` tags
+so the two workflows never try to create the same GitHub Release.
+
 ### `api-build-test.yml` — REST API build and test
 
 Builds the Spring Boot REST API and runs its unit tests. The API is pre-release functionality.

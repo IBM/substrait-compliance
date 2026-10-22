@@ -244,8 +244,9 @@ jobs:
           mkdir -p demo/dashboard/data
           # Run leaderboard aggregation script across reports
           INPUT_DIR="output/reports"
-          if [ ! -d "$INPUT_DIR" ] || [ -z "$(ls -A "$INPUT_DIR"/*.json 2>/dev/null)" ]; then
-            INPUT_DIR="demo/output"
+          if ! compgen -G "$INPUT_DIR/*.json" > /dev/null; then
+            echo "❌ No compliance reports found in $INPUT_DIR; refusing to publish stale dashboard data"
+            exit 1
           fi
           python3 scripts/generate_leaderboard.py \
             --input "$INPUT_DIR" \
