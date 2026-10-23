@@ -1,6 +1,10 @@
 ### SUBSTRAIT_SCALAR_TEST: v1.0
 ### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_arithmetic
 
+# overflow_behavior: Overflow and saturation behavior
+factorial(13::i32) [overflow:ERROR] = <!ERROR>
+factorial(21::i64) [overflow:ERROR] = <!ERROR>
+
 # null_handling_extended: Extended null handling scenarios
 factorial(null::i64?) = null::i64?
 

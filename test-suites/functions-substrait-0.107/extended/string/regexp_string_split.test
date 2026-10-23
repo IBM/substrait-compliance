@@ -3,6 +3,7 @@
 
 # null_handling_extended: Extended null handling scenarios
 regexp_string_split(null::str?, 'pattern'::str) = null::list?<str>
+regexp_string_split('text'::str, null::str?) = null::list?<str>
 regexp_string_split(null::str?, null::str?) = null::list?<str>
 
 # empty_values: Empty strings and collections

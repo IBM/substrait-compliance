@@ -1,6 +1,9 @@
 ### SUBSTRAIT_SCALAR_TEST: v1.0
 ### SUBSTRAIT_INCLUDE: extension:io.substrait:functions_string
 
+# edge_cases: Boundary values and extreme inputs
+repeat(''::str, 9223372036854775807::i64) = ''::str
+
 # null_handling_extended: Extended null handling scenarios
 repeat('abc'::str, null::i64?) = null::str?
 repeat(null::str?, null::i64?) = null::str?

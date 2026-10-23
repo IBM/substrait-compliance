@@ -18,6 +18,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `sdk/conformance/comparison-vectors.json`: shared output-comparison vectors, checked against
   the Java runner and the Python plan runner (the comparators that score the leaderboard).
 
+### Changed — quarantined legacy function cases reviewed against the function definitions
+- `scripts/function_reference.py` computes a case's result from the 0.107.0 definitions alone:
+  - integer overflow under each option mode;
+  - IEEE 754 special values and comparisons, and domain-error options;
+  - exact floating-point results (50-digit, correctly rounded) and exact aggregates;
+  - null propagation, and string functions on UTF-8 bytes and plain-text characters.
+
+  It returns nothing where the definitions do not decide.
+- `convert_legacy_function_tests.py` uses it for every case DuckDB does not reproduce. Of the 227
+  quarantined cases:
+  - **98 are kept**, among them the IEEE NaN comparisons that DuckDB's SQL orders differently,
+    overflow and domain-error option modes, and `factorial`/`sum` overflow errors;
+  - **90 are dropped** as contradicted, each listed in `extended/CONVERSION.md` with the correct
+    result (e.g. `modulus(1000000, 7)` is 1, not 6; `sin(1000.0)` had the wrong sign);
+  - **40 remain quarantined**, where the definitions are silent (`shift_left` overflow,
+    `modulus(INT_MIN, -1)`, `min` with NaN, ...).
+
+  `extended/` now has 2,278 cases (was 2,180).
+
+### Fixed — TPC-H q18 expected column name
+- `test-suites/tpch/expected/q18.csv` named the last column `sum(l_quantity)`, but both plan
+  encodings name it `TOTAL_QTY`. Engines return the plan's names, so q18 failed on the header
+  alone. It is now `total_qty`; DataFusion 55.0.0 passes q18 in both encodings (7/22).
+
 ### Added — leaderboard submissions by pull request
 - Engine teams run the suites in their own CI and submit the results by pull request:
   `submissions/<engine>/<version>/` holds a `manifest.json` (engine, consumer, CI run, suite

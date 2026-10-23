@@ -11,6 +11,10 @@ asin(2.0::fp64) [on_domain_error:NAN] = nan::fp64
 asin(-2.0::fp64) [on_domain_error:NAN] = nan::fp64
 asin(nan::fp32) = nan::fp32
 asin(nan::fp64) = nan::fp64
+asin(inf::fp32) [on_domain_error:NAN] = nan::fp32
+asin(inf::fp64) [on_domain_error:NAN] = nan::fp64
+asin(-inf::fp32) [on_domain_error:NAN] = nan::fp32
+asin(-inf::fp64) [on_domain_error:NAN] = nan::fp64
 
 # zero_handling: Zero and negative zero handling
 asin(-1.0::fp32) = -1.5707963267948966::fp32

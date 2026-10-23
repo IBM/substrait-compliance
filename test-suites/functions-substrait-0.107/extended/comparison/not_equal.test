@@ -13,8 +13,10 @@ not_equal(-2147483648::i32, 2147483647::i32) = true::bool
 not_equal(inf::fp32, inf::fp32) = false::bool
 not_equal(inf::fp32, -inf::fp32) = true::bool
 not_equal(-inf::fp32, -inf::fp32) = false::bool
+not_equal(nan::fp32, nan::fp32) = true::bool
 not_equal(nan::fp32, 1.0::fp32) = true::bool
 not_equal(1.0::fp32, nan::fp32) = true::bool
+not_equal(nan::fp64, nan::fp64) = true::bool
 not_equal(nan::fp64, 1.0::fp64) = true::bool
 not_equal(nan::fp64, inf::fp64) = true::bool
 

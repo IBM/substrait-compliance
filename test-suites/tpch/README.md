@@ -95,7 +95,7 @@ Suite names therefore never change meaning: `tpch` is always the maintained plan
 and `tpch-substrait-<version>` always means exactly that version.
 
 To run every TPC-H suite through DuckDB locally:
-`python scripts/tpch_duckdb_local.py` (needs `pip install duckdb`).
+`python scripts/duckdb_benchmark_local.py` (needs `pip install duckdb`).
 
 ## Usage
 
@@ -139,10 +139,9 @@ python scripts/run_plan_compliance.py --engine datafusion \
     --test-suite test-suites/tpch/metadata.yaml --output /tmp/datafusion-tpch.json
 ```
 
-DataFusion 55.0.0's consumer does not support `varchar` literals (16 queries), nor the argument
-form q09 uses; q01 fails because DataFusion's decimal `avg` keeps 6 fractional digits while the
-expected output holds the full double; q18 fails on its expected header (`sum(l_quantity)`, where
-the plan names the column `total_qty`).
+DataFusion 55.0.0 passes 7 of 22 in both encodings. Its consumer does not support `varchar`
+literals (13 queries), nor the argument form q09 uses; q01 fails because DataFusion's decimal
+`avg` keeps 6 fractional digits while the expected output holds the full double.
 
 
 

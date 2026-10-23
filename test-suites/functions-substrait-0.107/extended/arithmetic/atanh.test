@@ -10,6 +10,10 @@ atanh(2.0::fp32) [on_domain_error:NAN] = nan::fp32
 atanh(-2.0::fp32) [on_domain_error:NAN] = nan::fp32
 atanh(nan::fp64) = nan::fp64
 atanh(nan::fp32) = nan::fp32
+atanh(inf::fp64) [on_domain_error:NAN] = nan::fp64
+atanh(-inf::fp64) [on_domain_error:NAN] = nan::fp64
+atanh(inf::fp32) [on_domain_error:NAN] = nan::fp32
+atanh(-inf::fp32) [on_domain_error:NAN] = nan::fp32
 
 # zero_handling: Zero and negative zero handling
 atanh(0.5::fp64) = 0.5493061443340548::fp64
