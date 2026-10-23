@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Fixed — the Go, TypeScript, C# and C++ SDKs compare results like the leaderboard
+- Their comparators each had their own rule: exact column names and types (so `BIGINT` vs
+  `integer` or `decimal(15,2)` vs `double` failed), absolute tolerances from 1e-6 to 1e-10,
+  and no decimal-scale rule; a failure said only that the output did not match. Each now
+  applies the shared rule in `sdk/conformance/comparison-vectors.json` and reports the first
+  difference (`Output mismatch: row 3, column revenue: expected …, got …`): Go
+  `DescribeMismatch`, TypeScript `ResultComparator.describeMismatch`, C#
+  `ResultComparator.DescribeMismatch`, C++ `ResultComparator::describe_mismatch`. The existing
+  boolean `Compare`/`compare` entry points remain.
+- Each SDK reads a plan's declared decimal scales from its JSON form (Go `DeclaredScales`,
+  TypeScript `declaredScales`, C# `PlanTypes`, C++ `plan_types`); all agree with Python on the
+  143 TPC-H and TPC-DS plans. The runners take them from the test case or from the JSON beside
+  the plan binary.
+- Type names with parameters (`decimal(15,2)`, `varchar(25)`) are read by their base name; the
+  TypeScript and C# loaders matched substrings, so `interval` read as an integer.
+- New shared vector: numeric-looking text in a text column compares as text (`'001'` is not
+  `'1'` in a `varchar`), as the Java runner and Python do. The Rust comparator read such text as
+  numbers and now follows it too.
+- Still open: the TypeScript and C# loaders read their own YAML format, not this repository's
+  suite metadata, and the Go loader does not load input tables.
+
 ### Fixed — TPC-DS plans name `customer`'s last column as its data file does
 - Ten TPC-DS plans (q01, q04, q15, q25, q45, q55, q65, q75, q85, q95; every plan that reads
   `customer`) named its last column `c_last_review_date`; the data file and the TPC-DS schema

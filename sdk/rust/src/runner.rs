@@ -135,7 +135,8 @@ pub fn describe_mismatch(
     for (r, (e_row, a_row)) in expected.rows.iter().zip(&actual.rows).enumerate() {
         for (c, (e, a)) in e_row.iter().zip(a_row).enumerate() {
             let scale = declared_scales.and_then(|s| s.get(c).copied().flatten());
-            if !values_match(e, a, scale) {
+            let numeric = type_family(expected.columns[c].data_type) == "numeric";
+            if !values_match(e, a, scale, numeric) {
                 return Some(format!(
                     "row {r}, column {}: expected {e:?}, got {a:?}",
                     expected.columns[c].name
@@ -177,14 +178,17 @@ pub fn numbers_close(expected: f64, actual: f64, declared_scale: Option<u32>) ->
     (expected - actual).abs() <= tolerance
 }
 
-/// TableData holds every value as text: numbers are parsed and compared numerically,
-/// booleans case-insensitively, everything else exactly.
-fn values_match(expected: &str, actual: &str, declared_scale: Option<u32>) -> bool {
+/// TableData holds every value as text: in a numeric column numbers are parsed and compared
+/// numerically; booleans compare case-insensitively, everything else exactly (so "001" and "1"
+/// in a text column stay different).
+fn values_match(expected: &str, actual: &str, declared_scale: Option<u32>, numeric: bool) -> bool {
     if is_null(expected) || is_null(actual) {
         return is_null(expected) && is_null(actual);
     }
-    if let (Ok(e), Ok(a)) = (expected.trim().parse::<f64>(), actual.trim().parse::<f64>()) {
-        return numbers_close(e, a, declared_scale);
+    if numeric {
+        if let (Ok(e), Ok(a)) = (expected.trim().parse::<f64>(), actual.trim().parse::<f64>()) {
+            return numbers_close(e, a, declared_scale);
+        }
     }
     let (e, a) = (expected.to_lowercase(), actual.to_lowercase());
     if (e == "true" || e == "false") && (a == "true" || a == "false") {

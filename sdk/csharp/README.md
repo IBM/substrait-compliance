@@ -345,13 +345,20 @@ var activeTests = suite.GetActiveTestCases();
 
 ### Custom Result Comparator
 
+`ResultComparator` compares outputs as the leaderboard does (`sdk/conformance/README.md`):
+column names case-insensitively, column types by family, numbers within a small relative
+tolerance, and decimal columns at the scale the plan declares. The runner reads those scales
+from the plan's JSON beside its binary (`plans/q01.json` for `plans/q01.bin`), or from
+`TestCase.DeclaredScales`. A failure message says what differed, e.g.
+`Output mismatch: row 0, column sum_qty: expected 2.5, got 2.6`.
+
 ```csharp
 public class CustomComparator : ResultComparator
 {
-    protected override bool CompareValues(object? expected, object? actual)
+    protected override bool CompareValues(object? expected, object? actual, int? declaredScale, bool numericColumn)
     {
         // Custom comparison logic
-        return base.CompareValues(expected, actual);
+        return base.CompareValues(expected, actual, declaredScale, numericColumn);
     }
 }
 

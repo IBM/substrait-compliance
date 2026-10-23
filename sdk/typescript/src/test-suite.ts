@@ -23,6 +23,9 @@ export interface TestCase {
   tags?: string[];
   skip?: boolean;
   skipReason?: string;
+  /** Per output column, the scale of the decimal type the plan declares (null for other
+   *  columns); when unset, the runner reads it from the plan's JSON beside its binary. */
+  declaredScales?: (number | null)[];
 }
 
 /**

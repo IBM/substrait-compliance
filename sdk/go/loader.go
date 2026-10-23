@@ -27,16 +27,18 @@ func NewYAMLTestSuiteLoader() *YAMLTestSuiteLoader {
 // ── YAML schema ───────────────────────────────────────────────────────────────
 
 type testSuiteYAML struct {
-	Name        string          `yaml:"name"`
-	Version     string          `yaml:"version"`
-	Description string          `yaml:"description"`
-	TestCases   []testCaseYAML  `yaml:"testCases"`
+	Name        string         `yaml:"name"`
+	Version     string         `yaml:"version"`
+	Description string         `yaml:"description"`
+	TestCases   []testCaseYAML `yaml:"testCases"`
 }
 
 type testCaseYAML struct {
-	ID             string `yaml:"id"`
-	Description    string `yaml:"description"`
-	PlanBinary     string `yaml:"planBinary"`
+	ID          string `yaml:"id"`
+	Description string `yaml:"description"`
+	PlanBinary  string `yaml:"planBinary"`
+	// Optional plan JSON, for the output types the plan declares.
+	PlanJSON string `yaml:"planJson"`
 	// Explicit override for expected-output CSV path (relative to YAML dir).
 	// Defaults to expected/<id>.csv when omitted.
 	ExpectedOutput string `yaml:"expectedOutput"`
@@ -75,6 +77,11 @@ func (l *YAMLTestSuiteLoader) Load(path string) (*TestSuite, error) {
 		}
 
 		testCase := NewTestCase(tc.ID, planBytes).WithDescription(tc.Description)
+		if tc.PlanJSON != "" {
+			if scales, err := DeclaredScalesFile(filepath.Join(baseDir, tc.PlanJSON)); err == nil {
+				testCase.DeclaredScales = scales
+			}
+		}
 
 		// Resolve expected-output CSV
 		csvPath := filepath.Join(baseDir, "expected", tc.ID+".csv")
@@ -106,7 +113,8 @@ func (l *YAMLTestSuiteLoader) Supports(path string) bool {
 // LoadCSV parses a pipe-delimited CSV file into a TableData.
 //
 // Typed header format (detected automatically):
-//   colname:type|colname:type|...
+//
+//	colname:type|colname:type|...
 //
 // If every field in the first line contains ':', it is treated as a typed
 // header and consumed.  Otherwise columns are named column_1, column_2, …
@@ -177,14 +185,23 @@ func LoadCSV(path string) (*TableData, error) {
 }
 
 // normalizeCSVType maps CSV type strings to canonical names.
+// Type parameters are ignored: decimal(15,2) is a decimal.
 func normalizeCSVType(s string) string {
-	switch strings.ToLower(strings.TrimSpace(s)) {
-	case "integer", "int", "int32", "i32", "smallint", "int4":
+	base := strings.ToLower(strings.TrimSpace(s))
+	if i := strings.Index(base, "("); i > 0 {
+		base = strings.TrimSpace(base[:i])
+	}
+	switch base {
+	case "integer", "int", "int32", "i32", "i8", "i16", "smallint", "tinyint", "int2", "int4":
 		return "integer"
-	case "bigint", "int64", "i64":
+	case "bigint", "long", "int64", "i64", "int8", "hugeint":
 		return "bigint"
-	case "double", "fp64", "float8", "numeric", "decimal", "number":
+	case "double", "fp64", "float8", "float", "fp32", "real", "float4", "number":
 		return "double"
+	case "decimal", "numeric":
+		return "decimal"
+	case "date", "timestamp", "timestamptz", "time":
+		return base
 	case "boolean", "bool":
 		return "boolean"
 	default:

@@ -2,7 +2,8 @@ import { promises as fs } from 'fs';
 import { ComplianceEngine } from './engine';
 import { TestSuite, TestCase } from './test-suite';
 import { ComplianceResult, ComplianceReport, TestStatus } from './result';
-import { TableData } from './table-data';
+import { CellValue, Column, ColumnType, TableData } from './table-data';
+import { declaredScalesBeside } from './plan-types';
 
 /**
  * Configuration options for the test runner
@@ -22,87 +23,123 @@ export interface RunnerOptions {
   verbose?: boolean;
 }
 
+/** Absolute tolerance near zero; relative tolerance for larger magnitudes. */
+export const NUMERIC_ABS_TOLERANCE = 1e-9;
+export const NUMERIC_REL_TOLERANCE = 1e-9;
+
+/** The type family a column is compared by. */
+function typeFamily(type: ColumnType): string {
+  switch (type) {
+    case ColumnType.INTEGER:
+    case ColumnType.FLOAT:
+    case ColumnType.DECIMAL:
+      return 'numeric';
+    case ColumnType.STRING:
+    case ColumnType.DATE:
+    case ColumnType.TIMESTAMP:
+    case ColumnType.TIME:
+      return 'string';
+    default:
+      return String(type).toLowerCase();
+  }
+}
+
 /**
- * Comparator for comparing expected and actual results
+ * Numbers within max(1e-9, 1e-9 * magnitude) and, for a column the plan declares as decimal
+ * with scale S, within 10^-S. NaN matches NaN and infinity only the same infinity.
+ */
+export function numbersClose(expected: number, actual: number, declaredScale: number | null = null): boolean {
+  if (Number.isNaN(expected) || Number.isNaN(actual)) return Number.isNaN(expected) && Number.isNaN(actual);
+  if (!Number.isFinite(expected) || !Number.isFinite(actual)) return expected === actual;
+  const magnitude = Math.max(Math.abs(expected), Math.abs(actual));
+  let tolerance = Math.max(NUMERIC_ABS_TOLERANCE, NUMERIC_REL_TOLERANCE * magnitude);
+  if (declaredScale !== null && declaredScale !== undefined) {
+    tolerance = Math.max(tolerance, Math.pow(10, -declaredScale) * (1 + NUMERIC_REL_TOLERANCE));
+  }
+  return Math.abs(expected - actual) <= tolerance;
+}
+
+function parseNumber(v: CellValue): number | null {
+  if (typeof v === 'number') return v;
+  if (typeof v === 'string' && v.trim() !== '') {
+    const n = Number(v.trim());
+    if (!Number.isNaN(n) || /^[+-]?nan$/i.test(v.trim())) return n;
+  }
+  return null;
+}
+
+/**
+ * Compares an engine's output with the expected output, as the leaderboard's comparators do
+ * (sdk/conformance/comparison-vectors.json): same row and column counts, column names
+ * case-insensitively, column types by family (all numerics are one family; dates and times
+ * compare as text), rows in order, numbers within max(1e-9, 1e-9 * magnitude), everything else
+ * as text. NULL matches only NULL; a numeric string matches the number.
  */
 export class ResultComparator {
+  /** Whether the outputs match. */
+  compare(expected: TableData, actual: TableData, declaredScales: (number | null)[] = []): boolean {
+    return this.describeMismatch(expected, actual, declaredScales) === null;
+  }
+
   /**
-   * Compare two TableData objects for equality
+   * null when the outputs match, otherwise a description of the first difference.
+   * declaredScales holds per column the scale of the decimal type the plan declares (null for
+   * other columns); such a column also matches within 10^-scale.
    */
-  compare(expected: TableData, actual: TableData): boolean {
-    // Check column count
-    if (expected.columnCount() !== actual.columnCount()) {
-      return false;
-    }
-
-    // Check row count
+  describeMismatch(expected: TableData, actual: TableData, declaredScales: (number | null)[] = []): string | null {
+    const eCols = expected.getColumns();
+    const aCols = actual.getColumns();
+    const names = (cols: Column[]) => `[${cols.map((c) => c.name).join(', ')}]`;
     if (expected.rowCount() !== actual.rowCount()) {
-      return false;
+      return `expected ${expected.rowCount()} rows, got ${actual.rowCount()}`;
     }
-
-    // Check column definitions
-    const expectedCols = expected.getColumns();
-    const actualCols = actual.getColumns();
-    for (let i = 0; i < expectedCols.length; i++) {
-      if (expectedCols[i].name !== actualCols[i].name) {
-        return false;
-      }
-      if (expectedCols[i].type !== actualCols[i].type) {
-        return false;
+    if (eCols.length !== aCols.length) {
+      return `expected ${eCols.length} columns ${names(eCols)}, got ${aCols.length} ${names(aCols)}`;
+    }
+    if (eCols.some((c, i) => c.name.trim().toLowerCase() !== aCols[i].name.trim().toLowerCase())) {
+      return `expected column names ${names(eCols)}, got ${names(aCols)}`;
+    }
+    if (eCols.some((c, i) => typeFamily(c.type) !== typeFamily(aCols[i].type))) {
+      return `expected column types [${eCols.map((c) => c.type).join(', ')}], got [${aCols.map((c) => c.type).join(', ')}]`;
+    }
+    const eRows = expected.getRows();
+    const aRows = actual.getRows();
+    for (let r = 0; r < eRows.length; r++) {
+      for (let c = 0; c < eRows[r].length && c < aRows[r].length; c++) {
+        const scale = c < declaredScales.length ? declaredScales[c] : null;
+        const numeric = typeFamily(eCols[c].type) === 'numeric';
+        if (!this.valuesMatch(eRows[r][c], aRows[r][c], scale, numeric)) {
+          return `row ${r}, column ${eCols[c].name}: expected ${show(eRows[r][c])}, got ${show(aRows[r][c])}`;
+        }
       }
     }
-
-    // Check row data
-    const expectedRows = expected.getRows();
-    const actualRows = actual.getRows();
-    for (let i = 0; i < expectedRows.length; i++) {
-      if (!this.compareRows(expectedRows[i], actualRows[i])) {
-        return false;
-      }
-    }
-
-    return true;
+    return null;
   }
 
-  private compareRows(expected: any[], actual: any[]): boolean {
-    if (expected.length !== actual.length) {
-      return false;
+  /**
+   * Text is read as a number in a numeric column, or when the other value is a number, as the
+   * Java runner does; so "001" and "1" in a text column stay different.
+   */
+  private valuesMatch(expected: CellValue, actual: CellValue, scale: number | null, numeric: boolean): boolean {
+    if (expected === null || expected === undefined || actual === null || actual === undefined) {
+      return (expected === null || expected === undefined) && (actual === null || actual === undefined);
     }
-
-    for (let i = 0; i < expected.length; i++) {
-      if (!this.compareValues(expected[i], actual[i])) {
-        return false;
-      }
+    if (typeof expected === 'boolean' || typeof actual === 'boolean') {
+      return (String(expected).toLowerCase() === 'true') === (String(actual).toLowerCase() === 'true');
     }
-
-    return true;
+    if (numeric || typeof expected === 'number' || typeof actual === 'number') {
+      const e = parseNumber(expected);
+      const a = parseNumber(actual);
+      if (e !== null && a !== null) return numbersClose(e, a, scale);
+    }
+    if (expected instanceof Date && actual instanceof Date) return expected.getTime() === actual.getTime();
+    return String(expected) === String(actual);
   }
+}
 
-  private compareValues(expected: any, actual: any): boolean {
-    // Handle null values
-    if (expected === null && actual === null) return true;
-    if (expected === null || actual === null) return false;
-
-    // Handle NaN
-    if (typeof expected === 'number' && typeof actual === 'number') {
-      if (isNaN(expected) && isNaN(actual)) return true;
-      if (isNaN(expected) || isNaN(actual)) return false;
-    }
-
-    // Handle dates
-    if (expected instanceof Date && actual instanceof Date) {
-      return expected.getTime() === actual.getTime();
-    }
-
-    // Handle floating point comparison with tolerance
-    if (typeof expected === 'number' && typeof actual === 'number') {
-      const tolerance = 1e-10;
-      return Math.abs(expected - actual) < tolerance;
-    }
-
-    // Default comparison
-    return expected === actual;
-  }
+function show(v: CellValue): string {
+  if (v === null || v === undefined) return 'NULL';
+  return typeof v === 'string' ? `'${v}'` : String(v);
 }
 
 /**
@@ -185,15 +222,18 @@ export class ComplianceRunner {
 
       // If we have expected output, compare it
       if (result.outputData) {
-        const matches = this.comparator.compare(testCase.expectedOutput, result.outputData);
+        // Decimal columns compare at the scale the plan declares: from the test case, or from
+        // the plan's JSON form beside its binary.
+        const scales = testCase.declaredScales ?? declaredScalesBeside(testCase.plan) ?? [];
+        const mismatch = this.comparator.describeMismatch(testCase.expectedOutput, result.outputData, scales);
 
-        if (!matches && result.status === TestStatus.PASSED) {
+        if (mismatch !== null && result.status === TestStatus.PASSED) {
           // Override status if output doesn't match
           return new ComplianceResult(
             testCase.id,
             TestStatus.FAILED,
             result.outputData,
-            'Output does not match expected result',
+            `Output mismatch: ${mismatch}`,
             undefined,
             result.executionTimeMs
           );

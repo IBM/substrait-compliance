@@ -4,6 +4,7 @@
 #include "result.h"
 #include <string>
 #include <optional>
+#include <vector>
 
 namespace substrait::compliance {
 
@@ -75,6 +76,45 @@ public:
         const TableData& actual,
         const TableData& expected
     ) const;
+
+    /**
+     * @brief Compare two tables, with the decimal scales the plan declares
+     *
+     * @param declared_scales Per output column, the scale of the decimal type the plan
+     *        declares (nullopt for other columns); such a column also matches within
+     *        10^-scale. See plan_types.h.
+     */
+    ComparisonResult compare_tables(
+        const TableData& actual,
+        const TableData& expected,
+        const std::vector<std::optional<int>>& declared_scales
+    ) const;
+
+    /**
+     * @brief Compare as the leaderboard's comparators do
+     *        (sdk/conformance/comparison-vectors.json)
+     *
+     * Same row and column counts, column names case-insensitively, column types by family
+     * (all numerics are one family; dates and times compare as text), rows in order,
+     * numbers within max(eps, eps * magnitude) (eps = float_epsilon, 1e-9), a declared
+     * decimal(P,S) column also within 10^-S, everything else as text. NULL matches only
+     * NULL; text is read as a number in a numeric column or against a number.
+     *
+     * @return nullopt when the outputs match, otherwise the first difference
+     */
+    std::optional<std::string> describe_mismatch(
+        const TableData& expected,
+        const TableData& actual,
+        const std::vector<std::optional<int>>& declared_scales = {}
+    ) const;
+
+    /**
+     * @brief Numbers within max(eps, eps * magnitude) and, for a declared decimal scale S,
+     *        within 10^-S; NaN matches NaN and infinity only the same infinity
+     */
+    static bool numbers_close(double expected, double actual,
+                              std::optional<int> declared_scale = std::nullopt,
+                              double epsilon = 1e-9);
     
     /**
      * @brief Compare two cell values
@@ -115,6 +155,12 @@ private:
      * @brief Compare floating point values with epsilon
      */
     bool compare_floats(double a, double b) const;
+
+    /**
+     * @brief One cell, as describe_mismatch compares it
+     */
+    bool values_match(const CellValue& expected, const CellValue& actual,
+                      std::optional<int> declared_scale, bool numeric_column) const;
     
     /**
      * @brief Compare integer values

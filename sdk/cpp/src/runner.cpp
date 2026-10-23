@@ -144,7 +144,7 @@ ComplianceResult ComplianceRunner::compare_outputs(
         ? *exec_result.output_data()
         : TableData{};
 
-    ComparisonResult cmp = comparator_->compare_tables(actual, expected);
+    ComparisonResult cmp = comparator_->compare_tables(actual, expected, tc.declared_scales());
 
     if (cmp.matches) {
         ComplianceResult r(tc.id(), TestStatus::PASSED);

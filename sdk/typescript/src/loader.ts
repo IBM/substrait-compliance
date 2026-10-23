@@ -2,7 +2,7 @@ import * as fs from 'fs/promises';
 import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { TestSuite, TestSuiteMetadata, TestCase } from './test-suite';
-import { TableData, Column, ColumnType } from './table-data';
+import { TableData, Column, ColumnType, columnTypeFromName } from './table-data';
 
 /**
  * Loader for test suites from YAML files
@@ -93,21 +93,7 @@ export class TestSuiteLoader {
   }
 
   private parseColumnType(typeStr: string): ColumnType {
-    const normalized = typeStr.toLowerCase();
-    
-    if (normalized.includes('int')) return ColumnType.INTEGER;
-    if (normalized.includes('float') || normalized.includes('double')) return ColumnType.FLOAT;
-    if (normalized.includes('decimal') || normalized.includes('numeric')) return ColumnType.DECIMAL;
-    if (normalized.includes('bool')) return ColumnType.BOOLEAN;
-    if (normalized.includes('string') || normalized.includes('varchar') || normalized.includes('text')) {
-      return ColumnType.STRING;
-    }
-    if (normalized.includes('date')) return ColumnType.DATE;
-    if (normalized.includes('timestamp') || normalized.includes('datetime')) return ColumnType.TIMESTAMP;
-    if (normalized.includes('time')) return ColumnType.TIME;
-    if (normalized.includes('binary') || normalized.includes('blob')) return ColumnType.BINARY;
-    
-    return ColumnType.STRING; // Default fallback
+    return columnTypeFromName(typeStr);
   }
 }
 

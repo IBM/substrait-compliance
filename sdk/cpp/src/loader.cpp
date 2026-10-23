@@ -3,6 +3,7 @@
 #include "substrait_compliance/loader.h"
 #include "substrait_compliance/comparator.h"  // cell_value::parse
 #include "substrait_compliance/error.h"
+#include "substrait_compliance/plan_types.h"
 #include <yaml-cpp/yaml.h>
 #include <fstream>
 #include <sstream>
@@ -212,6 +213,13 @@ TestSuitePtr YamlTestSuiteLoader::load(const std::filesystem::path& path) {
 
         if (tc_node["description"]) {
             tc.with_description(tc_node["description"].as<std::string>());
+        }
+
+        // The decimal scales the plan declares (planJson field), for the comparison
+        if (tc_node["planJson"]) {
+            if (auto scales = declared_scales_file(base_dir / tc_node["planJson"].as<std::string>())) {
+                tc.with_declared_scales(std::move(*scales));
+            }
         }
 
         // Input tables

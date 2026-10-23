@@ -72,3 +72,14 @@ fn comparison_vectors() {
         failures.join("\n")
     );
 }
+
+#[test]
+fn text_is_read_as_numbers_only_in_numeric_columns() {
+    let text = |v: &str| {
+        TableData::new(
+            vec![Column::new("code", parse_data_type("varchar"))],
+            vec![vec![v.to_string()]],
+        )
+    };
+    assert!(describe_mismatch(&text("001"), &text("1"), None).is_some());
+}

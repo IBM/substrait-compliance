@@ -21,6 +21,36 @@ namespace Substrait.Compliance
     }
 
     /// <summary>
+    /// Column type names
+    /// </summary>
+    public static class ColumnTypes
+    {
+        /// <summary>
+        /// The column type for a type name, as in a typed CSV header or an engine's result type.
+        /// Type parameters are ignored: decimal(15,2) is Decimal, varchar(25) is String.
+        /// </summary>
+        public static ColumnType FromName(string name)
+        {
+            var b = name.Trim().ToLowerInvariant();
+            var paren = b.IndexOf('(');
+            if (paren > 0) b = b.Substring(0, paren).Trim();
+            return b switch
+            {
+                "int" or "integer" or "i8" or "i16" or "i32" or "i64" or "int2" or "int4" or "int8"
+                    or "smallint" or "tinyint" or "bigint" or "long" or "hugeint" => ColumnType.Integer,
+                "float" or "fp32" or "real" or "float4" or "double" or "fp64" or "float8" or "number" => ColumnType.Float,
+                "decimal" or "numeric" => ColumnType.Decimal,
+                "bool" or "boolean" => ColumnType.Boolean,
+                "date" => ColumnType.Date,
+                "timestamp" or "timestamptz" or "datetime" => ColumnType.Timestamp,
+                "time" => ColumnType.Time,
+                "binary" or "blob" or "varbinary" => ColumnType.Binary,
+                _ => ColumnType.String,
+            };
+        }
+    }
+
+    /// <summary>
     /// Column definition
     /// </summary>
     public record Column(

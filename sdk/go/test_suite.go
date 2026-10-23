@@ -16,6 +16,9 @@ type TestCase struct {
 	ExpectedOutput *TableData
 	Description    string
 	Tags           []string
+	// DeclaredScales holds, per output column, the scale of the decimal type the plan
+	// declares (nil for other columns); see DeclaredScales. Nil when unknown.
+	DeclaredScales []*int
 }
 
 // NewTestCase creates a new test case
@@ -111,4 +114,3 @@ func (s *TestSuite) FindTest(id string) *TestCase {
 	}
 	return nil
 }
-
