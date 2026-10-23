@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Fixed — Python tests no longer write to the CI job summary
+- The regression-check tests ran `check_compliance_regression.py`, which appends its table to
+  `$GITHUB_STEP_SUMMARY` when that is set, as it is in every GitHub Actions step. So the SDK
+  Build Verification summary showed the tests' made-up results ("DuckDB 62.0% → 45.5%,
+  regressed") four times, once per Python version, though no engine had regressed.
+  `sdk/python/tests/conftest.py` now clears the GitHub Actions variables for every test; a test
+  that needs one sets it itself. A new test checks the summary is still written when asked.
+
 ### Changed — leaderboard page states how queries are compared
 - "How scoring works" now gives the query rule: column names (case-insensitive), column count
   and type family, rows in order, numbers within 1e-9 and declared decimals within 10^-S. It
