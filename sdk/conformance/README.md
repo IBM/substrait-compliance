@@ -38,7 +38,9 @@ without an ERROR or UNSUPPORTED status skips rows that use it. Compare with a to
 How a query's output is compared with its expected output: column names
 (case-insensitive), column types (one numeric family: integer, decimal and double; one
 text family including dates), rows in order, and values. Numbers match within a relative
-tolerance of 1e-9, with an absolute floor of 1e-9 near zero. NaN matches NaN, infinity
+tolerance of 1e-9, with an absolute floor of 1e-9 near zero; a column the plan declares
+as `decimal(P,S)` also matches within one unit in the last declared place, 10^-S (a
+vector's optional `declaredScales` gives these scales). NaN matches NaN, infinity
 only the same infinity, and NULL only NULL. A numeric string matches the number. Strings
 compare exactly.
 

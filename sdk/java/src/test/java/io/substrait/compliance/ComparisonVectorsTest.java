@@ -54,7 +54,15 @@ class ComparisonVectorsTest {
     assertThat(vectors.size()).isGreaterThan(0);
     ComplianceRunner runner = new ComplianceRunner(mock(ComplianceEngine.class));
     for (JsonNode v : vectors) {
-      String mismatch = runner.describeMismatch(table(v.get("expected")), table(v.get("actual")));
+      List<Integer> scales = null;
+      if (v.hasNonNull("declaredScales")) {
+        scales = new ArrayList<>();
+        for (JsonNode s : v.get("declaredScales")) {
+          scales.add(s.isNull() ? null : s.asInt());
+        }
+      }
+      String mismatch =
+          runner.describeMismatch(table(v.get("expected")), table(v.get("actual")), scales);
       assertThat(mismatch == null)
           .as("%s: %s", v.get("name").asText(), mismatch)
           .isEqualTo(v.get("match").asBoolean());

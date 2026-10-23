@@ -59,7 +59,8 @@ public class YamlTestSuiteLoader implements TestSuiteLoader {
                     tcDef.description,
                     plan,
                     inputData,
-                    expectedOutput
+                    expectedOutput,
+                    declaredDecimalScales(tcDef.planJson, baseDir)
                 );
                 testCases.add(testCase);
             } catch (Exception e) {
@@ -89,6 +90,25 @@ public class YamlTestSuiteLoader implements TestSuiteLoader {
             tables.put(inputTable.name, loadCsvTable(baseDir.resolve(inputTable.file)));
         }
         return tables;
+    }
+
+    /**
+     * The decimal scales the plan declares for its output columns, from the plan JSON (null
+     * when the case has no plan JSON or its types cannot be worked out).
+     */
+    private List<Integer> declaredDecimalScales(String planJson, Path baseDir) {
+        if (planJson == null || planJson.isBlank()) {
+            return null;
+        }
+        try {
+            // Plan JSON files start with // comment lines.
+            String json = Files.readAllLines(baseDir.resolve(planJson)).stream()
+                .filter(line -> !line.trim().startsWith("//"))
+                .collect(Collectors.joining("\n"));
+            return PlanOutputTypes.declaredScales(new ObjectMapper().readTree(json));
+        } catch (IOException | RuntimeException e) {
+            return null;
+        }
     }
 
     private TableData loadOptionalTable(String relativePath, Path baseDir)

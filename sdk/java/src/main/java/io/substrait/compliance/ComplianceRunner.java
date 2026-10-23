@@ -93,7 +93,8 @@ public class ComplianceRunner {
 
             String mismatch = describeMismatch(
                 testCase.getExpectedOutput(),
-                result.getOutputData()
+                result.getOutputData(),
+                testCase.getDeclaredDecimalScales()
             );
 
             if (mismatch == null) {
@@ -116,6 +117,17 @@ public class ComplianceRunner {
      * @return null when the outputs match, otherwise a description of the first difference
      */
     String describeMismatch(TableData expected, TableData actual) {
+        return describeMismatch(expected, actual, null);
+    }
+
+    /**
+     * Compare expected and actual results.
+     *
+     * @param declaredScales per output column, the scale of the decimal type the plan declares
+     *     (null for other columns), or null; a declared decimal also matches within 10^-scale
+     * @return null when the outputs match, otherwise a description of the first difference
+     */
+    String describeMismatch(TableData expected, TableData actual, List<Integer> declaredScales) {
         if (actual == null) {
             return "engine returned no output";
         }
@@ -140,7 +152,9 @@ public class ComplianceRunner {
             for (int col = 0; col < expected.getColumnCount(); col++) {
                 Object expectedValue = expected.getValue(row, col);
                 Object actualValue = actual.getValue(row, col);
-                if (!valuesMatch(expectedValue, actualValue)) {
+                Integer scale = declaredScales != null && col < declaredScales.size()
+                    ? declaredScales.get(col) : null;
+                if (!valuesMatch(expectedValue, actualValue, scale)) {
                     return "row " + row + ", column " + expected.getColumnNames().get(col)
                         + ": expected " + describeValue(expectedValue)
                         + ", got " + describeValue(actualValue)
@@ -287,25 +301,38 @@ public class ComplianceRunner {
     static final double NUMERIC_REL_TOLERANCE = 1e-9;
 
     static boolean numbersClose(double expected, double actual) {
+        return numbersClose(expected, actual, null);
+    }
+
+    /**
+     * Within max(1e-9, 1e-9 * magnitude); for a column the plan declares as decimal with scale
+     * S, within one unit in the last declared place (10^-S) as well: the answer is only
+     * defined to S places, and engines may round or keep extra digits.
+     */
+    static boolean numbersClose(double expected, double actual, Integer declaredScale) {
         if (Double.isNaN(expected) || Double.isNaN(actual)) {
             return Double.isNaN(expected) && Double.isNaN(actual);
         }
         if (Double.isInfinite(expected) || Double.isInfinite(actual)) {
             return expected == actual;
         }
-        double scale = Math.max(Math.abs(expected), Math.abs(actual));
-        return Math.abs(expected - actual)
-            <= Math.max(NUMERIC_ABS_TOLERANCE, NUMERIC_REL_TOLERANCE * scale);
+        double magnitude = Math.max(Math.abs(expected), Math.abs(actual));
+        double tolerance = Math.max(NUMERIC_ABS_TOLERANCE, NUMERIC_REL_TOLERANCE * magnitude);
+        if (declaredScale != null) {
+            tolerance = Math.max(tolerance,
+                Math.pow(10, -declaredScale) * (1 + NUMERIC_REL_TOLERANCE));
+        }
+        return Math.abs(expected - actual) <= tolerance;
     }
 
-    private boolean valuesMatch(Object expected, Object actual) {
+    private boolean valuesMatch(Object expected, Object actual, Integer scale) {
         if (expected == null || actual == null) {
             return expected == actual;
         }
 
         // Both numeric — tolerance absorbs floating-point and decimal representation differences.
         if (expected instanceof Number && actual instanceof Number) {
-            return numbersClose(((Number) expected).doubleValue(), ((Number) actual).doubleValue());
+            return numbersClose(((Number) expected).doubleValue(), ((Number) actual).doubleValue(), scale);
         }
 
         // One side is a Number, the other a String — try parsing the String as a number.
@@ -314,7 +341,7 @@ public class ComplianceRunner {
         if (expected instanceof Number && actual instanceof String) {
             try {
                 double actualValue = Double.parseDouble((String) actual);
-                return numbersClose(((Number) expected).doubleValue(), actualValue);
+                return numbersClose(((Number) expected).doubleValue(), actualValue, scale);
             } catch (NumberFormatException ignored) {
                 // Fall through to string comparison.
             }
@@ -322,7 +349,7 @@ public class ComplianceRunner {
         if (actual instanceof Number && expected instanceof String) {
             try {
                 double expectedValue = Double.parseDouble((String) expected);
-                return numbersClose(expectedValue, ((Number) actual).doubleValue());
+                return numbersClose(expectedValue, ((Number) actual).doubleValue(), scale);
             } catch (NumberFormatException ignored) {
                 // Fall through to string comparison.
             }

@@ -20,7 +20,8 @@ path so both engines are judged by the same rules:
 * Results are compared like ComplianceRunner.describeMismatch: same row count and
   column count, column names case-insensitively, column types by family (all
   numerics are one family; dates/times compare as strings), rows in order, numbers
-  within max(1e-9, 1e-9 * magnitude), everything else as text.
+  within max(1e-9, 1e-9 * magnitude), everything else as text. A column the plan
+  declares as decimal(P,S) also matches within 10^-S: the answer is defined to S places.
 * An engine error is FAILED; a case without an expected output is SKIPPED.
 
 The JSON report has the same fields as the Java runner's report, so
@@ -77,6 +78,120 @@ def named_table_schemas(plan: dict) -> Dict[str, List[Tuple[str, dict]]]:
 
     walk(plan)
     return tables
+
+
+# ------------------------------------------------- declared output types
+
+# The output column types a plan declares, propagated relation by relation: a read's base
+# schema; filter, sort and fetch keep their input's columns, project adds its expressions;
+# an aggregate yields its grouping expressions, then its measures; joins concatenate both
+# sides; emit mappings select and reorder. An expression's type is its declared outputType
+# (functions, aggregates), the referenced column's type, a cast's target or a literal's
+# type. Mirrored by PlanOutputTypes.java.
+
+LITERAL_TYPES = {
+    "boolean": {"bool": {}}, "i8": {"i8": {}}, "i16": {"i16": {}}, "i32": {"i32": {}},
+    "i64": {"i64": {}}, "fp32": {"fp32": {}}, "fp64": {"fp64": {}}, "string": {"string": {}},
+    "date": {"date": {}}, "timestamp": {"timestamp": {}}, "intervalYearToMonth": {"intervalYear": {}},
+    "intervalDayToSecond": {"intervalDay": {}},
+}
+
+
+def literal_type(lit: dict) -> Optional[dict]:
+    for key, value in lit.items():
+        if key in LITERAL_TYPES:
+            return LITERAL_TYPES[key]
+        if key == "decimal":
+            return {"decimal": {"precision": value.get("precision"), "scale": value.get("scale")}}
+        if key == "varChar":
+            return {"varchar": {"length": value.get("length")}}
+        if key == "fixedChar":
+            return {"fixedChar": {}}
+        if key == "null":
+            return value
+    return None
+
+
+def expr_type(e: dict, inputs: List[Optional[dict]]) -> Optional[dict]:
+    if "selection" in e:
+        sel = e["selection"]
+        if "outerReference" in sel:
+            return None
+        ref = sel.get("directReference", {}).get("structField")
+        if ref is None or "child" in sel.get("directReference", {}).get("structField", {}):
+            return None
+        i = ref.get("field", 0)
+        return inputs[i] if i < len(inputs) else None
+    if "scalarFunction" in e:
+        return e["scalarFunction"].get("outputType")
+    if "windowFunction" in e:
+        return e["windowFunction"].get("outputType")
+    if "literal" in e:
+        return literal_type(e["literal"])
+    if "cast" in e:
+        return e["cast"].get("type")
+    if "ifThen" in e:
+        ifs = e["ifThen"].get("ifs", [])
+        return expr_type(ifs[0]["then"], inputs) if ifs else expr_type(e["ifThen"]["else"], inputs)
+    if "singularOrList" in e:
+        return {"bool": {}}
+    if "subquery" in e:
+        sq = e["subquery"]
+        if "scalar" in sq:
+            out = rel_types(sq["scalar"]["input"])
+            return out[0] if out else None
+        return {"bool": {}}
+    return None
+
+
+def emit(rel: dict, cols: List[Optional[dict]]) -> List[Optional[dict]]:
+    mapping = rel.get("common", {}).get("emit", {}).get("outputMapping")
+    return [cols[i] for i in mapping] if mapping is not None else cols
+
+
+def rel_types(node: dict) -> List[Optional[dict]]:
+    kind, rel = next(iter(node.items()))
+    if kind == "read":
+        cols = list(rel["baseSchema"]["struct"]["types"])
+    elif kind in ("filter", "sort", "fetch"):
+        cols = rel_types(rel["input"])
+    elif kind == "project":
+        base = rel_types(rel["input"])
+        cols = base + [expr_type(e, base) for e in rel.get("expressions", [])]
+    elif kind == "aggregate":
+        base = rel_types(rel["input"])
+        groupings = rel.get("groupings", [])
+        if rel.get("groupingExpressions"):  # 0.107: aggregate-level expressions
+            keys = [expr_type(e, base) for e in rel["groupingExpressions"]]
+        elif len(groupings) <= 1:  # older plans: the grouping's own expressions
+            keys = [expr_type(e, base) for e in (groupings[0].get("groupingExpressions", []) if groupings else [])]
+        else:
+            raise ValueError("grouping sets in the older encoding")
+        cols = keys + [m["measure"].get("outputType") for m in rel.get("measures", [])]
+    elif kind in ("join", "cross"):
+        cols = rel_types(rel["left"]) + rel_types(rel["right"])
+    else:
+        raise ValueError(f"unsupported relation {kind}")
+    return emit(rel, cols)
+
+
+def output_types(plan: dict) -> List[Optional[dict]]:
+    root = next(r["root"] for r in plan["relations"] if "root" in r)
+    return rel_types(root["input"])
+
+
+def declared_scales(plan: dict) -> Optional[List[Optional[int]]]:
+    """The scale of each output column the plan declares as decimal (None for other
+    columns), or None when the plan's output types cannot be worked out."""
+    try:
+        types = output_types(plan)
+    except (KeyError, IndexError, TypeError, ValueError, StopIteration):
+        return None
+    scales = []
+    for t in types:
+        dec = t.get("decimal") if isinstance(t, dict) else None
+        scales.append(int(dec["scale"]) if isinstance(dec, dict) and dec.get("scale") is not None else None)
+    return scales
 
 
 def arrow_type(substrait_type: dict):
@@ -214,13 +329,19 @@ def normalize_type(t: Optional[str]) -> Optional[str]:
     return n
 
 
-def numbers_close(expected: float, actual: float) -> bool:
+def numbers_close(expected: float, actual: float, declared_scale: Optional[int] = None) -> bool:
+    """Within max(1e-9, 1e-9 * magnitude); for a column the plan declares as decimal with
+    scale S, within one unit in the last declared place (10^-S) as well: the answer is only
+    defined to S places, and engines may round or keep extra digits."""
     if math.isnan(expected) or math.isnan(actual):
         return math.isnan(expected) and math.isnan(actual)
     if math.isinf(expected) or math.isinf(actual):
         return expected == actual
-    scale = max(abs(expected), abs(actual))
-    return abs(expected - actual) <= max(NUMERIC_ABS_TOLERANCE, NUMERIC_REL_TOLERANCE * scale)
+    magnitude = max(abs(expected), abs(actual))
+    tolerance = max(NUMERIC_ABS_TOLERANCE, NUMERIC_REL_TOLERANCE * magnitude)
+    if declared_scale is not None:
+        tolerance = max(tolerance, 10.0 ** -declared_scale * (1 + NUMERIC_REL_TOLERANCE))
+    return abs(expected - actual) <= tolerance
 
 
 def _is_number(v) -> bool:
@@ -238,19 +359,19 @@ def java_string(v) -> str:
     return str(v)
 
 
-def values_match(expected, actual) -> bool:
+def values_match(expected, actual, declared_scale: Optional[int] = None) -> bool:
     if expected is None or actual is None:
         return expected is None and actual is None
     if _is_number(expected) and _is_number(actual):
-        return numbers_close(float(expected), float(actual))
+        return numbers_close(float(expected), float(actual), declared_scale)
     if _is_number(expected) and isinstance(actual, str):
         try:
-            return numbers_close(float(expected), float(actual))
+            return numbers_close(float(expected), float(actual), declared_scale)
         except ValueError:
             pass
     if _is_number(actual) and isinstance(expected, str):
         try:
-            return numbers_close(float(expected), float(actual))
+            return numbers_close(float(expected), float(actual), declared_scale)
         except ValueError:
             pass
     if isinstance(expected, bool) or isinstance(actual, bool):
@@ -259,8 +380,9 @@ def values_match(expected, actual) -> bool:
     return java_string(expected) == java_string(actual)
 
 
-def describe_mismatch(expected, actual) -> Optional[str]:
-    """None when the outputs match, else the first difference (as describeMismatch)."""
+def describe_mismatch(expected, actual, declared_scales: Optional[List[Optional[int]]] = None) -> Optional[str]:
+    """None when the outputs match, else the first difference (as describeMismatch).
+    declared_scales: per output column, the decimal scale the plan declares (or None)."""
     e_names, e_types, e_rows = expected
     a_names, a_types, a_rows = actual
     if len(e_rows) != len(a_rows):
@@ -274,7 +396,8 @@ def describe_mismatch(expected, actual) -> Optional[str]:
         return f"expected column types {e_types}, got {a_types}"
     for r, (e_row, a_row) in enumerate(zip(e_rows, a_rows)):
         for c, (e, a) in enumerate(zip(e_row, a_row)):
-            if not values_match(e, a):
+            scale = declared_scales[c] if declared_scales and c < len(declared_scales) else None
+            if not values_match(e, a, scale):
                 return (f"row {r}, column {e_names[c]}: expected {e!r}, got {a!r} "
                         f"(actual type {a_types[c]})")
     return None
@@ -370,7 +493,8 @@ def run_suite(engine, suite_path: Path):
             plan_json = case.get("planJson")
             if not plan_json:
                 raise ValueError("planJson is needed to type the input tables")
-            schemas = named_table_schemas(read_plan_json(base / plan_json))
+            plan = read_plan_json(base / plan_json)
+            schemas = named_table_schemas(plan)
             files = {t["name"].lower(): base / t["file"] for t in case.get("inputTables", [])}
             tables = {}
             for name, columns in schemas.items():
@@ -379,7 +503,7 @@ def run_suite(engine, suite_path: Path):
                     raise ValueError(f"no input file for table {name}")
                 tables[name] = load_input_table(csv_path, columns)
             actual = engine.execute((base / case["planBinary"]).read_bytes(), tables)
-            mismatch = describe_mismatch(expected, actual)
+            mismatch = describe_mismatch(expected, actual, declared_scales(plan))
             status, message = ("PASSED", None) if mismatch is None else ("FAILED", "Output mismatch: " + mismatch)
         except Exception as exc:  # noqa: BLE001 - the engine's error is the result
             status, message = "FAILED", f"Exception: {str(exc).splitlines()[0][:400]}"

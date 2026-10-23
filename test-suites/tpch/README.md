@@ -126,12 +126,12 @@ report = runner.run_test_suite(suite)
 | Engine | How the plans run | Runner | `tpch` (0.107.0) | `tpch-substrait-0.81` |
 |---|---|---|---:|---:|
 | DuckDB 1.5.6 | `substrait` community extension, `from_substrait()` (JDBC) | Java SDK, `examples/duckdb-java` | 12/22 | 3/22 |
-| DataFusion 55.0.0 | `datafusion.substrait` consumer (Python) | `scripts/run_plan_compliance.py` | 6/22 | 6/22 |
+| DataFusion 55.0.0 | `datafusion.substrait` consumer (Python) | `scripts/run_plan_compliance.py` | 8/22 | 8/22 |
 
 `scripts/run_plan_compliance.py` loads inputs and scores results with the same rules as the Java
 runner (typed inputs from each plan's read schema, values trimmed; case-insensitive column names;
-numeric type family; rows in order; numbers within 1e-9 relative), so the two engines are judged
-alike:
+numeric type family; rows in order; numbers within 1e-9 relative, and a column the plan declares
+as `decimal(P,S)` within 10^-S), so the two engines are judged alike:
 
 ```bash
 pip install -e sdk/python "datafusion==55.0.0"
@@ -139,9 +139,18 @@ python scripts/run_plan_compliance.py --engine datafusion \
     --test-suite test-suites/tpch/metadata.yaml --output /tmp/datafusion-tpch.json
 ```
 
-DataFusion 55.0.0 passes 7 of 22 in both encodings. Its consumer does not support `varchar`
-literals (13 queries), nor the argument form q09 uses; q01 fails because DataFusion's decimal
-`avg` keeps 6 fractional digits while the expected output holds the full double.
+DataFusion 55.0.0 passes 8 of 22 in both encodings. Its consumer does not support `varchar`
+literals (13 queries), nor the enum argument of `extract(YEAR, …)` that q09 uses. DuckDB's 10
+failures are the queries with subqueries, which its `substrait` extension does not run.
+
+**Decimal columns.** The expected outputs hold doubles computed in full precision, but the
+plans declare most money and average columns as decimals, e.g. q01's `avg_qty` as
+`decimal(15,2)`. Such an answer is only defined to its declared scale, and engines differ in
+how many extra digits they keep (DataFusion's `avg` keeps 6). Both comparators therefore read
+each column's declared type from the plan and accept a value within one unit in the last
+declared place (10^-S, so rounded and truncated results both match); other columns keep the
+1e-9 rule. `sdk/python/tests/test_tpch_expected_outputs.py` checks that every expected output has the
+plan's column names and type families.
 
 
 
@@ -201,10 +210,11 @@ value|value|...
 | `date`, `timestamp`, `timestamptz`, `time` | `string` | `String` | exact string equality |
 
 Type tokens are **case-insensitive**. All numeric types use epsilon comparison
-(absolute difference < 1e-9), so floating-point representation differences
+(within 1e-9, relative for large values), so floating-point representation differences
 (e.g. `380456.0` vs `380456`) do not cause spurious failures. Dates and
 timestamps are treated as opaque strings — the engine must format them
-identically to the reference value.
+identically to the reference value. Where the plan declares a column as `decimal(P,S)`, the
+leaderboard's comparators also accept a value within 10^-S (see "Decimal columns" above).
 
 **Cross-type matching:** if the engine returns a `Number` for a column the
 expected CSV declared as `string` (or vice-versa), the comparator attempts to

@@ -14,6 +14,8 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
     
     private final Connection connection;
     private final String duckdbVersion;
+    /** Whether LOAD substrait succeeded, so execution errors can say if it is missing. */
+    private boolean substraitLoaded;
     
     public DuckDBComplianceEngine() throws SQLException {
         // Initialize DuckDB in-memory database
@@ -24,6 +26,7 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
         // Load the Substrait extension so that the substrait() table function is available.
         try {
             loadSubstraitExtension();
+            substraitLoaded = true;
         } catch (SQLException e) {
             // CI sets COMPLIANCE_REQUIRE_SUBSTRAIT_EXTENSION=true so a missing extension fails
             // the run instead of silently reporting every plan as a failure.
@@ -235,10 +238,13 @@ public class DuckDBComplianceEngine implements ComplianceEngine {
                 return resultSetToTableData(rs);
             }
         } catch (SQLException e) {
-            // Surface the engine error so the test is recorded as FAILED with a reason.
+            // Surface the engine error so the test is recorded as FAILED with a reason. Point
+            // at the extension only when it really failed to load; otherwise the error is the
+            // consumer's own (e.g. an unsupported expression).
             throw new SQLException(
-                "DuckDB Substrait execution failed (is the substrait extension loaded?): "
-                    + e.getMessage(), e);
+                "DuckDB Substrait execution failed"
+                    + (substraitLoaded ? "" : " (the substrait extension is not loaded)")
+                    + ": " + e.getMessage(), e);
         }
     }
 

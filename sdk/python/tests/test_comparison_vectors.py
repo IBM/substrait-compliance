@@ -29,5 +29,6 @@ def table(t):
 
 @pytest.mark.parametrize("v", VECTORS, ids=[v["name"] for v in VECTORS])
 def test_comparison(v):
-    mismatch = run_plan_compliance.describe_mismatch(table(v["expected"]), table(v["actual"]))
+    mismatch = run_plan_compliance.describe_mismatch(table(v["expected"]), table(v["actual"]),
+                                                    v.get("declaredScales"))
     assert (mismatch is None) == v["match"], mismatch
