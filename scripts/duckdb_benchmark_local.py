@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 """
-Run the TPC-H Substrait plans through DuckDB locally and compare with the expected
-results, for every TPC-H suite side by side. Suites are discovered from
-test-suites/tpch/metadata.yaml and metadata-substrait-*.yaml, e.g.
+Run a benchmark suite's Substrait plans (TPC-H or TPC-DS) through DuckDB locally and
+compare with the expected results, for every plan set of the suite side by side.
+Plan sets are discovered from test-suites/<suite>/metadata.yaml and
+metadata-substrait-*.yaml, e.g. for TPC-H:
 
     tpch                  plans/                  Substrait 0.107.0
     tpch-substrait-0.81   plans-substrait-0.81/   Substrait 0.81.0
+
+Extra, uncommitted plan sets can be added with --extra-plans NAME=DIR.
 
 Mirrors what CI does: input tables are created from each plan's ReadRel schema,
 plans run via the substrait extension's from_substrait(), and results are compared
@@ -16,9 +19,10 @@ Setup (once):
     python3 -m venv ~/.venvs/duckdb-substrait
     ~/.venvs/duckdb-substrait/bin/pip install duckdb==1.5.6
 Run from the repository root:
-    ~/.venvs/duckdb-substrait/bin/python scripts/tpch_duckdb_local.py
+    ~/.venvs/duckdb-substrait/bin/python scripts/duckdb_benchmark_local.py                 # TPC-H
+    ~/.venvs/duckdb-substrait/bin/python scripts/duckdb_benchmark_local.py --suite tpcds   # TPC-DS
 
-Writes a machine-readable copy of the results to .ci-reports/local-tpch.json.
+Writes a machine-readable copy of the results to .ci-reports/local-<suite>.json.
 """
 
 import argparse
@@ -29,8 +33,19 @@ import sys
 from decimal import Decimal
 from pathlib import Path
 
-SUITE = Path(__file__).resolve().parent.parent / "test-suites" / "tpch"
+REPO = Path(__file__).resolve().parent.parent
+SUITE = REPO / "test-suites" / "tpch"          # set from --suite in main()
 REL_TOL = ABS_TOL = 1e-9
+
+
+def plan_version(folder):
+    v = plan_json(sorted(folder.glob("*.json"))[0]).get("version", {})
+    return f"{v.get('majorNumber', 0)}.{v.get('minorNumber', 0)}.{v.get('patchNumber', 0)}"
+
+
+def query_ids():
+    import re
+    return re.findall(r'^\s*-\s*id:\s*"([^"]+)"', (SUITE / "metadata.yaml").read_text(), re.M)
 
 
 def discover_suites():
@@ -42,9 +57,7 @@ def discover_suites():
         name = re.search(r'^name:\s*"([^"]+)"', text, re.M).group(1)
         folder = re.search(r'planBinary:\s*"([^"/]+)/', text).group(1)
         # The spec version is recorded in every plan's version field.
-        v = plan_json(SUITE / folder / "q01.json").get("version", {})
-        version = f"{v.get('majorNumber', 0)}.{v.get('minorNumber', 0)}.{v.get('patchNumber', 0)}"
-        suites.append((name, version, folder))
+        suites.append((name, plan_version(SUITE / folder), SUITE / folder))
     return suites
 
 
@@ -78,8 +91,16 @@ def load_tables(con, schemas):
         col_defs = ", ".join(f'"{n}" {t}' for n, t in cols)
         con.execute(f'CREATE OR REPLACE TABLE "{table}" ({col_defs})')
         columns = "{" + ", ".join(f"'{n}': '{t}'" for n, t in cols) + "}"
-        con.execute(f"INSERT INTO \"{table}\" SELECT * FROM read_csv('{SUITE / 'data' / (table + '.csv')}', "
-                    f"delim='|', header=false, quote='', columns={columns})")
+        path = SUITE / "data" / (table + ".csv")
+        with path.open() as fh:
+            first = fh.readline().rstrip("\n")
+        delim = "|" if "|" in first else ","
+        # A header row names the first column instead of holding a value for it.
+        header = first.split(delim)[0].strip().lower() == cols[0][0].lower()
+        # TPC-H ('|') has no quoting; TPC-DS (',') quotes text fields containing commas.
+        quote = "" if delim == "|" else '"'
+        con.execute(f"INSERT INTO \"{table}\" SELECT * FROM read_csv('{path}', delim='{delim}', "
+                    f"header={str(header).lower()}, quote='{quote}', columns={columns})")
 
 
 def read_expected(path):
@@ -129,9 +150,14 @@ def compare(exp_names, exp_rows, act_names, act_rows):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("--suite", default="tpch", help="suite folder under test-suites/ (tpch, tpcds)")
+    ap.add_argument("--extra-plans", action="append", default=[], metavar="NAME=DIR",
+                    help="also run the plans in DIR as plan set NAME (e.g. original plans from git)")
     ap.add_argument("--check-data", action="store_true",
                     help="only load tables and expected results (no substrait extension needed)")
     args = ap.parse_args()
+    global SUITE
+    SUITE = REPO / "test-suites" / args.suite
 
     import duckdb
     con = duckdb.connect()
@@ -143,13 +169,16 @@ def main():
             sys.exit(f"Could not load DuckDB's substrait extension: {exc}")
 
     suites = discover_suites()
+    for spec in args.extra_plans:
+        name, _, folder = spec.partition("=")
+        suites.append((name, plan_version(Path(folder)), Path(folder)))
+    ids = query_ids()
     results, summary = [], {name: 0 for name, _, _ in suites}
-    for i in range(1, 23):
-        q = f"q{i:02d}"
+    for q in ids:
         exp_names, _, exp_rows = read_expected(SUITE / "expected" / f"{q}.csv")
         row = {"query": q}
         for name, _, folder in suites:
-            plan_dir = SUITE / folder
+            plan_dir = folder
             load_tables(con, read_schemas(plan_json(plan_dir / f"{q}.json"), {}))
             if args.check_data:
                 row[name] = {"status": "LOADED", "detail": f"{len(exp_rows)} expected rows"}
@@ -164,7 +193,7 @@ def main():
             summary[name] += row[name]["status"] == "PASS"
         results.append(row)
 
-    print(f"DuckDB {duckdb.__version__} — TPC-H via Substrait\n")
+    print(f"DuckDB {duckdb.__version__} — {args.suite.upper()} via Substrait\n")
     headers = [f"{name} ({version})" for name, version, _ in suites]
     width = max(len(h) for h in headers) + 2
     print(f"{'query':6} " + "".join(f"{h:{width}}" for h in headers) + "detail")
@@ -176,13 +205,13 @@ def main():
                 details.append(cell["detail"])
         print(f"{row['query']:6} " + "".join(f"{c['status']:{width}}" for c in cells) + " / ".join(details)[:110])
     if not args.check_data:
-        print("\nPassed: " + ", ".join(f"{h} {summary[n]}/22" for h, (n, _, _) in zip(headers, suites)))
-    out = SUITE.parent.parent / ".ci-reports" / "local-tpch.json"
+        print("\nPassed: " + ", ".join(f"{h} {summary[n]}/{len(ids)}" for h, (n, _, _) in zip(headers, suites)))
+    out = REPO / ".ci-reports" / f"local-{args.suite}.json"
     out.parent.mkdir(exist_ok=True)
     out.write_text(json.dumps({"duckdb": duckdb.__version__,
-                               "suites": [{"name": n, "substraitVersion": v, "plans": f} for n, v, f in suites],
+                               "suites": [{"name": n, "substraitVersion": v, "plans": str(f)} for n, v, f in suites],
                                "results": results, "passed": summary}, indent=2))
-    print(f"Saved {out.relative_to(SUITE.parent.parent)}")
+    print(f"Saved {out.relative_to(REPO)}")
 
 
 if __name__ == "__main__":

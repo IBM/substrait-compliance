@@ -95,7 +95,7 @@ Suite names therefore never change meaning: `tpch` is always the maintained plan
 and `tpch-substrait-<version>` always means exactly that version.
 
 To run every TPC-H suite through DuckDB locally:
-`python scripts/tpch_duckdb_local.py` (needs `pip install duckdb`).
+`python scripts/duckdb_benchmark_local.py` (needs `pip install duckdb`).
 
 ## Usage
 
