@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Docs — suites at a glance
+- `test-suites/README.md` has a table of the seven suites the leaderboard shows, by report
+  name: what each runs, as Substrait plans or SQL, how many cases, and whether it is scored
+  (Functions, Queries) or reference. It notes that TPC-DS is not on the leaderboard and how to
+  run it locally.
+- Its result table now covers every status and what it counts as (skipped is no longer
+  described only as a missing expected file), and links to how the pass rate is calculated.
+
 ### Fixed — one pass-rate rule, documented with a diagram
 - The Java SDK runner recorded a plan the engine declares unsupported as **skipped**, so it
   dropped out of the denominator and declaring plans unsupported raised the score (the demo's
