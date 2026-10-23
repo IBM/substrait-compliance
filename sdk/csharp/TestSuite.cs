@@ -29,6 +29,12 @@ namespace Substrait.Compliance
         public bool Skip { get; }
         public string? SkipReason { get; }
 
+        /// <summary>
+        /// Per output column, the scale of the decimal type the plan declares (null for other
+        /// columns); when unset, the runner reads it from the plan's JSON beside its binary.
+        /// </summary>
+        public IReadOnlyList<int?>? DeclaredScales { get; init; }
+
         public TestCase(
             string id,
             string plan,

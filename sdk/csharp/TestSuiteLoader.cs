@@ -207,23 +207,7 @@ namespace Substrait.Compliance
             return rows;
         }
 
-        private ColumnType ParseColumnType(string typeStr)
-        {
-            var normalized = typeStr.ToLowerInvariant();
-
-            if (normalized.Contains("int")) return ColumnType.Integer;
-            if (normalized.Contains("float") || normalized.Contains("double")) return ColumnType.Float;
-            if (normalized.Contains("decimal") || normalized.Contains("numeric")) return ColumnType.Decimal;
-            if (normalized.Contains("bool")) return ColumnType.Boolean;
-            if (normalized.Contains("string") || normalized.Contains("varchar") || normalized.Contains("text"))
-                return ColumnType.String;
-            if (normalized.Contains("date") && !normalized.Contains("time")) return ColumnType.Date;
-            if (normalized.Contains("timestamp") || normalized.Contains("datetime")) return ColumnType.Timestamp;
-            if (normalized.Contains("time") && !normalized.Contains("stamp")) return ColumnType.Time;
-            if (normalized.Contains("binary") || normalized.Contains("blob")) return ColumnType.Binary;
-
-            return ColumnType.String; // Default fallback
-        }
+        private ColumnType ParseColumnType(string typeStr) => ColumnTypes.FromName(typeStr);
 
         private T? GetValue<T>(Dictionary<string, object> dict, string key)
         {
