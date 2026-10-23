@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Fixed — the Rust SDK compares results like the leaderboard
+- The Rust runner's comparator ignored column names, kept integer, bigint and double apart,
+  used an absolute 1e-9 tolerance only and had no decimal-scale rule: it disagreed with the
+  leaderboard on 6 of the 25 shared comparison vectors. `describe_mismatch` now applies the
+  shared rule and says what differed ("Output mismatch: row 0, column avg_qty: ...").
+- `plan_types::declared_scales` reads a plan's declared decimal scales from its JSON (same
+  results as Java and Python on all 44 TPC-H plans); the YAML loader attaches them to each
+  case from `planJson`.
+- `parse_data_type` (now public) ignores type parameters (`decimal(15,2)`) and knows the
+  `float`, `fp32`, `real`, `time` and `tinyint` spellings; `decimal` is its own type.
+- `tests/comparison_vectors_test.rs` runs the shared vectors; `serde_json` is a
+  test-only dependency.
+
 ### Changed — leaderboard page states how queries are compared
 - "How scoring works" now gives the query rule: column names (case-insensitive), column count
   and type family, rows in order, numbers within 1e-9 and declared decimals within 10^-S. It

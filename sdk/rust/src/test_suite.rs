@@ -26,6 +26,9 @@ pub struct TestCase {
     pub plan_bytes: Vec<u8>,
     pub input_data: HashMap<String, TableData>,
     pub expected_output: Option<TableData>,
+    /// Per output column, the scale of the decimal type the plan declares (None for other
+    /// columns), or None when unknown; see `plan_types::declared_scales`.
+    pub declared_scales: Option<Vec<Option<u32>>>,
 }
 
 impl TestCase {
@@ -36,6 +39,7 @@ impl TestCase {
             plan_bytes,
             input_data: HashMap::new(),
             expected_output: None,
+            declared_scales: None,
         }
     }
 }
