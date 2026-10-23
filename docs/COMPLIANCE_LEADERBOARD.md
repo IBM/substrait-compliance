@@ -9,6 +9,8 @@ and for engine teams.
   is the step-by-step guide.
 - **How cases pass, fail or are skipped:** [the function suite's README](../test-suites/functions-substrait-0.107/README.md)
   and [test-suites/tpch](../test-suites/tpch/README.md).
+- **How a pass rate is calculated:** [below](#how-the-pass-rate-is-calculated); the same rule
+  in every SDK.
 
 ## Where results come from
 
@@ -49,7 +51,8 @@ Each engine has two scored **categories**:
 | **Functions** | `functions-substrait-0.107` (the Substrait project's 1,315 function cases), run as Substrait plans | how many functions the engine's Substrait consumer runs correctly |
 | **Queries** | `tpch` (22 TPC-H plans, current 0.107 encoding) | whether whole query plans run and give the right rows |
 
-- A category's pass rate is passed ÷ (passed + failed). Skipped cases count neither way.
+- A category's pass rate is passed ÷ (total − skipped): see
+  [How the pass rate is calculated](#how-the-pass-rate-is-calculated).
 - A **function case** passes when the result matches the expected value, compared by its
   expected type (integers and decimals exactly, floats within 1e-9 relative, 1e-6 for `fp32`).
 - A **query** passes when its result has the expected column names (case-insensitive), the
@@ -71,6 +74,35 @@ Which suites count, and how, is set in one place: [`test-suites/registry.json`](
 (`role`: functions, queries or reference). The scoring code is
 [`scripts/combine_engine_reports.py`](../scripts/combine_engine_reports.py) (one engine's
 entry) and [`scripts/generate_leaderboard.py`](../scripts/generate_leaderboard.py) (the page).
+
+## How the pass rate is calculated
+
+![A bar of 100 tests: 70 passed, 20 not passed (10 failed, 5 error, 5 unsupported) and 10 skipped. Skipped tests are left out, so the pass rate is 70 ÷ 90 = 77.8%.](images/pass-rate.svg)
+
+    pass rate = passed ÷ (total − skipped) × 100
+
+Every result has one of these statuses:
+
+| Status | Counts as | Meaning |
+|---|---|---|
+| **Passed** | passed | The result matches the expected output. |
+| **Failed** | not passed | The result differs, or the engine rejected or crashed on the plan. |
+| **Error** | not passed | The engine or runner raised an error while running the case. |
+| **Unsupported** | not passed | The engine declares it cannot run the plan. |
+| **Skipped** | neither | The case does not apply: an option mode the engine does not claim, an `<!UNDEFINED>` expected result, a case the plan builder cannot express yet, or no expected output to check against. |
+
+- **Not passed counts against the score.** An engine that cannot run a case is not compliant
+  with it, so declaring cases unsupported never raises a score.
+- **Skipped counts neither way.** A case that does not apply says nothing about compliance.
+- Leaderboard reports record only passed, failed and skipped (an error is recorded as failed),
+  so there the rule reads passed ÷ (passed + failed). It is the same number.
+- **Nothing executed:** an SDK reports 0%; the leaderboard refuses to publish a suite that
+  executed nothing, and a category an engine does not run counts as 0% in Overall.
+- Rates are shown to one decimal place.
+
+The rule is pinned by [`sdk/conformance/pass-rate-vectors.csv`](../sdk/conformance/pass-rate-vectors.csv),
+which every SDK's tests read (Java, Python, Go, TypeScript, Rust, Scala, C# and C++), so an
+in-house score means the same as the leaderboard's.
 
 ## Engines run in this repository
 

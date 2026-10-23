@@ -14,7 +14,9 @@ Scoring (schema 2):
 
 * Scored suites belong to a category: --functions (function cases run as Substrait
   plans) or --queries (whole query plans, e.g. TPC-H). A category's pass rate is
-  passed / (passed + failed) over its suites; skipped tests never count as passes.
+  passed / (total - skipped) over its suites, i.e. passed / (passed + failed) since
+  reports record errors as failed; skipped tests count neither way
+  (docs/COMPLIANCE_LEADERBOARD.md#how-the-pass-rate-is-calculated).
 * The overall score is the plain average of the category pass rates, so each
   category weighs the same however many cases it has. A category an engine has no
   results for counts as 0%, so leaving a category out never raises a score.

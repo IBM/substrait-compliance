@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Fixed — one pass-rate rule, documented with a diagram
+- The Java SDK runner recorded a plan the engine declares unsupported as **skipped**, so it
+  dropped out of the denominator and declaring plans unsupported raised the score (the demo's
+  DuckDB and PostgreSQL engines, 8 of 22 queries unsupported, scored 100%). It is now a
+  **failure** ("Plan not supported: …"), as in every other SDK; they score 63.6%, as the README
+  always showed. The leaderboard is unaffected: its DuckDB engine declares only empty plans
+  unsupported.
+- `demo/runner/tpcds_demo.py` and the two `test-implementations/duckdb-python` runners counted
+  skipped tests in the denominator; they now use passed ÷ (total − skipped).
+- `docs/COMPLIANCE_LEADERBOARD.md` has a section, **How the pass rate is calculated**, with a
+  diagram (`docs/images/pass-rate.svg`, light and dark) and a definition of every status. The
+  leaderboard page, the function suite's README, the conformance README and the scripts'
+  docstrings state the rule the same way: passed ÷ (total − skipped), which on the leaderboard
+  (where errors are recorded as failed) equals passed ÷ (passed + failed).
+- The README and demo README sample outputs list the demo's unsupported queries as failed.
 ### Fixed — every SDK loader reads the repository's suites with input tables typed by the plan
 - The TypeScript and C# loaders read only their own YAML format, so `test-suites/*/metadata.yaml`
   loaded as an empty suite; the Go and Rust loaders read no input tables, so an engine had no

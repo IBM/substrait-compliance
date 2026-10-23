@@ -63,11 +63,14 @@ public class ComplianceRunner {
      */
     private TestResult runTestCase(TestCase testCase) {
         try {
-            // Validate plan first
+            // Validate plan first. A plan the engine does not support is a failure, not a skip:
+            // the engine is not compliant with it, and declaring plans unsupported must not
+            // raise a score (sdk/conformance/pass-rate-vectors.csv). The Java SDK has no
+            // UNSUPPORTED status, so it is reported as FAILED.
             PlanValidationResult validation = engine.validatePlan(testCase.getPlan());
             if (!validation.isSupported()) {
-                return TestResult.skipped(testCase.getId(), 
-                    "Plan not supported: " + validation.getIssues());
+                return TestResult.failed(testCase.getId(),
+                    "Plan not supported: " + validation.getIssues(), 0);
             }
             
             // Execute plan

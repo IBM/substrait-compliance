@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="680" height="336" viewBox="0 0 680 336" role="img" aria-labelledby="t d">
+<title id="t">How the pass rate is calculated</title>
+<desc id="d">A bar of 100 tests: 70 passed, 10 failed, 5 error, 5 unsupported, 10 skipped. Skipped tests are left out, so the pass rate is 70 divided by 90, 77.8 percent.</desc>
+<style>
+text{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;fill:#3d3d3a}
+.b{font-size:14px;font-weight:500}.s{font-size:12px;fill:#73726c}.n{font-size:14px}
+.pass{fill:#E1F5EE;stroke:#0F6E56}.pass-t{fill:#085041}
+.fail{fill:#FAECE7;stroke:#993C1D}.fail-t{fill:#712B13}
+.skip{fill:#F1EFE8;stroke:#5F5E5A}.skip-t{fill:#444441}
+.line{fill:none;stroke:#888780}.box{fill:none;stroke:#b4b2a9}
+@media (prefers-color-scheme:dark){
+text{fill:#e8e6dc}.s{fill:#b4b2a9}
+.pass{fill:#085041;stroke:#5DCAA5}.pass-t{fill:#E1F5EE}
+.fail{fill:#712B13;stroke:#F0997B}.fail-t{fill:#FAECE7}
+.skip{fill:#444441;stroke:#B4B2A9}.skip-t{fill:#F1EFE8}
+.line{stroke:#b4b2a9}.box{stroke:#5F5E5A}}
+</style>
+<rect class="pass" x="40" y="70" width="420" height="40" rx="4" stroke-width="0.5"/>
+<text class="b pass-t" x="250" y="95" text-anchor="middle">Passed 70</text>
+<rect class="fail" x="460" y="70" width="60" height="40" stroke-width="0.5"/>
+<text class="b fail-t" x="490" y="95" text-anchor="middle">10</text>
+<rect class="fail" x="520" y="70" width="30" height="40" stroke-width="0.5"/>
+<text class="b fail-t" x="535" y="95" text-anchor="middle">5</text>
+<rect class="fail" x="550" y="70" width="30" height="40" stroke-width="0.5"/>
+<text class="b fail-t" x="565" y="95" text-anchor="middle">5</text>
+<rect class="skip" x="584" y="70" width="56" height="40" rx="4" stroke-width="0.5" stroke-dasharray="3 3"/>
+<text class="b skip-t" x="612" y="95" text-anchor="middle">10</text>
+<text class="s" x="490" y="58" text-anchor="middle">Failed</text>
+<text class="s" x="535" y="44" text-anchor="middle">Error</text>
+<text class="s" x="565" y="58" text-anchor="middle">Unsupp.</text>
+<path class="line" d="M40 122 V130 H580 V122" stroke-width="0.75"/>
+<text class="b" x="310" y="152" text-anchor="middle">Counted: 90 executed</text>
+<path class="line" d="M584 122 V130 H640 V122" stroke-width="0.75"/>
+<text class="s" x="612" y="150" text-anchor="middle">Skipped</text>
+<text class="s" x="612" y="166" text-anchor="middle">not counted</text>
+<rect class="pass" x="40" y="190" width="12" height="12" rx="2" stroke-width="0.5"/>
+<text class="s" x="58" y="200">Passed</text>
+<rect class="fail" x="130" y="190" width="12" height="12" rx="2" stroke-width="0.5"/>
+<text class="s" x="148" y="200">Not passed: failed, error, unsupported</text>
+<rect class="skip" x="420" y="190" width="12" height="12" rx="2" stroke-width="0.5" stroke-dasharray="2 2"/>
+<text class="s" x="438" y="200">Skipped: does not apply</text>
+<rect class="box" x="120" y="228" width="440" height="72" rx="8" stroke-width="0.75"/>
+<text class="b" x="340" y="257" text-anchor="middle">Pass rate = passed ÷ (total − skipped)</text>
+<text class="n" x="340" y="283" text-anchor="middle">70 ÷ (100 − 10) = 77.8%</text>
+</svg>

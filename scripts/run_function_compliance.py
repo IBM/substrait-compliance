@@ -32,7 +32,8 @@ Tests are SKIPPED (reported, but excluded from the pass rate) when:
     only need to implement one mode, so the failure means "mode not implemented".
   * it is a window-function test (not yet supported by this runner).
 
-Pass rate = passed / (passed + failed) * 100.
+Pass rate = passed / (total - skipped) * 100, i.e. passed / (passed + failed) * 100
+(docs/COMPLIANCE_LEADERBOARD.md#how-the-pass-rate-is-calculated).
 
 For current-format files, results are compared by the expected Substrait type:
 integers and decimals exactly, booleans only with booleans, floats with a relative

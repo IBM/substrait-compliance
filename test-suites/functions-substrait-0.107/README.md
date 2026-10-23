@@ -103,7 +103,9 @@ For each case:
 - **skipped** also covers `<!UNDEFINED>` results and cases the translator cannot express in the
   engine's SQL (including results too large to build, such as `repeat('a', 2147483647)`).
 
-Pass rate = passed / (passed + failed). Every non-passing case is listed with its reason in the
+Pass rate = passed ÷ (total − skipped), that is passed ÷ (passed + failed); see
+[how the pass rate is calculated](../../docs/COMPLIANCE_LEADERBOARD.md#how-the-pass-rate-is-calculated).
+Every non-passing case is listed with its reason in the
 report. A suite file that does not parse fails the run.
 
 ## Running on another engine
