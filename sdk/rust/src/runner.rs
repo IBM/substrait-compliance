@@ -44,10 +44,25 @@ impl<'a, E: ComplianceEngine> ComplianceRunner<'a, E> {
                 .with_execution_time(start.elapsed().as_millis() as u64);
         }
 
-        match self
-            .engine
-            .execute_plan(&test_case.plan_bytes, &test_case.input_data)
-        {
+        // Input tables named by the suite are read now, one case at a time.
+        let loaded;
+        let inputs = if test_case.input_tables.is_empty() {
+            &test_case.input_data
+        } else {
+            match test_case.load_input_data() {
+                Ok(tables) => {
+                    loaded = tables;
+                    &loaded
+                }
+                Err(e) => {
+                    return ComplianceResult::new(&test_case.id, TestStatus::Error)
+                        .with_error(e.to_string())
+                        .with_execution_time(start.elapsed().as_millis() as u64)
+                }
+            }
+        };
+
+        match self.engine.execute_plan(&test_case.plan_bytes, inputs) {
             Ok(mut result) => {
                 // Compare against expected output (guaranteed Some by the guard above)
                 if let (Some(expected), Some(actual)) =

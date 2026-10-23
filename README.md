@@ -199,8 +199,9 @@ flowchart LR
 - The other SDKs' runners are for in-house testing; their results are not accepted as
   submissions. Every SDK's comparator is checked against the leaderboard's shared comparison
   vectors, so their in-house results mean the same as the leaderboard's
-  ([`sdk/conformance/`](sdk/conformance/README.md)); the TypeScript, C# and Go loaders cannot yet
-  read the repository's suites as they stand.
+  ([`sdk/conformance/`](sdk/conformance/README.md)), and every SDK's loader reads the
+  repository's TPC-H and TPC-DS suites. The Go, TypeScript, C#, Rust, C++ and Scala loaders also
+  type the input tables by the plan, as the leaderboard's runner does.
 
 **Adapters by engine:**
 
@@ -919,12 +920,12 @@ The table below reflects the state after all gap-closure work. Every SDK with �
 |-----|---|---|---|---|
 | **Java** | ✅ full, epsilon 1e-9 | ✅ `normalizeType` + `valuesMatch` | ✅ typed CSV headers | ✅ TPC-H 22/22 proven |
 | **Python** | ✅ full, `isclose` 1e-9 | ✅ `_normalize_type` + `_values_match` | ✅ YAML `expected_output` field | ✅ 5 pass-through tests |
-| **TypeScript** | ✅ `ResultComparator` in runner | ✅ shared rule (`describeMismatch`) | ✅ `expectedOutput` from YAML | ✅ 5 pass-through tests |
-| **C#** | ✅ `ResultComparator` in runner | ✅ shared rule (`DescribeMismatch`) | ✅ `ExpectedOutput` from YAML | ✅ 5 pass-through tests |
-| **Go** | ✅ `DescribeMismatch()` in runner | ✅ shared rule | ✅ `Load()` + `LoadCSV()` implemented | ✅ 5 pass-through tests |
-| **Rust** | ✅ full value comparison | ✅ shared rule (`describe_mismatch`) | ✅ reads `expected/<id>.csv` | ✅ 4 pass-through tests |
-| **C++** | ✅ full value comparison | ✅ shared rule (`describe_mismatch`) | ✅ typed CSV headers + YAML loader | ✅ 5 pass-through tests |
-| **Scala** | ✅ full value comparison | ✅ shared rule (`ResultComparison`) | ✅ `expectedOutput` from YAML | ✅ 5 pass-through tests |
+| **TypeScript** | ✅ `ResultComparator` in runner | ✅ shared rule (`describeMismatch`) | ✅ repo suites; inputs typed by the plan | ✅ 5 pass-through tests |
+| **C#** | ✅ `ResultComparator` in runner | ✅ shared rule (`DescribeMismatch`) | ✅ repo suites; inputs typed by the plan | ✅ 5 pass-through tests |
+| **Go** | ✅ `DescribeMismatch()` in runner | ✅ shared rule | ✅ repo suites; inputs typed by the plan | ✅ 5 pass-through tests |
+| **Rust** | ✅ full value comparison | ✅ shared rule (`describe_mismatch`) | ✅ repo suites; inputs typed by the plan, read per case | ✅ 4 pass-through tests |
+| **C++** | ✅ full value comparison | ✅ shared rule (`describe_mismatch`) | ✅ repo suites; inputs typed by the plan, read per case | ✅ 5 pass-through tests |
+| **Scala** | ✅ full value comparison | ✅ shared rule (`ResultComparison`) | ✅ repo suites; inputs typed by the plan | ✅ 5 pass-through tests |
 
 ---
 

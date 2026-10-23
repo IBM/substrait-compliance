@@ -17,9 +17,10 @@ pub use benchmark::{BenchmarkConfig, BenchmarkResult, BenchmarkRunner, Benchmark
 pub use engine::{ComplianceEngine, EngineCapabilities, EngineInfo};
 pub use error::ComplianceError;
 pub use loader::{
-    load_csv, load_input_data, parse_data_type, TestSuiteLoader, YamlTestSuiteLoader,
+    load_csv, load_input_data, load_input_table, parse_data_type, TestSuiteLoader,
+    YamlTestSuiteLoader,
 };
 pub use result::{ComplianceReport, ComplianceResult, TestStatus};
 pub use runner::{describe_mismatch, numbers_close, ComplianceRunner};
 pub use table_data::{Column, DataType, TableData};
-pub use test_suite::{SimpleTestSuite, TestCase, TestSuite, TestSuiteMetadata};
+pub use test_suite::{InputTable, SimpleTestSuite, TestCase, TestSuite, TestSuiteMetadata};

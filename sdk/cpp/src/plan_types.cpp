@@ -185,4 +185,78 @@ std::optional<std::vector<std::optional<int>>> declared_scales_file(const std::f
     return declared_scales(ss.str());
 }
 
+namespace {
+
+std::string schema_type(const YAML::Node& t) {
+    if (!t.IsMap() || t.size() == 0) return "string";
+    auto kind = t.begin()->first.as<std::string>();
+    if (kind == "i8" || kind == "i16" || kind == "i32") return "integer";
+    if (kind == "i64") return "bigint";
+    if (kind == "fp32") return "float";
+    if (kind == "fp64") return "double";
+    if (kind == "bool") return "boolean";
+    if (kind == "date" || kind == "time" || kind == "timestamp") return kind;
+    if (kind == "timestampTz" || kind == "precisionTimestamp" || kind == "precisionTimestampTz") return "timestamp";
+    if (kind == "precisionTime") return "time";
+    if (kind == "binary" || kind == "fixedBinary") return "binary";
+    if (kind == "decimal") {
+        auto d = t.begin()->second;
+        return "decimal(" + d["precision"].as<std::string>() + "," + d["scale"].as<std::string>() + ")";
+    }
+    return "string";
+}
+
+void walk_reads(const YAML::Node& node, std::unordered_map<std::string, std::vector<SchemaColumn>>& found) {
+    if (node.IsSequence()) {
+        for (const auto& v : node) walk_reads(v, found);
+        return;
+    }
+    if (!node.IsMap()) return;
+    if (has(node, "read")) {
+        auto read = node["read"];
+        if (has(read, "namedTable") && has(read, "baseSchema")) {
+            std::string name;
+            for (const auto& n : list(read["namedTable"], "names")) {
+                name += (name.empty() ? "" : ".") + n.as<std::string>();
+            }
+            auto schema = read["baseSchema"];
+            auto types = has(schema, "struct") ? list(schema["struct"], "types") : std::vector<YAML::Node>{};
+            std::vector<SchemaColumn> columns;
+            auto names = list(schema, "names");
+            for (size_t i = 0; i < names.size(); ++i) {
+                columns.push_back({names[i].as<std::string>(), i < types.size() ? schema_type(types[i]) : "string"});
+            }
+            auto prev = found.find(name);
+            if (prev != found.end()) {
+                bool same = prev->second.size() == columns.size();
+                for (size_t i = 0; same && i < columns.size(); ++i) same = prev->second[i].name == columns[i].name;
+                if (!same) throw std::runtime_error("table " + name + " is read with two different schemas");
+            }
+            found[name] = std::move(columns);
+        }
+    }
+    for (const auto& kv : node) walk_reads(kv.second, found);
+}
+
+} // namespace
+
+std::unordered_map<std::string, std::vector<SchemaColumn>> named_table_schemas(const std::string& plan_json) {
+    std::istringstream in(plan_json);
+    std::string text, line;
+    while (std::getline(in, line)) {
+        auto first = line.find_first_not_of(" \t");
+        if (first != std::string::npos && line.compare(first, 2, "//") == 0) continue;
+        text += line + "\n";
+    }
+    YAML::Node plan;
+    try {
+        plan = YAML::Load(text);
+    } catch (const YAML::Exception& e) {
+        throw std::runtime_error(std::string("plan JSON: ") + e.what());
+    }
+    std::unordered_map<std::string, std::vector<SchemaColumn>> found;
+    walk_reads(plan, found);
+    return found;
+}
+
 } // namespace substrait::compliance

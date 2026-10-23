@@ -1,13 +1,24 @@
 //! Test suite loaders for various formats.
 //!
-//! The YAML loader reads a `metadata.yaml` that lists test-case entries.
-//! Each entry names a plan binary and optional input/expected CSV files.
-//! Expected CSV files use typed headers in the form `colname:type` and are
-//! located in an `expected/` subdirectory next to the metadata file.
+//! The YAML loader reads a `metadata.yaml` that lists test-case entries, in this
+//! repository's format (test-suites/tpch/metadata.yaml and the like). Each entry names a
+//! plan binary, optionally its JSON form, input tables and an expected-output CSV.
+//!
+//! Inputs and expected outputs are read as scripts/run_plan_compliance.py reads them for the
+//! leaderboard:
+//!
+//! - Input tables are typed from the plan's read schemas (`planJson`) and keyed by the table
+//!   name the plan reads. A first row that names the plan's columns is a header and skipped.
+//!   Values are trimmed and checked against the column type; an empty value or `null` is NULL.
+//!   Without `planJson`, an input table is read like an expected output. The files are read
+//!   when the case runs (`TestCase::input_tables`), not when the suite loads.
+//! - Expected CSV files use typed headers in the form `colname:type`; they default to
+//!   `expected/<id>.csv` next to the metadata file.
+//! - The decimal scales the plan declares (`planJson`) are attached to each case.
 
 use crate::error::{ComplianceError, Result};
 use crate::table_data::{Column, DataType, TableData};
-use crate::test_suite::{SimpleTestSuite, TestCase, TestSuite, TestSuiteMetadata};
+use crate::test_suite::{InputTable, SimpleTestSuite, TestCase, TestSuite, TestSuiteMetadata};
 use serde::Deserialize;
 use std::collections::HashMap;
 use std::fs;
@@ -61,6 +72,14 @@ struct TestCaseDefinition {
     /// Defaults to `expected/<id>.csv` when omitted.
     #[serde(rename = "expectedOutput")]
     expected_output: Option<String>,
+    #[serde(rename = "inputTables", default)]
+    input_tables: Vec<InputTableDefinition>,
+}
+
+#[derive(Debug, Deserialize)]
+struct InputTableDefinition {
+    name: String,
+    file: String,
 }
 
 // ── Loader impl ──────────────────────────────────────────────────────────────
@@ -82,11 +101,34 @@ impl TestSuiteLoader for YamlTestSuiteLoader {
             })?;
 
             let mut tc = TestCase::new(tc_def.id.clone(), tc_def.description, plan_bytes);
-            tc.declared_scales = tc_def
-                .plan_json
-                .as_ref()
-                .and_then(|rel| fs::read_to_string(base_dir.join(rel)).ok())
-                .and_then(|json| crate::plan_types::declared_scales(&json));
+            let mut schemas = HashMap::new();
+            if let Some(rel) = &tc_def.plan_json {
+                let json = fs::read_to_string(base_dir.join(rel)).map_err(|e| {
+                    ComplianceError::Loading(format!("test case {}: {}: {}", tc_def.id, rel, e))
+                })?;
+                tc.declared_scales = crate::plan_types::declared_scales(&json);
+                schemas = crate::plan_types::parse_plan_json(&json)
+                    .and_then(|plan| crate::plan_types::named_table_schemas(&plan))
+                    .map_err(|e| {
+                        ComplianceError::Loading(format!("test case {}: {}", tc_def.id, e))
+                    })?;
+            }
+            for t in &tc_def.input_tables {
+                let plan_table = schemas
+                    .iter()
+                    .find(|(n, _)| n.eq_ignore_ascii_case(&t.name));
+                tc.input_tables.push(InputTable {
+                    name: plan_table
+                        .map(|(n, _)| n.clone())
+                        .unwrap_or_else(|| t.name.clone()),
+                    file: base_dir.join(&t.file),
+                    columns: plan_table.map(|(_, cols)| {
+                        cols.iter()
+                            .map(|(name, ty)| Column::new(name.clone(), plan_data_type(ty)))
+                            .collect()
+                    }),
+                });
+            }
 
             // Resolve expected-output path: explicit field or default location.
             let csv_path = match &tc_def.expected_output {
@@ -121,25 +163,24 @@ impl TestSuiteLoader for YamlTestSuiteLoader {
 
 // ── CSV / expected-output parsing ────────────────────────────────────────────
 
-/// Parse a pipe-delimited CSV with an optional typed header row.
+/// Parse a CSV (pipe- or comma-delimited, detected from the first line) with an optional
+/// typed header row; values are trimmed, and double quotes may enclose a delimiter.
 ///
 /// Typed header format: `colname:type|colname:type|...`
 /// Untyped header: absent — columns are named `column_1`, `column_2`, …
 pub fn load_csv(path: &Path) -> Result<TableData> {
-    let text = fs::read_to_string(path)
-        .map_err(|e| ComplianceError::Loading(format!("expected CSV {}: {}", path.display(), e)))?;
-
-    let lines: Vec<&str> = text.lines().collect();
+    let lines = read_lines(path)?;
     if lines.is_empty() {
         return Ok(TableData::new(vec![], vec![]));
     }
+    let delimiter = detect_delimiter(&lines[0]);
+    let fields = split_line(&lines[0], delimiter);
+    // Typed header: every field has the form name:type
+    let has_typed_header = fields
+        .iter()
+        .all(|f| matches!(f.find(':'), Some(i) if i > 0 && i < f.len() - 1));
 
-    // Detect typed header: every field must contain ':'
-    let first = lines[0];
-    let fields: Vec<&str> = first.split('|').collect();
-    let has_typed_header = fields.iter().all(|f| f.contains(':'));
-
-    let (columns, data_start) = if has_typed_header {
+    let (columns, data_start): (Vec<Column>, usize) = if has_typed_header {
         let cols = fields
             .iter()
             .map(|f| {
@@ -150,24 +191,163 @@ pub fn load_csv(path: &Path) -> Result<TableData> {
         (cols, 1)
     } else {
         // No header: default column names, all varchar
-        let ncols = fields.len();
-        let cols = (1..=ncols)
+        let cols = (1..=fields.len())
             .map(|i| Column::new(format!("column_{}", i), DataType::Varchar))
             .collect();
         (cols, 0)
     };
 
     let mut rows: Vec<Vec<String>> = Vec::new();
-    for line in &lines[data_start..] {
-        let line = line.trim();
-        if line.is_empty() {
+    for (n, line) in lines[data_start..].iter().enumerate() {
+        if line.trim().is_empty() {
             continue;
         }
-        let row: Vec<String> = line.split('|').map(|v| v.trim().to_string()).collect();
+        let row = split_line(line, delimiter);
+        if row.len() != columns.len() {
+            return Err(ComplianceError::Loading(format!(
+                "CSV row {} in {} has {} values, expected {}",
+                n + 1 + data_start,
+                path.display(),
+                row.len(),
+                columns.len()
+            )));
+        }
         rows.push(row);
     }
 
     Ok(TableData::new(columns, rows))
+}
+
+/// Read a CSV typed by the columns the plan reads it with. A first row that names the
+/// plan's columns is a header and skipped. Values are trimmed and must parse as the column's
+/// type (integers, floats, decimals); an empty value or `null` is NULL.
+pub fn load_input_table(path: &Path, columns: &[Column]) -> Result<TableData> {
+    let lines = read_lines(path)?;
+    let mut rows: Vec<Vec<String>> = Vec::new();
+    if let Some(first) = lines.first() {
+        let delimiter = detect_delimiter(first);
+        let header = split_line(first, delimiter);
+        let is_header = header.len() == columns.len()
+            && header.iter().zip(columns).all(|(h, c)| {
+                h.split(':')
+                    .next()
+                    .unwrap_or_default()
+                    .eq_ignore_ascii_case(&c.name)
+            });
+        for (n, line) in lines.iter().enumerate().skip(usize::from(is_header)) {
+            if line.trim().is_empty() {
+                continue;
+            }
+            let row = split_line(line, delimiter);
+            if row.len() != columns.len() {
+                return Err(ComplianceError::Loading(format!(
+                    "{} row {} has {} values, expected {}",
+                    path.display(),
+                    n + 1,
+                    row.len(),
+                    columns.len()
+                )));
+            }
+            for (v, c) in row.iter().zip(columns) {
+                let null = v.is_empty() || v.eq_ignore_ascii_case("null");
+                let ok = null
+                    || match c.data_type {
+                        DataType::Integer | DataType::Bigint => v.parse::<i64>().is_ok(),
+                        DataType::Double | DataType::Decimal => v.parse::<f64>().is_ok(),
+                        _ => true,
+                    };
+                if !ok {
+                    return Err(ComplianceError::Loading(format!(
+                        "{} row {}, column {}: '{}' is not a {:?}",
+                        path.display(),
+                        n + 1,
+                        c.name,
+                        v,
+                        c.data_type
+                    )));
+                }
+            }
+            rows.push(row);
+        }
+    }
+    Ok(TableData::new(columns.to_vec(), rows))
+}
+
+/// The DataType for a Substrait type in a plan's JSON form ({"i32": {...}}, ...).
+fn plan_data_type(ty: &serde_yaml::Value) -> DataType {
+    let kind = ty
+        .as_mapping()
+        .and_then(|m| m.keys().next())
+        .and_then(|k| k.as_str())
+        .unwrap_or("string");
+    match kind {
+        "i8" | "i16" | "i32" => DataType::Integer,
+        "i64" => DataType::Bigint,
+        "fp32" | "fp64" => DataType::Double,
+        "decimal" => DataType::Decimal,
+        "bool" => DataType::Boolean,
+        "date"
+        | "time"
+        | "timestamp"
+        | "timestampTz"
+        | "precisionTime"
+        | "precisionTimestamp"
+        | "precisionTimestampTz" => DataType::Date,
+        _ => DataType::Varchar,
+    }
+}
+
+fn read_lines(path: &Path) -> Result<Vec<String>> {
+    let text = fs::read_to_string(path)
+        .map_err(|e| ComplianceError::Loading(format!("CSV {}: {}", path.display(), e)))?;
+    let mut lines: Vec<String> = text.lines().map(str::to_string).collect();
+    while lines.last().is_some_and(|l| l.is_empty()) {
+        lines.pop();
+    }
+    Ok(lines)
+}
+
+fn detect_delimiter(line: &str) -> char {
+    if line.matches('|').count() > line.matches(',').count() {
+        '|'
+    } else {
+        ','
+    }
+}
+
+/// One line, split on the delimiter outside double quotes ("" inside quotes is a quote),
+/// each value trimmed and stripped of surrounding quotes.
+fn split_line(line: &str, delimiter: char) -> Vec<String> {
+    let mut values = Vec::new();
+    let mut current = String::new();
+    let mut in_quotes = false;
+    let mut chars = line.chars().peekable();
+    while let Some(ch) = chars.next() {
+        if ch == '"' {
+            if in_quotes && chars.peek() == Some(&'"') {
+                current.push('"');
+                chars.next();
+            } else {
+                in_quotes = !in_quotes;
+            }
+        } else if ch == delimiter && !in_quotes {
+            values.push(current.trim().to_string());
+            current.clear();
+        } else {
+            current.push(ch);
+        }
+    }
+    values.push(current.trim().to_string());
+    values
+        .into_iter()
+        .map(|v| {
+            if v.len() >= 2 && v.starts_with('"') && v.ends_with('"') {
+                v[1..v.len() - 1].to_string()
+            } else {
+                v
+            }
+        })
+        .collect()
 }
 
 /// Map a type name from a typed CSV header (or an engine's result) to a DataType. Type

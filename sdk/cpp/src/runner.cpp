@@ -88,16 +88,15 @@ ComplianceResult ComplianceRunner::execute_with_timing(const TestCase& tc) {
 
     ComplianceResult result("", TestStatus::ERROR);
     try {
-        result = engine_->execute_plan(tc.plan_bytes(), tc.input_data());
-        result = ComplianceResult(tc.id(), result.status())
-            .with_execution_time(
-                std::chrono::duration_cast<std::chrono::milliseconds>(
-                    clock::now() - start).count());
-        if (result.status() == TestStatus::PASSED && result.output_data().has_value()) {
-            // preserve output from the original call
+        // Input tables named by the suite are read now, one case at a time.
+        TableCollection loaded;
+        const TableCollection* inputs = &tc.input_data();
+        if (!tc.input_tables().empty()) {
+            loaded = tc.load_input_data();
+            inputs = &loaded;
+            start = clock::now();
         }
-        // Re-run to get output attached properly
-        result = engine_->execute_plan(tc.plan_bytes(), tc.input_data());
+        result = engine_->execute_plan(tc.plan_bytes(), *inputs);
     } catch (const std::exception& e) {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
             clock::now() - start).count();

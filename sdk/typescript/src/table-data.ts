@@ -51,6 +51,9 @@ export interface Column {
   name: string;
   type: ColumnType;
   nullable?: boolean;
+  /** For a DECIMAL column read from a plan's schema: its precision and scale. */
+  precision?: number;
+  scale?: number;
 }
 
 /**

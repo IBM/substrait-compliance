@@ -36,6 +36,7 @@ add_executable(substrait_compliance_tests
     test_pass_rate_vectors.cpp
     test_comparison_vectors.cpp
     test_plan_types.cpp
+    test_suite_loader.cpp
 )
 
 target_include_directories(substrait_compliance_tests

@@ -14,16 +14,81 @@ use serde_yaml::{Mapping, Value};
 
 type Types = Vec<Option<Value>>;
 
-/// The scale of each output column the plan declares as decimal (None for other columns),
-/// or None when the plan's output types cannot be worked out. `plan_json` may start with
-/// `//` comment lines, as the suites' plan files do.
-pub fn declared_scales(plan_json: &str) -> Option<Vec<Option<u32>>> {
+/// A plan's JSON form, parsed; leading `//` comment lines, as the suites' plan files have,
+/// are ignored.
+pub fn parse_plan_json(plan_json: &str) -> Result<Value, String> {
     let text: String = plan_json
         .lines()
         .filter(|l| !l.trim_start().starts_with("//"))
         .collect::<Vec<_>>()
         .join("\n");
-    let plan: Value = serde_yaml::from_str(&text).ok()?;
+    serde_yaml::from_str(&text).map_err(|e| e.to_string())
+}
+
+/// For every named table the plan reads, the columns it reads it with: (name, Substrait
+/// type). Fails when one table is read with two different schemas.
+pub fn named_table_schemas(
+    plan: &Value,
+) -> Result<std::collections::HashMap<String, Vec<(String, Value)>>, String> {
+    fn walk(
+        node: &Value,
+        found: &mut std::collections::HashMap<String, Vec<(String, Value)>>,
+    ) -> Result<(), String> {
+        match node {
+            Value::Mapping(m) => {
+                if let Some(read) = node.get("read") {
+                    if let (Some(named), Some(schema)) =
+                        (read.get("namedTable"), read.get("baseSchema"))
+                    {
+                        let name = seq(named.get("names"))
+                            .iter()
+                            .map(|n| n.as_str().unwrap_or_default().to_string())
+                            .collect::<Vec<_>>()
+                            .join(".");
+                        let types = seq(schema.get("struct").and_then(|s| s.get("types")));
+                        let columns: Vec<(String, Value)> = seq(schema.get("names"))
+                            .iter()
+                            .enumerate()
+                            .map(|(i, n)| {
+                                (
+                                    n.as_str().unwrap_or_default().to_string(),
+                                    types.get(i).cloned().unwrap_or(Value::Null),
+                                )
+                            })
+                            .collect();
+                        if let Some(prev) = found.get(&name) {
+                            if prev.iter().map(|c| &c.0).ne(columns.iter().map(|c| &c.0)) {
+                                return Err(format!(
+                                    "table {name} is read with two different schemas"
+                                ));
+                            }
+                        }
+                        found.insert(name, columns);
+                    }
+                }
+                for v in m.values() {
+                    walk(v, found)?;
+                }
+            }
+            Value::Sequence(s) => {
+                for v in s {
+                    walk(v, found)?;
+                }
+            }
+            _ => {}
+        }
+        Ok(())
+    }
+    let mut found = std::collections::HashMap::new();
+    walk(plan, &mut found)?;
+    Ok(found)
+}
+
+/// The scale of each output column the plan declares as decimal (None for other columns),
+/// or None when the plan's output types cannot be worked out. `plan_json` may start with
+/// `//` comment lines, as the suites' plan files do.
+pub fn declared_scales(plan_json: &str) -> Option<Vec<Option<u32>>> {
+    let plan = parse_plan_json(plan_json).ok()?;
     let types = output_types(&plan)?;
     Some(
         types

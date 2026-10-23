@@ -15,5 +15,6 @@ export { TestSuiteLoader, loadTestSuite, loadTestSuites } from './loader';
 
 // Runner
 export { ComplianceRunner, RunnerOptions, ResultComparator, numbersClose } from './runner';
-export { declaredScales, declaredScalesBeside, outputTypes } from './plan-types';
+export { declaredScales, declaredScalesBeside, outputTypes, namedTableSchemas, parsePlanJson, SchemaColumn } from './plan-types';
+export { isSuiteMetadata, loadSuiteMetadata, loadInputTable, loadTypedCsv } from './suite-metadata';
 

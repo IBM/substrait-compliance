@@ -57,7 +57,14 @@ namespace Substrait.Compliance
         string Name,
         ColumnType Type,
         bool Nullable = true
-    );
+    )
+    {
+        /// <summary>For a Decimal column read from a plan's schema: its precision.</summary>
+        public int? Precision { get; init; }
+
+        /// <summary>For a Decimal column read from a plan's schema: its scale.</summary>
+        public int? Scale { get; init; }
+    }
 
     /// <summary>
     /// Represents tabular data with schema and rows
