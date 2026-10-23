@@ -292,8 +292,9 @@ def older_note(older) -> str:
 FUNCTIONS_NOTE = [
     "**Upstream** cases are the Substrait project's own function tests (`tests/cases` at v0.107.0); "
     "they are the scored set.",
-    "**Extended** cases are converted from the legacy suite. They were verified on DuckDB when "
-    "converted, so that part favours DuckDB; it is shown for detail and not scored.",
+    "**Extended** cases are converted from the legacy suite. Most were verified on DuckDB when "
+    "converted (the rest against the function definitions), so that part favours DuckDB; it is "
+    "shown for detail and not scored.",
     "**Plans** run each case as a Substrait plan through the engine's consumer. **SQL** runs the "
     "same case as the engine's own SQL. **Consumer gap** = plans − SQL: function support the "
     "engine has in SQL but loses through its Substrait consumer.",
@@ -306,7 +307,7 @@ EXTENSIONS_NOTE = ("Upstream cases by extension, as `plans / SQL`. A low plan ra
                    "SQL rate points at the consumer rather than the engine.")
 
 SCORING = [
-    "A case **passes** when the engine's result matches the expected value, compared by the "
+    "A function case **passes** when the engine's result matches the expected value, compared by the "
     "expected type: integers and decimals exactly, floats with a relative tolerance (1e-9; 1e-6 "
     "for `fp32`), other values by value. Result types are not scored.",
     "A plan the consumer rejects is a **failure**. A plan that crashes the engine fails that case; "
@@ -314,7 +315,10 @@ SCORING = [
     "**Skipped** cases are not counted either way: option modes the engine does not claim to "
     "implement, `<!UNDEFINED>` results, and cases the plan builder cannot express yet. "
     "Pass rate = passed ÷ (passed + failed).",
-    "Query plans pass when every result row matches the expected rows, in order.",
+    "A **query** passes when its result has the expected column names (case-insensitive), number "
+    "and type family of columns, and the expected rows in order. Numbers match within 1e-9 "
+    "(relative), and a column the plan declares as `decimal(P,S)` within one unit in its last "
+    "declared place (10^-S), since the answer is only defined to that scale.",
     "Per-case reasons for every failure and skip are in each engine's CI report artifact.",
 ]
 

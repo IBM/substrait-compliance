@@ -50,6 +50,14 @@ Each engine has two scored **categories**:
 | **Queries** | `tpch` (22 TPC-H plans, current 0.107 encoding) | whether whole query plans run and give the right rows |
 
 - A category's pass rate is passed ÷ (passed + failed). Skipped cases count neither way.
+- A **function case** passes when the result matches the expected value, compared by its
+  expected type (integers and decimals exactly, floats within 1e-9 relative, 1e-6 for `fp32`).
+- A **query** passes when its result has the expected column names (case-insensitive), the
+  same number and type family of columns, and the expected rows in order. Numbers match
+  within 1e-9 relative; a column the plan declares as `decimal(P,S)` also matches within
+  10^-S, since the answer is only defined to that scale
+  ([test-suites/tpch/README.md](../test-suites/tpch/README.md)). The rule is shared by both
+  query comparators and pinned by [`sdk/conformance/comparison-vectors.json`](../sdk/conformance/comparison-vectors.json).
 - **Overall** is the plain average of the two category rates, so 22 queries weigh as much
   as 1,315 function cases. A category an engine does not run counts as 0%. Engines are
   ranked by Overall.
