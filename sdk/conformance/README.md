@@ -55,9 +55,17 @@ leaderboard's:
 | Python `scripts/run_plan_compliance.py` (DataFusion, TPC-H) | `sdk/python/tests/test_comparison_vectors.py` |
 | Rust `describe_mismatch` (`sdk/rust/src/runner.rs`) | `sdk/rust/tests/comparison_vectors_test.rs` |
 | Scala `ResultComparison.describeMismatch` | `sdk/scala/src/test/scala/io/substrait/compliance/ComparisonVectorsSpec.scala` |
+| Go `DescribeMismatch` (`sdk/go/comparison.go`) | `sdk/go/comparison_vectors_test.go` |
+| TypeScript `ResultComparator.describeMismatch` | `sdk/typescript/tests/comparison-vectors.test.ts` |
+| C# `ResultComparator.DescribeMismatch` | `sdk/csharp/Tests/ComparisonVectorsTests.cs` |
+| C++ `ResultComparator::describe_mismatch` | `sdk/cpp/tests/test_comparison_vectors.cpp` |
 
 A declared decimal's scale comes from the plan's JSON form: `PlanOutputTypes` (Java and
-Scala), `declared_scales` (Python) and `plan_types` (Rust) work it out the same way, and agree
-on all 143 TPC-H (both encodings) and TPC-DS plans.
+Scala), `declared_scales` (Python), `plan_types` (Rust), `DeclaredScales` (Go),
+`declaredScales` (TypeScript), `PlanTypes` (C#) and `plan_types` (C++) work it out the same
+way, and agree on all 143 TPC-H (both encodings) and TPC-DS plans.
 
-Not yet checked against these vectors: the Go, TypeScript, C# and C++ SDKs' comparators.
+A comparator is only as good as the tables it is given: the TypeScript and C# loaders read
+their own YAML format rather than this repository's suite metadata, and the Go loader does not
+load input tables, so those SDKs cannot yet run the repository's TPC-H and TPC-DS suites as
+they stand.

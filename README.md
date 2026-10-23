@@ -197,9 +197,10 @@ flowchart LR
   runner, which writes accepted TPC-H reports; JVM engines, Scala included, can use it
   directly.
 - The other SDKs' runners are for in-house testing; their results are not accepted as
-  submissions. The Rust and Scala comparators are checked against the leaderboard's shared
-  comparison vectors, so their in-house results mean the same as the leaderboard's; the Go,
-  TypeScript, C# and C++ comparators are not yet ([`sdk/conformance/`](sdk/conformance/README.md)).
+  submissions. Every SDK's comparator is checked against the leaderboard's shared comparison
+  vectors, so their in-house results mean the same as the leaderboard's
+  ([`sdk/conformance/`](sdk/conformance/README.md)); the TypeScript, C# and Go loaders cannot yet
+  read the repository's suites as they stand.
 
 **Adapters by engine:**
 
@@ -912,18 +913,18 @@ substrait-compliance/
 
 ### SDK compliance-alignment status
 
-The table below reflects the state after all gap-closure work. Every SDK with ✅ in all four columns can produce honest compliance scores for in-house testing when given a test suite with expected output. Leaderboard results come from the Python runners, and for TPC-H also the Java SDK runner. The Python, Java, Rust and Scala comparators are checked against the shared comparison vectors in [`sdk/conformance/`](sdk/conformance/README.md); Go, TypeScript, C# and C++ are not yet (see [Which Path Do I Use?](#-which-path-do-i-use)).
+The table below reflects the state after all gap-closure work. Every SDK with ✅ in all four columns can produce honest compliance scores for in-house testing when given a test suite with expected output. Leaderboard results come from the Python runners, and for TPC-H also the Java SDK runner. Every SDK's comparator is checked against the shared comparison vectors in [`sdk/conformance/`](sdk/conformance/README.md) and compares decimal columns at the scale the plan declares (see [Which Path Do I Use?](#-which-path-do-i-use)).
 
 | SDK | Runner compares output | Type-aware comparator | Loader carries expected output | Pass-through integration test |
 |-----|---|---|---|---|
 | **Java** | ✅ full, epsilon 1e-9 | ✅ `normalizeType` + `valuesMatch` | ✅ typed CSV headers | ✅ TPC-H 22/22 proven |
 | **Python** | ✅ full, `isclose` 1e-9 | ✅ `_normalize_type` + `_values_match` | ✅ YAML `expected_output` field | ✅ 5 pass-through tests |
-| **TypeScript** | ✅ `ResultComparator` in runner | ✅ float 1e-10, NaN, Date | ✅ `expectedOutput` from YAML | ✅ 5 pass-through tests |
-| **C#** | ✅ `ResultComparator` in runner | ✅ double 1e-10, float 1e-6, DateTime | ✅ `ExpectedOutput` from YAML | ✅ 5 pass-through tests |
-| **Go** | ✅ `compareOutputs()` in runner | ✅ `valuesMatch` epsilon 1e-9 | ✅ `Load()` + `LoadCSV()` implemented | ✅ 5 pass-through tests |
-| **Rust** | ✅ full value comparison | ✅ `normalize_type` + `values_match` epsilon 1e-9 | ✅ reads `expected/<id>.csv` | ✅ 4 pass-through tests |
-| **C++** | ✅ full, epsilon 1e-9 | ✅ `normalizeType` + `valuesMatch` | ✅ typed CSV headers + YAML loader | ✅ 5 pass-through tests |
-| **Scala** | ✅ full, epsilon 1e-9 | ✅ `normalizeType` + `valuesMatch` | ✅ `expectedOutput` from YAML | ✅ 5 pass-through tests |
+| **TypeScript** | ✅ `ResultComparator` in runner | ✅ shared rule (`describeMismatch`) | ✅ `expectedOutput` from YAML | ✅ 5 pass-through tests |
+| **C#** | ✅ `ResultComparator` in runner | ✅ shared rule (`DescribeMismatch`) | ✅ `ExpectedOutput` from YAML | ✅ 5 pass-through tests |
+| **Go** | ✅ `DescribeMismatch()` in runner | ✅ shared rule | ✅ `Load()` + `LoadCSV()` implemented | ✅ 5 pass-through tests |
+| **Rust** | ✅ full value comparison | ✅ shared rule (`describe_mismatch`) | ✅ reads `expected/<id>.csv` | ✅ 4 pass-through tests |
+| **C++** | ✅ full value comparison | ✅ shared rule (`describe_mismatch`) | ✅ typed CSV headers + YAML loader | ✅ 5 pass-through tests |
+| **Scala** | ✅ full value comparison | ✅ shared rule (`ResultComparison`) | ✅ `expectedOutput` from YAML | ✅ 5 pass-through tests |
 
 ---
 
