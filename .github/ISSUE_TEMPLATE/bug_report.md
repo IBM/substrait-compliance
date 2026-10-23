@@ -35,7 +35,7 @@ A clear and concise description of what actually happened.
 - [ ] TypeScript SDK
 - [ ] C# SDK
 - [ ] Scala SDK
-- [ ] REST API
+- [ ] Leaderboard / submissions
 - [ ] Demo System
 - [ ] Test Suites
 - [ ] Other (please specify)

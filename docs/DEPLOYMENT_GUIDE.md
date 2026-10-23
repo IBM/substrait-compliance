@@ -125,10 +125,6 @@ For maintainers cutting a release:
 # Tag an SDK release (release-publish.yml)
 git tag -a v1.0.0 -m "Release v1.0.0"
 git push origin v1.0.0
-
-# Tag a REST API release (api-release.yml) — separate prefix
-git tag -a api-v1.0.0 -m "API release v1.0.0"
-git push origin api-v1.0.0
 ```
 
 ---
@@ -229,11 +225,11 @@ substrait-compliance/
 ├── .github/
 │   ├── workflows/         # CI/CD pipelines
 │   └── ISSUE_TEMPLATE/    # Bug, feature, and doc templates
-├── api/                   # Spring Boot REST API
 ├── demo/                  # Interactive demo system and dashboard
 ├── docs/                  # Documentation
 ├── examples/              # Engine implementation examples
 ├── scripts/               # Utility scripts
+├── submissions/           # Leaderboard results submitted by engine teams
 ├── sdk/                   # Multi-language SDKs (Java, Python, Rust, Go,
 │                          #   TypeScript, C#, Scala, C++)
 ├── test-implementations/  # Reference test runners

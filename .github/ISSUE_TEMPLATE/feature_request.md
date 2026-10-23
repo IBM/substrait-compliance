@@ -37,7 +37,7 @@ Which part of the project would this feature affect?
 - [ ] TypeScript SDK
 - [ ] C# SDK
 - [ ] Scala SDK
-- [ ] REST API
+- [ ] Leaderboard / submissions
 - [ ] Demo System
 - [ ] Test Suites
 - [ ] Documentation

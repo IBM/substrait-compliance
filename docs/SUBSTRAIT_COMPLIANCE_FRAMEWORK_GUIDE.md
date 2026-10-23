@@ -13,7 +13,7 @@
 3. [Architecture](#architecture)
 4. [SDK Implementation](#sdk-implementation)
 5. [Test Suite Coverage](#test-suite-coverage)
-6. [REST API Infrastructure](#rest-api-infrastructure)
+6. [Leaderboard and Submissions](#leaderboard-and-submissions)
 7. [CI/CD Automation](#cicd-automation)
 8. [Interactive Demo System](#interactive-demo-system)
 9. [Getting Started](#getting-started)
@@ -32,8 +32,8 @@ The **Substrait Compliance Framework** is a decentralized testing ecosystem that
 |---|---|---|
 | **Multi-Language SDK** | Java, Python, Rust, Go, C++, TypeScript, C#, Scala (8 languages) | Supports diverse engine ecosystems |
 | **Comprehensive Test Coverage** | 22 TPC-H + 99 TPC-DS + 140 function test files (5,041 assertions) | Industry-standard benchmarking |
-| **REST API Infrastructure** | Spring Boot API with authentication, webhooks, and leaderboard | Centralized result sharing |
-| **Automated CI/CD** | 13 GitHub Actions workflows | Continuous validation |
+| **Public Leaderboard** | Results submitted by pull request, checked and scored in CI, published on GitHub Pages | Centralized result sharing, no server |
+| **Automated CI/CD** | 10 GitHub Actions workflows | Continuous validation |
 | **Interactive Demo** | Real-time dashboard and visualization | Easy adoption and exploration |
 | **Decentralized Model** | Engine-owned compliance testing | Community-driven validation |
 
@@ -43,8 +43,8 @@ The **Substrait Compliance Framework** is a decentralized testing ecosystem that
 ✅ Core Framework         — Complete
 ✅ SDK Implementation     — Complete (8 languages)
 ✅ Test Suites            — Complete (140 function test files, 5,041 assertions + TPC-H 22 + TPC-DS 99)
-🟡 REST API               — Reference implementation complete; deployment pending
-✅ CI/CD Pipeline         — 13 workflows, fully automated
+✅ Leaderboard            — Published on GitHub Pages; engine teams submit by pull request
+✅ CI/CD Pipeline         — 10 workflows, fully automated
 ✅ Documentation          — Comprehensive
 ✅ Demo System            — Interactive and functional
 ```
@@ -57,8 +57,7 @@ The **Substrait Compliance Framework** is a decentralized testing ecosystem that
 | TPC-H queries | 22 |
 | TPC-DS queries | 99 |
 | SDK languages | 8 |
-| API endpoints | 15+ |
-| CI/CD workflows | 13 |
+| CI/CD workflows | 10 |
 
 ---
 
@@ -110,8 +109,8 @@ The framework transforms how query engines validate their Substrait support by p
 ┌─────────────────────────────────────────────────────────────┐
 │              Compliance Framework (Central)                  │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐     │
-│  │  Test Suites │  │   REST API   │  │    Demo      │     │
-│  │   (TPC-H +   │  │ (Results DB) │  │  Dashboard   │     │
+│  │  Test Suites │  │  Leaderboard │  │    Demo      │     │
+│  │   (TPC-H +   │  │ (Pages site) │  │  Dashboard   │     │
 │  │  Functions)  │  │              │  │              │     │
 │  └──────────────┘  └──────────────┘  └──────────────┘     │
 └─────────────────────────────────────────────────────────────┘
@@ -146,10 +145,10 @@ The framework transforms how query engines validate their Substrait support by p
                                                     │
                                                     ▼
                             ┌────────────────────────────────┐
-                            │       REST API (Optional)       │
-                            │  • Report Submission            │
-                            │  • Leaderboard                  │
-                            │  • Historical Tracking          │
+                            │      Leaderboard (optional)     │
+                            │  • Submission by pull request   │
+                            │  • Checked and scored in CI     │
+                            │  • History in git               │
                             └────────────────────────────────┘
 ```
 
@@ -178,9 +177,9 @@ The framework transforms how query engines validate their Substrait support by p
                         │
                         ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                       API LAYER                                  │
-│  REST API (Spring Boot) — POST /api/v1/reports                  │
-│                         — GET  /api/v1/leaderboard              │
+│                   LEADERBOARD LAYER                              │
+│  Pull-request submissions — submissions/<engine>/<version>/     │
+│  Published leaderboard    — leaderboard.json on GitHub Pages    │
 └─────────────────────────────────────────────────────────────────┘
 ```
 
@@ -189,9 +188,9 @@ The framework transforms how query engines validate their Substrait support by p
 | Layer | Technologies | Purpose |
 |---|---|---|
 | **SDKs** | Java 17+, Python 3.8+, Rust 1.70+, Go 1.21+, C++17, Node.js, .NET 10+, Scala 2.13 | Engine integration |
-| **API** | Spring Boot, PostgreSQL | Result management |
+| **Leaderboard** | Python scripts, GitHub Pages | Result checking and publishing |
 | **Testing** | JUnit, pytest, cargo test, go test | Quality assurance |
-| **CI/CD** | GitHub Actions, Docker | Automation |
+| **CI/CD** | GitHub Actions | Automation |
 | **Demo** | Python, HTML/JS dashboard | Visualization |
 
 ### Data Flow
@@ -201,8 +200,8 @@ Engine Developer
   └─> Integrates SDK into engine codebase
       └─> Runs compliance tests locally
           └─> CI/CD pipeline executes tests automatically
-              └─> Results submitted to REST API (optional)
-                  └─> API validates and stores results
+              └─> Results submitted by pull request (optional)
+                  └─> CI checks and scores them; a maintainer merges
                       └─> Leaderboard updated
                           └─> Community views progress
 ```
@@ -225,7 +224,7 @@ Engine Developer
 |---|---|---|---|---|---|---|---|---|
 | Test execution | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Result validation | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
-| API submission | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+| JSON report output | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Custom tests | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Async support | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
 | Benchmarking | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
@@ -364,59 +363,33 @@ Tests follow YAML format with explicit input data, expected output, and edge cas
 
 ---
 
-## REST API Infrastructure
+## Leaderboard and Submissions
 
-The REST API (`api/`) is a Spring Boot reference implementation for centralized report submission and leaderboard aggregation.
+Engine teams run the suites in their own CI and submit the reports by pull request into
+`submissions/<engine>/<version>/`. The pull-request check (`submission-validation.yml`) uses the
+checker, suites and schemas of the base branch, recomputes every score from the per-case
+results, and shows where the engine would rank. Once merged, `compliance-leaderboard.yml`
+publishes the leaderboard as Markdown, JSON and an HTML page on
+[GitHub Pages](https://ibm.github.io/substrait-compliance/), alongside DuckDB and DataFusion,
+which this repository runs itself. There is no server or account.
 
-> **Status:** Pre-release. The module is buildable and locally deployable. It is not yet presented as a stable hosted service — deployment, support ownership, and production operations are pending.
-
-### Key Endpoints
-
-| Method | Path | Description |
-|---|---|---|
-| `POST` | `/api/v1/reports` | Submit a compliance report |
-| `GET` | `/api/v1/leaderboard` | Retrieve current leaderboard |
-| `GET` | `/api/v1/reports/{engineId}` | Get reports for a specific engine |
-| `GET` | `/api/v1/reports/{id}` | Get a single report by ID |
-| `POST` | `/api/v1/webhooks` | Register a webhook |
-| `GET` | `/api/v1/health` | Health check |
-
-### Features
-
-- **Authentication:** JWT tokens + API key support
-- **Rate limiting:** Per-client request throttling
-- **Webhooks:** Async delivery with exponential-backoff retry
-- **Caching:** Caffeine in-memory cache (Redis-ready for distributed deployment)
-- **Storage:** PostgreSQL with JSONB for report payloads
-- **Documentation:** OpenAPI/Swagger at `/swagger-ui.html`
-
-### Running Locally
-
-```bash
-cd api
-# Start PostgreSQL (Docker)
-docker compose up -d postgres
-
-# Run the API
-./gradlew bootRun
-
-# API available at http://localhost:8080
-# Swagger UI at http://localhost:8080/swagger-ui.html
-```
+- How to submit: [`submissions/README.md`](../submissions/README.md)
+- How scores are computed and published: [`docs/COMPLIANCE_LEADERBOARD.md`](COMPLIANCE_LEADERBOARD.md)
+- Machine-readable data: [`leaderboard.json`](https://ibm.github.io/substrait-compliance/leaderboard.json)
 
 ---
 
 ## CI/CD Automation
 
-13 GitHub Actions workflows provide automated testing, building, and quality assurance.
+10 GitHub Actions workflows provide automated testing, building, and quality assurance.
 
 ### Key Workflows
 
 | Workflow | Trigger | Purpose |
 |---|---|---|
 | `sdk-build-test.yml` | Push / PR to `sdk/**` | Build and test all 8 SDKs |
-| `api-build-test.yml` | Push / PR to `api/**` | Unit, integration, security tests |
-| `container-build.yml` | Release published | Build and push container image |
+| `submission-validation.yml` | PR to `submissions/**` | Check a leaderboard submission |
+| `compliance-leaderboard.yml` | Weekly, on merge, after engine runs | Publish the leaderboard |
 | `release-publish.yml` | Tag push | Publish SDK packages to registries |
 
 ### CI Pipeline
@@ -561,8 +534,7 @@ Reports are written to `output/<engine>-report.json` in JSON format:
 | TPC-H queries | 22 |
 | TPC-DS queries | 99 |
 | SDK languages | 8 |
-| CI/CD workflows | 13 |
-| API endpoints | 15+ |
+| CI/CD workflows | 10 |
 | Example integrations | DuckDB, DataFusion, Velox |
 
 ---
@@ -597,9 +569,9 @@ Running against the test suite provides:
 | [`CONTRIBUTING.md`](../CONTRIBUTING.md) | Contribution guidelines and PR process |
 | [`GOVERNANCE.md`](../GOVERNANCE.md) | Project governance, roles, decision-making |
 | [`SECURITY.md`](../SECURITY.md) | Security policy and vulnerability reporting |
-| [`docs/API_IMPLEMENTATION.md`](API_IMPLEMENTATION.md) | API implementation guide |
-| [`docs/REST_API_GUIDE.md`](REST_API_GUIDE.md) | REST API usage and endpoint reference |
-| [`docs/DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md) | Deployment and operations |
+| [`docs/COMPLIANCE_LEADERBOARD.md`](COMPLIANCE_LEADERBOARD.md) | How the leaderboard is scored and published |
+| [`submissions/README.md`](../submissions/README.md) | Submitting results by pull request |
+| [`docs/DEPLOYMENT_GUIDE.md`](DEPLOYMENT_GUIDE.md) | Repository setup, releases and contributions |
 | [`test-suites/functions/README.md`](../test-suites/functions/README.md) | Function test suite format |
 
 ---

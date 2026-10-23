@@ -54,7 +54,7 @@ class ProjectAnalyzer:
             "structure": self._analyze_structure(),
             "sdks": self._analyze_sdks(),
             "test_suites": self._analyze_test_suites(),
-            "api": self._analyze_api(),
+            "submissions": self._analyze_submissions(),
             "demo": self._analyze_demo(),
             "ci_cd": self._analyze_ci_cd(),
             "documentation": self._analyze_documentation(),
@@ -114,18 +114,16 @@ class ProjectAnalyzer:
         
         return test_suites
     
-    def _analyze_api(self) -> Dict[str, Any]:
-        """Analyze REST API implementation."""
-        api_info = {"exists": False}
-        api_dir = self.project_root / "api"
-        
-        if api_dir.exists():
-            api_info["exists"] = True
-            api_info["has_dockerfile"] = (api_dir / "Containerfile").exists()
-            api_info["has_compose"] = (api_dir / "docker-compose.yml").exists()
-            api_info["has_readme"] = (api_dir / "README.md").exists()
-        
-        return api_info
+    def _analyze_submissions(self) -> Dict[str, Any]:
+        """Analyze leaderboard submissions (submissions/<engine>/<version>/)."""
+        info = {"exists": False, "engines": 0}
+        sub_dir = self.project_root / "submissions"
+
+        if sub_dir.exists():
+            info["exists"] = True
+            info["engines"] = len([d for d in sub_dir.iterdir() if d.is_dir()])
+
+        return info
     
     def _analyze_demo(self) -> Dict[str, Any]:
         """Analyze demo system."""
@@ -267,10 +265,9 @@ REPORT REQUIREMENTS:
    - Function-level test coverage
    - Test format and structure
 
-5. **REST API Infrastructure**
-   - API architecture and features
-   - Endpoints and authentication
-   - Deployment options
+5. **Leaderboard and Submissions**
+   - Pull-request submissions and their checks
+   - Scoring and publication on GitHub Pages
 
 6. **CI/CD Automation**
    - Workflow architecture
@@ -347,7 +344,7 @@ The Substrait Compliance Framework is a comprehensive testing infrastructure for
 
 ## Components
 
-- **API**: {project_info['api']['exists']}
+- **Submitted engines**: {project_info['submissions']['engines']}
 - **Demo**: {project_info['demo']['exists']}
 - **CI/CD Workflows**: {len(project_info['ci_cd']['workflows'])}
 
