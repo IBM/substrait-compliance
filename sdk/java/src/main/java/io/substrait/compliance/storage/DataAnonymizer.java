@@ -44,8 +44,10 @@ public class DataAnonymizer {
     EngineTestReport.TestSummary summary = report.getSummary();
     
     // Calculate overall compliance score
-    double overall = summary.getTotalTests() > 0 
-        ? (double) summary.getPassed() / summary.getTotalTests() * 100.0
+    // passed / (total - skipped): skipped results count neither way
+    int executed = summary.getTotalTests() - summary.getSkipped();
+    double overall = executed > 0
+        ? (double) summary.getPassed() / executed * 100.0
         : 0.0;
     
     // Calculate scores by test suite

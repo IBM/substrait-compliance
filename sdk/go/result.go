@@ -130,12 +130,15 @@ func (r *ComplianceReport) UnsupportedCount() int {
 	return r.countByStatus(TestStatusUnsupported)
 }
 
-// PassRate calculates the pass rate as a percentage (0-100)
+// PassRate is the pass rate in percent (0-100): passed / (total - skipped). Skipped
+// results count neither way; failed, error and unsupported results count as not
+// passed. 0 when nothing was executed (sdk/conformance/pass-rate-vectors.csv).
 func (r *ComplianceReport) PassRate() float64 {
-	if len(r.Results) == 0 {
+	executed := len(r.Results) - r.SkippedCount()
+	if executed == 0 {
 		return 0.0
 	}
-	return (float64(r.PassedCount()) / float64(len(r.Results))) * 100.0
+	return (float64(r.PassedCount()) / float64(executed)) * 100.0
 }
 
 // TotalExecutionTime returns the sum of all test execution times

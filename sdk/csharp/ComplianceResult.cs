@@ -155,7 +155,14 @@ namespace Substrait.Compliance
         /// <summary>
         /// Calculate pass rate (0-100)
         /// </summary>
-        public double PassRate => _results.Count == 0 ? 0 : (PassedCount / (double)_results.Count) * 100;
+        /// <summary>
+        /// Pass rate in percent: passed / (total - skipped). Skipped results count neither way;
+        /// failed, error and unsupported results count as not passed. 0 when nothing was executed.
+        /// (sdk/conformance/pass-rate-vectors.csv)
+        /// </summary>
+        public double PassRate => (_results.Count - SkippedCount) == 0
+            ? 0
+            : (PassedCount / (double)(_results.Count - SkippedCount)) * 100;
 
         /// <summary>
         /// Get total execution time in milliseconds

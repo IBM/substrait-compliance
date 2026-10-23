@@ -108,12 +108,15 @@ impl ComplianceReport {
         self.results.len()
     }
 
+    /// Pass rate in percent: passed / (total - skipped). Skipped results count neither
+    /// way; failed and error results count as not passed. 0 when nothing was executed.
+    /// (sdk/conformance/pass-rate-vectors.csv)
     pub fn get_pass_rate(&self) -> f64 {
-        let total = self.get_total_count();
-        if total == 0 {
+        let executed = self.get_total_count() - self.get_skipped_count();
+        if executed == 0 {
             return 0.0;
         }
-        (self.get_passed_count() as f64 / total as f64) * 100.0
+        (self.get_passed_count() as f64 / executed as f64) * 100.0
     }
 }
 

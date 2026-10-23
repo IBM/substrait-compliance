@@ -33,6 +33,7 @@ add_executable(substrait_compliance_tests
     test_table_data.cpp
     test_comparator.cpp
     test_pass_through.cpp
+    test_pass_rate_vectors.cpp
 )
 
 target_include_directories(substrait_compliance_tests

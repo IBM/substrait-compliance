@@ -104,11 +104,14 @@ case class TestSuiteResult(
   def anyFailed: Boolean = testResults.exists(_.isFailed)
 
   /**
-   * Get pass rate as percentage
+   * Pass rate in percent: passed / (total - skipped). Skipped results count neither way;
+   * failed and error results count as not passed. 0 when nothing was executed.
+   * (sdk/conformance/pass-rate-vectors.csv)
    */
   def passRate: Double = {
-    if (totalTests == 0) 0.0
-    else (passedTests.toDouble / totalTests.toDouble) * 100.0
+    val executed = totalTests - skippedTests
+    if (executed == 0) 0.0
+    else (passedTests.toDouble / executed.toDouble) * 100.0
   }
 
   /**
@@ -173,8 +176,9 @@ case class ComplianceResult(
    * Get overall pass rate
    */
   def overallPassRate: Double = {
-    if (totalTests == 0) 0.0
-    else (totalPassed.toDouble / totalTests.toDouble) * 100.0
+    val executed = totalTests - totalSkipped
+    if (executed == 0) 0.0
+    else (totalPassed.toDouble / executed.toDouble) * 100.0
   }
 
   /**

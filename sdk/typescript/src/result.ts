@@ -182,8 +182,12 @@ export class ComplianceReport {
    * Calculate pass rate (0-100)
    */
   passRate(): number {
-    if (this.results.length === 0) return 0;
-    return (this.passedCount() / this.results.length) * 100;
+    // passed / (total - skipped): skipped results count neither way; failed, error and
+    // unsupported results count as not passed. 0 when nothing was executed.
+    // (sdk/conformance/pass-rate-vectors.csv)
+    const executed = this.results.length - this.skippedCount();
+    if (executed === 0) return 0;
+    return (this.passedCount() / executed) * 100;
   }
 
   /**

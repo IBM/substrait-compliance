@@ -43,9 +43,15 @@ public class ComplianceReport {
         return (int) testResults.stream().filter(TestResult::isSkipped).count();
     }
     
+    /**
+     * Pass rate in percent: passed / (total - skipped). Skipped results count neither way;
+     * failed results count as not passed. 0 when nothing was executed.
+     * (sdk/conformance/pass-rate-vectors.csv)
+     */
     public double getComplianceScore() {
-        if (getTotalTests() == 0) return 0.0;
-        return (getPassedCount() * 100.0) / getTotalTests();
+        int executed = getTotalTests() - getSkippedCount();
+        if (executed == 0) return 0.0;
+        return (getPassedCount() * 100.0) / executed;
     }
     
     @Override

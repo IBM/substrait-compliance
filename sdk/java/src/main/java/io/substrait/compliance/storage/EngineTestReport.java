@@ -89,7 +89,9 @@ public class EngineTestReport {
       this.passed = builder.passed;
       this.failed = builder.failed;
       this.skipped = builder.skipped;
-      this.passRate = totalTests > 0 ? (double) passed / totalTests : 0.0;
+      // fraction 0-1: passed / (total - skipped); skipped results count neither way
+      int executed = totalTests - skipped;
+      this.passRate = executed > 0 ? (double) passed / executed : 0.0;
       this.totalExecutionTimeMs = builder.totalExecutionTimeMs;
       this.failureDistribution = new HashMap<>(builder.failureDistribution);
     }

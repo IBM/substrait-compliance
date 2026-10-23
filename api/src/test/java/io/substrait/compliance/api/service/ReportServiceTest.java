@@ -271,5 +271,35 @@ class ReportServiceTest {
         // Then
         verify(reportRepository).save(any(ReportEntity.class));
     }
+
+    @Test
+    void submitReport_SkippedResultsCountNeitherWay() {
+        // Given: 1 passed, 1 failed, 2 skipped -> 1 / (4 - 2) = 50%, as on the leaderboard
+        List<ReportSubmissionRequest.TestResultDto> results = new java.util.ArrayList<>(testRequest.getTestResults());
+        for (String id : new String[] {"test3", "test4"}) {
+            results.add(ReportSubmissionRequest.TestResultDto.builder()
+                    .testId(id)
+                    .status(ReportSubmissionRequest.TestStatus.SKIPPED)
+                    .message("not applicable")
+                    .durationMs(0L)
+                    .build());
+        }
+        testRequest.setTestResults(results);
+        when(engineRepository.findByNameAndVersion(anyString(), anyString()))
+                .thenReturn(Optional.of(testEngine));
+        when(reportRepository.save(any(ReportEntity.class)))
+                .thenAnswer(invocation -> {
+                    ReportEntity saved = invocation.getArgument(0);
+                    assertThat(saved.getSkippedCount()).isEqualTo(2);
+                    assertThat(saved.getComplianceScore()).isEqualByComparingTo(new BigDecimal("50.00"));
+                    return testReport;
+                });
+
+        // When
+        reportService.submitReport(testRequest);
+
+        // Then
+        verify(reportRepository).save(any(ReportEntity.class));
+    }
 }
 
