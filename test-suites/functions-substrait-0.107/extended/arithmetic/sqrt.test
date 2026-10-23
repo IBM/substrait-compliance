@@ -11,6 +11,8 @@ sqrt(-100.0::fp32) [on_domain_error:NAN] = nan::fp32
 sqrt(-2.5::fp64) [on_domain_error:NAN] = nan::fp64
 sqrt(inf::fp32) = inf::fp32
 sqrt(inf::fp64) = inf::fp64
+sqrt(-inf::fp32) [on_domain_error:NAN] = nan::fp32
+sqrt(-inf::fp64) [on_domain_error:NAN] = nan::fp64
 sqrt(nan::fp32) = nan::fp32
 sqrt(nan::fp64) = nan::fp64
 

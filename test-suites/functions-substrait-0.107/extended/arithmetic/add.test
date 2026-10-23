@@ -16,6 +16,7 @@ add(-120::i8, -10::i8) [overflow:ERROR] = <!ERROR>
 add(-30000::i16, -10000::i16) [overflow:ERROR] = <!ERROR>
 add(-2000000000::i32, -200000000::i32) [overflow:ERROR] = <!ERROR>
 add(-9223372036854775807::i64, -2::i64) [overflow:ERROR] = <!ERROR>
+add(-30000::i16, -10000::i16) [overflow:SATURATE] = -32768::i16
 
 # special_values: Special floating point values (NaN, Infinity)
 add(nan::fp32, 5.0::fp32) = nan::fp32

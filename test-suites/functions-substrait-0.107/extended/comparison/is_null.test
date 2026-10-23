@@ -47,3 +47,4 @@ is_null(2024-01-15T12:30:45::pts<6>) = false::bool
 is_null(null::pts?<6>) = true::bool
 is_null(null::iyear?) = true::bool
 is_null(null::binary?) = true::bool
+is_null(null::fixedbinary?<10>) = true::bool

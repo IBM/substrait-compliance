@@ -4,6 +4,10 @@
 # special_values: Special floating point values (NaN, Infinity)
 tan(nan::fp32) = nan::fp32
 tan(nan::fp64) = nan::fp64
+tan(inf::fp32) = nan::fp32
+tan(inf::fp64) = nan::fp64
+tan(-inf::fp32) = nan::fp32
+tan(-inf::fp64) = nan::fp64
 
 # zero_handling: Zero and negative zero handling
 tan(3.141592653589793::fp64) = -0.00000000000000012246467991473532::fp64

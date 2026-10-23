@@ -13,6 +13,9 @@
 # single_value: Examples with single value
 ((3.14)) variance(POPULATION::enum, col0::fp64) = 0.0::fp64
 
+# special_values: Special floating point values (NaN, Infinity)
+((NaN), (1.0), (2.0), (3.0)) variance(POPULATION::enum, col0::fp64) = nan::fp64
+
 # zero_handling: Zero and negative zero handling
 ((5.0), (15.0)) variance(POPULATION::enum, col0::fp64) = 25.0::fp64
 ((0.0), (0.0)) variance(POPULATION::enum, col0::fp64) = 0.0::fp64

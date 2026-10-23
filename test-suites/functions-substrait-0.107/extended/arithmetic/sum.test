@@ -14,6 +14,11 @@ sum((9223372036854775807, -1)::i64) = 9223372036854775806::i64
 sum((9223372036854775807, -9223372036854775807)::i64) = 0::i64
 sum((-9223372036854775808, 9223372036854775807)::i64) = -1::i64
 
+# overflow_behavior: Overflow and saturation behavior
+sum((-9223372036854775808, -1)::i64) [overflow:ERROR] = <!ERROR>
+sum((-9223372036854775807, -2)::i64) [overflow:ERROR] = <!ERROR>
+sum((-9223372036854775808, -1, -1, -1)::i64) [overflow:ERROR] = <!ERROR>
+
 # special_values: Special floating point values (NaN, Infinity)
 sum((NaN, 1.0, 2.0)::fp32) = nan::fp64
 sum((1.0, NaN, 2.0)::fp64) = nan::fp64

@@ -15,11 +15,16 @@ gt(9223372036854775807::i64, 9223372036854775806::i64) = true::bool
 gt(-9223372036854775808::i64, -9223372036854775807::i64) = false::bool
 
 # special_values: Special floating point values (NaN, Infinity)
+gt(nan::fp32, 5.0::fp32) = false::bool
 gt(5.0::fp32, nan::fp32) = false::bool
 gt(nan::fp32, nan::fp32) = false::bool
+gt(nan::fp32, 0.0::fp32) = false::bool
+gt(nan::fp32, -inf::fp32) = false::bool
 gt(inf::fp32, nan::fp32) = false::bool
+gt(nan::fp64, 5.0::fp64) = false::bool
 gt(5.0::fp64, nan::fp64) = false::bool
 gt(nan::fp64, nan::fp64) = false::bool
+gt(nan::fp64, inf::fp64) = false::bool
 gt(-inf::fp32, -inf::fp32) = false::bool
 gt(inf::fp32, inf::fp32) = false::bool
 gt(-inf::fp64, -inf::fp64) = false::bool

@@ -8,6 +8,10 @@ sin(-0.5::fp32) = -0.479425538604203::fp32
 # special_values: Special floating point values (NaN, Infinity)
 sin(nan::fp32) = nan::fp32
 sin(nan::fp64) = nan::fp64
+sin(inf::fp32) = nan::fp32
+sin(inf::fp64) = nan::fp64
+sin(-inf::fp32) = nan::fp32
+sin(-inf::fp64) = nan::fp64
 
 # zero_handling: Zero and negative zero handling
 sin(-0.0::fp32) = -0.0::fp32

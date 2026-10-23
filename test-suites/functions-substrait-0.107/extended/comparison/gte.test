@@ -28,8 +28,14 @@ gte(-9223372036854775808::i64, 9223372036854775807::i64) = false::bool
 gte(9223372036854775807::i64, -9223372036854775808::i64) = true::bool
 
 # special_values: Special floating point values (NaN, Infinity)
+gte(nan::fp32, 1.0::fp32) = false::bool
 gte(1.0::fp32, nan::fp32) = false::bool
+gte(nan::fp32, nan::fp32) = false::bool
+gte(nan::fp64, 1.0::fp64) = false::bool
 gte(1.0::fp64, nan::fp64) = false::bool
+gte(nan::fp64, nan::fp64) = false::bool
+gte(nan::fp32, 0.0::fp32) = false::bool
+gte(nan::fp64, -inf::fp64) = false::bool
 gte(inf::fp32, inf::fp32) = true::bool
 gte(-inf::fp32, -inf::fp32) = true::bool
 gte(inf::fp32, 1.0::fp32) = true::bool

@@ -8,6 +8,9 @@ acos(2.0::fp32) [on_domain_error:NAN] = nan::fp32
 acos(-2.0::fp32) [on_domain_error:NAN] = nan::fp32
 acos(nan::fp64) = nan::fp64
 acos(nan::fp32) = nan::fp32
+acos(inf::fp64) [on_domain_error:NAN] = nan::fp64
+acos(-inf::fp64) [on_domain_error:NAN] = nan::fp64
+acos(inf::fp32) [on_domain_error:NAN] = nan::fp32
 
 # zero_handling: Zero and negative zero handling
 acos(-1.0::fp64) = 3.141592653589793::fp64

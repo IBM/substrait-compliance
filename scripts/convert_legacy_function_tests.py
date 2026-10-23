@@ -16,12 +16,15 @@ A legacy case is KEPT only if all of these hold:
   3. it matches a signature in the extension YAMLs (scripts/validate_function_tests.py),
   4. it is not already in SUITE/upstream, and does not contradict an upstream case,
   5. its expected value is reproduced independently: by DuckDB (through the same
-     translator the compliance runner uses) or, for floating-point and bitwise
-     functions, by exact arithmetic (50-digit mpmath).
+     translator the compliance runner uses) or, when DuckDB does not reproduce it, by
+     the result the function definitions give (scripts/function_reference.py: exact
+     integer and 50-digit floating-point arithmetic, IEEE 754 special values, the
+     option modes, string semantics).
 
-Cases failing 1-4 are dropped; cases failing only 5 are QUARANTINED: listed in
-CONVERSION.md with the reason, for a maintainer to check by hand and add to
-extended/ if they are right. Because DuckDB is one of the two verifiers, cases
+Cases failing 1-4 are dropped. A case whose expected value the definitions contradict
+is dropped too, and listed in CONVERSION.md with the correct result. Cases the
+definitions do not decide and DuckDB does not reproduce are QUARANTINED: listed in
+CONVERSION.md with the reason. Because DuckDB is one of the two verifiers, cases
 DuckDB gets right are favoured; the leaderboard therefore scores upstream/ and
 extended/ as separate suites.
 """
@@ -30,7 +33,6 @@ from __future__ import annotations
 
 import argparse
 import collections
-import math
 import re
 import sys
 from pathlib import Path
@@ -38,6 +40,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(REPO_ROOT / "sdk" / "python"))
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+import function_reference as fref  # noqa: E402
 
 from substrait_compliance.function_cases import CaseLiteral, SubstraitError, parse_case_file, parse_case_text  # noqa: E402
 import validate_function_tests as vft  # noqa: E402
@@ -165,81 +168,6 @@ def convert_extract(s: str) -> str:
 
 # ------------------------------------------------------------- arithmetic oracle
 
-def math_reference(tc):
-    """Independently computed result for float/bitwise scalar cases, or None."""
-    import mpmath as mp
-    mp.mp.dps = 50
-    # options that only say "return NaN / -inf instead of raising" do not change the value
-    neutral = {("on_domain_error", "NAN"), ("on_log_zero", "MINUS_INFINITY")}
-    if any((k, str(v).upper()) not in neutral for k, v in tc.options.items()):
-        return None
-    if tc.rows is not None or isinstance(tc.result, SubstraitError):
-        return None
-    args = tc.args
-    if not args or not all(isinstance(a, CaseLiteral) and not isinstance(a.value, list) for a in args):
-        return None
-    types = [vft.short_type(a.type) for a in args]
-    fn = tc.func_name
-    try:
-        if all(t in ("fp32", "fp64") for t in types):
-            xs = [float(a.value) for a in args]
-            if types[0] == "fp32":
-                import numpy as np
-                xs = [float(np.float32(x)) for x in xs]
-            if any(math.isnan(x) or math.isinf(x) for x in xs):
-                return None
-            unary = {"sin": mp.sin, "cos": mp.cos, "tan": mp.tan, "asin": mp.asin, "acos": mp.acos,
-                     "atan": mp.atan, "sinh": mp.sinh, "cosh": mp.cosh, "tanh": mp.tanh,
-                     "asinh": mp.asinh, "acosh": mp.acosh, "atanh": mp.atanh, "exp": mp.exp,
-                     "sqrt": mp.sqrt, "ln": mp.ln, "log10": mp.log10, "log2": lambda x: mp.log(x, 2),
-                     "radians": lambda x: x * mp.pi / 180, "degrees": lambda x: x * 180 / mp.pi}
-            if fn in unary and len(xs) == 1:
-                r = unary[fn](mp.mpf(xs[0]))
-            elif fn == "atan2" and len(xs) == 2:
-                r = mp.atan2(mp.mpf(xs[0]), mp.mpf(xs[1]))
-            else:
-                return None
-            if mp.im(r) != 0:
-                return math.nan
-            r = float(mp.re(r))
-            if types[0] == "fp32":
-                import numpy as np
-                r = float(np.float32(r))
-            return r
-        if all(t in ("i8", "i16", "i32", "i64") for t in types):
-            bits = {"i8": 8, "i16": 16, "i32": 32, "i64": 64}[types[0]]
-            vs = [int(a.value) for a in args]
-
-            def wrap(v):
-                v &= (1 << bits) - 1
-                return v - (1 << bits) if v >> (bits - 1) else v
-            ops = {"bitwise_and": lambda: vs[0] & vs[1], "bitwise_or": lambda: vs[0] | vs[1],
-                   "bitwise_xor": lambda: vs[0] ^ vs[1], "bitwise_not": lambda: ~vs[0]}
-            if fn in ops:
-                return wrap(ops[fn]())
-    except (ValueError, TypeError, ZeroDivisionError):
-        return None
-    return None
-
-
-def matches_reference(ref, result) -> bool:
-    if not isinstance(result, CaseLiteral) or result.value is None or str(result.value).lower() == "null":
-        return False
-    try:
-        e = float(result.value) if not isinstance(ref, int) else int(result.value)
-    except ValueError:
-        return False
-    if isinstance(ref, int):
-        return ref == e
-    if math.isnan(ref) or math.isnan(e):
-        return math.isnan(ref) and math.isnan(e)
-    if math.isinf(ref) or math.isinf(e):
-        return ref == e
-    # the same tolerances the compliance runner uses
-    tol = rfc.FP32_REL_TOL if "fp32" in result.type else rfc.FLOAT_REL_TOL
-    return math.isclose(ref, e, rel_tol=tol, abs_tol=0.0)
-
-
 def pin_implied_option(text, tc, tf, kind, registry):
     """Pin the option a special-value expectation depends on, as upstream does.
 
@@ -358,6 +286,7 @@ def main(argv=None):
     dropped = collections.Counter()
     dropped_examples = collections.defaultdict(list)
     quarantined = []
+    contradicted = []  # (where, text, correct result, what DuckDB said)
     verified_by = collections.Counter()
     seen = set()
 
@@ -444,14 +373,15 @@ def main(argv=None):
         if status == rfc.PASSED:
             verified_by["DuckDB"] += 1
         else:
-            ref = math_reference(tc)
-            if ref is not None and matches_reference(ref, tc.result):
-                verified_by["exact arithmetic"] += 1
+            ref = fref.reference(tc)
+            if ref is not None and fref.matches(ref, tc.result):
+                verified_by["the function definitions (exact computation)"] += 1
+            elif ref is not None:
+                drop("expected value contradicted by the function definitions", where, text)
+                contradicted.append((where, text, fref.describe(ref), reason or ""))
+                continue
             else:
-                why = reason or "not verified"
-                if ref is not None:
-                    why = f"exact arithmetic gives {ref!r}; " + why
-                quarantined.append((where, text, why))
+                quarantined.append((where, text, reason or "not verified"))
                 continue
         category = fn_category.get((fn, urn)) or urn.rsplit(":", 1)[1].replace("functions_", "")
         kept[(category, fn, kind, urn)].append((group or "# legacy: converted cases", text))
@@ -496,27 +426,41 @@ def main(argv=None):
         *[f"| Dropped: {k} | {v} |" for k, v in dropped.most_common()],
         "",
         "A kept case's expected value was reproduced by DuckDB (through the compliance runner's",
-        "translator) or by exact arithmetic. DuckDB's agreement is one of the two checks, so these",
-        "cases lean towards behaviour DuckDB shares; the leaderboard therefore scores them as a",
-        "separate suite from `upstream/`.",
+        "translator) or, where DuckDB differs or cannot run the case, by the result the function",
+        "definitions give (`scripts/function_reference.py`: exact arithmetic, IEEE 754 special values,",
+        "the option modes, string semantics). DuckDB's agreement is one of the two checks, so these",
+        "cases lean towards behaviour DuckDB shares; the leaderboard therefore does not score them.",
         "",
         "## Examples of dropped cases",
         "",
     ]
     for reason, examples in sorted(dropped_examples.items(), key=lambda kv: -dropped[kv[0]]):
         lines += [f"**{reason}** ({dropped[reason]})", ""] + [f"- {e}" for e in examples] + [""]
+    cell = lambda t: t.replace("|", "\\|")  # noqa: E731
     lines += [
+        "## Legacy values contradicted by the function definitions",
+        "",
+        "Valid cases whose expected value is wrong: the definitions give a different result, shown",
+        "here. Dropped; to keep one, correct the legacy case.",
+        "",
+        "| Legacy case | Converted | Correct result | DuckDB |",
+        "|---|---|---|---|",
+    ]
+    for where, text, correct, duck in contradicted:
+        lines.append(f"| `{where}` | `{cell(text[:160])}` | `{cell(correct)}` | {cell(duck[:120])} |")
+    lines += [
+        "",
         "## Quarantined cases",
         "",
-        "Valid against the function definitions, but neither DuckDB nor exact arithmetic reproduces the",
-        "expected value. Each needs a human decision: if the expected value is right (and DuckDB",
-        "differs), add the case to `extended/` by hand; otherwise fix or drop it.",
+        "Valid against the function definitions, but DuckDB does not reproduce the expected value and",
+        "the definitions do not decide it (for example shift_left overflow, modulus(INT_MIN, -1),",
+        "min/max with NaN, interval normalisation, a start or position below 1 without an option).",
+        "To keep one, extend `scripts/function_reference.py` where a definition settles it.",
         "",
         "| Legacy case | Converted | Why not verified |",
         "|---|---|---|",
     ]
     for where, text, why in quarantined:
-        cell = lambda t: t.replace("|", "\\|")  # noqa: E731
         lines.append(f"| `{where}` | `{cell(text)}` | {cell(why[:220])} |")
     (out_dir / "CONVERSION.md").write_text("\n".join(lines) + "\n", encoding="utf-8")
 

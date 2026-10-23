@@ -11,7 +11,7 @@ as `functions-legacy`, marked *not scored*.
 | Part | Cases | What it is |
 |---|---:|---|
 | [`upstream/`](upstream/UPSTREAM.md) | 1,315 | The Substrait project's own test cases (`tests/cases` at v0.107.0), with 55 documented fixes |
-| [`extended/`](extended/CONVERSION.md) | 2,180 | Cases from the legacy suite for standard functions, converted, validated and verified |
+| [`extended/`](extended/CONVERSION.md) | 2,278 | Cases from the legacy suite for standard functions, converted, validated and verified (by DuckDB or by the result the function definitions give) |
 
 Both parts are generated — do not edit the `.test` files by hand (see [Regenerating](#regenerating)).
 
@@ -69,8 +69,11 @@ engine — DuckDB (default) or Apache DataFusion (`--engine datafusion`) — in 
 
 | Engine | `upstream/` plans | `extended/` plans | `upstream/` SQL | `extended/` SQL | CI |
 |---|---:|---:|---:|---:|---|
-| DuckDB 1.5.6 | **69.5%** (808 / 355 / 152 skipped) | 90.0% (1,927 / 215 / 38) | 93.9% | 99.9% | `duckdb-compliance.yml` |
-| DataFusion 55.0.0 | **71.2%** (820 / 332 / 163) | 86.5% (1,859 / 289 / 32) | 93.2% | 99.4% | `datafusion-compliance.yml` |
+| DuckDB 1.5.6 | **69.5%** (808 / 355 / 152 skipped) | see CI ¹ | 93.9% | 97.7% | `duckdb-compliance.yml` |
+| DataFusion 55.0.0 | **71.2%** (820 / 332 / 163) | 85.5% (1,889 / 320 / 69) | 93.2% | 98.2% | `datafusion-compliance.yml` |
+
+¹ DuckDB's plan run needs its substrait extension, which is measured in CI; on the earlier
+2,180-case `extended/` it was 90.0%.
 
 Only the `upstream/` plan rate (bold) is scored.
 
@@ -81,8 +84,8 @@ DuckDB's extension crashes on `std_dev`/`variance` plans), typed null literals (
 type), window functions (DuckDB) and wrong mappings (DuckDB maps list `cardinality` to its map-only
 function and `extract(MILLISECOND)` to a different definition).
 
-Because DuckDB is one of the verifiers of `extended/`, that part favours DuckDB; compare engines on
-`upstream/`.
+DuckDB verified most of `extended/` (2,151 of 2,278 cases; the rest are verified against the
+function definitions), so that part still favours DuckDB; compare engines on `upstream/`.
 
 For each case:
 
@@ -152,7 +155,9 @@ DuckDB version.
 CI and appears on the leaderboard as `functions-legacy` (passed to `combine_engine_reports.py` with
 `--reference`, so it is shown but *not scored*). Remaining clean-up, when wanted:
 
-1. Review the quarantined cases in [`extended/CONVERSION.md`](extended/CONVERSION.md) — they are
-   valid but unverified — and add the ones that are right.
+1. The quarantined cases in [`extended/CONVERSION.md`](extended/CONVERSION.md) are those the
+   function definitions do not decide (for example `shift_left` overflow or `min` with NaN).
+   Settling one means extending `scripts/function_reference.py` where a definition, or an
+   upstream test case, decides it.
 2. Stop running the legacy suite and remove `test-suites/functions` (or move it to an archive)
    together with its regex-based runner path.

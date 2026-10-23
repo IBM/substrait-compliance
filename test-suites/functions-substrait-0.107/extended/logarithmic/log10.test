@@ -31,6 +31,7 @@ log10(0.0::fp32) [on_log_zero:MINUS_INFINITY] = -inf::fp32
 log10(-1.0::fp32) [on_domain_error:NAN] = nan::fp32
 log10(nan::fp32) = nan::fp32
 log10(inf::fp32) = inf::fp32
+log10(-inf::fp32) [on_domain_error:NAN] = nan::fp32
 
 # zero_handling: Zero and negative zero handling
 log10(7.0::fp64) = 0.8450980400142568::fp64
