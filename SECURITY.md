@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-Security support commitments remain pre-release. The repository contains security-related implementation and deployment scaffolding, but only the controls explicitly called out as verified below should be treated as current guarantees.
+Security support commitments remain pre-release. Only the controls explicitly called out as verified below should be treated as current guarantees.
 
 At the current launch stage, security support is owned by the named maintainer of record in [`MAINTAINERS.md`](MAINTAINERS.md). There is no separate staffed security operations team or 24x7 incident-response rotation.
 
@@ -57,105 +57,55 @@ Please include the following information in your report:
 
 ## Security Best Practices
 
-### Verified Today vs. Still Operator-Dependent
+### What This Repository Ships
 
-The repository now has enough implementation and deployment material to distinguish between controls that are **verified in-repo** and controls that are **still deployment/operator responsibilities**.
+The repository ships libraries, scripts and GitHub Actions workflows: the eight SDKs, the
+test suites, the compliance runners, and the leaderboard published as static files on GitHub
+Pages. It does not run a hosted service, and there is no server, database or account to
+secure. (A pre-release REST API was removed in favour of pull-request submissions; see the
+[CHANGELOG](CHANGELOG.md).)
 
 #### Verified in Repository Artifacts
 
-The following statements are supported by repository code, configuration, or workflow evidence and can be treated as current verified behavior for the pre-release codebase:
+1. **Leaderboard submissions are data, checked by trusted code**
+   - A submission ([`submissions/README.md`](submissions/README.md)) contains only JSON files;
+     nothing in it is executed.
+   - [`.github/workflows/submission-validation.yml`](.github/workflows/submission-validation.yml)
+     runs the checker, suites and schemas from the base branch, never from the pull request, with
+     a read-only token and no secrets.
+   - Scores are recomputed from per-case results; submitted pass rates are ignored.
 
-1. **Containerized API deployment runs as a non-root user**
-   - [`api/Containerfile`](api/Containerfile) creates and switches to the `spring` user before startup
-   - The runtime image exposes only the application process and health check entrypoint
+2. **The reusable submission workflow keeps the engine team's token out of the checks**
+   - [`.github/workflows/submit-results.yml`](.github/workflows/submit-results.yml) uses the token
+     only to push to the team's fork and open the pull request.
+   - Teams are told to use a dedicated bot account and to pin the workflow to a commit SHA.
 
-2. **Container and local deployment paths require externally supplied JWT secrets**
-   - [`api/docker-compose.yml`](api/docker-compose.yml) requires `JWT_SECRET` for the API service
-   - [`api/README.md`](api/README.md) instructs operators to generate secrets outside source control
-   - [`api/src/main/resources/application.yml`](api/src/main/resources/application.yml) reads JWT configuration from environment variables
-
-3. **Webhook signing uses canonical JSON serialization before HMAC generation**
-   - [`api/src/main/java/io/substrait/compliance/api/service/WebhookDeliveryService.java`](api/src/main/java/io/substrait/compliance/api/service/WebhookDeliveryService.java) serializes payloads with Jackson before signature generation
-   - This closes the earlier mismatch between payload representation and signature input
-
-4. **Dependency and artifact validation are part of repository automation**
-   - [` .github/workflows/sdk-build-test.yml`](.github/workflows/sdk-build-test.yml) verifies build/test coverage across claimed SDKs
-   - [` .github/workflows/release-publish.yml`](.github/workflows/release-publish.yml) now validates release-candidate artifacts and smoke-tests packaged outputs before release publication
+3. **Dependency and artifact validation are part of repository automation**
+   - [`.github/workflows/sdk-build-test.yml`](.github/workflows/sdk-build-test.yml) builds and tests every SDK
+   - [`.github/workflows/release-publish.yml`](.github/workflows/release-publish.yml) validates
+     release-candidate artifacts and smoke-tests packaged outputs before publication
+   - Dependabot proposes updates for GitHub Actions and the Java SDK
 
 #### Not Yet Claimed as Guarantees
 
-The following controls may be partially implemented or documented, but they are **not yet guaranteed by this repository alone** and must still be treated as deployment-specific or future hardening work:
-
-1. **End-to-end authentication and authorization assurance**
-   - JWT-related code and Spring Security dependencies exist
-   - Full production auth-flow verification, token lifecycle testing, and role-boundary validation are not yet documented as release gates
-
-2. **TLS / HTTPS enforcement**
-   - HTTPS is recommended in docs
-   - The repository does not ship certificates or prove that every deployment path terminates TLS correctly by default
-
-3. **Rate limiting effectiveness in production**
-   - Rate-limit configuration exists
-   - Production tuning, proxy-awareness, and abuse-case validation remain operator responsibilities
-
-4. **Audit logging and incident monitoring**
-   - Logging and monitoring hooks exist
-   - Centralized retention, alert routing, and incident escalation are not yet verified as maintained service guarantees
-
-5. **Repository-wide dependency scanning and incident-response readiness**
-   - Security review guidance and workflow-based validation exist
-   - Continuous dependency-scanning coverage, alert routing, and staffed incident-response operations are not yet claimed as complete service guarantees
+1. **Self-reported results**: the submission check catches inconsistent or incomplete results,
+   not deliberately invented ones. Review, the linked CI run and maintainer re-runs are the safeguards.
+2. **Repository-wide dependency scanning and incident-response readiness**: continuous scanning
+   coverage, alert routing and staffed incident response are not claimed as service guarantees.
 
 ### For Users
 
-#### API Security
-
-1. **Authentication**
-   - Use strong JWT secrets (minimum 256 bits)
-   - Rotate API keys and signing secrets on an operator-defined schedule
-   - Never commit secrets to version control
-   - Use environment variables or a secret manager for sensitive configuration
-
-2. **HTTPS/TLS**
-   - Terminate TLS in front of the API for every production deployment
-   - Use TLS 1.2 or higher
-   - Keep certificates up to date
-   - Validate upstream and downstream certificates explicitly
-
-3. **Rate Limiting**
-   - Configure limits appropriate to your traffic profile
-   - Monitor for unusual traffic patterns
-   - Add IP- or identity-based restrictions where needed
-
-4. **Input Validation**
-   - Treat all external input as untrusted
-   - Keep validation enabled in deployed environments
-   - Use parameterized queries and framework-managed persistence paths
-
-#### Deployment Security
-
-1. **Environment Variables**
-   - Never hardcode secrets
-   - Use secure secret management (for example Vault or cloud secret stores)
-   - Rotate credentials regularly
-
-2. **Network Security**
-   - Restrict ingress to trusted networks or gateways
-   - Place the API behind a reverse proxy or ingress controller
-   - Use segmented networks/VPCs for database access
-
-3. **Monitoring**
-   - Forward application and security logs to centralized storage
-   - Alert on repeated auth failures, webhook delivery failures, and unusual request spikes
-   - Test incident contacts before claiming production readiness
+- Run the compliance suites in your own CI; no data leaves your environment unless you submit it.
+- When submitting from CI, follow [`submissions/README.md`](submissions/README.md): a dedicated bot
+  account, the token stored as a secret, and the reusable workflow pinned to a commit SHA.
+- Treat test-suite files and other engines' submissions as untrusted input in your own tooling.
 
 ### For Contributors
 
-#### Secure Development
-
 1. **Code Review**
    - All code changes require review
-   - Security-sensitive changes should include explicit reviewer attention to auth, webhook, and persistence behavior
+   - Changes to the submission checker, schemas and workflows (listed in
+     [`CODEOWNERS`](.github/CODEOWNERS)) need a maintainer's approval
    - Keep automated validation green before merge
 
 2. **Dependencies**
@@ -164,23 +114,24 @@ The following controls may be partially implemented or documented, but they are 
    - Treat release-candidate workflow failures as blockers for publication
 
 3. **Testing**
-   - Add tests for authentication, authorization, webhook signing, and unsafe input handling when touching those areas
+   - Add tests for input handling when touching parsers, the submission checker or the runners
    - Prefer release-artifact smoke tests over source-only validation for user-facing packages
 
 4. **Secrets Management**
    - Never commit secrets to the repository
-   - Use templates and environment variables for local setup
+   - Workflows that run on pull requests must not receive secrets or a write token
    - Rotate any accidentally exposed credentials immediately
 
 ## Security Implementation Status
 
-Security-related code exists in the repository, especially around the pre-release REST API, but the project should still be treated as **pre-release with partial verification** rather than as a fully production-certified service.
+The project is **pre-release**. Only the controls listed under "Verified in Repository
+Artifacts" should be treated as current behavior.
 
 ### Verification Standard for Future Guarantees
 
 Before describing any protection as supported in a stable release, verify it with:
 - automated tests covering the relevant behavior
-- deployment documentation showing how it is enabled
+- documentation showing how it is enabled
 - release validation confirming the behavior in the shipped artifact
 - an identified maintainer process for triage and incident handling
 
@@ -191,7 +142,7 @@ Before describing any protection as supported in a stable release, verify it wit
 This security policy applies to:
 
 - Substrait Compliance Framework core
-- REST API implementation
+- Leaderboard submission checks and GitHub Actions workflows
 - Java, Python, and Rust SDKs
 - Demo applications
 - Documentation and examples
@@ -237,11 +188,10 @@ Stay informed about security updates:
 
 ## Additional Resources
 
-- [Security Hardening Guide](docs/SECURITY_HARDENING_GUIDE.md)
 - [Deployment Guide](docs/DEPLOYMENT_GUIDE.md)
 - [Contributing Guidelines](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
-- [API README](api/README.md)
+- [Leaderboard submissions](submissions/README.md)
 
 ## Contact
 

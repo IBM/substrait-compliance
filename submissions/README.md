@@ -11,8 +11,7 @@ How the leaderboard is scored and published is described in
 [docs/COMPLIANCE_LEADERBOARD.md](../docs/COMPLIANCE_LEADERBOARD.md).
 
 There is no server and no account to request: a GitHub account that can open pull requests
-is enough. (The [REST API](../api/README.md) is an optional second route and is not needed
-to appear on the leaderboard.)
+is enough.
 
 ## What to run
 

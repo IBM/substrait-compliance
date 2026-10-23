@@ -42,7 +42,7 @@ flowchart TD
         EC --> RC
     end
 
-    LB["Compliance leaderboard<br/>category pass rates · evidence tiers · REST API"]
+    LB["Compliance leaderboard<br/>category pass rates · evidence tiers · JSON on GitHub Pages"]
 
     STS --> EA
     STS --> EB
@@ -62,7 +62,7 @@ flowchart TD
     style LB fill:#edf5ff,stroke:#0043ce,color:#161616
 ```
 
-Shared suites run decentralized: locally, inside each engine's own CI pipeline (the dashed region), with no data leaving the engine team's environment. Structured reports feed a public leaderboard that exposes category pass rates and evidence tiers over a REST API. The figure adapts Figure 1 of the SAO 2026 paper, ending at the leaderboard; section 4 describes downstream consumers of the evidence, such as plan routers.
+Shared suites run decentralized: locally, inside each engine's own CI pipeline (the dashed region), with no data leaving the engine team's environment. Structured reports feed a public leaderboard that exposes category pass rates and evidence tiers as Markdown, HTML and JSON. The figure adapts Figure 1 of the SAO 2026 paper, ending at the leaderboard; section 4 describes downstream consumers of the evidence, such as plan routers.
 
 The first layer is the shared corpus, a versioned and language-neutral set of correctness fixtures. It holds 5,041 function-level assertions across 136 files in 14 categories: arithmetic (with decimal, rounding, and logarithmic subfamilies), string, comparison, datetime, aggregate, array, map, struct, set, window, conditional, JSON, cast, and geospatial. Each function test specifies typed input columns, a plan exercising one function under defined edge conditions such as nulls, boundaries, overflow, and empty groups, and an expected result with an explicit floating-point tolerance. Alongside the function tests sit the benchmark suites: all 22 TPC-H queries and all 99 TPC-DS queries, serialized as Substrait plans in binary and JSON form, each with committed expected outputs. Result correctness is verifiable end to end. None of this measures speed. These are semantic-fidelity tests, and the only question they answer is whether an engine returns the right rows.
 
@@ -70,7 +70,7 @@ An LLM helped construct part of the corpus through a generate-and-gate pipeline.
 
 The second layer is engine-local execution. SDKs exist in eight languages: Java, Python, Rust, Go, C++, TypeScript, C#, and Scala. Each exposes an idiomatic form of the same contract, and everything runs in the engine team's own environment and CI. No data leaves it.
 
-The third layer is federated reporting. Results aggregate into a structured compliance report with per-category pass rates, engine version, and declared capabilities, exportable as JSON, Markdown, HTML, or CSV. A team can keep reports private, publish summaries, or submit them to a leaderboard through the included REST API reference implementation. The design separates private diagnostics (the failing inputs and traces, which stay local) from the published summary of per-category results. That separation lets proprietary engines participate.
+The third layer is federated reporting. Results aggregate into a structured compliance report with per-category pass rates, engine version, and declared capabilities, exportable as JSON, Markdown, HTML, or CSV. A team can keep reports private, publish summaries, or submit them to the leaderboard by pull request. The design separates private diagnostics (the failing inputs and traces, which stay local) from the published summary of per-category results. That separation lets proprietary engines participate.
 
 ## 4. The engine contract
 

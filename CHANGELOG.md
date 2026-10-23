@@ -7,13 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
-### Fixed — pass rate excludes skipped results in every SDK and the REST API
+### Removed — the pre-release REST API
+- `api/` (Spring Boot 2.7) is removed, with its workflows (`api-build-test`, `api-pr-validation`,
+  `api-container-build`, `api-release`, `api-deploy-staging`, `api-deploy-production`), its
+  Dependabot entry and its documentation (`REST_API_GUIDE.md`, `REST_API_ARCHITECTURE.md`,
+  `API_IMPLEMENTATION.md`, `SECURITY_HARDENING_GUIDE.md`).
+- Engine teams submit results by pull request ([submissions/README.md](submissions/README.md)),
+  and the leaderboard data is published as
+  [`leaderboard.json`](https://ibm.github.io/substrait-compliance/leaderboard.json). Nothing
+  else in the repository used the API, and it was never deployed to a public endpoint.
+- Spring Boot 2.7 is end of life; removing the API removes it and its libraries (Spring
+  Framework 5.3, Spring Security 5.7, Tomcat 9, SnakeYAML 1.33, Logback 1.2) and their open
+  high-severity alerts (#48), instead of a migration to Spring Boot 4. The code remains in the
+  git history.
+- `SECURITY.md` now describes what the repository ships: libraries, scripts and workflows, with
+  no hosted service.
+
+### Fixed — pass rate excludes skipped results in every SDK
 - Pass rate is passed ÷ (total − skipped) everywhere, as on the leaderboard. Skipped results
   count neither way; failed, error and unsupported results count as not passed. Before, every
-  SDK, the Java storage summaries, the DuckDB example and the REST API's `complianceScore`
-  divided by all results, so skipped tests lowered the score.
+  SDK, the Java storage summaries and the DuckDB example divided by all results, so skipped
+  tests lowered the score.
   - **SDKs:** Python, Java, Go, TypeScript, Rust, Scala, C# and C++.
-  - **REST API:** `ReportService` now uses `ReportEntity.calculateComplianceScore`.
 - `sdk/conformance/pass-rate-vectors.csv`: shared vectors every SDK's tests check.
 - `sdk/conformance/comparison-vectors.json`: shared output-comparison vectors, checked against
   the Java runner and the Python plan runner (the comparators that score the leaderboard).

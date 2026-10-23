@@ -25,8 +25,8 @@ This project adheres to a Code of Conduct that all contributors are expected to 
 - Java 17 or higher
 - Python 3.8+ (for Python SDK)
 - Rust 1.70+ (for Rust SDK)
-- Gradle 9.7+ for the Java SDK (`sdk/java` uses the Gradle 9 wrapper; the API module uses a
-  separate Gradle 8 wrapper — both are in-repo, no global Gradle install required)
+- Gradle 9.7+ for the Java SDK (`sdk/java` uses the in-repo Gradle 9 wrapper; no global
+  Gradle install required)
 - Git
 
 ### Setting Up Your Development Environment
@@ -46,8 +46,7 @@ This project adheres to a Code of Conduct that all contributors are expected to 
    ./gradlew build
    ```
    > **Note**: The root `./gradlew build` only builds the Java SDK (`sdk:java`). Each other SDK
-   > has its own build system (see the per-SDK README). The REST API is a separate Gradle project
-   > under `api/` built with its own `./gradlew build` there.
+   > has its own build system (see the per-SDK README).
 5. **Run Java SDK tests** to verify setup:
    ```bash
    ./gradlew test

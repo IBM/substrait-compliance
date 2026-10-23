@@ -64,33 +64,6 @@ Triggered by a semver tag (`v*.*.*`). Builds the Java SDK fat jar and the Python
 publishes both as GitHub Release assets. Maven Central and PyPI publishing require credentials
 stored as repository secrets; they are wired but gated on the secrets being present.
 
-The REST API is released separately by `api-release.yml`, which triggers on `api-v*.*.*` tags
-so the two workflows never try to create the same GitHub Release.
-
-### `api-build-test.yml` — REST API build and test
-
-Builds the Spring Boot REST API and runs its unit tests. The API is pre-release functionality.
-
-### `api-container-build.yml` — Multi-platform container image
-
-Builds a multi-platform (`linux/amd64`, `linux/arm64`) container image for the REST API and
-publishes it to GitHub Container Registry on every push to `main` and on semver tags:
-
-```
-ghcr.io/ibm/substrait-compliance/substrait-compliance-api:main
-ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
-ghcr.io/ibm/substrait-compliance/substrait-compliance-api:<semver>
-```
-
-### `api-deploy-staging.yml` / `api-deploy-production.yml` — Staged deployments
-
-Deploy the REST API container to staging and production environments. Require environment secrets.
-
-### `api-pr-validation.yml` — REST API pull-request validation
-
-Runs on pull requests that touch `api/**` or `sdk/java/**`. Builds and tests the Spring Boot API
-and comments results on the PR. Complements `api-build-test.yml` (which runs on every push).
-
 ### `sdk-verification.yml` — SDK cross-build verification (scheduled)
 
 Runs daily and on pushes that touch `sdk/**`. Verifies that all SDK build artefacts are

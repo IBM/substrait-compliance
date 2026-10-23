@@ -24,7 +24,6 @@ Enable database engines to self-certify their Substrait compliance through stand
 - [Architecture](#️-architecture)
 - [SDK Features](#-sdk-features)
 - [CI/CD Integration](#-cicd-integration)
-- [REST API](#-rest-api)
 - [Troubleshooting](#-troubleshooting)
 - [Contributing](#-contributing)
 - [Key Documentation](#-key-documentation)
@@ -47,7 +46,6 @@ The Substrait Compliance Framework transforms how query engines validate their S
 - 📦 **Pre-packaged Test Suites** — TPC-H, TPC-DS, and function test suites included in-repo
 - ⚡ **Performance Benchmarking** — Benchmarking components included across several SDKs
 - 🤖 **Automated CI/CD** — GitHub Actions workflows for validation, release, and automation
-- 🌐 **REST API** — Spring Boot API implementation for programmatic access *(pre-release; not yet deployed to a public endpoint)*
 - 📊 **Interactive Demo** — Live dashboard with mock engines, query drill-down, and complexity filtering
 - 🏆 **Leaderboard Support** — Report aggregation and leaderboard generation
 
@@ -765,23 +763,19 @@ substrait-compliance/
 │   ├── duckdb-cpp/                # DuckDB integration (C++)
 │   ├── duckdb-java/               # DuckDB integration (Java)
 │   └── velox-cpp/                 # Velox integration (C++)
-├── 🌐 api/                        # REST API (Spring Boot)
-│   ├── src/                       # API source code
-│   ├── docker-compose.yml         # Container orchestration
-│   └── build.gradle               # Gradle build
+├── 📥 submissions/                # Leaderboard results submitted by engine teams
 ├── 🤖 .github/workflows/          # CI/CD automation
 │   ├── engine-compliance-template.yml  # ⭐ Template for your engine
 │   ├── sdk-build-test.yml         # Tests all SDKs on every commit
 │   ├── test-suite-validation.yml  # Validates test suite integrity
-│   └── ...                        # API build, deploy, release workflows
+│   └── ...                        # engine compliance, submissions, leaderboard, release
 ├── 🔧 scripts/                    # Automation and quality tools
 │   ├── generate_leaderboard.py    # Leaderboard generator
 │   ├── quality_checker.py         # Test quality checker
 │   ├── test_enhancer.py           # Test enhancement tool
 │   └── verify_sdk_builds.sh       # SDK build verification
 └── 📖 docs/                       # Documentation
-    ├── REST_API_GUIDE.md
-    ├── REST_API_ARCHITECTURE.md
+    ├── COMPLIANCE_LEADERBOARD.md
     ├── DEPLOYMENT_GUIDE.md
     ├── PERFORMANCE_BENCHMARKING.md
     ├── SDK_VERIFICATION.md
@@ -912,9 +906,9 @@ See [docs/PERFORMANCE_BENCHMARKING.md](docs/PERFORMANCE_BENCHMARKING.md) for det
 
 - **`sdk-build-test.yml`** — Tests all SDKs on every commit
 - **`test-suite-validation.yml`** — Validates test suite integrity
-- **`api-build-test.yml`** — API build and test
-- **`api-container-build.yml`** — Multi-platform container images
-- **`api-deploy-staging.yml`** / **`api-deploy-production.yml`** — Staged deployments
+- **`duckdb-compliance.yml`** / **`datafusion-compliance.yml`** — Run DuckDB and DataFusion for the leaderboard
+- **`submission-validation.yml`** — Checks leaderboard submissions
+- **`compliance-leaderboard.yml`** — Publishes the leaderboard
 - **`release-publish.yml`** — Automated versioning and publishing
 
 ### For Engine Developers
@@ -1115,44 +1109,6 @@ python3 scripts/generate_leaderboard.py
 
 ---
 
-## 🌐 REST API
-
-A Spring Boot REST API provides programmatic access to compliance results. It is an optional
-second route for results; the public leaderboard is published from pull-request submissions
-([submissions/README.md](submissions/README.md)) and does not need it. `GET /api/v1/leaderboard`
-is not implemented yet: the published leaderboard data is
-[`leaderboard.json`](https://ibm.github.io/substrait-compliance/leaderboard.json).
-
-**Features:** JWT authentication, report submission, data querying with filtering/pagination, webhooks, rate limiting, caching.
-
-```bash
-# Start with Docker Compose
-cd api
-docker-compose up -d postgres
-
-# In a separate terminal, start the API application
-./gradlew bootRun
-
-# Access the API (reports; a JWT with the report:read scope is required)
-curl -H "Authorization: Bearer $TOKEN" http://localhost:8080/api/v1/reports
-```
-
-**Pre-built container image** (published on every push to `main`):
-```bash
-docker pull ghcr.io/ibm/substrait-compliance/substrait-compliance-api:latest
-```
-
-**Documentation:**
-- [docs/REST_API_GUIDE.md](docs/REST_API_GUIDE.md) — Complete API reference
-- [docs/REST_API_ARCHITECTURE.md](docs/REST_API_ARCHITECTURE.md) — Architecture and design
-- [docs/API_IMPLEMENTATION.md](docs/API_IMPLEMENTATION.md) — API implementation guide
-- [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) — Deployment instructions
-- [api/README.md](api/README.md) — API module readme
-
-> **Note:** The REST API is pre-release — the code is in-repo and builds cleanly, but it is not deployed to a public endpoint and the auth/storage configuration is not production-hardened. It is provided for evaluation and self-hosted use only. See [api/README.md](api/README.md) for current status.
-
----
-
 ## 📖 Key Documentation
 
 ### 🎯 Getting Started
@@ -1276,9 +1232,8 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 | **TPC-DS Queries** | 99 |
 | **TPC-H Data Rows** | 86,805 (scale factor 0.01) |
 | **TPC-DS Data Tables** | 24 |
-| **CI/CD Workflows** | 12 |
+| **CI/CD Workflows** | 10 |
 | **Example Implementations** | 5 (DuckDB Java/C++, DataFusion Python/Rust, Velox C++) |
-| **REST API Endpoints** | 10+ |
 
 ---
 
@@ -1309,16 +1264,14 @@ This project is licensed under the Apache License 2.0 — see the [LICENSE](LICE
 See [ROADMAP.md](ROADMAP.md) for the full phased roadmap with timelines.
 
 **Recently completed:**
-- [x] REST API infrastructure with Spring Boot
+- [x] Leaderboard submissions by pull request
 - [x] Comprehensive CI/CD workflows
 - [x] Interactive demo system with dashboard
-- [x] Multi-platform container builds
 - [x] TPC-DS benchmark (99 queries)
 
 **Up next:**
 - [ ] Performance benchmarking CI integration
 - [ ] Compliance badges
-- [ ] Spring Boot 3.x migration for REST API
 
 ---
 

@@ -16,8 +16,7 @@ How a report's pass rate is computed:
   raise a score.
 
 This is the rule the public leaderboard uses (`scripts/combine_engine_reports.py`,
-[docs/COMPLIANCE_LEADERBOARD.md](../../docs/COMPLIANCE_LEADERBOARD.md)). It is also used by
-the REST API's `complianceScore`.
+[docs/COMPLIANCE_LEADERBOARD.md](../../docs/COMPLIANCE_LEADERBOARD.md)).
 
 Each row gives the counts of each status and the expected pass rate in percent. An SDK
 without an ERROR or UNSUPPORTED status skips rows that use it. Compare with a tolerance of
