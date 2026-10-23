@@ -73,6 +73,29 @@ Function cases use your engine's SQL for two things only: creating the input tab
 evaluating the expected values. In plan mode the function itself always goes through
 your Substrait consumer.
 
+### Engines not written in Python
+
+The runners are Python, but your engine need not be: the engine class above is a small
+adapter, and it can reach the engine any way that suits it. Use the language SDKs
+(`sdk/`) for your own in-house tests; for the leaderboard, use these runners through an
+adapter, whatever language the engine is written in.
+
+| Your engine | Adapter |
+|---|---|
+| Has Python bindings (DataFusion; many Rust engines have them through PyO3) | Call the bindings, as `DataFusionEngine` and `DataFusionPlanEngine` do |
+| No Python bindings (Rust, C++, Go, ...) | Write a small command that runs one plan; for TPC-H, [`examples/leaderboard-adapter`](../examples/leaderboard-adapter/) is a ready-made adapter that calls it |
+| JVM (Java, Scala) | TPC-H: the Java SDK runner, which Scala engines can call directly. Function cases: an adapter that talks to a JVM process kept running for the whole run |
+
+Two things to plan for:
+
+- **Your engine runs SQL too.** The function runner creates each case's input table and
+  evaluates its expected value with your engine's SQL (`create_table`, `query`); only the
+  function under test goes through the Substrait consumer.
+- **Start the engine once.** The runner keeps one engine object, in one child process, for
+  the whole run, and starts a new one only after a crash. Start a JVM, server or
+  connection in `__init__` or `enable_plans()`, not per case: the function suite runs
+  about 1,300 plans, and a JVM started for each would take about 20 minutes.
+
 ## Submitting
 
 ### From your CI (recommended)

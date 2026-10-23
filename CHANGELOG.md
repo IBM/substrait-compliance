@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Added — which path to use, and an adapter for engines without Python bindings
+- README "Which Path Do I Use?": the language SDKs are for an engine's own testing; the
+  leaderboard is reached through the Python runners and a small adapter, whatever language the
+  engine is written in (the Java SDK runner's TPC-H reports are also accepted). With a diagram
+  of both routes and the adapter for each kind of engine.
+- `submissions/README.md` "Engines not written in Python": bindings, a command, or a JVM
+  process kept running; the adapter also runs SQL for function cases; start the engine once.
+- `examples/leaderboard-adapter/`: `CommandPlanEngine` runs each TPC-H plan through the
+  engine's own command (plan and Arrow IPC tables in, Arrow IPC result out), with a DataFusion
+  example command. Through it DataFusion gives exactly the built-in engine's results
+  (`test_command_plan_engine.py`).
+
 ### Changed — leaderboard page states how queries are compared
 - "How scoring works" now gives the query rule: column names (case-insensitive), column count
   and type family, rows in order, numbers within 1e-9 and declared decimals within 10^-S. It

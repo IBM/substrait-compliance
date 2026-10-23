@@ -13,6 +13,7 @@ interface — data loading, plan validation, and `executePlan` / `execute_plan`.
 | `datafusion-python` | Python | ✅ Real if `datafusion-substrait` is installed; returns `None` (FAILED) otherwise |
 | `datafusion-rust` | Rust | ✅ Real — registers Arrow MemTables, calls `from_substrait_plan` + `collect()` |
 | `velox-cpp` | C++ | ✅ Wired — `SubstraitVeloxPlanConverter`, `Task::create/start/next`; requires a Velox build to link |
+| `leaderboard-adapter` | Python | ✅ Real — runs an engine's own command per plan, for leaderboard submissions from engines without Python bindings ([README](leaderboard-adapter/README.md)) |
 
 For the `duckdb-java` example, a typical run against the TPC-H suite with the
 substrait extension loaded reports results per query — pass rate depends on
