@@ -45,12 +45,19 @@ only the same infinity, and NULL only NULL. A numeric string matches the number.
 compare exactly.
 
 Each vector gives an expected and an actual table and whether they match. They are
-checked against the two comparators that score the leaderboard's Queries:
+checked against the two comparators that score the leaderboard's Queries, and against the
+language SDKs' own comparators, so an SDK's in-house result means the same as the
+leaderboard's:
 
 | Comparator | Test |
 |---|---|
 | Java `ComplianceRunner.describeMismatch` (DuckDB, TPC-H) | `sdk/java/src/test/java/io/substrait/compliance/ComparisonVectorsTest.java` |
 | Python `scripts/run_plan_compliance.py` (DataFusion, TPC-H) | `sdk/python/tests/test_comparison_vectors.py` |
+| Rust `describe_mismatch` (`sdk/rust/src/runner.rs`) | `sdk/rust/tests/comparison_vectors_test.rs` |
+| Scala `ResultComparison.describeMismatch` | `sdk/scala/src/test/scala/io/substrait/compliance/ComparisonVectorsSpec.scala` |
 
-The other SDKs' runners have comparators of their own; aligning them with these vectors
-is a follow-up.
+A declared decimal's scale comes from the plan's JSON form: `PlanOutputTypes` (Java and
+Scala), `declared_scales` (Python) and `plan_types` (Rust) work it out the same way, and agree
+on all 143 TPC-H (both encodings) and TPC-DS plans.
+
+Not yet checked against these vectors: the Go, TypeScript, C# and C++ SDKs' comparators.

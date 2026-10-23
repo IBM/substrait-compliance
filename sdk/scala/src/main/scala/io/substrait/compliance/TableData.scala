@@ -17,6 +17,26 @@ object ColumnType {
   case object Timestamp extends ColumnType
   case object Time extends ColumnType
   case object Binary extends ColumnType
+
+  /**
+   * The column type for a type name, as in a typed CSV header or an engine's result type.
+   * Type parameters are ignored: decimal(15,2) is Decimal, varchar(25) is String.
+   */
+  def fromName(name: String): ColumnType = {
+    val base = name.trim.toLowerCase.takeWhile(_ != '(').trim
+    base match {
+      case "integer" | "int" | "i8" | "i16" | "i32" | "i64" | "int2" | "int4" | "int8" | "smallint" |
+           "tinyint" | "bigint" | "long" | "hugeint" => Integer
+      case "float" | "fp32" | "real" | "float4" | "double" | "fp64" | "float8" | "number" => Float
+      case "decimal" | "numeric" => Decimal
+      case "bool" | "boolean" => Boolean
+      case "date" => Date
+      case "timestamp" | "timestamptz" => Timestamp
+      case "time" => Time
+      case "binary" | "blob" | "varbinary" => Binary
+      case _ => String
+    }
+  }
 }
 
 /**

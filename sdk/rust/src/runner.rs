@@ -2,6 +2,7 @@
 
 use crate::engine::ComplianceEngine;
 use crate::result::{ComplianceReport, ComplianceResult, TestStatus};
+use crate::table_data::{DataType, TableData};
 use crate::test_suite::{TestCase, TestSuite};
 use chrono::Utc;
 use std::time::Instant;
@@ -52,9 +53,11 @@ impl<'a, E: ComplianceEngine> ComplianceRunner<'a, E> {
                 if let (Some(expected), Some(actual)) =
                     (&test_case.expected_output, &result.output_data)
                 {
-                    if !self.compare_results(actual, expected) {
+                    if let Some(mismatch) =
+                        describe_mismatch(expected, actual, test_case.declared_scales.as_deref())
+                    {
                         result.status = TestStatus::Failed;
-                        result.error_message = Some("Output mismatch".to_string());
+                        result.error_message = Some(format!("Output mismatch: {mismatch}"));
                     }
                 }
 
@@ -66,68 +69,126 @@ impl<'a, E: ComplianceEngine> ComplianceRunner<'a, E> {
                 .with_execution_time(start.elapsed().as_millis() as u64),
         }
     }
-
-    fn compare_results(
-        &self,
-        actual: &crate::table_data::TableData,
-        expected: &crate::table_data::TableData,
-    ) -> bool {
-        if actual.row_count() != expected.row_count() {
-            return false;
-        }
-        if actual.column_count() != expected.column_count() {
-            return false;
-        }
-        // Check column types (normalised)
-        for (a_col, e_col) in actual.columns.iter().zip(expected.columns.iter()) {
-            if normalize_type(a_col.data_type) != normalize_type(e_col.data_type) {
-                return false;
-            }
-        }
-        // Check every cell value
-        for (a_row, e_row) in actual.rows.iter().zip(expected.rows.iter()) {
-            for (a_val, e_val) in a_row.iter().zip(e_row.iter()) {
-                if !values_match(a_val, e_val) {
-                    return false;
-                }
-            }
-        }
-        true
-    }
 }
 
-/// Canonical type for comparison purposes. Maps aliases to a single name so
-/// that, e.g., "fp64" and "double" are treated as equivalent.
-fn normalize_type(dt: crate::table_data::DataType) -> &'static str {
-    use crate::table_data::DataType::*;
+/// Absolute tolerance near zero; relative tolerance for larger magnitudes.
+pub const NUMERIC_ABS_TOLERANCE: f64 = 1e-9;
+pub const NUMERIC_REL_TOLERANCE: f64 = 1e-9;
+
+/// Compare an engine's output with the expected output, as the leaderboard's comparators
+/// do (`sdk/conformance/comparison-vectors.json`): same row and column counts, column
+/// names case-insensitively, column types by family (all numerics are one family; dates
+/// and times compare as text), rows in order, numbers within max(1e-9, 1e-9 * magnitude),
+/// everything else as text. NULL (an empty value or `null`) matches only NULL.
+///
+/// `declared_scales`, when given, holds per column the scale of the decimal type the plan
+/// declares (None for other columns); such a column also matches within 10^-scale.
+///
+/// Returns None when the outputs match, otherwise a description of the first difference.
+pub fn describe_mismatch(
+    expected: &TableData,
+    actual: &TableData,
+    declared_scales: Option<&[Option<u32>]>,
+) -> Option<String> {
+    if expected.row_count() != actual.row_count() {
+        return Some(format!(
+            "expected {} rows, got {}",
+            expected.row_count(),
+            actual.row_count()
+        ));
+    }
+    let names = |t: &TableData| t.columns.iter().map(|c| c.name.clone()).collect::<Vec<_>>();
+    if expected.column_count() != actual.column_count() {
+        return Some(format!(
+            "expected {} columns {:?}, got {} {:?}",
+            expected.column_count(),
+            names(expected),
+            actual.column_count(),
+            names(actual)
+        ));
+    }
+    let same_names = expected
+        .columns
+        .iter()
+        .zip(&actual.columns)
+        .all(|(e, a)| e.name.trim().eq_ignore_ascii_case(a.name.trim()));
+    if !same_names {
+        return Some(format!(
+            "expected column names {:?}, got {:?}",
+            names(expected),
+            names(actual)
+        ));
+    }
+    let same_types = expected
+        .columns
+        .iter()
+        .zip(&actual.columns)
+        .all(|(e, a)| type_family(e.data_type) == type_family(a.data_type));
+    if !same_types {
+        let types = |t: &TableData| t.columns.iter().map(|c| c.data_type).collect::<Vec<_>>();
+        return Some(format!(
+            "expected column types {:?}, got {:?}",
+            types(expected),
+            types(actual)
+        ));
+    }
+    for (r, (e_row, a_row)) in expected.rows.iter().zip(&actual.rows).enumerate() {
+        for (c, (e, a)) in e_row.iter().zip(a_row).enumerate() {
+            let scale = declared_scales.and_then(|s| s.get(c).copied().flatten());
+            if !values_match(e, a, scale) {
+                return Some(format!(
+                    "row {r}, column {}: expected {e:?}, got {a:?}",
+                    expected.columns[c].name
+                ));
+            }
+        }
+    }
+    None
+}
+
+/// The type family a column is compared by.
+fn type_family(dt: DataType) -> &'static str {
     match dt {
-        Integer => "integer",
-        Bigint => "bigint",
-        Double | Decimal => "double",
-        Varchar => "string",
-        Date => "string", // dates compared as strings
-        Boolean => "boolean",
+        DataType::Integer | DataType::Bigint | DataType::Double | DataType::Decimal => "numeric",
+        DataType::Varchar | DataType::Date => "string",
+        DataType::Boolean => "boolean",
     }
 }
 
-/// Value-level comparison with epsilon for floating-point strings.
-/// TableData stores all values as `String`; parse numerics for comparison.
-fn values_match(actual: &str, expected: &str) -> bool {
-    if actual == expected {
-        return true;
+fn is_null(v: &str) -> bool {
+    let v = v.trim();
+    v.is_empty() || v.eq_ignore_ascii_case("null")
+}
+
+/// Numbers within the tolerance (and, for a declared decimal, within 10^-scale);
+/// NaN matches NaN and infinity only the same infinity.
+pub fn numbers_close(expected: f64, actual: f64, declared_scale: Option<u32>) -> bool {
+    if expected.is_nan() || actual.is_nan() {
+        return expected.is_nan() && actual.is_nan();
     }
-    // Try numeric comparison with epsilon 1e-9
-    if let (Ok(a), Ok(e)) = (actual.parse::<f64>(), expected.parse::<f64>()) {
-        if a.is_nan() && e.is_nan() {
-            return true;
-        }
-        return (a - e).abs() < 1e-9;
+    if expected.is_infinite() || actual.is_infinite() {
+        return expected == actual;
     }
-    // Boolean normalisation
-    let a_lower = actual.to_lowercase();
-    let e_lower = expected.to_lowercase();
-    if (a_lower == "true" || a_lower == "false") && (e_lower == "true" || e_lower == "false") {
-        return a_lower == e_lower;
+    let magnitude = expected.abs().max(actual.abs());
+    let mut tolerance = NUMERIC_ABS_TOLERANCE.max(NUMERIC_REL_TOLERANCE * magnitude);
+    if let Some(s) = declared_scale {
+        tolerance = tolerance.max(10f64.powi(-(s as i32)) * (1.0 + NUMERIC_REL_TOLERANCE));
     }
-    false
+    (expected - actual).abs() <= tolerance
+}
+
+/// TableData holds every value as text: numbers are parsed and compared numerically,
+/// booleans case-insensitively, everything else exactly.
+fn values_match(expected: &str, actual: &str, declared_scale: Option<u32>) -> bool {
+    if is_null(expected) || is_null(actual) {
+        return is_null(expected) && is_null(actual);
+    }
+    if let (Ok(e), Ok(a)) = (expected.trim().parse::<f64>(), actual.trim().parse::<f64>()) {
+        return numbers_close(e, a, declared_scale);
+    }
+    let (e, a) = (expected.to_lowercase(), actual.to_lowercase());
+    if (e == "true" || e == "false") && (a == "true" || a == "false") {
+        return e == a;
+    }
+    expected == actual
 }

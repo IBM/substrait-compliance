@@ -54,6 +54,9 @@ struct TestCaseDefinition {
     /// Relative path to the binary Substrait plan file.
     #[serde(rename = "planBinary")]
     plan_binary: String,
+    /// Optional relative path to the plan's JSON form, used for the declared output types.
+    #[serde(rename = "planJson")]
+    plan_json: Option<String>,
     /// Optional relative path to the expected-output CSV.
     /// Defaults to `expected/<id>.csv` when omitted.
     #[serde(rename = "expectedOutput")]
@@ -79,6 +82,11 @@ impl TestSuiteLoader for YamlTestSuiteLoader {
             })?;
 
             let mut tc = TestCase::new(tc_def.id.clone(), tc_def.description, plan_bytes);
+            tc.declared_scales = tc_def
+                .plan_json
+                .as_ref()
+                .and_then(|rel| fs::read_to_string(base_dir.join(rel)).ok())
+                .and_then(|json| crate::plan_types::declared_scales(&json));
 
             // Resolve expected-output path: explicit field or default location.
             let csv_path = match &tc_def.expected_output {
@@ -162,13 +170,21 @@ pub fn load_csv(path: &Path) -> Result<TableData> {
     Ok(TableData::new(columns, rows))
 }
 
-fn parse_data_type(s: &str) -> DataType {
-    match s.to_lowercase().as_str() {
-        "integer" | "int" | "int32" | "i32" | "smallint" | "int4" => DataType::Integer,
-        "bigint" | "int64" | "i64" => DataType::Bigint,
-        "double" | "fp64" | "float8" | "numeric" | "decimal" => DataType::Double,
+/// Map a type name from a typed CSV header (or an engine's result) to a DataType. Type
+/// parameters are ignored: `decimal(15,2)` is a decimal, `varchar(25)` a varchar.
+pub fn parse_data_type(s: &str) -> DataType {
+    let lower = s.trim().to_lowercase();
+    let base = lower.split('(').next().unwrap_or("").trim();
+    match base {
+        "integer" | "int" | "int32" | "i32" | "i8" | "i16" | "smallint" | "tinyint" | "int2"
+        | "int4" => DataType::Integer,
+        "bigint" | "long" | "int64" | "i64" | "int8" | "hugeint" => DataType::Bigint,
+        "double" | "fp64" | "float8" | "float" | "fp32" | "real" | "float4" | "number" => {
+            DataType::Double
+        }
+        "decimal" | "numeric" => DataType::Decimal,
         "boolean" | "bool" => DataType::Boolean,
-        "date" | "timestamp" => DataType::Date,
+        "date" | "timestamp" | "timestamptz" | "time" => DataType::Date,
         _ => DataType::Varchar,
     }
 }
