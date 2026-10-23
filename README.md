@@ -18,6 +18,7 @@ Enable database engines to self-certify their Substrait compliance through stand
 - [Overview](#-overview)
 - [Prerequisites](#-prerequisites)
 - [5-Minute Quick Start](#-5-minute-quick-start)
+- [Which Path Do I Use?](#-which-path-do-i-use)
 - [Test Your Own Engine](#-test-your-own-engine)
 - [Test Suites](#-test-suites)
 - [Repository Structure](#-repository-structure)
@@ -167,7 +168,55 @@ For full SDK build verification, use the ordered checklist in [`docs/SDK_VERIFIC
 
 ---
 
+## 🧭 Which Path Do I Use?
+
+There are two ways to run the suites, for two different goals:
+
+| Goal | Use | Language |
+|---|---|---|
+| Test your engine in its own CI or test suite | A **language SDK** (`sdk/`): interface, runner, comparator and report, all in your engine's language | Java, Python, Rust, C++, Go, TypeScript, C#, Scala |
+| Appear on the [public leaderboard](https://ibm.github.io/substrait-compliance/) | The **Python runners** (`scripts/run_function_compliance.py`, `scripts/run_plan_compliance.py`) through a small adapter for your engine, then a pull-request submission | any: the adapter reaches your engine through Python bindings, a command or a server |
+
+```mermaid
+flowchart LR
+  subgraph own["Engine's own CI: any of 8 languages"]
+    direction TB
+    E1["Engine"] --> SDK["Language SDK<br/>interface, runner, comparator"] --> R1["In-house report"]
+    J["Java SDK runner<br/>TPC-H reports"]
+  end
+  subgraph lb["Leaderboard route: Python tooling"]
+    direction TB
+    E2["Engine + Python adapter<br/>bindings, command or server"] --> PR["Python runners<br/>functions + TPC-H"] --> S["Pull-request submission<br/>checked with main's rules"] --> SC["Python scoring<br/>recompute, rank, publish"] --> P["Leaderboard page"]
+  end
+  J --> S
+```
+
+- The **Functions** score (half the ranking) can only be produced by the Python function
+  runner: it parses the Substrait project's function cases and builds a plan for each.
+- The **Queries** score (TPC-H) can come from the Python plan runner or from the Java SDK
+  runner, which writes accepted TPC-H reports; JVM engines, Scala included, can use it
+  directly.
+- The other SDKs' runners are for in-house testing. Their results are not accepted as
+  submissions, and their comparators are not yet checked against the leaderboard's shared
+  comparison vectors ([`sdk/conformance/`](sdk/conformance/README.md)).
+
+**Adapters by engine:**
+
+| Your engine | Adapter |
+|---|---|
+| Python bindings (DataFusion; many Rust engines through PyO3) | call the bindings, as the built-in DataFusion engine does |
+| No Python bindings (Rust, C++, Go, ...) | a small command that runs one plan; [`examples/leaderboard-adapter`](examples/leaderboard-adapter/) calls it for TPC-H |
+| JVM (Java, Scala) | the Java SDK runner for TPC-H; for function cases, an adapter that talks to a JVM process kept running for the whole run |
+
+Details, including what the adapter must provide: [submissions/README.md](submissions/README.md#engines-not-written-in-python).
+
+---
+
 ## 🔧 Test Your Own Engine
+
+This section is the in-house route: a language SDK in your engine's own tests. To appear on
+the leaderboard, see [Which Path Do I Use?](#-which-path-do-i-use) and
+[submissions/README.md](submissions/README.md).
 
 ### Step 1: Choose Your SDK
 
@@ -862,7 +911,7 @@ substrait-compliance/
 
 ### SDK compliance-alignment status
 
-The table below reflects the state after all gap-closure work. Every SDK with ✅ in all four columns can produce honest compliance scores when given a test suite with expected output.
+The table below reflects the state after all gap-closure work. Every SDK with ✅ in all four columns can produce honest compliance scores for in-house testing when given a test suite with expected output. Leaderboard results come from the Python runners, and for TPC-H also the Java SDK runner; only those two comparators are checked against the shared comparison vectors in [`sdk/conformance/`](sdk/conformance/README.md) (see [Which Path Do I Use?](#-which-path-do-i-use)).
 
 | SDK | Runner compares output | Type-aware comparator | Loader carries expected output | Pass-through integration test |
 |-----|---|---|---|---|
@@ -1086,6 +1135,8 @@ by the average of two scores: **Functions** (the Substrait project's function ca
 Substrait plans) and **Queries** (TPC-H plans).
 
 **Add your engine:** run the suites in your own CI and submit the results by pull request.
+Engines in any language take part, through a small Python adapter
+([Which Path Do I Use?](#-which-path-do-i-use)).
 A reusable workflow does it for you. The submission is checked and scored automatically and
 published once merged. See [submissions/README.md](submissions/README.md).
 How scores are computed and how results from this repository's CI and from submissions
