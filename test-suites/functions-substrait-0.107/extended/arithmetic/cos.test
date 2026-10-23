@@ -4,6 +4,10 @@
 # special_values: Special floating point values (NaN, Infinity)
 cos(nan::fp32) = nan::fp32
 cos(nan::fp64) = nan::fp64
+cos(inf::fp32) = nan::fp32
+cos(inf::fp64) = nan::fp64
+cos(-inf::fp32) = nan::fp32
+cos(-inf::fp64) = nan::fp64
 
 # zero_handling: Zero and negative zero handling
 cos(3.141592653589793::fp64) = -1.0::fp64

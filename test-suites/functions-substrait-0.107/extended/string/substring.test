@@ -15,6 +15,7 @@ substring('abcdefg'::str, 3::i32, 0::i32) = ''::str
 # empty_values: Empty strings and collections
 substring(''::str, 1::i32, 5::i32) = ''::str
 substring('abcdefg'::str, 1::i32, -1::i32) = ''::str
+substring('abcdefg'::str, -10::i32, 5::i32) [negative_start:LEFT_OF_BEGINNING] = ''::str
 
 # negative_values: Negative number handling
 substring('abcdefg'::str, -7::i32, 3::i32) [negative_start:WRAP_FROM_END] = 'abc'::str

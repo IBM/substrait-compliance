@@ -14,11 +14,15 @@ lt(-9223372036854775807::i64, -9223372036854775808::i64) = false::bool
 
 # special_values: Special floating point values (NaN, Infinity)
 lt(nan::fp32, 1.0::fp32) = false::bool
+lt(1.0::fp32, nan::fp32) = false::bool
 lt(nan::fp32, nan::fp32) = false::bool
 lt(nan::fp32, 0.0::fp32) = false::bool
+lt(-1.0::fp32, nan::fp32) = false::bool
 lt(nan::fp64, 1.0::fp64) = false::bool
+lt(1.0::fp64, nan::fp64) = false::bool
 lt(nan::fp64, nan::fp64) = false::bool
 lt(nan::fp64, inf::fp64) = false::bool
+lt(-inf::fp64, nan::fp64) = false::bool
 lt(inf::fp32, inf::fp32) = false::bool
 lt(-inf::fp32, -inf::fp32) = false::bool
 lt(-inf::fp32, inf::fp32) = true::bool

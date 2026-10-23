@@ -13,6 +13,8 @@ equal(-9223372036854775808::i64, -9223372036854775808::i64) = true::bool
 equal(inf::fp32, inf::fp32) = true::bool
 equal(-inf::fp32, -inf::fp32) = true::bool
 equal(inf::fp32, -inf::fp32) = false::bool
+equal(nan::fp64, nan::fp64) = false::bool
+equal(nan::fp32, nan::fp32) = false::bool
 equal(nan::fp64, 1.0::fp64) = false::bool
 equal(1.0::fp32, nan::fp32) = false::bool
 

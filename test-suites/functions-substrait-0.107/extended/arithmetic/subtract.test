@@ -17,6 +17,12 @@ subtract(-32768::i16, 1::i16) [overflow:ERROR] = <!ERROR>
 subtract(2147483647::i32, -1::i32) [overflow:ERROR] = <!ERROR>
 subtract(-2147483648::i32, 1::i32) [overflow:ERROR] = <!ERROR>
 subtract(9223372036854775807::i64, -1::i64) [overflow:ERROR] = <!ERROR>
+subtract(127::i8, -1::i8) [overflow:SATURATE] = 127::i8
+subtract(-128::i8, 1::i8) [overflow:SATURATE] = -128::i8
+subtract(32767::i16, -1::i16) [overflow:SATURATE] = 32767::i16
+subtract(-32768::i16, 1::i16) [overflow:SATURATE] = -32768::i16
+subtract(2147483647::i32, -1::i32) [overflow:SATURATE] = 2147483647::i32
+subtract(-2147483648::i32, 1::i32) [overflow:SATURATE] = -2147483648::i32
 
 # null_handling_extended: Extended null handling scenarios
 subtract(null::i8?, 5::i8) = null::i8?

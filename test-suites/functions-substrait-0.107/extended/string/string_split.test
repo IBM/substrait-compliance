@@ -6,6 +6,7 @@ string_split('banana'::str, 'a'::str) = ['b', 'n', 'n', '']::list<str>
 
 # null_handling_extended: Extended null handling scenarios
 string_split(null::str?, ' '::str) = null::list?<str>
+string_split('abc'::str, null::str?) = null::list?<str>
 string_split(null::str?, null::str?) = null::list?<str>
 
 # empty_values: Empty strings and collections

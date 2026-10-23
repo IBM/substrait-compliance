@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Changed — quarantined legacy function cases reviewed against the function definitions
+- `scripts/function_reference.py` computes a case's result from the 0.107.0 definitions alone:
+  - integer overflow under each option mode;
+  - IEEE 754 special values and comparisons, and domain-error options;
+  - exact floating-point results (50-digit, correctly rounded) and exact aggregates;
+  - null propagation, and string functions on UTF-8 bytes and plain-text characters.
+
+  It returns nothing where the definitions do not decide.
+- `convert_legacy_function_tests.py` uses it for every case DuckDB does not reproduce. Of the 227
+  quarantined cases:
+  - **98 are kept**, among them the IEEE NaN comparisons that DuckDB's SQL orders differently,
+    overflow and domain-error option modes, and `factorial`/`sum` overflow errors;
+  - **90 are dropped** as contradicted, each listed in `extended/CONVERSION.md` with the correct
+    result (e.g. `modulus(1000000, 7)` is 1, not 6; `sin(1000.0)` had the wrong sign);
+  - **40 remain quarantined**, where the definitions are silent (`shift_left` overflow,
+    `modulus(INT_MIN, -1)`, `min` with NaN, ...).
+
+  `extended/` now has 2,278 cases (was 2,180).
+
 ### Added — leaderboard submissions by pull request
 - Engine teams run the suites in their own CI and submit the results by pull request:
   `submissions/<engine>/<version>/` holds a `manifest.json` (engine, consumer, CI run, suite

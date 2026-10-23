@@ -15,7 +15,7 @@ binaries, input data, and expected reference outputs.
 ## Function Tests
 
 [`functions-substrait-0.107`](functions-substrait-0.107/README.md) is the current-format function
-suite: the Substrait project's own 1,315 cases (with documented fixes) plus 2,180 verified cases
+suite: the Substrait project's own 1,315 cases (with documented fixes) plus 2,278 verified cases
 converted from the legacy suite. Every case is validated against the Substrait 0.107.0 function
 definitions. Its `upstream/` cases, run as Substrait plans through each engine's Substrait
 consumer, are the leaderboard's **Functions** score; the same cases as SQL and the `extended/`
