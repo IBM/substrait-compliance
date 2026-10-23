@@ -85,11 +85,11 @@ cd runner
    📊 Pass Rate: 77.3%
 
 🔧 Testing: DuckDB v0.10.0
-   Total Tests: 22  ✅ Passed: 14  ❌ Failed: 0   ⏭️  Skipped: 8
+   Total Tests: 22  ✅ Passed: 14  ❌ Failed: 8   ⏭️  Skipped: 0
    📊 Pass Rate: 63.6%
 
 🔧 Testing: PostgreSQL v16.0
-   Total Tests: 22  ✅ Passed: 14  ❌ Failed: 0   ⏭️  Skipped: 8
+   Total Tests: 22  ✅ Passed: 14  ❌ Failed: 8   ⏭️  Skipped: 0
    📊 Pass Rate: 63.6%
 
 🥇 MockDB       1.0.0   100.0%  🟢 VERIFIED

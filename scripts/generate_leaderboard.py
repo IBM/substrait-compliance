@@ -314,7 +314,7 @@ SCORING = [
     "the engine runs in a child process, so the run continues.",
     "**Skipped** cases are not counted either way: option modes the engine does not claim to "
     "implement, `<!UNDEFINED>` results, and cases the plan builder cannot express yet. "
-    "Pass rate = passed ÷ (passed + failed).",
+    "Pass rate = passed ÷ (total − skipped); a failure or an error counts as not passed.",
     "A **query** passes when its result has the expected column names (case-insensitive), number "
     "and type family of columns, and the expected rows in order. Numbers match within 1e-9 "
     "(relative), and a column the plan declares as `decimal(P,S)` within one unit in its last "

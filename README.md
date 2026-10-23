@@ -140,10 +140,10 @@ For full SDK build verification, use the ordered checklist in [`docs/SDK_VERIFIC
    ✅ Passed: 17  ❌ Failed: 5   📊 Pass Rate: 77.3%
 
 🔧 Testing: DuckDB v0.10.0
-   ✅ Passed: 14  ⏭️  Skipped: 8  📊 Pass Rate: 63.6%
+   ✅ Passed: 14  ❌ Failed: 8   📊 Pass Rate: 63.6%
 
 🔧 Testing: PostgreSQL v16.0
-   ✅ Passed: 14  ⏭️  Skipped: 8  📊 Pass Rate: 63.6%
+   ✅ Passed: 14  ❌ Failed: 8   📊 Pass Rate: 63.6%
 
 🥇 MockDB       1.0.0   100.0%  🟢 VERIFIED
 🥈 FastDB       2.5.0    95.5%  🟢 VERIFIED
@@ -153,6 +153,10 @@ For full SDK build verification, use the ordered checklist in [`docs/SDK_VERIFIC
 
 ✅ Demo completed successfully!
 ```
+
+The demo's DuckDB and PostgreSQL engines declare 8 queries unsupported; those count as failed,
+since pass rate = passed ÷ (total − skipped) and only cases that do not apply are skipped
+([how the pass rate is calculated](docs/COMPLIANCE_LEADERBOARD.md#how-the-pass-rate-is-calculated)).
 
 **What You'll See in the Dashboard:**
 - 🥇 **Leaderboard** — Rankings with medals and tier badges (VERIFIED / EDGE / BASIC)
