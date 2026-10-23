@@ -1,7 +1,8 @@
 """pytest configuration shared across all test modules.
 
 Provides the REPO_ROOT fixture so integration tests can locate the real
-test-suite files without hard-coding paths.
+test-suite files without hard-coding paths, and runs every test without the GitHub
+Actions environment (see _no_github_actions_environment).
 """
 
 import os
@@ -26,3 +27,16 @@ def _find_repo_root() -> Path:
 def repo_root() -> Path:
     """Absolute path to the repository root directory."""
     return _find_repo_root()
+
+
+# Variables GitHub Actions sets for every step. Scripts under test write to them (the job
+# summary, workflow commands), so a test run in CI would otherwise put its fixture results
+# into the real job summary, e.g. made-up regression tables in the SDK Build Verification
+# summary. A test that needs one sets it with monkeypatch.
+GITHUB_ACTIONS_VARIABLES = ("GITHUB_ACTIONS", "GITHUB_STEP_SUMMARY", "GITHUB_OUTPUT", "GITHUB_ENV")
+
+
+@pytest.fixture(autouse=True)
+def _no_github_actions_environment(monkeypatch):
+    for name in GITHUB_ACTIONS_VARIABLES:
+        monkeypatch.delenv(name, raising=False)

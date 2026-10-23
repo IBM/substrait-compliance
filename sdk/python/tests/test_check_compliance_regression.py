@@ -57,3 +57,12 @@ def test_a_category_with_different_suites_is_not_compared(tmp_path, capsys):
     run(tmp_path, entry(40.0, 69.5, 10.0, qsuites=("tpch", "tpcds")), entry(62.0, 69.5, 54.5))
     out = capsys.readouterr().out
     assert "queries: scored suites changed" in out
+
+
+def test_writes_the_job_summary_only_when_asked(tmp_path, monkeypatch, capsys):
+    summary = tmp_path / "summary.md"
+    run(tmp_path, entry(62.0, 69.5, 54.5), entry(62.0, 69.5, 54.5))
+    assert not summary.exists()  # conftest clears GITHUB_STEP_SUMMARY for every test
+    monkeypatch.setenv("GITHUB_STEP_SUMMARY", str(summary))
+    run(tmp_path, entry(62.0, 69.5, 54.5), entry(62.0, 69.5, 54.5))
+    assert "Compliance regression check: DuckDB" in summary.read_text()
