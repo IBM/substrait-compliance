@@ -77,6 +77,24 @@ private:
 /**
  * @brief Loader for JSON-based test suites
  */
+/**
+ * @brief Read a CSV typed by the columns the plan reads it with (an input table)
+ *
+ * As scripts/run_plan_compliance.py reads input tables for the leaderboard: a first row that
+ * names the plan's columns is a header and skipped; values are trimmed; an empty value or
+ * "null" is NULL. integer is int32_t, bigint int64_t, float float, double double, boolean
+ * bool; a decimal stays exact as its text (the column type keeps precision and scale, e.g.
+ * decimal(15,2)); dates and strings are text. Throws LoaderError for a value that does not
+ * parse as its column's type or a row with the wrong number of values.
+ */
+TableData load_input_table(const std::filesystem::path& csv_path, const std::vector<SchemaColumn>& columns);
+
+/**
+ * @brief Read a CSV with a typed header (name:type|...), or untyped columns column_1.. of
+ *        text, as expected outputs are read
+ */
+TableData load_typed_csv(const std::filesystem::path& csv_path);
+
 class JsonTestSuiteLoader : public TestSuiteLoader {
 public:
     JsonTestSuiteLoader() = default;

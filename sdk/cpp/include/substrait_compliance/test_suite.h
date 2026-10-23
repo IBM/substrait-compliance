@@ -1,7 +1,9 @@
 #pragma once
 
 #include "table_data.h"
+#include "plan_types.h"
 #include <algorithm>
+#include <filesystem>
 #include <string>
 #include <vector>
 #include <memory>
@@ -37,6 +39,16 @@ struct TestSuiteMetadata {
 /**
  * @brief A single test case within a test suite
  */
+/**
+ * @brief An input table read from a file when its case runs (TestCase::load_input_data)
+ */
+struct InputTable {
+    std::string name;               ///< the table name the plan reads
+    std::filesystem::path file;
+    /// the columns the plan reads it with; nullopt to read the file like an expected output
+    std::optional<std::vector<SchemaColumn>> columns;
+};
+
 class TestCase {
 public:
     TestCase(std::string id, std::vector<uint8_t> plan)
@@ -51,6 +63,18 @@ public:
     const std::optional<std::string>& description() const { return description_; }
     const std::vector<std::string>& tags() const { return tags_; }
     const std::vector<std::optional<int>>& declared_scales() const { return declared_scales_; }
+    /**
+     * @brief Input tables read from files when the case runs, added to input_data(). The
+     *        loader fills these rather than input_data() so a suite's data is not held in
+     *        memory for every case at once (TPC-DS reads about 1.4 GB of CSV across 99 cases).
+     */
+    const std::vector<InputTable>& input_tables() const { return input_tables_; }
+
+    /**
+     * @brief input_data() plus each of input_tables() read from its file (see loader.h).
+     *        Throws LoaderError when a file cannot be read.
+     */
+    TableCollection load_input_data() const;
     
     // Setters (builder pattern)
     TestCase& with_input_data(TableCollection data) {
@@ -77,6 +101,11 @@ public:
         return *this;
     }
 
+    TestCase& with_input_table(InputTable table) {
+        input_tables_.push_back(std::move(table));
+        return *this;
+    }
+
     TestCase& add_tag(std::string tag) {
         tags_.push_back(std::move(tag));
         return *this;
@@ -97,6 +126,7 @@ private:
     std::optional<std::string> description_;
     std::vector<std::string> tags_;
     std::vector<std::optional<int>> declared_scales_;
+    std::vector<InputTable> input_tables_;
 };
 
 /**

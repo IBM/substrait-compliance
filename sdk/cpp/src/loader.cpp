@@ -9,6 +9,8 @@
 #include <sstream>
 #include <stdexcept>
 #include <algorithm>
+#include <climits>
+#include <cstdint>
 
 namespace substrait::compliance {
 
@@ -96,6 +98,95 @@ std::vector<uint8_t> YamlTestSuiteLoader::load_plan(
 
 TableData YamlTestSuiteLoader::load_csv(
         const std::filesystem::path& csv_path) {
+    return load_typed_csv(csv_path);
+}
+
+namespace {
+
+std::string lower(std::string s) {
+    std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return std::tolower(c); });
+    return s;
+}
+
+std::vector<std::string> read_lines(const std::filesystem::path& csv_path) {
+    std::ifstream f(csv_path);
+    if (!f) throw LoaderError("CSV file not found: " + csv_path.string());
+    std::vector<std::string> lines;
+    for (std::string line; std::getline(f, line);) {
+        if (!line.empty() && line.back() == '\r') line.pop_back();
+        lines.push_back(line);
+    }
+    while (!lines.empty() && lines.back().empty()) lines.pop_back();
+    return lines;
+}
+
+bool blank(const std::string& s) { return s.find_first_not_of(" \t") == std::string::npos; }
+
+// One input value as its column's type; throws std::invalid_argument when it does not parse.
+CellValue plan_value(const std::string& v, const std::string& type) {
+    if (v.empty() || lower(v) == "null") return nullptr;
+    size_t used = 0;
+    auto whole = [&](size_t n) { if (n != v.size()) throw std::invalid_argument(v); };
+    if (type == "integer") { long long n = std::stoll(v, &used); whole(used);
+        if (n < INT32_MIN || n > INT32_MAX) throw std::out_of_range(v); return static_cast<int32_t>(n); }
+    if (type == "bigint") { long long n = std::stoll(v, &used); whole(used); return static_cast<int64_t>(n); }
+    if (type == "float") { float x = std::stof(v, &used); whole(used); return x; }
+    if (type == "double") { double x = std::stod(v, &used); whole(used); return x; }
+    if (type.rfind("decimal", 0) == 0) { (void)std::stod(v, &used); whole(used); return v; }
+    if (type == "boolean") return lower(v) == "true";
+    return v;
+}
+
+} // anonymous namespace
+
+TableData load_input_table(const std::filesystem::path& csv_path, const std::vector<SchemaColumn>& columns) {
+    auto lines = read_lines(csv_path);
+    std::vector<ColumnMetadata> meta;
+    for (const auto& c : columns) meta.emplace_back(c.name, c.type);
+    TableData table(meta);
+    if (lines.empty()) return table;
+    char delim = detect_delimiter(lines[0]);
+    auto header = parse_delimited_line(lines[0], delim);
+    bool is_header = header.size() == columns.size();
+    for (size_t i = 0; is_header && i < columns.size(); ++i) {
+        is_header = lower(header[i].substr(0, header[i].find(':'))) == lower(columns[i].name);
+    }
+    table.rows().reserve(lines.size());
+    for (size_t i = is_header ? 1 : 0; i < lines.size(); ++i) {
+        if (blank(lines[i])) continue;
+        auto fields = parse_delimited_line(lines[i], delim);
+        if (fields.size() != columns.size()) {
+            std::ostringstream ss;
+            ss << csv_path.string() << " row " << (i + 1) << " has " << fields.size()
+               << " values, expected " << columns.size();
+            throw LoaderError(ss.str());
+        }
+        Row row;
+        row.reserve(fields.size());
+        for (size_t c = 0; c < fields.size(); ++c) {
+            try {
+                row.push_back(plan_value(fields[c], columns[c].type));
+            } catch (const std::logic_error&) {
+                std::ostringstream ss;
+                ss << csv_path.string() << " row " << (i + 1) << ", column " << columns[c].name
+                   << ": '" << fields[c] << "' is not a " << columns[c].type;
+                throw LoaderError(ss.str());
+            }
+        }
+        table.add_row(std::move(row));
+    }
+    return table;
+}
+
+TableCollection TestCase::load_input_data() const {
+    TableCollection tables = input_data_;
+    for (const auto& t : input_tables_) {
+        tables[t.name] = t.columns ? load_input_table(t.file, *t.columns) : load_typed_csv(t.file);
+    }
+    return tables;
+}
+
+TableData load_typed_csv(const std::filesystem::path& csv_path) {
     std::ifstream f(csv_path);
     if (!f) {
         throw LoaderError("CSV file not found: " + csv_path.string());
@@ -222,18 +313,33 @@ TestSuitePtr YamlTestSuiteLoader::load(const std::filesystem::path& path) {
             }
         }
 
-        // Input tables
+        // Input tables, typed by the schema the plan reads them with and read when the case
+        // runs (TestCase::load_input_data)
         if (tc_node["inputTables"]) {
-            TableCollection input;
-            for (const auto& tbl_node : tc_node["inputTables"]) {
-                std::string tbl_name = tbl_node["name"].as<std::string>();
-                std::string tbl_file = tbl_node["file"].as<std::string>();
-                std::filesystem::path tbl_path = base_dir / tbl_file;
-                if (std::filesystem::exists(tbl_path)) {
-                    input[tbl_name] = load_csv(tbl_path);
+            std::unordered_map<std::string, std::vector<SchemaColumn>> schemas;
+            if (tc_node["planJson"]) {
+                auto plan_path = base_dir / tc_node["planJson"].as<std::string>();
+                std::ifstream pf(plan_path);
+                if (!pf) throw LoaderError("test case " + id + ": cannot read " + plan_path.string());
+                std::stringstream text;
+                text << pf.rdbuf();
+                try {
+                    schemas = named_table_schemas(text.str());
+                } catch (const std::runtime_error& e) {
+                    throw LoaderError("test case " + id + ": " + e.what());
                 }
             }
-            tc.with_input_data(std::move(input));
+            for (const auto& tbl_node : tc_node["inputTables"]) {
+                std::string tbl_name = tbl_node["name"].as<std::string>();
+                InputTable input{tbl_name, base_dir / tbl_node["file"].as<std::string>(), std::nullopt};
+                for (const auto& [plan_name, columns] : schemas) {
+                    if (lower(plan_name) == lower(tbl_name)) {
+                        input.name = plan_name;
+                        input.columns = columns;
+                    }
+                }
+                tc.with_input_table(std::move(input));
+            }
         }
 
         // Expected output

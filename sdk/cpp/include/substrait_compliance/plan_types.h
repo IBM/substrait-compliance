@@ -3,6 +3,7 @@
 #include <filesystem>
 #include <optional>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 namespace substrait::compliance {
@@ -30,5 +31,25 @@ std::optional<std::vector<std::optional<int>>> declared_scales(const std::string
 
 /** @brief declared_scales of a plan JSON file (nullopt if it cannot be read) */
 std::optional<std::vector<std::optional<int>>> declared_scales_file(const std::filesystem::path& path);
+
+/**
+ * @brief One column of a table a plan reads
+ *
+ * type is the column's type as ColumnMetadata names it: "integer" (i8, i16, i32), "bigint"
+ * (i64), "float" (fp32), "double" (fp64), "decimal(P,S)", "boolean", "date", "time",
+ * "timestamp", "binary" or "string" (string, varchar, fixedChar and anything else).
+ */
+struct SchemaColumn {
+    std::string name;
+    std::string type;
+};
+
+/**
+ * @brief For every named table the plan reads, the columns it reads it with
+ *
+ * From the plan's JSON form (// comment lines allowed). Throws std::runtime_error when the
+ * JSON cannot be parsed or one table is read with two different schemas.
+ */
+std::unordered_map<std::string, std::vector<SchemaColumn>> named_table_schemas(const std::string& plan_json);
 
 } // namespace substrait::compliance
