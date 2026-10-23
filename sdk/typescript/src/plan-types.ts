@@ -140,6 +140,45 @@ function literalType(lit: Json): Json | null {
   }
 }
 
+/** A plan's JSON form, parsed; leading // comment lines, as the suites' plan files have, are ignored. */
+export function parsePlanJson(planJson: string): Json {
+  return JSON.parse(planJson.split('\n').filter((l) => !l.trim().startsWith('//')).join('\n'));
+}
+
+/** One column of a table a plan reads: its name and Substrait type (JSON form). */
+export interface SchemaColumn {
+  name: string;
+  type: Json;
+}
+
+/**
+ * For every named table the plan reads, the columns it reads it with. Throws when one table is
+ * read with two different schemas.
+ */
+export function namedTableSchemas(plan: Json): Map<string, SchemaColumn[]> {
+  const found = new Map<string, SchemaColumn[]>();
+  const walk = (node: Json): void => {
+    if (Array.isArray(node)) {
+      node.forEach(walk);
+    } else if (node !== null && typeof node === 'object') {
+      const read = node.read;
+      if (has(read, 'namedTable') && has(read, 'baseSchema')) {
+        const name = list(read.namedTable, 'names').map(String).join('.');
+        const types = list(read.baseSchema.struct, 'types');
+        const columns = list(read.baseSchema, 'names').map((n, i) => ({ name: String(n), type: types[i] ?? null }));
+        const prev = found.get(name);
+        if (prev && prev.map((c) => c.name).join('\u0000') !== columns.map((c) => c.name).join('\u0000')) {
+          throw new Error(`table ${name} is read with two different schemas`);
+        }
+        found.set(name, columns);
+      }
+      Object.values(node).forEach(walk);
+    }
+  };
+  walk(plan);
+  return found;
+}
+
 /** The plan root's output types (an entry is null where it cannot be determined). */
 export function outputTypes(plan: Json): (Json | null)[] {
   for (const r of list(plan, 'relations')) {
@@ -155,8 +194,7 @@ export function outputTypes(plan: Json): (Json | null)[] {
  */
 export function declaredScales(planJson: string): (number | null)[] | null {
   try {
-    const text = planJson.split('\n').filter((l) => !l.trim().startsWith('//')).join('\n');
-    return outputTypes(JSON.parse(text)).map((t) =>
+    return outputTypes(parsePlanJson(planJson)).map((t) =>
       has(t, 'decimal') && typeof t.decimal.scale === 'number' ? t.decimal.scale : null
     );
   } catch {

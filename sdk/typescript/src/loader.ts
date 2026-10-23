@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as yaml from 'js-yaml';
 import { TestSuite, TestSuiteMetadata, TestCase } from './test-suite';
 import { TableData, Column, ColumnType, columnTypeFromName } from './table-data';
+import { isSuiteMetadata, loadSuiteMetadata } from './suite-metadata';
 
 /**
  * Loader for test suites from YAML files
@@ -17,10 +18,13 @@ export class TestSuiteLoader {
   }
 
   /**
-   * Load a test suite from YAML string
+   * Load a test suite from YAML string. Two formats are read: this repository's suite
+   * metadata (a `testCases` list, as in test-suites/tpch/metadata.yaml; see
+   * loadSuiteMetadata) and this SDK's own format (a `tests` list with inline tables).
    */
   loadFromYaml(yamlContent: string, basePath: string = '.'): TestSuite {
     const data = yaml.load(yamlContent) as any;
+    if (isSuiteMetadata(data)) return loadSuiteMetadata(data, basePath);
 
     const metadata: TestSuiteMetadata = {
       name: data.name || 'Unnamed Test Suite',
