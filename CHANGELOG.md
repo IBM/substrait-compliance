@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Fixed — TPC-DS plans name `customer`'s last column as its data file does
+- Ten TPC-DS plans (q01, q04, q15, q25, q45, q55, q65, q75, q85, q95; every plan that reads
+  `customer`) named its last column `c_last_review_date`; the data file and the TPC-DS schema
+  call it `c_last_review_date_sk`. The runners recognise an input file's header row by the
+  plan's column names, so for these ten the header was read as data and the case failed to
+  load, in the Python runner and the Scala loader alike. The plans' JSON is corrected and each
+  binary regenerated from it (before the change, every TPC-DS binary was an exact
+  serialisation of its JSON). All 99 cases now load; DataFusion 55.0.0 passes 42 of 99.
+- README: the Rust and Scala comparators are now listed as checked against the shared
+  comparison vectors.
+
 
 ### Fixed — the Scala SDK compares results like the leaderboard and reads this repository's suites
 - The Scala runner compared whole column definitions exactly (names case-sensitively, and the

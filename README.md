@@ -196,9 +196,10 @@ flowchart LR
 - The **Queries** score (TPC-H) can come from the Python plan runner or from the Java SDK
   runner, which writes accepted TPC-H reports; JVM engines, Scala included, can use it
   directly.
-- The other SDKs' runners are for in-house testing. Their results are not accepted as
-  submissions, and their comparators are not yet checked against the leaderboard's shared
-  comparison vectors ([`sdk/conformance/`](sdk/conformance/README.md)).
+- The other SDKs' runners are for in-house testing; their results are not accepted as
+  submissions. The Rust and Scala comparators are checked against the leaderboard's shared
+  comparison vectors, so their in-house results mean the same as the leaderboard's; the Go,
+  TypeScript, C# and C++ comparators are not yet ([`sdk/conformance/`](sdk/conformance/README.md)).
 
 **Adapters by engine:**
 
@@ -911,7 +912,7 @@ substrait-compliance/
 
 ### SDK compliance-alignment status
 
-The table below reflects the state after all gap-closure work. Every SDK with ✅ in all four columns can produce honest compliance scores for in-house testing when given a test suite with expected output. Leaderboard results come from the Python runners, and for TPC-H also the Java SDK runner; only those two comparators are checked against the shared comparison vectors in [`sdk/conformance/`](sdk/conformance/README.md) (see [Which Path Do I Use?](#-which-path-do-i-use)).
+The table below reflects the state after all gap-closure work. Every SDK with ✅ in all four columns can produce honest compliance scores for in-house testing when given a test suite with expected output. Leaderboard results come from the Python runners, and for TPC-H also the Java SDK runner. The Python, Java, Rust and Scala comparators are checked against the shared comparison vectors in [`sdk/conformance/`](sdk/conformance/README.md); Go, TypeScript, C# and C++ are not yet (see [Which Path Do I Use?](#-which-path-do-i-use)).
 
 | SDK | Runner compares output | Type-aware comparator | Loader carries expected output | Pass-through integration test |
 |-----|---|---|---|---|
