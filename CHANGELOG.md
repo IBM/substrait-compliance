@@ -7,6 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Fixed — the Scala SDK compares results like the leaderboard and reads this repository's suites
+- The Scala runner compared whole column definitions exactly (names case-sensitively, and the
+  `nullable` flag too), used 1e-6 for floats and an absolute 1e-9 otherwise, and had no
+  decimal-scale rule; on failure it said only "Output does not match expected result".
+  `ResultComparison.describeMismatch` now applies the shared rule and reports the first
+  difference; it agrees with all 25 shared comparison vectors.
+- `PlanOutputTypes` reads a plan's declared decimal scales from its JSON with SnakeYAML (already
+  a dependency); same results as Python, Java and Rust on all 143 TPC-H and TPC-DS plans. The
+  runner takes them from the test case (`declaredScales`) or from the JSON beside the plan
+  binary (`plans/q01.bin` → `plans/q01.json`).
+- `ColumnType.fromName` maps type names, ignoring parameters (`decimal(15,2)`).
+- `TestSuiteLoader.loadFromFile` reads this repository's suite metadata
+  (`test-suites/tpch/metadata.yaml`); before, it read only its own layout (`test_cases`,
+  `plan_path`) and no expected outputs, so Scala test cases had to be built in code. The new
+  `SuiteMetadataLoader` reads cases as `scripts/run_plan_compliance.py` does: input tables
+  typed from the plan's read schema and keyed by the plan's table names, expected outputs from
+  their typed headers, and the plan's declared scales. Its tables, row counts, first values,
+  expected shapes and scales are identical to the Python runner's on all 44 TPC-H cases and 89
+  TPC-DS cases. A data file read by several cases is loaded once and shared.
+
 
 ### Fixed — the Rust SDK compares results like the leaderboard
 - The Rust runner's comparator ignored column names, kept integer, bigint and double apart,
