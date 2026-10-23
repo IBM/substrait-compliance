@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Fixed — every SDK loader reads the repository's suites with input tables typed by the plan
+- The TypeScript and C# loaders read only their own YAML format, so `test-suites/*/metadata.yaml`
+  loaded as an empty suite; the Go and Rust loaders read no input tables, so an engine had no
+  data; the C++ loader read input tables untyped (columns `column_1`…, values as text). Each now
+  reads the repository's metadata as `scripts/run_plan_compliance.py` does for the
+  leaderboard: input tables typed by the schema the plan reads them with (`planJson`) and keyed
+  by the plan's table names, a header row recognised by the plan's column names, values trimmed
+  and `''`/`null` as NULL, decimals kept exact (text, or `System.Decimal` in C#) with precision
+  and scale on the column; expected outputs parsed by their typed header; declared scales
+  attached. Go `YAMLTestSuiteLoader`, TypeScript `loadSuiteMetadata`, C# `SuiteMetadataLoader`,
+  Rust `YamlTestSuiteLoader`, C++ `YamlTestSuiteLoader`.
+- Each loads the same tables, expected outputs and scales as the Python runner on all 143
+  TPC-H (both encodings) and TPC-DS cases (checked per column: row count, NULLs, numeric sum,
+  digest of text values).
+- Go, TypeScript and C# share one table between cases that read the same file with the same
+  schema. Rust and C++, whose tables are plain values, record each case's files
+  (`input_tables`) and read them when the case runs (`load_input_data`), since TPC-DS reads
+  about 1.4 GB of CSV across its 99 cases.
+- The C++ runner executed every plan twice (a leftover re-run); it now executes it once.
+- The Java and Python SDK loaders are unchanged: they hand input tables over untyped, and the
+  Java DuckDB example types them from the plan itself.
+
 ### Fixed — the Go, TypeScript, C# and C++ SDKs compare results like the leaderboard
 - Their comparators each had their own rule: exact column names and types (so `BIGINT` vs
   `integer` or `decimal(15,2)` vs `double` failed), absolute tolerances from 1e-6 to 1e-10,
@@ -25,8 +47,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - New shared vector: numeric-looking text in a text column compares as text (`'001'` is not
   `'1'` in a `varchar`), as the Java runner and Python do. The Rust comparator read such text as
   numbers and now follows it too.
-- Still open: the TypeScript and C# loaders read their own YAML format, not this repository's
-  suite metadata, and the Go loader does not load input tables.
 
 ### Fixed — TPC-DS plans name `customer`'s last column as its data file does
 - Ten TPC-DS plans (q01, q04, q15, q25, q45, q55, q65, q75, q85, q95; every plan that reads
