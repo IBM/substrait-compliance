@@ -34,11 +34,16 @@ namespace Substrait.Compliance
         }
 
         /// <summary>
-        /// Load a test suite from YAML string
+        /// Load a test suite from YAML string. Two formats are read: this repository's suite
+        /// metadata (a <c>testCases</c> list, as in test-suites/tpch/metadata.yaml; see
+        /// <see cref="SuiteMetadataLoader"/>) and this SDK's own format (a <c>tests</c> list
+        /// with inline tables).
         /// </summary>
         public TestSuite LoadFromYaml(string yamlContent, string basePath = ".")
         {
             var data = _deserializer.Deserialize<Dictionary<string, object>>(yamlContent);
+            var parsed = data.ToDictionary(kv => kv.Key, kv => (object?)kv.Value);
+            if (SuiteMetadataLoader.IsSuiteMetadata(parsed)) return SuiteMetadataLoader.Load(parsed, basePath);
 
             var metadata = ParseMetadata(data);
             var testCases = ParseTestCases(data, basePath);

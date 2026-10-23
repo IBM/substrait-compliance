@@ -7,6 +7,9 @@ using System.Text.Json.Nodes;
 
 namespace Substrait.Compliance
 {
+    /// <summary>One column of a table a plan reads: its name and Substrait type (JSON form).</summary>
+    public record SchemaColumn(string Name, JsonNode? Type);
+
     /// <summary>
     /// The output column types a Substrait plan declares, from its JSON form, so decimal columns
     /// can be compared at the scale the plan declares (<see cref="ResultComparator"/>). Mirrors
@@ -30,11 +33,9 @@ namespace Substrait.Compliance
         /// </summary>
         public static IReadOnlyList<int?>? DeclaredScales(string planJson)
         {
-            var text = string.Join("\n", planJson.Split('\n').Where(l => !l.TrimStart().StartsWith("//")));
             try
             {
-                // Plans nest deeply (TPC-DS q95: 63 levels); the default limit is 64.
-                var plan = JsonNode.Parse(text, documentOptions: new JsonDocumentOptions { MaxDepth = 1000 });
+                var plan = ParsePlanJson(planJson);
                 return OutputTypes(plan).Select(t =>
                     Get(Get(t, "decimal"), "scale") is JsonValue v && v.TryGetValue<int>(out var s) ? (int?)s : null).ToList();
             }
@@ -54,6 +55,52 @@ namespace Substrait.Compliance
             if (!planPath.EndsWith(".bin", StringComparison.Ordinal)) return null;
             var json = planPath.Substring(0, planPath.Length - 4) + ".json";
             return File.Exists(json) ? DeclaredScales(File.ReadAllText(json)) : null;
+        }
+
+        /// <summary>
+        /// A plan's JSON form, parsed; leading // comment lines, as the suites' plan files have,
+        /// are ignored.
+        /// </summary>
+        public static JsonNode? ParsePlanJson(string planJson)
+        {
+            var text = string.Join("\n", planJson.Split('\n').Where(l => !l.TrimStart().StartsWith("//")));
+            // Plans nest deeply (TPC-DS q95: 63 levels); the default limit is 64.
+            return JsonNode.Parse(text, documentOptions: new JsonDocumentOptions { MaxDepth = 1000 });
+        }
+
+        /// <summary>
+        /// For every named table the plan reads, the columns it reads it with. Throws when one
+        /// table is read with two different schemas.
+        /// </summary>
+        public static Dictionary<string, IReadOnlyList<SchemaColumn>> NamedTableSchemas(JsonNode? plan)
+        {
+            var found = new Dictionary<string, IReadOnlyList<SchemaColumn>>();
+            void Walk(JsonNode? node)
+            {
+                if (node is JsonArray array)
+                {
+                    foreach (var v in array) Walk(v);
+                }
+                else if (node is JsonObject obj)
+                {
+                    var read = Get(obj, "read");
+                    var named = Get(read, "namedTable");
+                    var schema = Get(read, "baseSchema");
+                    if (named != null && schema != null)
+                    {
+                        var name = string.Join(".", List(named, "names").Select(n => n?.ToString()));
+                        var types = List(Get(schema, "struct"), "types");
+                        var columns = List(schema, "names")
+                            .Select((n, i) => new SchemaColumn(n?.ToString() ?? "", i < types.Count ? types[i] : null)).ToList();
+                        if (found.TryGetValue(name, out var prev) && !prev.Select(c => c.Name).SequenceEqual(columns.Select(c => c.Name)))
+                            throw new InvalidOperationException($"table {name} is read with two different schemas");
+                        found[name] = columns;
+                    }
+                    foreach (var kv in obj) Walk(kv.Value);
+                }
+            }
+            Walk(plan);
+            return found;
         }
 
         /// <summary>The plan root's output types (an entry is null where it cannot be determined).</summary>
