@@ -1,10 +1,10 @@
 package compliance
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
 
 	"gopkg.in/yaml.v3"
@@ -41,14 +41,31 @@ type testCaseYAML struct {
 	PlanJSON string `yaml:"planJson"`
 	// Explicit override for expected-output CSV path (relative to YAML dir).
 	// Defaults to expected/<id>.csv when omitted.
-	ExpectedOutput string `yaml:"expectedOutput"`
+	ExpectedOutput string           `yaml:"expectedOutput"`
+	InputTables    []inputTableYAML `yaml:"inputTables"`
+}
+
+type inputTableYAML struct {
+	Name string `yaml:"name"`
+	File string `yaml:"file"`
 }
 
 // ── Loader impl ───────────────────────────────────────────────────────────────
 
-// Load loads a test suite from a YAML metadata file.
-// For each test case it reads the plan binary and, if present, the
-// expected-output CSV from expected/<id>.csv (or the explicit path in the YAML).
+// Load loads a test suite from a YAML metadata file in this repository's format
+// (test-suites/tpch/metadata.yaml and the like). For each test case it reads:
+//
+//   - the plan binary;
+//   - the input tables (inputTables), typed by the schema the plan reads them with (planJson)
+//     and keyed by the table name the plan reads; without planJson, an input table is read
+//     like an expected output. A data file read by several cases with the same schema is
+//     loaded once, and the cases share that TableData;
+//   - the expected-output CSV from expected/<id>.csv (or the explicit path in the YAML), with
+//     values parsed by the types in its header;
+//   - the decimal scales the plan declares (planJson).
+//
+// Inputs and expected outputs are read as scripts/run_plan_compliance.py reads them for the
+// leaderboard.
 func (l *YAMLTestSuiteLoader) Load(path string) (*TestSuite, error) {
 	data, err := os.ReadFile(path)
 	if err != nil {
@@ -68,6 +85,7 @@ func (l *YAMLTestSuiteLoader) Load(path string) (*TestSuite, error) {
 		Description: def.Description,
 	})
 
+	tables := map[string]*TableData{}
 	for _, tc := range def.TestCases {
 		// Read plan bytes
 		planPath := filepath.Join(baseDir, tc.PlanBinary)
@@ -77,10 +95,45 @@ func (l *YAMLTestSuiteLoader) Load(path string) (*TestSuite, error) {
 		}
 
 		testCase := NewTestCase(tc.ID, planBytes).WithDescription(tc.Description)
+		schemas := map[string][]SchemaColumn{}
 		if tc.PlanJSON != "" {
-			if scales, err := DeclaredScalesFile(filepath.Join(baseDir, tc.PlanJSON)); err == nil {
+			planJSON, err := os.ReadFile(filepath.Join(baseDir, tc.PlanJSON))
+			if err != nil {
+				return nil, fmt.Errorf("test case %s: %w", tc.ID, err)
+			}
+			if scales, err := DeclaredScales(planJSON); err == nil {
 				testCase.DeclaredScales = scales
 			}
+			plan, err := ParsePlanJSON(planJSON)
+			if err != nil {
+				return nil, fmt.Errorf("test case %s: %s: %w", tc.ID, tc.PlanJSON, err)
+			}
+			if schemas, err = NamedTableSchemas(plan); err != nil {
+				return nil, fmt.Errorf("test case %s: %w", tc.ID, err)
+			}
+		}
+		for _, input := range tc.InputTables {
+			file := filepath.Clean(filepath.Join(baseDir, input.File))
+			name, columns := input.Name, []SchemaColumn(nil)
+			for planName, cols := range schemas {
+				if strings.EqualFold(planName, input.Name) {
+					name, columns = planName, cols
+				}
+			}
+			key := file + "\x00" + fmt.Sprint(columns)
+			table, ok := tables[key]
+			if !ok {
+				if columns != nil {
+					table, err = LoadInputTable(file, columns)
+				} else {
+					table, err = LoadCSV(file)
+				}
+				if err != nil {
+					return nil, fmt.Errorf("test case %s: input table %s: %w", tc.ID, input.Name, err)
+				}
+				tables[key] = table
+			}
+			testCase.InputData[name] = table
 		}
 
 		// Resolve expected-output CSV
@@ -110,78 +163,91 @@ func (l *YAMLTestSuiteLoader) Supports(path string) bool {
 
 // ── CSV parsing ───────────────────────────────────────────────────────────────
 
-// LoadCSV parses a pipe-delimited CSV file into a TableData.
+// LoadCSV parses a CSV file (pipe- or comma-delimited, detected from the first line) into
+// a TableData, as the Java SDK's loader reads expected outputs.
 //
 // Typed header format (detected automatically):
 //
 //	colname:type|colname:type|...
 //
-// If every field in the first line contains ':', it is treated as a typed
-// header and consumed.  Otherwise columns are named column_1, column_2, …
-// and the first line is treated as a data row.
+// If every field in the first line has the form name:type, it is a typed header: values are
+// parsed by type (int64 for integer types; float64 for float, double and decimal; bool for
+// booleans), the rest kept as text, and a value that does not parse is kept as text.
+// Otherwise columns are named column_1, column_2, … and hold text, and the first line is a
+// data row. Values are trimmed; an empty value or "null" is NULL.
 func LoadCSV(path string) (*TableData, error) {
-	f, err := os.Open(path)
+	lines, err := readLines(path)
 	if err != nil {
-		return nil, fmt.Errorf("failed to open CSV %s: %w", path, err)
-	}
-	defer f.Close()
-
-	var lines []string
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line != "" {
-			lines = append(lines, line)
-		}
-	}
-	if err := scanner.Err(); err != nil {
-		return nil, fmt.Errorf("reading CSV %s: %w", path, err)
+		return nil, err
 	}
 	if len(lines) == 0 {
 		return NewTableData(nil), nil
 	}
-
-	// Detect typed header
-	fields := strings.Split(lines[0], "|")
+	delimiter := detectDelimiter(lines[0])
+	fields := splitLine(lines[0], delimiter)
 	hasTypedHeader := true
 	for _, f := range fields {
-		if !strings.Contains(f, ":") {
+		if i := strings.Index(f, ":"); i <= 0 || i >= len(f)-1 {
 			hasTypedHeader = false
 			break
 		}
 	}
 
 	var columns []ColumnMetadata
-	dataStart := 0
-
+	var types []string
+	data := lines
 	if hasTypedHeader {
 		for _, f := range fields {
-			f = strings.TrimSpace(f)
-			idx := strings.LastIndex(f, ":")
-			name := strings.TrimSpace(f[:idx])
-			typStr := strings.TrimSpace(f[idx+1:])
-			columns = append(columns, ColumnMetadata{Name: name, Type: normalizeCSVType(typStr)})
+			parts := strings.SplitN(f, ":", 2)
+			typ := strings.ToLower(strings.TrimSpace(parts[1]))
+			columns = append(columns, ColumnMetadata{Name: strings.TrimSpace(parts[0]), Type: normalizeCSVType(typ), Nullable: true})
+			types = append(types, typ)
 		}
-		dataStart = 1
+		data = lines[1:]
 	} else {
 		for i := range fields {
-			columns = append(columns, ColumnMetadata{
-				Name: fmt.Sprintf("column_%d", i+1),
-				Type: "string",
-			})
+			columns = append(columns, ColumnMetadata{Name: fmt.Sprintf("column_%d", i+1), Type: "string", Nullable: true})
+			types = append(types, "string")
 		}
 	}
 
 	td := NewTableData(columns)
-	for _, line := range lines[dataStart:] {
-		parts := strings.Split(line, "|")
-		row := make(Row, len(parts))
-		for i, p := range parts {
-			row[i] = strings.TrimSpace(p)
+	for n, line := range data {
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+		values := splitLine(line, delimiter)
+		if len(values) != len(columns) {
+			return nil, fmt.Errorf("CSV row %d in %s has %d values, expected %d", n+1, path, len(values), len(columns))
+		}
+		row := make(Row, len(values))
+		for i, v := range values {
+			row[i] = headerValue(v, types[i])
 		}
 		td.AddRow(row)
 	}
 	return td, nil
+}
+
+// headerValue parses one expected-output value by its header type.
+func headerValue(raw, typ string) CellValue {
+	v := strings.TrimSpace(raw)
+	if v == "" || strings.EqualFold(v, "null") {
+		return nil
+	}
+	switch typ {
+	case "int", "integer", "i8", "i16", "i32", "long", "bigint", "i64":
+		if n, err := strconv.ParseInt(v, 10, 64); err == nil {
+			return n
+		}
+	case "float", "fp32", "double", "fp64", "decimal":
+		if f, err := strconv.ParseFloat(v, 64); err == nil {
+			return f
+		}
+	case "bool", "boolean":
+		return strings.EqualFold(v, "true")
+	}
+	return v
 }
 
 // normalizeCSVType maps CSV type strings to canonical names.
