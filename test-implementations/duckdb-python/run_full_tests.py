@@ -135,6 +135,7 @@ def main():
     all_reports = []
     total_passed = 0
     total_tests = 0
+    total_skipped = 0
     
     for test_file in files_to_run:
         try:
@@ -147,6 +148,7 @@ def main():
             
             total_passed += report.get_passed_count()
             total_tests += report.get_total_count()
+            total_skipped += report.get_skipped_count()
             
             # Print individual report
             runner.print_report(report)
@@ -163,16 +165,19 @@ def main():
     print(f"Test Suites Run:  {len(all_reports)}")
     print(f"Total Tests:      {total_tests}")
     print(f"Total Passed:     {total_passed}")
-    print(f"Total Failed:     {total_tests - total_passed}")
-    if total_tests > 0:
-        print(f"Overall Pass Rate: {(total_passed / total_tests * 100):.1f}%")
+    print(f"Total Skipped:    {total_skipped}")
+    print(f"Total Not Passed: {total_tests - total_skipped - total_passed}")
+    # passed / (total - skipped): skipped results count neither way (sdk/conformance/)
+    executed = total_tests - total_skipped
+    if executed > 0:
+        print(f"Overall Pass Rate: {(total_passed / executed * 100):.1f}%")
     print("=" * 70)
     
     # Cleanup
     engine.close()
     
     # Return exit code
-    return 0 if total_passed == total_tests else 1
+    return 0 if executed > 0 and total_passed == executed else 1
 
 
 if __name__ == "__main__":

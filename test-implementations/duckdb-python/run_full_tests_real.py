@@ -255,12 +255,15 @@ def run_all_tests_with_real_engine():
             print("\n" + "=" * 70)
             print(f"Test Suite: {suite_name}")
             print("=" * 70)
+            # passed / (total - skipped): cases skipped for a missing plan count neither way
+            executed = suite_passed + suite_failed + suite_errors
             print(f"Total Tests:     {len(test_cases)}")
             print(f"Passed:          {suite_passed}")
             print(f"Failed:          {suite_failed}")
             print(f"Errors:          {suite_errors}")
-            if len(test_cases) > 0:
-                pass_rate = (suite_passed / len(test_cases)) * 100
+            print(f"Skipped:         {len(test_cases) - executed}")
+            if executed > 0:
+                pass_rate = (suite_passed / executed) * 100
                 print(f"Pass Rate:       {pass_rate:.1f}%")
             print("=" * 70)
             

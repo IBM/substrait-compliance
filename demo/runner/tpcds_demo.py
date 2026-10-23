@@ -153,7 +153,9 @@ class TPCDSDemo:
             test_results.append(entry)
 
         total = passed + failed + skipped
-        pass_rate = round((passed / total) * 100, 1) if total > 0 else 0.0
+        # passed / (total - skipped): skipped results count neither way (sdk/conformance/)
+        executed = total - skipped
+        pass_rate = round((passed / executed) * 100, 1) if executed > 0 else 0.0
 
         print(f"   Total Tests: {total}  ✅ Passed: {passed}  "
               f"❌ Failed: {failed}   ⏭️  Skipped: {skipped}")
