@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+
 ### Fixed — the Rust SDK compares results like the leaderboard
 - The Rust runner's comparator ignored column names, kept integer, bigint and double apart,
   used an absolute 1e-9 tolerance only and had no decimal-scale rule: it disagreed with the
@@ -19,6 +20,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `float`, `fp32`, `real`, `time` and `tinyint` spellings; `decimal` is its own type.
 - `tests/comparison_vectors_test.rs` runs the shared vectors; `serde_json` is a
   test-only dependency.
+
+### Fixed — Python tests no longer write to the CI job summary
+- The regression-check tests ran `check_compliance_regression.py`, which appends its table to
+  `$GITHUB_STEP_SUMMARY` when that is set, as it is in every GitHub Actions step. So the SDK
+  Build Verification summary showed the tests' made-up results ("DuckDB 62.0% → 45.5%,
+  regressed") four times, once per Python version, though no engine had regressed.
+  `sdk/python/tests/conftest.py` now clears the GitHub Actions variables for every test; a test
+  that needs one sets it itself. A new test checks the summary is still written when asked.
+
 
 ### Changed — leaderboard page states how queries are compared
 - "How scoring works" now gives the query rule: column names (case-insensitive), column count
