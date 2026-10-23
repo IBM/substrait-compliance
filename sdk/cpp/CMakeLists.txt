@@ -65,6 +65,7 @@ set(SUBSTRAIT_COMPLIANCE_SRCS
     src/runner.cpp
     src/loader.cpp
     src/comparator.cpp
+    src/plan_types.cpp
 )
 
 # Build as a static library (replaces the header-only INTERFACE target)

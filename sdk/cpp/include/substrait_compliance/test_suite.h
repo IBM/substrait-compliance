@@ -50,6 +50,7 @@ public:
     const std::optional<TableData>& expected_output() const { return expected_output_; }
     const std::optional<std::string>& description() const { return description_; }
     const std::vector<std::string>& tags() const { return tags_; }
+    const std::vector<std::optional<int>>& declared_scales() const { return declared_scales_; }
     
     // Setters (builder pattern)
     TestCase& with_input_data(TableCollection data) {
@@ -67,6 +68,15 @@ public:
         return *this;
     }
     
+    /**
+     * @brief Per output column, the scale of the decimal type the plan declares (nullopt for
+     *        other columns); see plan_types.h. Empty when unknown.
+     */
+    TestCase& with_declared_scales(std::vector<std::optional<int>> scales) {
+        declared_scales_ = std::move(scales);
+        return *this;
+    }
+
     TestCase& add_tag(std::string tag) {
         tags_.push_back(std::move(tag));
         return *this;
@@ -86,6 +96,7 @@ private:
     std::optional<TableData> expected_output_;
     std::optional<std::string> description_;
     std::vector<std::string> tags_;
+    std::vector<std::optional<int>> declared_scales_;
 };
 
 /**
