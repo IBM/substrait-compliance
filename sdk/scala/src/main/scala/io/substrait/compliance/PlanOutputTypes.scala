@@ -27,19 +27,57 @@ object PlanOutputTypes {
    * or None when the plan's output types cannot be worked out. The JSON may start with
    * // comment lines, as the suites' plan files do.
    */
-  def declaredScales(planJson: String): Option[Seq[Option[Int]]] = {
-    val text = planJson.split("\n").filterNot(_.trim.startsWith("//")).mkString("\n")
+  def declaredScales(planJson: String): Option[Seq[Option[Int]]] =
     try {
-      val options = new LoaderOptions()
-      options.setCodePointLimit(64 * 1024 * 1024)
-      options.setNestingDepthLimit(1000) // plans nest deeply (TPC-DS q95: 63 levels; the default is 50)
-      val plan: Any = new Yaml(options).load[Object](text)
-      Some(outputTypes(plan).map { t =>
+      Some(outputTypes(parse(planJson)).map { t =>
         t.flatMap(field(_, "decimal")).flatMap(field(_, "scale")).collect { case n: Number => n.intValue }
       })
     } catch {
       case _: RuntimeException => None // Unknown, or a plan SnakeYAML cannot read
     }
+
+  /**
+   * A plan JSON as nested java.util maps and lists. The JSON may start with // comment lines,
+   * as the suites' plan files do.
+   */
+  def parse(planJson: String): Any = {
+    val text = planJson.split("\n").filterNot(_.trim.startsWith("//")).mkString("\n")
+    val options = new LoaderOptions()
+    options.setCodePointLimit(64 * 1024 * 1024)
+    options.setNestingDepthLimit(1000) // plans nest deeply (TPC-DS q95: 63 levels; the default is 50)
+    new Yaml(options).load[Object](text)
+  }
+
+  /**
+   * Every table the plan reads (a ReadRel with a named table and a base schema), by its
+   * dotted name: the columns' names and declared types, in order.
+   */
+  def namedTableSchemas(plan: Any): Map[String, Seq[(String, Any)]] = {
+    val found = scala.collection.mutable.LinkedHashMap.empty[String, Seq[(String, Any)]]
+    def walk(node: Any): Unit = node match {
+      case m: JMap[_, _] =>
+        field(m, "read").foreach { read =>
+          for {
+            named <- field(read, "namedTable")
+            schema <- field(read, "baseSchema")
+          } {
+            val name = list(field(named, "names")).map(String.valueOf).mkString(".")
+            val columns = list(field(schema, "names")).map(String.valueOf)
+              .zip(list(field(schema, "struct").flatMap(field(_, "types"))))
+            if (found.get(name).exists(_.map(_._1) != columns.map(_._1)))
+              throw new IllegalArgumentException(s"table $name is read with two different schemas")
+            found(name) = columns
+          }
+        }
+        val it = m.values().iterator()
+        while (it.hasNext) walk(it.next())
+      case l: JList[_] =>
+        val it = l.iterator()
+        while (it.hasNext) walk(it.next())
+      case _ =>
+    }
+    walk(plan)
+    found.toMap
   }
 
   /**

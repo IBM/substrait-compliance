@@ -15,19 +15,21 @@ import scala.jdk.CollectionConverters._
 class TestSuiteLoader {
 
   /**
-   * Load a test suite from a YAML file
+   * Load a test suite from a YAML file: this repository's suite metadata
+   * (test-suites/tpch/metadata.yaml, with `testCases`; see SuiteMetadataLoader), or this
+   * SDK's own layout (`test_cases` with `plan_path`).
    */
   def loadFromFile(path: String): Try[TestSuite] = {
     Try {
-      val source = Source.fromFile(path)
-      try {
-        val yamlContent = source.mkString
+      val source = Source.fromFile(path, "UTF-8")
+      val yamlContent = try source.mkString finally source.close()
+      if (SuiteMetadataLoader.isSuiteMetadata(yamlContent)) {
+        SuiteMetadataLoader.load(path)
+      } else {
         loadFromYaml(yamlContent) match {
           case Right(suite) => suite
           case Left(error) => throw new RuntimeException(s"Failed to parse YAML: ${error.getMessage}")
         }
-      } finally {
-        source.close()
       }
     }
   }

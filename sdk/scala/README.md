@@ -203,6 +203,9 @@ val testSuite = TestSuite(
 ```scala
 import io.substrait.compliance.TestSuiteLoader
 
+// This repository's suites: plans, typed input tables, expected outputs
+val tpch = TestSuiteLoader.loadFromFile("test-suites/tpch/metadata.yaml").get
+
 // Load single suite
 val suite = TestSuiteLoader.loadFromFile("test-suite.yaml").get
 
@@ -210,7 +213,22 @@ val suite = TestSuiteLoader.loadFromFile("test-suite.yaml").get
 val suites = TestSuiteLoader.loadFromDirectory("test-suites", recursive = true).get
 ```
 
-Example YAML format:
+**This repository's suites** (`test-suites/tpch/metadata.yaml`, with `testCases`) are read by
+`SuiteMetadataLoader`, the way the leaderboard's runner (`scripts/run_plan_compliance.py`)
+reads them:
+
+- input tables are typed from the plan's read schema (`planJson`) and keyed by the table
+  name the plan reads (`LINEITEM`); a header row naming the plan's columns is skipped, and
+  an empty value or `null` is NULL;
+- expected outputs come from their typed header (`name:type|...`);
+- each case carries the decimal scales its plan declares, so decimal columns are compared at
+  that scale;
+- a data file read by several cases is loaded once and shared.
+
+Results are compared as the leaderboard compares them (`ResultComparison`, checked against
+`sdk/conformance/comparison-vectors.json`).
+
+This SDK's own YAML format (`test_cases`, `plan_path`) is still read as before:
 
 ```yaml
 name: "Arithmetic Functions"
@@ -385,6 +403,9 @@ sdk/scala/
 │   │           ├── ComplianceResult.scala      # Result types
 │   │           ├── TestSuite.scala             # Test definitions
 │   │           ├── TestSuiteLoader.scala       # YAML loader
+│   │           ├── SuiteMetadataLoader.scala   # this repository's suite metadata
+│   │           ├── ResultComparison.scala      # output comparison (shared rule)
+│   │           ├── PlanOutputTypes.scala       # a plan's declared output types
 │   │           ├── ComplianceRunner.scala      # Test runner
 │   │           └── examples/
 │   │               └── ExampleEngine.scala     # Example implementation
