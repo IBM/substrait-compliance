@@ -14,6 +14,37 @@ export enum ColumnType {
 }
 
 /**
+ * The column type for a type name, as in a typed CSV header or an engine's result type.
+ * Type parameters are ignored: `decimal(15,2)` is DECIMAL, `varchar(25)` is STRING.
+ */
+export function columnTypeFromName(name: string): ColumnType {
+  const base = name.trim().toLowerCase().split('(')[0].trim();
+  switch (base) {
+    case 'int': case 'integer': case 'i8': case 'i16': case 'i32': case 'i64':
+    case 'int2': case 'int4': case 'int8': case 'smallint': case 'tinyint':
+    case 'bigint': case 'long': case 'hugeint':
+      return ColumnType.INTEGER;
+    case 'float': case 'fp32': case 'real': case 'float4':
+    case 'double': case 'fp64': case 'float8': case 'number':
+      return ColumnType.FLOAT;
+    case 'decimal': case 'numeric':
+      return ColumnType.DECIMAL;
+    case 'bool': case 'boolean':
+      return ColumnType.BOOLEAN;
+    case 'date':
+      return ColumnType.DATE;
+    case 'timestamp': case 'timestamptz': case 'datetime':
+      return ColumnType.TIMESTAMP;
+    case 'time':
+      return ColumnType.TIME;
+    case 'binary': case 'blob': case 'varbinary':
+      return ColumnType.BINARY;
+    default:
+      return ColumnType.STRING;
+  }
+}
+
+/**
  * Column definition
  */
 export interface Column {
