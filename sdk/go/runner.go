@@ -3,8 +3,6 @@ package compliance
 import (
 	"context"
 	"fmt"
-	"math"
-	"strings"
 	"sync"
 	"time"
 )
@@ -186,138 +184,13 @@ func (r *ComplianceRunner) RunTestCase(ctx context.Context, testCase *TestCase) 
 
 	// Compare results if configured and expected output exists
 	if r.config.CompareResults && testCase.ExpectedOutput != nil && result.OutputData != nil {
-		if !r.compareOutputs(result.OutputData, testCase.ExpectedOutput) {
+		if mismatch := DescribeMismatch(testCase.ExpectedOutput, result.OutputData, testCase.DeclaredScales); mismatch != "" {
 			result.Status = TestStatusFailed
-			result.ErrorMessage = "Output does not match expected result"
+			result.ErrorMessage = "Output mismatch: " + mismatch
 		}
 	}
 
 	return result, nil
-}
-
-// compareOutputs compares actual and expected outputs
-func (r *ComplianceRunner) compareOutputs(actual, expected *TableData) bool {
-	if actual == nil || expected == nil {
-		return actual == expected
-	}
-	if actual.RowCount() != expected.RowCount() {
-		return false
-	}
-	if actual.ColumnCount() != expected.ColumnCount() {
-		return false
-	}
-
-	for i := range expected.Columns {
-		expectedColumn := expected.Columns[i]
-		actualColumn := actual.Columns[i]
-		if expectedColumn.Name != actualColumn.Name {
-			return false
-		}
-		if normalizeType(expectedColumn.Type) != normalizeType(actualColumn.Type) {
-			return false
-		}
-	}
-
-	for rowIndex := range expected.Rows {
-		expectedRow := expected.Rows[rowIndex]
-		actualRow := actual.Rows[rowIndex]
-		if len(expectedRow) != len(actualRow) {
-			return false
-		}
-
-		for colIndex := range expectedRow {
-			if !valuesMatch(expectedRow[colIndex], actualRow[colIndex]) {
-				return false
-			}
-		}
-	}
-
-	return true
-}
-
-func normalizeType(value string) string {
-	normalized := strings.ToLower(strings.TrimSpace(value))
-	switch normalized {
-	case "int", "integer", "i8", "i16", "i32":
-		return "integer"
-	case "long", "bigint", "i64":
-		return "bigint"
-	case "float", "fp32":
-		return "float"
-	case "double", "fp64", "decimal":
-		return "double"
-	case "bool", "boolean":
-		return "boolean"
-	default:
-		return normalized
-	}
-}
-
-func valuesMatch(expected, actual CellValue) bool {
-	if expected == nil || actual == nil {
-		return expected == actual
-	}
-
-	expectedFloat, expectedIsNumber := toFloat64(expected)
-	actualFloat, actualIsNumber := toFloat64(actual)
-	if expectedIsNumber && actualIsNumber {
-		return math.Abs(expectedFloat-actualFloat) < 1e-9
-	}
-
-	expectedBool, expectedIsBool := toBool(expected)
-	actualBool, actualIsBool := toBool(actual)
-	if expectedIsBool || actualIsBool {
-		return expectedBool == actualBool
-	}
-
-	return fmt.Sprintf("%v", expected) == fmt.Sprintf("%v", actual)
-}
-
-func toFloat64(value CellValue) (float64, bool) {
-	switch v := value.(type) {
-	case int:
-		return float64(v), true
-	case int8:
-		return float64(v), true
-	case int16:
-		return float64(v), true
-	case int32:
-		return float64(v), true
-	case int64:
-		return float64(v), true
-	case uint:
-		return float64(v), true
-	case uint8:
-		return float64(v), true
-	case uint16:
-		return float64(v), true
-	case uint32:
-		return float64(v), true
-	case uint64:
-		return float64(v), true
-	case float32:
-		return float64(v), true
-	case float64:
-		return v, true
-	default:
-		return 0, false
-	}
-}
-
-func toBool(value CellValue) (bool, bool) {
-	switch v := value.(type) {
-	case bool:
-		return v, true
-	case string:
-		normalized := strings.ToLower(strings.TrimSpace(v))
-		if normalized == "true" {
-			return true, true
-		}
-		if normalized == "false" {
-			return false, true
-		}
-	}
-	return false, false
 }
 
 // RunnerBuilder provides a fluent interface for creating runners
@@ -379,4 +252,3 @@ func (b *RunnerBuilder) Build() *ComplianceRunner {
 	}
 	return runner
 }
-
