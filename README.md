@@ -1319,7 +1319,7 @@ This project is licensed under the Apache License 2.0 — see the [LICENSE](LICE
 
 ## 🗺️ Roadmap
 
-See [ROADMAP.md](ROADMAP.md) for the full phased roadmap with timelines.
+Planned work is tracked in [GitHub Issues](https://github.com/IBM/substrait-compliance/issues).
 
 **Recently completed:**
 - [x] Leaderboard submissions by pull request

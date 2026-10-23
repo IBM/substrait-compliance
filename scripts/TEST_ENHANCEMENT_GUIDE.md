@@ -568,8 +568,7 @@ jobs:
 
 ## Related Documentation
 
-- [Quality Checker README](QUALITY_CHECKER_README.md) - Quality checking details
-- [Quick Start Guide](QUICKSTART_QUALITY_CHECK.md) - Getting started
+- [`quality_checker.py`](quality_checker.py) and [`quality_config.yaml`](quality_config.yaml) - Quality checking and its settings
 - [Function Tests README](../test-suites/functions/README.md) - Test format reference
 
 ---
