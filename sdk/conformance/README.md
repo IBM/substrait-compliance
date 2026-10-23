@@ -54,10 +54,10 @@ leaderboard's:
 | Java `ComplianceRunner.describeMismatch` (DuckDB, TPC-H) | `sdk/java/src/test/java/io/substrait/compliance/ComparisonVectorsTest.java` |
 | Python `scripts/run_plan_compliance.py` (DataFusion, TPC-H) | `sdk/python/tests/test_comparison_vectors.py` |
 | Rust `describe_mismatch` (`sdk/rust/src/runner.rs`) | `sdk/rust/tests/comparison_vectors_test.rs` |
+| Scala `ResultComparison.describeMismatch` | `sdk/scala/src/test/scala/io/substrait/compliance/ComparisonVectorsSpec.scala` |
 
-A declared decimal's scale comes from the plan's JSON form: `PlanOutputTypes` (Java),
-`declared_scales` (Python) and `plan_types` (Rust) work it out the same way, and agree on all
-44 TPC-H plans.
+A declared decimal's scale comes from the plan's JSON form: `PlanOutputTypes` (Java and
+Scala), `declared_scales` (Python) and `plan_types` (Rust) work it out the same way, and agree
+on all 143 TPC-H (both encodings) and TPC-DS plans.
 
-Not yet checked against these vectors: the Go, TypeScript, C#, Scala and C++ SDKs'
-comparators.
+Not yet checked against these vectors: the Go, TypeScript, C# and C++ SDKs' comparators.

@@ -109,21 +109,27 @@ class ComplianceRunner(
         // Compare results
         val result = testCase.expectedOutput match {
           case Some(expected) =>
-            if (compareTableData(expected, actualOutput)) {
-              TestCaseResult(
-                testName = testCase.name,
-                status = TestStatus.Passed,
-                executionTime = executionTime
-              )
-            } else {
-              TestCaseResult(
-                testName = testCase.name,
-                status = TestStatus.Failed,
-                message = Some("Output does not match expected result"),
-                expected = Some(expected),
-                actual = Some(actualOutput),
-                executionTime = executionTime
-              )
+            // Decimal columns compare at the scale the plan declares: from the test case, or
+            // from the plan's JSON form beside its binary.
+            val scales = testCase.declaredScales
+              .orElse(PlanOutputTypes.declaredScalesBeside(testCase.planPath))
+              .getOrElse(Seq.empty)
+            ResultComparison.describeMismatch(expected, actualOutput, scales) match {
+              case None =>
+                TestCaseResult(
+                  testName = testCase.name,
+                  status = TestStatus.Passed,
+                  executionTime = executionTime
+                )
+              case Some(mismatch) =>
+                TestCaseResult(
+                  testName = testCase.name,
+                  status = TestStatus.Failed,
+                  message = Some(s"Output mismatch: $mismatch"),
+                  expected = Some(expected),
+                  actual = Some(actualOutput),
+                  executionTime = executionTime
+                )
             }
           case None =>
             // No expected output — skip rather than pass to be honest about correctness
@@ -222,52 +228,6 @@ class ComplianceRunner(
       val path = Paths.get(planPath)
       if (Files.exists(path)) Files.readAllBytes(path) else Array.emptyByteArray
     }
-  }
-
-  /**
-   * Compare two TableData objects
-   */
-  private def compareTableData(expected: TableData, actual: TableData): Boolean = {
-    if (expected.columnCount != actual.columnCount) return false
-    if (expected.rowCount != actual.rowCount) return false
-
-    // Compare column definitions
-    if (expected.columns != actual.columns) return false
-
-    // Compare rows
-    expected.rows.zip(actual.rows).forall { case (expectedRow, actualRow) =>
-      expectedRow.zip(actualRow).forall { case (expectedCell, actualCell) =>
-        compareValues(expectedCell, actualCell)
-      }
-    }
-  }
-
-  /**
-   * Compare two values with type-aware null handling and epsilon for floating point.
-   * Handles cross-type numeric comparisons (e.g. Int vs Double).
-   */
-  private def compareValues(expected: Any, actual: Any): Boolean = {
-    (expected, actual) match {
-      case (null, null)               => true
-      case (null, _) | (_, null)      => false
-      case (e: Double, a: Double)     => math.abs(e - a) <= 1e-9
-      case (e: Float,  a: Float)      => math.abs(e - a) <= 1e-6f
-      case (e: Double, a: Number)     => math.abs(e - a.doubleValue()) <= 1e-9
-      case (e: Number, a: Double)     => math.abs(e.doubleValue() - a) <= 1e-9
-      case (e: Float,  a: Number)     => math.abs(e - a.floatValue()) <= 1e-6f
-      case (e: Number, a: Float)      => math.abs(e.floatValue() - a) <= 1e-6f
-      case (e: Number, a: Number) if isIntegral(e) && isIntegral(a) =>
-        e.longValue() == a.longValue()
-      case (e: Number, a: Number)     => math.abs(e.doubleValue() - a.doubleValue()) <= 1e-9
-      case (e: String, a: String)     => e == a
-      case _                          => expected == actual
-    }
-  }
-
-  private def isIntegral(n: Number): Boolean = n match {
-    case _: java.lang.Integer | _: java.lang.Long |
-         _: java.lang.Short   | _: java.lang.Byte => true
-    case _                                         => false
   }
 }
 

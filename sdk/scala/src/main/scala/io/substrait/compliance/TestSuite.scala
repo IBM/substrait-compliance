@@ -11,7 +11,10 @@ case class TestCase(
   expectedOutput: Option[TableData] = None,
   shouldFail: Boolean = false,
   tags: Set[String] = Set.empty,
-  metadata: Map[String, String] = Map.empty
+  metadata: Map[String, String] = Map.empty,
+  /** Per output column, the scale of the decimal type the plan declares (None for other
+   *  columns); when unset, the runner reads it from the plan's JSON beside planPath. */
+  declaredScales: Option[Seq[Option[Int]]] = None
 ) {
   
   /**
