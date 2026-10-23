@@ -26,6 +26,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
   `extended/` now has 2,278 cases (was 2,180).
 
+### Fixed — TPC-H q18 expected column name
+- `test-suites/tpch/expected/q18.csv` named the last column `sum(l_quantity)`, but both plan
+  encodings name it `TOTAL_QTY`. Engines return the plan's names, so q18 failed on the header
+  alone. It is now `total_qty`; DataFusion 55.0.0 passes q18 in both encodings (7/22).
+
 ### Added — leaderboard submissions by pull request
 - Engine teams run the suites in their own CI and submit the results by pull request:
   `submissions/<engine>/<version>/` holds a `manifest.json` (engine, consumer, CI run, suite
