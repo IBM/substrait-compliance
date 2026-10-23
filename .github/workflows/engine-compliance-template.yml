@@ -382,7 +382,8 @@ jobs:
     name: Compliance Summary
     runs-on: ubuntu-latest
     needs: [run-compliance-tests, generate-badge]
-    if: always()
+    # always(): report on failures too; but not in the framework repo, where the template's other jobs are skipped
+    if: always() && github.repository != 'IBM/substrait-compliance'
     
     steps:
       - name: Download compliance report
