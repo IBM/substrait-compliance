@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+
 ### Added — which path to use, and an adapter for engines without Python bindings
 - README "Which Path Do I Use?": the language SDKs are for an engine's own testing; the
   leaderboard is reached through the Python runners and a small adapter, whatever language the
@@ -18,6 +19,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   engine's own command (plan and Arrow IPC tables in, Arrow IPC result out), with a DataFusion
   example command. Through it DataFusion gives exactly the built-in engine's results
   (`test_command_plan_engine.py`).
+
+### Fixed — Python tests no longer write to the CI job summary
+- The regression-check tests ran `check_compliance_regression.py`, which appends its table to
+  `$GITHUB_STEP_SUMMARY` when that is set, as it is in every GitHub Actions step. So the SDK
+  Build Verification summary showed the tests' made-up results ("DuckDB 62.0% → 45.5%,
+  regressed") four times, once per Python version, though no engine had regressed.
+  `sdk/python/tests/conftest.py` now clears the GitHub Actions variables for every test; a test
+  that needs one sets it itself. A new test checks the summary is still written when asked.
+
 
 ### Changed — leaderboard page states how queries are compared
 - "How scoring works" now gives the query rule: column names (case-insensitive), column count
