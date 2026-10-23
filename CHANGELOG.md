@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+
 ### Fixed — the Scala SDK compares results like the leaderboard and reads this repository's suites
 - The Scala runner compared whole column definitions exactly (names case-sensitively, and the
   `nullable` flag too), used 1e-6 for floats and an absolute 1e-9 otherwise, and had no
@@ -40,6 +41,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `float`, `fp32`, `real`, `time` and `tinyint` spellings; `decimal` is its own type.
 - `tests/comparison_vectors_test.rs` runs the shared vectors; `serde_json` is a
   test-only dependency.
+
+
+### Added — which path to use, and an adapter for engines without Python bindings
+- README "Which Path Do I Use?": the language SDKs are for an engine's own testing; the
+  leaderboard is reached through the Python runners and a small adapter, whatever language the
+  engine is written in (the Java SDK runner's TPC-H reports are also accepted). With a diagram
+  of both routes and the adapter for each kind of engine.
+- `submissions/README.md` "Engines not written in Python": bindings, a command, or a JVM
+  process kept running; the adapter also runs SQL for function cases; start the engine once.
+- `examples/leaderboard-adapter/`: `CommandPlanEngine` runs each TPC-H plan through the
+  engine's own command (plan and Arrow IPC tables in, Arrow IPC result out), with a DataFusion
+  example command. Through it DataFusion gives exactly the built-in engine's results
+  (`test_command_plan_engine.py`).
+
 
 ### Fixed — Python tests no longer write to the CI job summary
 - The regression-check tests ran `check_compliance_regression.py`, which appends its table to
