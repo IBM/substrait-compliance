@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Fixed — decimal columns compared at the scale the plan declares; TPC-H q11 and q22 headers
+- The TPC-H expected outputs hold full-precision doubles, but the plans declare most money and
+  average columns as decimals (q01's `avg_qty` is `decimal(15,2)`). Both leaderboard comparators
+  (`ComplianceRunner`, `scripts/run_plan_compliance.py`) now read each column's declared type
+  from the plan JSON and accept a decimal within one unit in its last declared place (10^-S);
+  other columns keep the 1e-9 rule. DataFusion passes q01 (8/22 in both encodings); nothing
+  that passed before fails.
+  - `PlanOutputTypes` (Java) and `output_types` / `declared_scales` (Python) work out a plan's
+    output types; they agree on all 44 TPC-H plans.
+  - `sdk/conformance/comparison-vectors.json` gains six vectors with `declaredScales`.
+- `test-suites/tpch/expected/q11.csv` named its second column `value`; the plans name it
+  `TOTAL_VALUE`. `q22.csv` typed `cntrycode` as integer; the plans declare a string. Neither
+  showed, because every engine fails both queries earlier. A new test checks every expected
+  output's column names and type families against the plan.
+- The DuckDB example adds "the substrait extension is not loaded" to an execution error only
+  when loading it failed, instead of asking on every error.
+
 ### Removed — the pre-release REST API
 - `api/` (Spring Boot 2.7) is removed, with its workflows (`api-build-test`, `api-pr-validation`,
   `api-container-build`, `api-release`, `api-deploy-staging`, `api-deploy-production`), its
