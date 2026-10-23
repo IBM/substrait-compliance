@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Changed — leaderboard page states how queries are compared
+- "How scoring works" now gives the query rule: column names (case-insensitive), column count
+  and type family, rows in order, numbers within 1e-9 and declared decimals within 10^-S. It
+  said only that rows must match in order. `docs/COMPLIANCE_LEADERBOARD.md` gives both the
+  function-case and the query rule.
+- The note on the extended cases says most, not all, were verified on DuckDB; since the
+  quarantine review the rest are verified against the function definitions.
+
 ### Fixed — decimal columns compared at the scale the plan declares; TPC-H q11 and q22 headers
 - The TPC-H expected outputs hold full-precision doubles, but the plans declare most money and
   average columns as decimals (q01's `avg_qty` is `decimal(15,2)`). Both leaderboard comparators
