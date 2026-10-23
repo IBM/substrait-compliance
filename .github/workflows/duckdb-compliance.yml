@@ -80,10 +80,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '17'
           distribution: 'temurin'
@@ -107,7 +107,7 @@ jobs:
           fi
 
       - name: Upload Compliance Assets
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: compliance-assets
           path: compliance-assets/
@@ -129,22 +129,22 @@ jobs:
       engine-version: ${{ steps.parse-results.outputs.engine-version }}
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download Compliance Assets
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: compliance-assets
           path: compliance-assets
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v6
         with:
           java-version: '17'
           distribution: 'temurin'
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -271,14 +271,14 @@ jobs:
           jq -r '.suites | to_entries[] | "   \(.key)\(if .value.informational then " (not scored)" else "" end): \(.value.passRate)% (\(.value.passed) passed, \(.value.failed) failed, \(.value.skipped) skipped)"' "$REPORT_FILE"
 
       - name: Upload detailed reports
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: duckdb-compliance-reports
           path: output/reports/
 
       # Consumed by compliance-leaderboard.yml (workflow_run trigger / latest successful run)
       - name: Upload leaderboard entry
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: duckdb-leaderboard-report
           path: output/leaderboard/duckdb.json
@@ -317,16 +317,16 @@ jobs:
     needs: run-compliance
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Download leaderboard entry
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: duckdb-leaderboard-report
           path: output/leaderboard
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: '3.11'
 
@@ -339,7 +339,7 @@ jobs:
           cat preview/leaderboard.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload leaderboard preview
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: leaderboard-preview
           path: preview/
@@ -380,7 +380,7 @@ jobs:
 
       - name: Download leaderboard entry
         if: needs.run-compliance.outputs.pass-rate != ''
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: duckdb-leaderboard-report
           path: leaderboard
