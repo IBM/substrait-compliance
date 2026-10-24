@@ -14,6 +14,7 @@ on:
       - 'scripts/function_plans.py'
       - 'scripts/validate_function_tests.py'
       - 'scripts/combine_engine_reports.py'
+      - 'scripts/engine_findings.py'
       - 'scripts/generate_leaderboard.py'
       - 'scripts/check_compliance_regression.py'
       - '.github/workflows/duckdb-compliance.yml'
@@ -32,6 +33,7 @@ on:
       - 'scripts/function_plans.py'
       - 'scripts/validate_function_tests.py'
       - 'scripts/combine_engine_reports.py'
+      - 'scripts/engine_findings.py'
       - 'scripts/generate_leaderboard.py'
       - 'scripts/check_compliance_regression.py'
       - '.github/workflows/duckdb-compliance.yml'
@@ -332,10 +334,11 @@ jobs:
 
       - name: Generate leaderboard preview
         run: |
+          pip install "pyyaml>=6"
           python scripts/generate_leaderboard.py \
             --input output/leaderboard \
             --output preview/leaderboard.md \
-            --format both
+            --format all
           cat preview/leaderboard.md >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload leaderboard preview

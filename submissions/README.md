@@ -5,7 +5,8 @@ Engine teams run the compliance suites in **their own CI** and submit the result
 every other engine, and published on the
 [leaderboard](https://ibm.github.io/substrait-compliance/) once merged. The leaderboard
 shows it as **Submitted**, with a link to the team's CI run. Engines run by this repository's
-own CI (DuckDB, DataFusion) are shown as **Run here**.
+own CI (DuckDB, DataFusion) are shown as **CI run**. Each engine also gets a page listing what
+fails and why (its findings), built from the per-case results in its reports.
 
 How the leaderboard is scored and published is described in
 [docs/COMPLIANCE_LEADERBOARD.md](../docs/COMPLIANCE_LEADERBOARD.md).

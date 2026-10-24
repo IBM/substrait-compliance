@@ -12,41 +12,47 @@
       "kind": "cases",
       "path": "test-suites/functions-substrait-0.107/upstream",
       "mode": "plan",
-      "description": "Upstream Substrait function cases (v0.107.0), run as Substrait plans"
+      "description": "Upstream Substrait function cases (v0.107.0), run as Substrait plans",
+      "label": "Functions"
     },
     "tpch": {
       "role": "queries",
       "required": true,
       "kind": "metadata",
       "path": "test-suites/tpch/metadata.yaml",
-      "description": "TPC-H plans in the current (0.107.0) encoding"
+      "description": "TPC-H plans in the current (0.107.0) encoding",
+      "label": "TPC-H"
     },
     "functions-substrait-0.107-sql": {
       "role": "reference",
       "kind": "cases",
       "path": "test-suites/functions-substrait-0.107/upstream",
       "mode": "sql",
-      "description": "The upstream function cases as the engine's own SQL"
+      "description": "The upstream function cases as the engine's own SQL",
+      "label": "Functions as SQL"
     },
     "functions-substrait-0.107-extended": {
       "role": "reference",
       "kind": "cases",
       "path": "test-suites/functions-substrait-0.107/extended",
       "mode": "plan",
-      "description": "Function cases converted from the legacy suite, run as Substrait plans"
+      "description": "Function cases converted from the legacy suite, run as Substrait plans",
+      "label": "Extended functions"
     },
     "functions-substrait-0.107-extended-sql": {
       "role": "reference",
       "kind": "cases",
       "path": "test-suites/functions-substrait-0.107/extended",
       "mode": "sql",
-      "description": "The extended function cases as the engine's own SQL"
+      "description": "The extended function cases as the engine's own SQL",
+      "label": "Extended functions as SQL"
     },
     "tpch-substrait-0.81": {
       "role": "reference",
       "kind": "metadata",
       "path": "test-suites/tpch/metadata-substrait-0.81.yaml",
-      "description": "TPC-H plans in the legacy 0.81 encoding"
+      "description": "TPC-H plans in the legacy 0.81 encoding",
+      "label": "TPC-H, 0.81 encoding"
     }
   }
 }

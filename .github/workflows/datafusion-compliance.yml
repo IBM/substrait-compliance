@@ -22,6 +22,7 @@ on:
       - 'scripts/function_plans.py'
       - 'scripts/validate_function_tests.py'
       - 'scripts/combine_engine_reports.py'
+      - 'scripts/engine_findings.py'
       - 'scripts/check_compliance_regression.py'
       - '.github/workflows/datafusion-compliance.yml'
   pull_request:
@@ -38,6 +39,7 @@ on:
       - 'scripts/function_plans.py'
       - 'scripts/validate_function_tests.py'
       - 'scripts/combine_engine_reports.py'
+      - 'scripts/engine_findings.py'
       - 'scripts/check_compliance_regression.py'
       - '.github/workflows/datafusion-compliance.yml'
   schedule:

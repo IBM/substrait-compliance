@@ -179,7 +179,7 @@ There are two ways to run the suites, for two different goals:
 | Goal | Use | Language |
 |---|---|---|
 | Test your engine in its own CI or test suite | A **language SDK** (`sdk/`): interface, runner, comparator and report, all in your engine's language | Java, Python, Rust, C++, Go, TypeScript, C#, Scala |
-| Appear on the [public leaderboard](https://ibm.github.io/substrait-compliance/) | The **Python runners** (`scripts/run_function_compliance.py`, `scripts/run_plan_compliance.py`) through a small adapter for your engine, then a pull-request submission | any: the adapter reaches your engine through Python bindings, a command or a server |
+| Appear on the [public leaderboard](https://ibm.github.io/substrait-compliance/), with a page listing what fails and why | The **Python runners** (`scripts/run_function_compliance.py`, `scripts/run_plan_compliance.py`) through a small adapter for your engine, then a pull-request submission | any: the adapter reaches your engine through Python bindings, a command or a server |
 
 ```mermaid
 flowchart LR
@@ -826,12 +826,14 @@ substrait-compliance/
 │   ├── test-suite-validation.yml  # Validates test suite integrity
 │   └── ...                        # engine compliance, submissions, leaderboard, release
 ├── 🔧 scripts/                    # Automation and quality tools
-│   ├── generate_leaderboard.py    # Leaderboard generator
+│   ├── generate_leaderboard.py    # Leaderboard and engine pages generator
+│   ├── engine_findings.py         # Groups an engine's failures by cause (its findings)
 │   ├── quality_checker.py         # Test quality checker
 │   ├── test_enhancer.py           # Test enhancement tool
 │   └── verify_sdk_builds.sh       # SDK build verification
 └── 📖 docs/                       # Documentation
     ├── COMPLIANCE_LEADERBOARD.md
+    ├── engine-findings.yaml       # Explanations and upstream issue links of findings
     ├── DEPLOYMENT_GUIDE.md
     ├── PERFORMANCE_BENCHMARKING.md
     ├── SDK_VERIFICATION.md

@@ -1,0 +1,82 @@
+# Explanations and upstream issues for the findings on the engines' leaderboard pages.
+#
+# Findings are worked out automatically from each engine's per-case results
+# (scripts/engine_findings.py): failing cases are grouped by their error message. This file
+# adds what a person knows about a group: a plain-English title, a note, and the issue it is
+# reported in upstream. A group with no entry here is still shown, titled by its message and
+# marked "Not yet reported upstream".
+#
+# Each entry:
+#   engine:   engine name as on the leaderboard (case-insensitive); omit to match any engine
+#   section:  consumer, engine, queries, untested or options; omit to match any section
+#   match:    regular expression searched in the group's message (its "signature", where the
+#             parts that vary between cases are replaced by … and numbers by N)
+#   title:    shown instead of the message
+#   note:     optional, one or two sentences
+#   upstream: optional {url: <issue or PR>, status: open | fixed | wontfix}
+#
+# The first matching entry wins. Editing this file republishes the leaderboard; engines do
+# not need to run again.
+
+findings:
+  # DuckDB, Substrait extension (https://github.com/substrait-io/duckdb-substrait-extension)
+  - engine: DuckDB
+    section: consumer
+    match: "engine crashed on this plan"
+    title: "The engine crashes on these plans"
+    note: >-
+      DuckDB exits with a segmentation fault while running the plan. Each crash fails one
+      case; the run continues in a fresh process.
+  - engine: DuckDB
+    section: consumer
+    match: "Scalar Function with name … does not exist"
+    title: "The consumer maps these functions to names DuckDB does not have"
+    note: >-
+      The same cases pass as DuckDB SQL, so DuckDB can compute them; the Substrait
+      extension needs a mapping from the Substrait function name to DuckDB's.
+  - engine: DuckDB
+    section: consumer
+    match: "No function matches the given name and argument types"
+    title: "The consumer passes argument types DuckDB has no matching function for"
+  - engine: DuckDB
+    section: queries
+    match: "Unsupported expression type subquery"
+    title: "Subqueries are not supported"
+    note: >-
+      The Substrait extension rejects plans with subquery expressions (IN, EXISTS, scalar
+      subqueries), which these TPC-H queries use.
+
+  # DataFusion, Substrait consumer (https://github.com/apache/datafusion, datafusion/substrait)
+  - engine: DataFusion
+    match: "Unsupported literal_type: Some\\(VarChar"
+    title: "varchar literals are not supported"
+    note: >-
+      Plans with a varchar literal are rejected; TPC-H plans use them for string constants.
+  - engine: DataFusion
+    match: "Function argument non-Value type not supported"
+    title: "Enumeration (option) arguments are not supported"
+    note: >-
+      Functions whose plans pass an enumeration argument, such as extract's component, are
+      rejected.
+  - engine: DataFusion
+    section: consumer
+    match: "Unsupported function name"
+    title: "The consumer does not map these functions"
+    note: >-
+      The same cases pass as DataFusion SQL where DataFusion has the function; the consumer
+      has no mapping from the Substrait name.
+  - engine: DataFusion
+    section: consumer
+    match: "Aggregate function … is not supported"
+    title: "The consumer does not map these aggregate functions"
+
+  # This repository's tooling (any engine)
+  - section: untested
+    match: "user-defined type literals|type '…' is not built"
+    title: "The plan builder cannot build these types yet"
+    note: >-
+      Unsigned integers and some other types are user-defined types in Substrait; building
+      plans with them is not implemented here yet, so these cases say nothing about the engine.
+  - section: untested
+    match: "lambda arguments are not built"
+    title: "The plan builder cannot build lambda arguments yet"

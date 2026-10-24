@@ -13,6 +13,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   `FUNCTION_TESTS_IMPLEMENTATION.md`, `DEMO_USAGE.md`), a wrong relative path in
   `demo/README.md`, and source links written as `file:line`, which GitHub does not resolve
   (now `file#Lline`).
+### Changed — a simpler leaderboard, and a page per engine with what fails and why
+- The leaderboard page is now the ranking and links. Its scored columns say what they measure,
+  from the registry's new `label` and the suites' size: *Functions (1,315 cases)* and
+  *TPC-H (22 queries)* instead of *Functions* and *Queries*. The *Source* column is *Results*,
+  linking the CI run (*CI run*) or the team's run (*Submitted*). The scoring notes moved to
+  `docs/COMPLIANCE_LEADERBOARD.md`, which the page links.
+- Each engine has a page (`engines/<engine>.html`, and `.json`) with its **findings**: failing
+  cases grouped by cause, each listing every case it affects. Sections: Substrait consumer
+  gaps (fail as plans, pass as SQL), failing queries, engine results (fail as SQL too), cases
+  this repository cannot test yet, and option modes the engine does not claim. The page shows
+  what changed since the engine's previous run, then the detail tables that used to be on the
+  leaderboard, and links the run's full reports, which are unchanged.
+- Findings are computed when an engine's results are combined (`scripts/engine_findings.py`,
+  added to the entry by `combine_engine_reports.py`), so submitted engines get them too.
+  Explanations and upstream issue links are kept in `docs/engine-findings.yaml`; editing it
+  republishes the pages without running any engine. Findings not yet in it are marked
+  *Not yet reported upstream*.
 
 ### Docs — suites at a glance
 - `test-suites/README.md` has a table of the seven suites the leaderboard shows, by report
