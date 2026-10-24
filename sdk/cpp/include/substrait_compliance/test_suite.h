@@ -66,7 +66,7 @@ public:
     /**
      * @brief Input tables read from files when the case runs, added to input_data(). The
      *        loader fills these rather than input_data() so a suite's data is not held in
-     *        memory for every case at once (TPC-DS reads about 1.4 GB of CSV across 99 cases).
+     *        memory for every case at once (a suite can read gigabytes of CSV across its cases).
      */
     const std::vector<InputTable>& input_tables() const { return input_tables_; }
 

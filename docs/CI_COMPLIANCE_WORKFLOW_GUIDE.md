@@ -2,7 +2,7 @@
 
 This guide explains how database engine developers and integration teams can adopt, run, and automate the **Substrait Compliance Framework** within their Continuous Integration (CI) pipelines using GitHub Actions.
 
-The framework provides an engine-agnostic compliance runner, standardized interfaces, test suites (TPC-H, TPC-DS, and Scalar/Aggregate Functions), and the public compliance leaderboard.
+The framework provides an engine-agnostic compliance runner, standardized interfaces, test suites (TPC-H and Scalar/Aggregate Functions), and the public compliance leaderboard.
 
 > **To put your engine on the leaderboard,** run the suites in your CI and submit the results by pull request. The reusable workflow `submit-results.yml` does it for you; see [submissions/README.md](../submissions/README.md). How the leaderboard is scored and published, for engines run in this repository and for submitted ones, is described in [COMPLIANCE_LEADERBOARD.md](COMPLIANCE_LEADERBOARD.md).
 

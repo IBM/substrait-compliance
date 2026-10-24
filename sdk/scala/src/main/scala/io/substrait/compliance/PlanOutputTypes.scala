@@ -44,7 +44,7 @@ object PlanOutputTypes {
     val text = planJson.split("\n").filterNot(_.trim.startsWith("//")).mkString("\n")
     val options = new LoaderOptions()
     options.setCodePointLimit(64 * 1024 * 1024)
-    options.setNestingDepthLimit(1000) // plans nest deeply (TPC-DS q95: 63 levels; the default is 50)
+    options.setNestingDepthLimit(1000) // plans nest deeply (63 levels have been seen; the default is 50)
     new Yaml(options).load[Object](text)
   }
 

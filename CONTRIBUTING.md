@@ -60,7 +60,7 @@ We welcome contributions in the following areas:
 
 1. **Test Suite Development**
    - Add new test cases to existing suites
-   - Add test cases to existing suites (TPC-H, TPC-DS, Functions)
+   - Add test cases to existing suites (TPC-H, Functions)
    - Create new test suites (SSB, etc.)
    - Improve test coverage for edge cases
    - Enhance test quality and documentation

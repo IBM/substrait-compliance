@@ -64,12 +64,12 @@ leaderboard's:
 A declared decimal's scale comes from the plan's JSON form: `PlanOutputTypes` (Java and
 Scala), `declared_scales` (Python), `plan_types` (Rust), `DeclaredScales` (Go),
 `declaredScales` (TypeScript), `PlanTypes` (C#) and `plan_types` (C++) work it out the same
-way, and agree on all 143 TPC-H (both encodings) and TPC-DS plans.
+way, and agree on all 44 TPC-H plans (both encodings).
 
 A comparator is only as good as the tables it is given. The Go, TypeScript, C#, Rust, C++ and
 Scala loaders read this repository's suite metadata as the leaderboard's runner does: input
 tables typed by the schema the plan reads them with and keyed by the plan's table names,
-expected outputs by their typed header, and the declared scales. On all 143 TPC-H and TPC-DS
+expected outputs by their typed header, and the declared scales. On all 44 TPC-H
 cases each loads the same tables, expected outputs and scales as
 `scripts/run_plan_compliance.py`. The Java and Python SDK loaders hand input tables over untyped
 (columns `column_1`…, values as text); the Java DuckDB example types them from the plan itself.

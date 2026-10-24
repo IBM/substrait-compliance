@@ -146,7 +146,7 @@ class YamlTestSuiteLoader(TestSuiteLoader):
 
         The delimiter is auto-detected: if the header row contains more pipe
         characters than commas, pipe is used; otherwise comma.  This matches
-        the convention used by the TPC-H/TPC-DS expected-output files, which
+        the convention used by the TPC-H expected-output files, which
         are pipe-delimited to avoid conflicts with string values.
         """
         with open(path, 'r', newline='', encoding='utf-8') as f:

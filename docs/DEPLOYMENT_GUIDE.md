@@ -233,7 +233,7 @@ substrait-compliance/
 ├── sdk/                   # Multi-language SDKs (Java, Python, Rust, Go,
 │                          #   TypeScript, C#, Scala, C++)
 ├── test-implementations/  # Reference test runners
-├── test-suites/           # Compliance test cases (TPC-H, TPC-DS, functions)
+├── test-suites/           # Compliance test cases (TPC-H, functions)
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
 ├── GOVERNANCE.md

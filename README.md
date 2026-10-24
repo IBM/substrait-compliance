@@ -36,7 +36,7 @@ Enable database engines to self-certify their Substrait compliance through stand
 The Substrait Compliance Framework transforms how query engines validate their Substrait support. Instead of centralized testing, engines **self-certify** by:
 
 1. **Implementing standard interfaces** — `ComplianceEngine` trait/interface
-2. **Running available test suites** — TPC-H (22 queries), TPC-DS (99 queries), and function test suites
+2. **Running available test suites** — TPC-H (22 queries) and function test suites
 3. **Generating compliance reports** — JSON format with pass/fail results
 4. **Publishing results** — Optional leaderboard/report publication
 
@@ -44,7 +44,7 @@ The Substrait Compliance Framework transforms how query engines validate their S
 
 - 🔄 **Decentralized Testing** — Engines test themselves; no central bottleneck
 - 🌐 **Multi-Language SDKs** — Java, Python, Rust, C++, Go, TypeScript/JavaScript, C#/.NET, and Scala at varying maturity levels
-- 📦 **Pre-packaged Test Suites** — TPC-H, TPC-DS, and function test suites included in-repo
+- 📦 **Pre-packaged Test Suites** — TPC-H and function test suites included in-repo
 - ⚡ **Performance Benchmarking** — Benchmarking components included across several SDKs
 - 🤖 **Automated CI/CD** — GitHub Actions workflows for validation, release, and automation
 - 📊 **Interactive Demo** — Live dashboard with mock engines, query drill-down, and complexity filtering
@@ -100,8 +100,6 @@ python3 -m http.server 8080
 ```bash
 # Enhanced TPC-H demo with detailed phases
 cd demo && ./runner/run-enhanced-demo.sh
-
-# Note: Java TPC-DS demo (99 queries) available but requires significant memory (8GB+)
 ```
 
 ### Cold-start validation
@@ -204,7 +202,7 @@ flowchart LR
   submissions. Every SDK's comparator is checked against the leaderboard's shared comparison
   vectors, so their in-house results mean the same as the leaderboard's
   ([`sdk/conformance/`](sdk/conformance/README.md)), and every SDK's loader reads the
-  repository's TPC-H and TPC-DS suites. The Go, TypeScript, C#, Rust, C++ and Scala loaders also
+  repository's TPC-H suite. The Go, TypeScript, C#, Rust, C++ and Scala loaders also
   type the input tables by the plan, as the leaderboard's runner does.
 
 **Adapters by engine:**
@@ -644,7 +642,6 @@ See [.github/workflows/README.md](.github/workflows/README.md) for details.
 > - [test-suites/functions-substrait-0.107/README.md](test-suites/functions-substrait-0.107/README.md) — Function tests in the current Substrait format (1,315 upstream + 2,278 verified cases, validated against Substrait 0.107.0)
 > - [test-suites/functions/README.md](test-suites/functions/README.md) — Legacy function tests (136 files, 5,041 test assertions, 14 categories; replaced, not scored)
 > - [test-suites/tpch/README.md](test-suites/tpch/README.md) — TPC-H benchmark (22 queries)
-> - [test-suites/tpcds/README.md](test-suites/tpcds/README.md) — TPC-DS benchmark (99 queries)
 
 ### TPC-H Benchmark (22 Queries)
 
@@ -697,34 +694,6 @@ System.out.println("  Total Queries: " + report.getTotalCount());
 System.out.println("  Passed: " + report.getPassedCount());
 System.out.println("  Pass Rate: " + report.getPassRate() + "%");
 ```
-
-### TPC-DS Benchmark (99 Queries)
-
-TPC-DS (Decision Support) benchmark plans and data for complex analytical workloads:
-
-| Component | Details |
-|-----------|---------|
-| **Queries** | 99 (query01.sql – query99.sql) |
-| **Substrait Plans** | 198 (99 JSON + 99 binary) |
-| **Data Tables** | 24 CSV files (multi-channel retail schema) |
-| **Plan Formats** | Binary (.bin) + JSON (.json) |
-| **Expected Outputs** | ✅ All 99 present — typed-header pipe-delimited CSV |
-
-**Key Query Categories:**
-- Customer behavior and profitability analysis
-- Multi-channel retail analytics (store, catalog, web)
-- Sales and returns analysis
-- Inventory management and marketing effectiveness
-
-```bash
-cd test-suites/tpcds
-cat metadata.yaml
-ls -la data/      # 24 CSV files
-ls -la plans/     # 198 Substrait plan files (99 JSON + 99 binary)
-ls -la expected/  # 99 reference output files (q01.csv – q99.csv)
-```
-
-> **📚 See [test-suites/tpcds/README.md](test-suites/tpcds/README.md) for complete TPC-DS documentation**
 
 ### Function Tests (136 Files, 5,041 Assertions)
 
@@ -811,8 +780,7 @@ substrait-compliance/
 │   └── scala/                     # Scala 2.13, sbt
 ├── 🧪 test-suites/                # Test suites
 │   ├── functions/                 # 136 function test files, 5,041 assertions (14 categories)
-│   ├── tpch/                      # TPC-H (22 queries, 8 data files, 44 plans)
-│   └── tpcds/                     # TPC-DS (99 queries, 24 data files, 198 plans)
+│   └── tpch/                      # TPC-H (22 queries, 8 data files, 44 plans)
 ├── 💡 examples/                   # Integration examples — duckdb-java and duckdb-cpp execute plans; see examples/README.md
 │   ├── datafusion-python/         # DataFusion integration (Python)
 │   ├── datafusion-rust/           # DataFusion integration (Rust)
@@ -843,7 +811,7 @@ substrait-compliance/
 **Key Directories for Developers:**
 - 🎯 **`demo/`** — Run the interactive demo first to see the framework in action
 - 📚 **`sdk/`** — 8 SDKs: C++, C#, Go, Java, Python, Rust, Scala, TypeScript
-- 🧪 **`test-suites/`** — 136 function test files (5,041 assertions) + TPC-H + TPC-DS benchmarks
+- 🧪 **`test-suites/`** — 136 function test files (5,041 assertions) + TPC-H benchmark
 - 💡 **`examples/`** — Real integration examples with DuckDB, DataFusion, and Velox
 
 ---
@@ -856,7 +824,7 @@ substrait-compliance/
 ┌─────────────────────────────────────────────────────────────┐
 │         Compliance Framework (Standards Authority)           │
 │  • SDKs (8 languages)                                        │
-│  • Test Suites (TPC-H, TPC-DS, Functions)                    │
+│  • Test Suites (TPC-H, Functions)                            │
 │  • Documentation & CI/CD Templates                           │
 └─────────────────────────────────────────────────────────────┘
                           ↓ downloads & implements
@@ -1183,7 +1151,6 @@ python3 scripts/generate_leaderboard.py
 - [test-suites/functions-substrait-0.107/README.md](test-suites/functions-substrait-0.107/README.md) — Function tests (current Substrait format)
 - [test-suites/functions/README.md](test-suites/functions/README.md) — Legacy function tests (replaced, not scored)
 - [test-suites/tpch/README.md](test-suites/tpch/README.md) — TPC-H benchmark
-- [test-suites/tpcds/README.md](test-suites/tpcds/README.md) — TPC-DS benchmark
 
 ### 📚 SDK Documentation
 - [sdk/java/README.md](sdk/java/README.md) — Java SDK
@@ -1285,13 +1252,11 @@ We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guid
 | Metric | Value |
 |--------|-------|
 | **SDKs** | 8 (Java, Python, Rust, Go, C++, TypeScript, C#, Scala) |
-| **Test Suites** | 3 (TPC-H, TPC-DS, Functions) |
+| **Test Suites** | 2 (TPC-H, Functions) |
 | **Function Test Files** | 136 (14 categories) |
 | **Function Test Assertions** | 5,041 individual test cases |
 | **TPC-H Queries** | 22 |
-| **TPC-DS Queries** | 99 |
 | **TPC-H Data Rows** | 86,805 (scale factor 0.01) |
-| **TPC-DS Data Tables** | 24 |
 | **CI/CD Workflows** | 10 |
 | **Example Implementations** | 5 (DuckDB Java/C++, DataFusion Python/Rust, Velox C++) |
 
@@ -1306,7 +1271,7 @@ This project is licensed under the Apache License 2.0 — see the [LICENSE](LICE
 ## 🙏 Acknowledgments
 
 - **Substrait Community** — For the query plan specification
-- **TPC Organization** — For the TPC-H and TPC-DS benchmark queries
+- **TPC Organization** — For the TPC-H benchmark queries
 - **Engine Developers** — For implementing Substrait support
 
 ---
@@ -1327,7 +1292,6 @@ Planned work is tracked in [GitHub Issues](https://github.com/IBM/substrait-comp
 - [x] Leaderboard submissions by pull request
 - [x] Comprehensive CI/CD workflows
 - [x] Interactive demo system with dashboard
-- [x] TPC-DS benchmark (99 queries)
 
 **Up next:**
 - [ ] Performance benchmarking CI integration

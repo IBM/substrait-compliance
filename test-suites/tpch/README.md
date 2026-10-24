@@ -78,7 +78,7 @@ every grouping key and LIMIT/OFFSET value is preserved.
 
 The 0.107.0 plans still use one deprecated field: `OuterReference.steps_out` (deprecated
 in 0.101.0 in favour of `rel_reference`), in the correlated-subquery plans q02, q04, q17,
-q20, q21 and q22 (and TPC-DS q01). When it is removed from the spec, these plans will need
+q20, q21 and q22. When it is removed from the spec, these plans will need
 converting again, following "Adding a new spec version" below.
 
 ### Adding a new spec version
@@ -239,7 +239,7 @@ Engine-side `TableData` column types must therefore use one of the tokens from
 the vocabulary table, or a canonical name (`integer`, `bigint`, `double`,
 `float`, `boolean`, `string`).
 
-### Adding expected outputs for a new suite (e.g. TPC-DS)
+### Adding expected outputs for a new suite
 
 1. Run the query against a trusted source (e.g. DuckDB directly over the input
    CSV files) and export to pipe-delimited CSV.
@@ -284,7 +284,6 @@ is therefore the de-facto reference for result semantics in this suite.
   whose features they do not support.
 
 To regenerate the expected outputs against a different reference engine, run
-the equivalent of `generate_expected.py` (see `test-suites/tpcds/` for an
-example of such a script) substituting your preferred engine.
+a script that runs each query on your preferred engine and writes the typed CSVs.
 
 **Status:** ✅ Complete — result correctness is fully verifiable for all 22 queries.
