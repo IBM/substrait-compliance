@@ -251,12 +251,12 @@ def test_the_leaderboard_prefers_a_ci_run_and_shows_sources(tmp_path):
                                           entry("ci", 50.0, "https://b.example/2")])
     assert len(m["entries"]) == 1 and m["entries"][0]["passRate"] == 50.0
     row = m["rankings"]["rows"][0]
-    assert row[-1] == ("Run here", "link", "https://b.example/2")
+    assert row[-1] == ("CI run", "link", "https://b.example/2")
 
     other = entry("submitted", 70.0, "https://c.example/3", older=["tpch"])
     other["engineName"] = "OtherDB"
     m = generate_leaderboard.build_model([other])
-    assert m["rankings"]["rows"][0][1].endswith(" †")
+    assert m["rankings"]["rows"][0][1][0].endswith(" †")
     assert "`tpch` (OtherDB 2.0)" in generate_leaderboard.older_note(m["older"])
     assert "[Submitted](https://c.example/3)" in "\n".join(generate_leaderboard.md_table(m["rankings"]))
 

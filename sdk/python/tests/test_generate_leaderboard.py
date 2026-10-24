@@ -41,7 +41,7 @@ def generate(tmp_path, fmt="all"):
     return tmp_path / "site"
 
 
-def test_ranks_by_overall_and_lays_out_every_section(tmp_path):
+def test_ranks_by_overall_and_links_each_engine_page(tmp_path):
     # A: functions 60%, queries 80% -> 70. B: functions 90%, queries 10% -> 50.
     entry(tmp_path, "A", fn=(60, 40), sql=(95, 5), q=(8, 2), q_old=(1, 9), ext=(9, 1))
     entry(tmp_path, "B", fn=(90, 10), sql=(99, 1), q=(1, 9), q_old=(1, 9))
@@ -49,31 +49,81 @@ def test_ranks_by_overall_and_lays_out_every_section(tmp_path):
     md = (site / "leaderboard.md").read_text()
 
     ranking = md.split("## Rankings")[1].split("##")[0]
-    assert ranking.index("| 🥇 | A 1.0 |") < ranking.index("| 🥈 | B 1.0 |")
-    assert "| **70.0%** | 60.0% | 80.0% | *95.0%* |" in ranking
-    assert "| **50.0%** | 90.0% | 10.0% | *99.0%* |" in ranking
-
-    functions = md.split("## Functions\n")[1].split("##")[0]
-    assert "| A 1.0 | **60.0% (60/100)** | 95.0% | −35.0 pts | 90.0% | — |" in functions
-    assert "| B 1.0 | **90.0% (90/100)** | 99.0% | −9.0 pts | — | — |" in functions
-
-    queries = md.split("## Queries")[1].split("##")[0]
-    assert "| Engine | TPC-H (scored) | TPC-H, 0.81 legacy encoding |" in queries
-    assert "| A 1.0 | **8/10 (80.0%)** | 1/10 (10.0%) |" in queries
-
-    by_ext = md.split("## Functions by extension")[1].split("##")[0]
-    assert "| window | 0.0% / 100.0% | 0.0% / 100.0% |" in by_ext
-
-    other = md.split("## Other results (not scored)")[1].split("##")[0]
-    assert "`legacy`" in other and "fsuite-sql" not in other and "tpch-substrait-0.81" not in other
+    # Columns say what they measure: the scored suite's registry label (or name) and size.
+    assert "| Rank | Engine | Overall | fsuite (100 cases) | TPC-H (10 queries) | Findings | Results |" in ranking
+    page = "https://ibm.github.io/substrait-compliance/engines/a.html"
+    assert ranking.index(f"| 🥇 | [A 1.0]({page}) |") < ranking.index("| 🥈 | [B 1.0]")
+    assert f"| **70.0%** | 60.0% | 80.0% | [0 findings]({page}) |" in ranking
+    assert "| **50.0%** | 90.0% | 10.0% |" in ranking
+    # The main page is the ranking and links; the detail moved to the engine pages.
+    assert "## Functions" not in md and "## Queries" not in md and "How scoring works" in md
 
     data = json.loads((site / "leaderboard.json").read_text())
     assert [e["engineName"] for e in data["engines"]] == ["A", "B"]
     assert data["engines"][0]["categories"]["queries"]["passRate"] == 80.0
     assert data["engines"][0]["schemaVersion"] == 2  # a published entry works as a regression baseline
-    page = (site / "leaderboard.html").read_text()
-    assert page.startswith("<!DOCTYPE html>") and "<strong>70.0%</strong>" in page
-    assert "prefers-color-scheme: dark" in page
+    assert data["engines"][0]["page"] == "engines/a.html"
+    index = (site / "leaderboard.html").read_text()
+    assert index.startswith("<!DOCTYPE html>") and "<strong>70.0%</strong>" in index
+    assert 'href="engines/a.html"' in index and "prefers-color-scheme: dark" in index
+
+
+def test_engine_pages_hold_the_detail(tmp_path):
+    entry(tmp_path, "A", fn=(60, 40), sql=(95, 5), q=(8, 2), q_old=(1, 9), ext=(9, 1))
+    site = generate(tmp_path)
+    page = (site / "engines" / "a.html").read_text()
+    assert "<h1>A 1.0</h1>" in page and "A consumer" in page
+    assert "60.0% (60/100)" in page and "95.0% (95/100)" in page and "−35.0 pts" in page  # plans, SQL, gap
+    assert "90.0% (9/10)" in page                                                        # extended cases
+    assert "TPC-H (scored)" in page and "8/10" in page and "TPC-H, 0.81 encoding" in page
+    assert "<td>window</td>" in page and "0.0%" in page                                   # by extension
+    assert "<code>legacy</code>" in page                                                  # other results
+    doc = json.loads((site / "engines" / "a.json").read_text())
+    assert doc["engineName"] == "A" and doc["findings"]["groups"] == [] and "_tables" not in doc
+
+
+def test_findings_are_grouped_explained_and_compared_with_the_previous_run(tmp_path, monkeypatch):
+    d = tmp_path / "A"
+    d.mkdir()
+    case = lambda fn, line, status, reason: {"file": f"x/test-suites/fs/arithmetic/{fn}.test", "line": line,  # noqa: E731
+                                             "test": f"{fn}(1::i8)", "status": status, "reason": reason}
+    plan = report(d / "f.json", "A", 1, 3, mode="plan", nonPassingResults=[
+        case("negate", 1, "failed", "Scalar Function with name negate does not exist!"),
+        case("shift", 2, "failed", "Scalar Function with name shift does not exist!"),
+        case("abs", 3, "failed", "got 2, expected 1")])
+    sql = report(d / "s.json", "A", 3, 1, mode="sql", nonPassingResults=[case("abs", 3, "failed", "got 2, expected 1")])
+    q = report(d / "q.json", "A", 1, 1, testResults=[{"testId": "q01", "status": "PASSED"},
+                                                     {"testId": "q02", "status": "FAILED", "message": "Unsupported subquery"}])
+    combine_engine_reports.main(["--engine", "A", "--functions", f"fs={plan}", "--queries", f"tpch={q}",
+                                 "--reference", f"fs-sql={sql}", "--output", str(tmp_path / "entries" / "a.json")])
+    rules = tmp_path / "rules.yaml"
+    rules.write_text('findings:\n  - engine: a\n    match: "Scalar Function with name … does not exist"\n'
+                     '    title: "Unmapped functions"\n    upstream: {url: "https://example.org/1", status: open}\n')
+    monkeypatch.setattr(generate_leaderboard, "CURATED", rules)
+
+    prev = tmp_path / "prev" / "engines"
+    prev.mkdir(parents=True)
+    prev.joinpath("a.json").write_text(json.dumps({"timestamp": "2000-01-01T00:00:00Z", "findings": {"groups": [
+        {"section": "queries", "signature": "Unsupported subquery", "list": [{"suite": "tpch", "id": "q03"}]}]}}))
+    generate_leaderboard.main(["--input", str(tmp_path / "entries"), "--output", str(tmp_path / "site" / "leaderboard.md"),
+                               "--format", "all", "--previous", str(tmp_path / "prev")])
+    doc = json.loads((tmp_path / "site" / "engines" / "a.json").read_text())
+    groups = {g["signature"]: g for g in doc["findings"]["groups"]}
+    unmapped = groups["Scalar Function with name … does not exist!"]
+    assert unmapped["section"] == "consumer" and unmapped["cases"] == 2
+    assert unmapped["subjects"] == {"negate": 1, "shift": 1} and unmapped["title"] == "Unmapped functions"
+    # abs fails as SQL too: it is the engine's, listed once, from the SQL run.
+    assert groups["Wrong result (got …, expected …)"]["section"] == "engine"
+    assert groups["Wrong result (got …, expected …)"]["suites"] == {"fs-sql": 1}
+    assert groups["Unsupported subquery"]["section"] == "queries"
+    # Against the previous run: q02 newly failing; q03 no longer failing.
+    # (fs is not in the registry, so its case ids keep the folder under test-suites/)
+    assert {c["id"] for c in doc["changes"]["new"]} == {"fs/arithmetic/negate.test:1", "fs/arithmetic/shift.test:2",
+                                                        "fs/arithmetic/abs.test:3", "q02"}
+    assert [c["id"] for c in doc["changes"]["fixed"]] == ["q03"]
+    page = (tmp_path / "site" / "engines" / "a.html").read_text()
+    assert "Unmapped functions" in page and "https://example.org/1" in page and "Not yet reported upstream" in page
+    assert "Functions:</strong> negate, shift" in page and "4</strong> newly failing" in page
 
 
 def test_entries_in_the_old_format_are_listed_but_not_ranked(tmp_path):

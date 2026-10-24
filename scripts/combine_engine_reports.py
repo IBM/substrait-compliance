@@ -38,6 +38,9 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from engine_findings import compute_findings  # noqa: E402
+
 SCHEMA_VERSION = 2
 CATEGORIES = ("functions", "queries")
 
@@ -86,7 +89,7 @@ def load_suite(spec, engine, ap):
     extensions = per_extension(report)
     if extensions:
         suite["extensions"] = extensions
-    return name, suite
+    return name, suite, report
 
 
 def main(argv=None):
@@ -110,13 +113,14 @@ def main(argv=None):
     if not (args.functions or args.queries):
         ap.error("give at least one scored suite (--functions or --queries)")
 
-    suites, versions = {}, set()
+    suites, versions, raw = {}, set(), {}
     roles = [(s, "functions") for s in args.functions] + [(s, "queries") for s in args.queries] \
         + [(s, None) for s in args.reference]
     for spec, category in roles:
-        name, suite = load_suite(spec, args.engine, ap)
+        name, suite, report = load_suite(spec, args.engine, ap)
         if name in suites:
             ap.error(f"suite {name!r} given twice")
+        raw[name] = {"report": report, "category": category}
         if category:
             suite["category"] = category
         else:
@@ -150,6 +154,9 @@ def main(argv=None):
         "categories": categories,
         **totals,
         "suites": suites,
+        # What fails and why, grouped by cause (scripts/engine_findings.py): the engine's
+        # page on the leaderboard.
+        "findings": compute_findings(raw),
         "provenance": {
             "source": args.source,
             **({"runUrl": args.run_url} if args.run_url else {}),

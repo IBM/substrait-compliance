@@ -13,6 +13,9 @@ on:
     paths:
       - 'submissions/**'
       - 'test-suites/registry.json'
+      # The pages themselves: explanations and upstream links of findings, and the generator
+      - 'docs/engine-findings.yaml'
+      - 'scripts/generate_leaderboard.py'
   # Publish as soon as an engine's compliance run on main finishes
   workflow_run:
     workflows: ["DuckDB Substrait Compliance CI", "DataFusion Compliance"]
@@ -111,12 +114,21 @@ jobs:
           name: compliance-reports
           path: compliance-reports
       
-      - name: Generate leaderboard
+      # PyYAML reads docs/engine-findings.yaml (explanations and upstream links of findings)
+      - name: Install PyYAML
+        run: pip install "pyyaml>=6"
+
+      # --previous: the published site, to show what changed since each engine's last run
+      - name: Generate leaderboard and engine pages
+        env:
+          OWNER: ${{ github.repository_owner }}
+          REPO: ${{ github.event.repository.name }}
         run: |
           python scripts/generate_leaderboard.py \
             --input compliance-reports \
             --output docs/leaderboard.md \
-            --format all
+            --format all \
+            --previous "https://${OWNER,,}.github.io/${REPO}/"
           cat docs/leaderboard.md >> "$GITHUB_STEP_SUMMARY"
       
       - name: Upload leaderboard
@@ -127,6 +139,7 @@ jobs:
             docs/leaderboard.md
             docs/leaderboard.json
             docs/leaderboard.html
+            docs/engines/
 
   deploy-to-pages:
     name: Deploy to GitHub Pages
@@ -156,6 +169,7 @@ jobs:
           cp docs/leaderboard.html _site/index.html
           cp docs/leaderboard.md _site/leaderboard.md
           cp docs/leaderboard.json _site/leaderboard.json
+          cp -r docs/engines _site/engines
       
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
