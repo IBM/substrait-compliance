@@ -28,21 +28,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Check out the base branch (checker, suites, rules)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           ref: ${{ github.event.pull_request.base.sha }}
           path: base
           persist-credentials: false
 
       - name: Check out the pull request (submitted files)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           path: pr
           fetch-depth: 0
           persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: 'pip'

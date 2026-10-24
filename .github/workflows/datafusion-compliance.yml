@@ -79,10 +79,10 @@ jobs:
       actions: read   # download the last published entry for the regression check
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Set up Python 3.11
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
           cache: 'pip'
@@ -175,7 +175,7 @@ jobs:
 
       - name: Upload reports
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: datafusion-compliance-reports
           path: output/reports/
@@ -183,7 +183,7 @@ jobs:
 
       # Consumed by compliance-leaderboard.yml (workflow_run trigger / latest successful run)
       - name: Upload leaderboard entry
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: datafusion-leaderboard-report
           path: output/leaderboard/datafusion.json

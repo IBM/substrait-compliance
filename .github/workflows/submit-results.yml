@@ -109,7 +109,7 @@ jobs:
       RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
     steps:
       - name: Check out the compliance repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
         with:
           repository: ${{ inputs.compliance-repository }}
           ref: ${{ inputs.compliance-ref }}
@@ -118,13 +118,13 @@ jobs:
           persist-credentials: false
 
       - name: Download the suite reports
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: ${{ inputs.reports-artifact }}
           path: suite-reports
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v7
         with:
           python-version: '3.11'
 
@@ -151,7 +151,7 @@ jobs:
         run: python compliance/scripts/validate_submission.py --repo-root compliance "$FOLDER"
 
       - name: Upload the submission
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: leaderboard-submission
           path: compliance/${{ steps.prepare.outputs.folder }}
