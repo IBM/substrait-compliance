@@ -31,7 +31,6 @@ if __name__ == "__main__":
     with http.server.HTTPServer(("", PORT), NoCacheHandler) as httpd:
         print(f"Dashboard: http://localhost:{PORT}/")
         print(f"  TPC-H    -> http://localhost:{PORT}/index.html")
-        print(f"  TPC-DS   -> http://localhost:{PORT}/tpcds-tests.html")
         print(f"  Functions-> http://localhost:{PORT}/function-tests.html")
         print("Press Ctrl+C to stop.")
         httpd.serve_forever()

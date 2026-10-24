@@ -106,7 +106,7 @@ cd runner
 ```bash
 # Check that reports were generated
 ls -la runner/output/
-# Should show: *_function_tests.json and *_tpcds_report.json files
+# Should show: *_function_tests.json files
 
 # Check that dashboard data was created
 ls -la dashboard/data/

@@ -31,7 +31,7 @@ The **Substrait Compliance Framework** is a decentralized testing ecosystem that
 | Achievement | Description | Impact |
 |---|---|---|
 | **Multi-Language SDK** | Java, Python, Rust, Go, C++, TypeScript, C#, Scala (8 languages) | Supports diverse engine ecosystems |
-| **Comprehensive Test Coverage** | 22 TPC-H + 99 TPC-DS + 140 function test files (5,041 assertions) | Industry-standard benchmarking |
+| **Comprehensive Test Coverage** | 22 TPC-H + 140 function test files (5,041 assertions) | Industry-standard benchmarking |
 | **Public Leaderboard** | Results submitted by pull request, checked and scored in CI, published on GitHub Pages | Centralized result sharing, no server |
 | **Automated CI/CD** | 10 GitHub Actions workflows | Continuous validation |
 | **Interactive Demo** | Real-time dashboard and visualization | Easy adoption and exploration |
@@ -42,7 +42,7 @@ The **Substrait Compliance Framework** is a decentralized testing ecosystem that
 ```
 ✅ Core Framework         — Complete
 ✅ SDK Implementation     — Complete (8 languages)
-✅ Test Suites            — Complete (140 function test files, 5,041 assertions + TPC-H 22 + TPC-DS 99)
+✅ Test Suites            — Complete (140 function test files, 5,041 assertions + TPC-H 22)
 ✅ Leaderboard            — Published on GitHub Pages; engine teams submit by pull request
 ✅ CI/CD Pipeline         — 10 workflows, fully automated
 ✅ Documentation          — Comprehensive
@@ -55,7 +55,6 @@ The **Substrait Compliance Framework** is a decentralized testing ecosystem that
 |---|---|
 | Function test files | 140 (5,041 assertions across 14 categories) |
 | TPC-H queries | 22 |
-| TPC-DS queries | 99 |
 | SDK languages | 8 |
 | CI/CD workflows | 10 |
 
@@ -68,7 +67,7 @@ The **Substrait Compliance Framework** is a decentralized testing ecosystem that
 The framework transforms how query engines validate their Substrait support by providing:
 
 1. **Standard Interfaces** — `ComplianceEngine` trait/interface consistent across all SDKs
-2. **Comprehensive Test Suites** — Industry-standard benchmarks (TPC-H, TPC-DS) and function tests
+2. **Comprehensive Test Suites** — Industry-standard benchmark (TPC-H) and function tests
 3. **Automated Testing** — Self-service compliance validation
 4. **Transparent Reporting** — JSON-based compliance reports
 5. **Community Leaderboard** — Optional public compliance rankings
@@ -171,7 +170,7 @@ The framework transforms how query engines validate their Substrait support by p
                         ▼
 ┌─────────────────────────────────────────────────────────────────┐
 │                    TEST SUITE LAYER                              │
-│  TPC-H (22 queries) · TPC-DS (99 queries)                       │
+│  TPC-H (22 queries)                                             │
 │  Function Tests (140 files, 5,041 assertions, 14 categories)    │
 └─────────────────────────────────────────────────────────────────┘
                         │
@@ -331,14 +330,6 @@ Industry-standard OLAP benchmark covering:
 - Market and shipping analysis
 
 Each query ships with a Substrait plan (`.json`) and expected output schema.
-
-### TPC-DS Benchmark (99 queries)
-
-Decision-support workload covering:
-- Reporting queries (40)
-- Ad-hoc queries (30)
-- Iterative OLAP (20)
-- Data mining (9)
 
 ### Function Test Suite (140 files, 5,041 assertions)
 
@@ -532,7 +523,6 @@ Reports are written to `output/<engine>-report.json` in JSON format:
 | Function test assertions | 5,041 |
 | Function categories | 14 |
 | TPC-H queries | 22 |
-| TPC-DS queries | 99 |
 | SDK languages | 8 |
 | CI/CD workflows | 10 |
 | Example integrations | DuckDB, DataFusion, Velox |

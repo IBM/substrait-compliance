@@ -380,7 +380,7 @@ jobs:
    - Test network performance
 
 3. **Real-world Workload Simulation**
-   - TPC-H/TPC-DS query benchmarks
+   - TPC-H query benchmarks
    - Mixed workload scenarios
    - Concurrent user simulation
 

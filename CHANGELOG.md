@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Removed — the TPC-DS suite
+- `test-suites/tpcds` is removed. It was not run in CI or scored on the leaderboard; the
+  repository now keeps to the suites it runs (TPC-H and the function suites). A TPC-DS suite
+  built from the official queries may be added later.
+- Removed with it: the TPC-DS demo pages and runners (`demo/`, `test-implementations/duckdb-python`)
+  and the Python and Java SDK tests that read it (the same tests run on TPC-H). Docs no longer
+  list it.
+
 ### Docs — broken links
 - Fixed the last 12 broken links in the Markdown docs: the missing `ROADMAP.md` (planned work
   is in GitHub Issues), documents that were never added (scripts' quality-checker guides,

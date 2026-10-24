@@ -64,7 +64,7 @@ namespace Substrait.Compliance
         public static JsonNode? ParsePlanJson(string planJson)
         {
             var text = string.Join("\n", planJson.Split('\n').Where(l => !l.TrimStart().StartsWith("//")));
-            // Plans nest deeply (TPC-DS q95: 63 levels); the default limit is 64.
+            // Plans can nest deeply (63 levels have been seen); the default limit is 64.
             return JsonNode.Parse(text, documentOptions: new JsonDocumentOptions { MaxDepth = 1000 });
         }
 

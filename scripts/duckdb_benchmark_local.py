@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Run a benchmark suite's Substrait plans (TPC-H or TPC-DS) through DuckDB locally and
+Run a benchmark suite's Substrait plans (TPC-H) through DuckDB locally and
 compare with the expected results, for every plan set of the suite side by side.
 Plan sets are discovered from test-suites/<suite>/metadata.yaml and
 metadata-substrait-*.yaml, e.g. for TPC-H:
@@ -20,7 +20,6 @@ Setup (once):
     ~/.venvs/duckdb-substrait/bin/pip install duckdb==1.5.6
 Run from the repository root:
     ~/.venvs/duckdb-substrait/bin/python scripts/duckdb_benchmark_local.py                 # TPC-H
-    ~/.venvs/duckdb-substrait/bin/python scripts/duckdb_benchmark_local.py --suite tpcds   # TPC-DS
 
 Writes a machine-readable copy of the results to .ci-reports/local-<suite>.json.
 """
@@ -97,7 +96,7 @@ def load_tables(con, schemas):
         delim = "|" if "|" in first else ","
         # A header row names the first column instead of holding a value for it.
         header = first.split(delim)[0].strip().lower() == cols[0][0].lower()
-        # TPC-H ('|') has no quoting; TPC-DS (',') quotes text fields containing commas.
+        # TPC-H ('|') has no quoting; comma-delimited files may quote text fields.
         quote = "" if delim == "|" else '"'
         con.execute(f"INSERT INTO \"{table}\" SELECT * FROM read_csv('{path}', delim='{delim}', "
                     f"header={str(header).lower()}, quote='{quote}', columns={columns})")
@@ -150,7 +149,7 @@ def compare(exp_names, exp_rows, act_names, act_rows):
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--suite", default="tpch", help="suite folder under test-suites/ (tpch, tpcds)")
+    ap.add_argument("--suite", default="tpch", help="suite folder under test-suites/ (tpch)")
     ap.add_argument("--extra-plans", action="append", default=[], metavar="NAME=DIR",
                     help="also run the plans in DIR as plan set NAME (e.g. original plans from git)")
     ap.add_argument("--check-data", action="store_true",

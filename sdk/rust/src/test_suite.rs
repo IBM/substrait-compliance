@@ -43,7 +43,7 @@ pub struct TestCase {
     pub declared_scales: Option<Vec<Option<u32>>>,
     /// Input tables read from files when the case runs, added to `input_data`. The loader
     /// fills this rather than `input_data` so a suite's data is not held in memory for every
-    /// case at once (TPC-DS reads about 1.4 GB of CSV across its 99 cases).
+    /// case at once (a suite can read gigabytes of CSV across its cases).
     pub input_tables: Vec<InputTable>,
 }
 

@@ -8,7 +8,6 @@ binaries, input data, and expected reference outputs.
 | Suite | Queries | Data files | Expected outputs | Oracle |
 |-------|---------|------------|-----------------|--------|
 | [TPC-H](tpch/README.md) | 22 | 8 CSV (86,805 rows, scale 0.01) | 22 CSV | DuckDB 1.2.0 |
-| [TPC-DS](tpcds/README.md) | 99 | 24 CSV (scale 0.01) | 99 CSV | DuckDB 1.2.0 |
 | [Functions (Substrait 0.107)](functions-substrait-0.107/README.md) | — | — | inline in .test files | Substrait spec, validated against the 0.107.0 extension YAMLs |
 | [Functions (legacy)](functions/README.md) | — | — | inline in .test files | replaced by the suite above; shown as `functions-legacy`, not scored |
 
@@ -30,9 +29,6 @@ are counted as the runners count them.
 
 - An engine's **Overall** score is the average of its Functions and Queries pass rates; reference
   suites never change it ([how engines are scored](../docs/COMPLIANCE_LEADERBOARD.md#how-engines-are-scored)).
-- **TPC-DS is not on the leaderboard.** Its 99 queries ([`tpcds`](tpcds/README.md)) run locally:
-  `scripts/duckdb_benchmark_local.py --suite tpcds` for DuckDB, `scripts/run_plan_compliance.py
-  --test-suite test-suites/tpcds/metadata.yaml` for DataFusion, or any SDK's runner.
 - DuckDB and DataFusion, the engines this repository's CI runs, run every suite above;
   `functions-legacy` is run for DuckDB only.
 
@@ -66,9 +62,8 @@ See [functions/README.md](functions/README.md) for the full category breakdown.
 Pass rate = passed ÷ (total − skipped); see
 [how the pass rate is calculated](../docs/COMPLIANCE_LEADERBOARD.md#how-the-pass-rate-is-calculated).
 
-For TPC-H and TPC-DS a `SKIPPED` result means the expected file is absent from your checkout.
-Run `git status test-suites/tpch/expected/` or `git status test-suites/tpcds/expected/` to
-check. All expected files are committed and should be present on a clean clone.
+For TPC-H a `SKIPPED` result means the expected file is absent from your checkout.
+Run `git status test-suites/tpch/expected/` to check. All expected files are committed and should be present on a clean clone.
 
 ## Adding Expected Outputs
 

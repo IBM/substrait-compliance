@@ -10,14 +10,7 @@ Interactive dashboard for visualizing compliance test results.
 - Engine leaderboard and detailed results
 - Visual charts and analytics
 
-### 2. **TPC-DS Tests Dashboard** (`tpcds-tests.html`) 🆕
-- View TPC-DS query-level compliance results
-- 99 queries testing complex analytical workloads
-- Decision Support benchmark scenarios
-- Engine leaderboard and detailed results
-- Visual charts and analytics
-
-### 3. **Function Tests Dashboard** (`function-tests.html`)
+### 2. **Function Tests Dashboard** (`function-tests.html`)
 - View function-level compliance results
 - 568 tests across 5 categories
 - Category breakdown per engine
@@ -32,10 +25,6 @@ Interactive dashboard for visualizing compliance test results.
 cd ../runner
 ./run-demo.sh
 
-# Run TPC-DS tests
-cd ../runner
-./run-tpcds-tests.sh
-
 # Run Function tests
 cd ../runner
 ./run-function-tests-python.sh
@@ -47,7 +36,6 @@ Open in your browser:
 ```bash
 # From the dashboard directory
 open index.html              # TPC-H dashboard
-open tpcds-tests.html        # TPC-DS dashboard
 open function-tests.html     # Function tests dashboard
 ```
 
@@ -69,12 +57,6 @@ The dashboards read JSON files from the `../output/` directory:
 - `FastDBEngine-report.json`
 - `CloudDBEngine-report.json`
 
-### TPC-DS Tests:
-- `tpcds_leaderboard.json`
-- `MockDBEngine-tpcds-report.json`
-- `FastDBEngine-tpcds-report.json`
-- `CloudDBEngine-tpcds-report.json`
-
 ### Function Tests:
 - `function_tests_summary.json`
 - `MockDBEngine_function_tests.json`
@@ -93,14 +75,6 @@ The dashboards read JSON files from the `../output/` directory:
 - ✅ Detailed query results
 - ✅ Status badges
 
-### TPC-DS Dashboard
-- ✅ Leaderboard with rankings
-- ✅ 99 query results
-- ✅ Pass rate comparison charts
-- ✅ Detailed query results
-- ✅ Status badges
-- ✅ Cross-suite integration
-
 ### Function Tests Dashboard
 - ✅ Engine comparison table
 - ✅ Category breakdown cards
@@ -113,7 +87,6 @@ The dashboards read JSON files from the `../output/` directory:
 
 All dashboards have navigation tabs at the top:
 - **TPC-H Tests** - Switch to TPC-H query-level testing (22 queries)
-- **TPC-DS Tests** - Switch to TPC-DS query-level testing (99 queries)
 - **Function Tests** - Switch to function-level testing (568 tests)
 
 ## 📊 Understanding the Results
@@ -134,11 +107,6 @@ All dashboards have navigation tabs at the top:
 - Medium: 7 queries
 - Complex: 8 queries
 - Very Complex: 4 queries
-
-#### TPC-DS (99 queries)
-- Comprehensive decision support scenarios
-- Complex analytical workloads
-- Multi-table joins and aggregations
 
 #### Function Tests (568 tests)
 1. **Aggregate** (📊) - COUNT, AVG, SUM, etc.
@@ -175,7 +143,6 @@ All dashboards have navigation tabs at the top:
    ```bash
    cd demo/runner
    ./run-demo.sh                    # TPC-H
-   ./run-tpcds-tests.sh             # TPC-DS
    ./run-function-tests-python.sh   # Functions
    ```
 
