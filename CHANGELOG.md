@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Docs — broken links
+- Fixed the last 12 broken links in the Markdown docs: the missing `ROADMAP.md` (planned work
+  is in GitHub Issues), documents that were never added (scripts' quality-checker guides,
+  `FUNCTION_TESTS_IMPLEMENTATION.md`, `DEMO_USAGE.md`), a wrong relative path in
+  `demo/README.md`, and source links written as `file:line`, which GitHub does not resolve
+  (now `file#Lline`).
+
 ### Docs — suites at a glance
 - `test-suites/README.md` has a table of the seven suites the leaderboard shows, by report
   name: what each runs, as Substrait plans or SQL, how many cases, and whether it is scored

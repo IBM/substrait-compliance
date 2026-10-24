@@ -80,7 +80,7 @@ To test an engine against the compliance suites, implement the standardized `Com
 
 ### Java Interface
 
-Implement [`io.substrait.compliance.ComplianceEngine`](../sdk/java/src/main/java/io/substrait/compliance/ComplianceEngine.java:18):
+Implement [`io.substrait.compliance.ComplianceEngine`](../sdk/java/src/main/java/io/substrait/compliance/ComplianceEngine.java#L34):
 
 ```java
 package io.substrait.example;
@@ -122,7 +122,7 @@ public class MyDatabaseComplianceEngine implements ComplianceEngine {
 
 ### Python Interface
 
-Implement [`substrait_compliance.engine.ComplianceEngine`](../sdk/python/substrait_compliance/engine.py:42):
+Implement [`substrait_compliance.engine.ComplianceEngine`](../sdk/python/substrait_compliance/engine.py#L42):
 
 ```python
 from substrait_compliance.engine import ComplianceEngine, ExecutionResult
@@ -193,7 +193,7 @@ Two function-test formats are supported, detected per file:
   mapper described below. This suite has been replaced by the one above; it still runs and is shown
   on the leaderboard as `functions-legacy`, but is not scored.
 
-Substrait Function Test files (`.test`) declare functional AST signatures rather than SQL statements. For the legacy format, the framework includes [`SubstraitExpressionMapper`](../sdk/python/substrait_compliance/expression_mapper.py:10) to recursively map Substrait operators, types, and functions to database-executable SQL expressions:
+Substrait Function Test files (`.test`) declare functional AST signatures rather than SQL statements. For the legacy format, the framework includes [`SubstraitExpressionMapper`](../sdk/python/substrait_compliance/expression_mapper.py#L13) to recursively map Substrait operators, types, and functions to database-executable SQL expressions:
 
 ```mermaid
 flowchart LR

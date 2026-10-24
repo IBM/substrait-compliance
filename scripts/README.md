@@ -458,9 +458,7 @@ python3 scripts/quality_checker.py test.test
 ## Additional Resources
 
 - [Test Enhancement Guide](TEST_ENHANCEMENT_GUIDE.md) - Detailed enhancement strategies
-- [Quality Checker README](QUALITY_CHECKER_README.md) - In-depth quality checking
-- [Report Generator Config](REPORT_GENERATOR_CONFIG.md) - Report customization
-- [Quick Start Guide](QUICKSTART_QUALITY_CHECK.md) - Getting started quickly
+- [`quality_checker.py`](quality_checker.py) and [`quality_config.yaml`](quality_config.yaml) - Quality checking and its settings
 
 ---
 

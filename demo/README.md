@@ -31,7 +31,7 @@ This demo is **not** intended to serve as:
 - an official certification result for any engine
 - a substitute for production observability or SLO monitoring
 - a statistically rigorous benchmark harness
-- a guarantee of real engine behavior outside the deterministic demo adapters in [`demo/engines`](demo/engines)
+- a guarantee of real engine behavior outside the deterministic demo adapters in [`demo/engines`](engines)
 
 ## Quick Start (10-15 Minutes)
 

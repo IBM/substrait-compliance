@@ -166,9 +166,8 @@ All dashboards have navigation tabs at the top:
 
 ## 📖 Related Documentation
 
-- [Function Tests Implementation](../../docs/FUNCTION_TESTS_IMPLEMENTATION.md)
 - [Test Suite README](../../test-suites/functions/README.md)
-- [Demo Usage Guide](../DEMO_USAGE.md)
+- [Demo README](../README.md)
 
 ## 🎯 Example Workflow
 
