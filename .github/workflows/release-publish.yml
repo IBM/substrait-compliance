@@ -209,8 +209,9 @@ jobs:
 
       - name: Smoke test Go example
         run: |
-          cd sdk/go/examples
-          go run basic_engine.go
+          # The example's engine is a stub, so only check that it builds
+          cd sdk/go
+          go build -o "$RUNNER_TEMP/basic_engine" ./examples
 
       - name: Upload Go artifacts
         uses: actions/upload-artifact@v7
@@ -246,7 +247,7 @@ jobs:
       - name: Pack npm artifact
         run: |
           cd sdk/typescript
-          npm version --no-git-tag-version ${{ needs.validate-version.outputs.version }}
+          npm version --no-git-tag-version --allow-same-version ${{ needs.validate-version.outputs.version }}
           npm pack
           tar -tf substrait-compliance-*.tgz | grep -q "package/dist/"
 

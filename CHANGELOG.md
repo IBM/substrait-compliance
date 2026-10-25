@@ -44,9 +44,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   the release job could not run. It now packages `test-suites/` (every suite, with
   `registry.json`) as `test-suites-<version>.zip`, with a checksum.
 - The release's SDK builds now pass: the Java job looks for the jars by their actual name
-  (`substrait-compliance-<version>.jar`); the C++ job installs Protobuf and yaml-cpp; Go's
-  `go.sum` is tidy; the C# project can be packed (its test packages are no longer package
-  dependencies); and the TypeScript package builds `dist/index.js`, the entry point its
+  (`substrait-compliance-<version>.jar`); the C++ job installs Protobuf and yaml-cpp; the Go job
+  checks that the example builds instead of running its stub engine; the C# project can be packed
+  (its test packages are no longer package dependencies); and the TypeScript job accepts a
+  version already set, and the package builds `dist/index.js`, the entry point its
   `package.json` declares (the build had nested it under `dist/src/` with the compiled tests).
 
 ### Changed — the introduction matches the repository; the framework guide is removed
