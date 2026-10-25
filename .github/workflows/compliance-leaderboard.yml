@@ -58,7 +58,7 @@ jobs:
         run: mkdir -p compliance-reports
 
       # One entry per engine: the leaderboard-report artifact of that engine's latest
-      # successful run on main. Demo engines are not published here (see demo/).
+      # successful run on main.
       - name: Download the latest entry of each engine
         env:
           GH_TOKEN: ${{ github.token }}

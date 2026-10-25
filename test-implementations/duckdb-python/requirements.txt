@@ -1,3 +1,0 @@
-# DuckDB Compliance Test Implementation Dependencies
-duckdb>=0.9.0
-pyyaml>=6.0

@@ -65,8 +65,6 @@ test-output/
 # Build outputs
 out/
 output/
-!demo/output/.gitkeep
-!demo/output/analytics/analytics-report.json
 
 # Temporary files
 *.tmp

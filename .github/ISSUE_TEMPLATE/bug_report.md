@@ -36,7 +36,6 @@ A clear and concise description of what actually happened.
 - [ ] C# SDK
 - [ ] Scala SDK
 - [ ] Leaderboard / submissions
-- [ ] Demo System
 - [ ] Test Suites
 - [ ] Other (please specify)
 

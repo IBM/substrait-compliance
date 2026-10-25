@@ -111,7 +111,6 @@ Guide: [submissions/README.md](submissions/README.md).
 | [`examples/`](examples/README.md) | Engine integrations: DuckDB (Java, C++), DataFusion (Python, Rust), Velox (C++, needs a Velox build), and the leaderboard adapter |
 | [`docs/`](docs/) | Guides: introduction, scoring, CI workflows, benchmarking |
 | [`.github/workflows/`](.github/workflows/README.md) | CI: SDK builds, suite validation, engine runs, submission checks, publishing |
-| `demo/`, `test-implementations/` | Early prototypes, including a dashboard with simulated engines; not used by the leaderboard |
 
 ## Documentation
 
