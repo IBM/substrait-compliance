@@ -1,4 +1,4 @@
-# The Substrait Compliance Framework: A Technical Introduction
+# The Substrait Compliance Framework
 
 This document explains why plan-level interoperability needs verification, how the framework works, how to start using it, and where help is most useful.
 
@@ -6,19 +6,19 @@ This document explains why plan-level interoperability needs verification, how t
 
 ## 1. The problem: parsing is not executing
 
-[Substrait](https://substrait.io/) is a portable intermediate representation for relational algebra. A dataframe library, a SQL front end, or an automated planner produces a plan once, and any conforming engine can execute it: DuckDB, DataFusion, Velox, and a growing list of others. Teams maintain no custom connectors and no N×M integration matrix.
+[Substrait](https://substrait.io/) is a portable intermediate representation for relational algebra. A dataframe library, a SQL front end, or an automated planner produces a plan once, and any engine with a Substrait consumer, such as DuckDB, DataFusion or Velox, can execute it, without a custom connector for each pairing.
 
-A standard fixes the syntax of the boundary between components. It does not fix the semantics. An engine can accept a Substrait plan, execute it without error, and return different rows than another conforming engine would. SQL had the same problem for forty years. A shared language never implied shared behavior, because casting rules, null propagation, overflow handling, and function definitions all differ between implementations. Moving the contract from query text to the plan removes most parsing-level ambiguity; the semantic gap remains.
+A standard fixes the syntax of the boundary between components. It does not fix the semantics. An engine can accept a Substrait plan, execute it without error, and return different rows than another conforming engine would. SQL has the same problem: a shared language does not imply shared behavior, because casting rules, null propagation, overflow handling, and function definitions all differ between implementations. Moving the contract from query text to the plan removes most parsing-level ambiguity; the semantic gap remains.
 
-Three routine cases show the failure mode. A plan computes avg(x) over a group that a predicate-pushdown rewrite happens to leave empty; one engine returns NULL, another raises an error. A plan divides two DECIMAL(38,s) columns, and the engines disagree on result scale and rounding mode, which shifts every number downstream. A regexp_count call runs against two regex dialects that count zero-length matches differently. Checking that the plan is structurally valid catches none of this.
+This repository's own runs show the failure mode. As of DuckDB 1.5.6 and DataFusion 55.0.0, run through their Substrait consumers, both engines replace only the first match in regexp_replace: replacing [bc] with dd in 'abcabcabc' gives 'addcabcabc', where the Substrait test case expects every match replaced, 'addddaddddadddd'. DuckDB's extract of the milliseconds of 01:02:03.155 returns 3155 where the Substrait test case expects 155, and its atanh(-1.0) returns +∞ instead of −∞. Each of these plans is valid and runs without error; only comparing the results catches the difference.
 
-Divergence is also getting more expensive. Composable stacks chain producers, rewriters, and engines that were developed independently, so an error introduced at one boundary flows through the pipeline into results nobody inspects row by row. And the component composing the plan is increasingly a program, not a person. A human analyst brings domain knowledge and might question a suspicious number. An automated pipeline has no such check and will propagate a wrong answer at full throughput. If plans cross engine boundaries routinely, semantic equivalence must be verified, not assumed.
+Divergence is also getting more expensive. Composable stacks chain producers, rewriters and engines developed independently, so an error at one boundary flows into results nobody inspects row by row. And plans are increasingly composed by programs, which, unlike an analyst, do not question a suspicious number. If plans cross engine boundaries routinely, semantic equivalence must be verified, not assumed.
 
 ## 2. Why decentralized
 
 The usual answer to conformance is a certifying authority that runs a canonical suite against every implementation. That model does not fit this ecosystem.
 
-Engine teams often cannot send proprietary builds, internal traces, or customer data to an outside validator, which rules out any design that requires shipping artifacts to a central lab. Timing is a second obstacle: engines ship continuously, so conformance must run in each team's CI on every commit, not through a periodic certification queue. Disclosure is a third: a compliance failure can reveal implementation details a company does not intend to publish, so teams must be able to participate while keeping diagnostics private. Finally, a binary certified/not-certified result is too coarse for the consumers who need the evidence. A planner deciding where to send a plan cares which categories of operations an engine handles correctly, not whether it cleared an aggregate bar.
+Engine teams often cannot send proprietary builds, internal traces or customer data to an outside validator. Engines ship continuously, so conformance has to run in each team's own CI, not through a periodic certification queue. A compliance failure can reveal implementation details a company does not intend to publish, so teams must be able to take part while keeping diagnostics private. And a certified/not-certified verdict is too coarse: a planner deciding where to send a plan needs to know which categories of operations an engine handles correctly, not whether it cleared one bar.
 
 The framework therefore inverts the model. The test corpus is shared and versioned. Execution happens inside each engine's own environment. Reporting is federated, and each team decides what it publishes. Compliance verification becomes one more reusable component in the composable stack.
 
@@ -42,14 +42,14 @@ flowchart TD
         EC --> RC
     end
 
-    LB["Compliance leaderboard<br/>category pass rates · evidence tiers · JSON on GitHub Pages"]
+    LB["Compliance leaderboard<br/>Functions and TPC-H scores · a page per engine · HTML, Markdown and JSON on GitHub Pages"]
 
     STS --> EA
     STS --> EB
     STS --> EC
-    RA -->|"publish (opt-in)"| LB
-    RB -->|"publish (opt-in)"| LB
-    RC -->|"publish (opt-in)"| LB
+    RA -->|"pull request (opt-in)"| LB
+    RB -->|"pull request (opt-in)"| LB
+    RC -->|"pull request (opt-in)"| LB
 
     style STS fill:#edf5ff,stroke:#0043ce,color:#161616
     style LOCAL fill:#ffffff,stroke:#0043ce,stroke-dasharray:6 4,color:#0043ce
@@ -62,15 +62,23 @@ flowchart TD
     style LB fill:#edf5ff,stroke:#0043ce,color:#161616
 ```
 
-Shared suites run decentralized: locally, inside each engine's own CI pipeline (the dashed region), with no data leaving the engine team's environment. Structured reports feed a public leaderboard that exposes category pass rates and evidence tiers as Markdown, HTML and JSON. The figure adapts Figure 1 of the SAO 2026 paper, ending at the leaderboard; section 4 describes downstream consumers of the evidence, such as plan routers.
+Shared suites run decentralized: locally, inside each engine's own CI pipeline (the dashed region), with no data leaving the engine team's environment. Structured reports feed a public leaderboard, published as HTML, Markdown and JSON, that scores each engine and gives it a page listing what fails and why. The figure adapts Figure 1 of the SAO 2026 paper, ending at the leaderboard; section 4 describes downstream consumers of the evidence, such as plan routers.
 
-The first layer is the shared corpus, a versioned and language-neutral set of correctness fixtures. It holds 5,041 function-level assertions across 136 files in 14 categories: arithmetic (with decimal, rounding, and logarithmic subfamilies), string, comparison, datetime, aggregate, array, map, struct, set, window, conditional, JSON, cast, and geospatial. Each function test specifies typed input columns, a plan exercising one function under defined edge conditions such as nulls, boundaries, overflow, and empty groups, and an expected result with an explicit floating-point tolerance. Alongside the function tests sit the benchmark suites: all 22 TPC-H queries, serialized as Substrait plans in binary and JSON form, each with committed expected outputs. Result correctness is verifiable end to end. None of this measures speed. These are semantic-fidelity tests, and the only question they answer is whether an engine returns the right rows.
+The first layer is the shared corpus, a versioned and language-neutral set of correctness fixtures, pinned to a Substrait release (currently 0.107.0):
 
-An LLM helped construct part of the corpus through a generate-and-gate pipeline. A gap analyzer proposes edge cases that hand-written suites tend to miss (empty groups, all-null columns, cross-type combinations), and an automated validator rejects any candidate that is malformed or whose expected value cannot be justified from the specification. The model proposes; the validator decides. Where the specification is silent, candidates are discarded rather than given an invented answer.
+| Suite | Cases | Source | On the leaderboard |
+|---|---:|---|---|
+| Functions | 1,315 | The Substrait project's own function test cases, with 55 documented fixes | Scored |
+| TPC-H | 22 | The TPC-H queries as Substrait plans, binary and JSON, with expected outputs | Scored |
+| Extended functions | 2,278 | Converted from the project's earlier suite and verified | Reference |
+
+The function cases cover arithmetic (with decimal and unsigned subfamilies), rounding, logarithmic, boolean, comparison, datetime, string, list, aggregate and window functions. Each calls one function with typed arguments, often at an edge (nulls, boundaries, overflow, empty groups), and states the expected result; options such as overflow handling or rounding mode are part of the case. CI checks every case against the function definitions. Result correctness is verifiable end to end. None of this measures speed: these are semantic-fidelity tests, and the only question they answer is whether an engine returns the right rows.
+
+The extended cases come from the project's earlier suite of 5,041 cases, part of which was generated with the LLM-assisted tools in scripts/. Converting it to the current format kept 2,278 cases: each matches a signature in the 0.107.0 function definitions, and its expected result was reproduced by DuckDB (2,151 cases) or computed from the definitions (127). 89 cases were dropped because their expected value contradicted the definitions. Because DuckDB's agreement is one of the two checks, these cases lean towards DuckDB's behavior, which is why the leaderboard does not score them.
 
 The second layer is engine-local execution. SDKs exist in eight languages: Java, Python, Rust, Go, C++, TypeScript, C#, and Scala. Each exposes an idiomatic form of the same contract, and everything runs in the engine team's own environment and CI. No data leaves it.
 
-The third layer is federated reporting. Results aggregate into a structured compliance report with per-category pass rates, engine version, and declared capabilities, exportable as JSON, Markdown, HTML, or CSV. A team can keep reports private, publish summaries, or submit them to the leaderboard by pull request. The design separates private diagnostics (the failing inputs and traces, which stay local) from the published summary of per-category results. That separation lets proprietary engines participate.
+The third layer is federated reporting. Each run produces a structured report: the engine and its version, totals, and each case that did not pass, with the reason. A team can keep its reports private or submit them to the leaderboard by pull request, where a check validates them against the current suites before anything is published. What leaves the engine's environment is that report of outcomes, never the engine, its data or its internal traces. That separation lets proprietary engines participate. This repository's own CI also runs two engines, DuckDB and Apache DataFusion, weekly and whenever the suites or runners change, so the leaderboard has reference results from the start.
 
 ## 4. The engine contract
 
@@ -87,16 +95,16 @@ public interface ComplianceEngine {
 }
 ```
 
-Two methods return metadata. The other two do the work: validatePlan checks structural validity, and executePlan runs the plan against the provided input tables and returns tabular results. The framework's comparator verifies those results against the expected output using type-aware equality, which covers floating-point tolerance, NaN and Infinity semantics, and decimal scale handling.
+Two methods return metadata. The other two do the work: validatePlan reports whether the engine can run the plan, and executePlan runs the plan against the provided input tables and returns tabular results. The framework's comparator verifies those results against the expected output using type-aware equality, which covers floating-point tolerance, NaN and Infinity semantics, and decimal scale handling.
 
-Every test ends in one of four states: PASSED, FAILED, SKIPPED, or ERROR. The distinction matters. An engine that does not implement geospatial functions says so through its capabilities, and the runner records those tests as skipped instead of failed, so declaring capabilities accurately costs nothing. The rule cuts the other way as well. A test whose expected output is unavailable is recorded as SKIPPED, never PASSED. A pass always means the output matched a reference; it never means the plan merely ran without crashing.
+Every test ends as passed, not passed (failed, error, or unsupported), or skipped, and the pass rate is passed ÷ (total − skipped). The distinction matters. A plan the engine cannot run counts against it, even when the engine declares it unsupported: the engine is not compliant with that plan, so declaring things unsupported never raises a score. Skipped means the case does not apply: it pins an option mode the engine does not claim (engines need implement only one mode of an option such as overflow handling), its expected result is undefined by the specification, this repository's tooling cannot express the case yet, or there is nothing to check the output against. A test whose expected output is unavailable is skipped, never passed. A pass always means the output matched a reference; it never means the plan merely ran without crashing. The rule is pinned by shared test vectors that every SDK reads, so an in-house score means the same as the leaderboard's.
 
-The runner classifies each test case through a fixed decision sequence:
+The SDK runners classify each test case through a fixed decision sequence. The Python runners behind the leaderboard drive the engine directly instead of calling validatePlan, but score by the same rule:
 
 ```mermaid
 flowchart TD
-    T["Test case<br/>(plan + input tables + expected output)"] --> V{"validatePlan:<br/>plan supported by<br/>declared capabilities?"}
-    V -->|no| S1["SKIPPED<br/>plan not supported — capability declaration not penalized"]
+    T["Test case<br/>(plan + input tables + expected output)"] --> V{"validatePlan:<br/>can the engine<br/>run this plan?"}
+    V -->|no| F0["FAILED (unsupported)<br/>counts against the score"]
     V -->|yes| X{"executePlan<br/>succeeds?"}
     X -->|"engine reports failure<br/>or raises"| F1["FAILED / ERROR<br/>engine-side failure, categorized in the report"]
     X -->|yes| E{"expected output<br/>available?"}
@@ -108,78 +116,42 @@ flowchart TD
     style P fill:#defbe6,stroke:#24a148,color:#161616
     style F1 fill:#fff1f1,stroke:#da1e28,color:#161616
     style F2 fill:#fff1f1,stroke:#da1e28,color:#161616
-    style S1 fill:#edf5ff,stroke:#0043ce,color:#161616
+    style F0 fill:#fff1f1,stroke:#da1e28,color:#161616
     style S2 fill:#edf5ff,stroke:#0043ce,color:#161616
 ```
 
-Per-category results then roll up into fidelity tiers, one tier per category per engine:
-
-| Tier | Criteria | What a consumer may assume |
-|------|----------|----------------------------|
-| verified | Full category passes, including overflow and cross-type cases, above threshold | Safe for arbitrary inputs in this category |
-| edge | Nominal inputs plus standard edge cases pass: nulls, boundaries, empty groups | Safe for typical workloads; audit overflow-sensitive plans |
-| basic | Nominal inputs pass; null, boundary, or overflow cases fail | Safe only if inputs are known to be well-behaved |
-| none | Category unsupported, or the engine declares it skips the category | Do not route plans requiring this category here |
-
-Tiers turn raw test states into evidence that downstream tools can consume, and they are the unit the capability contract is written in.
-
-Capability declarations extend into a capability contract. A plan induces a demand: the operators, function signatures, types, and required tier per category that it needs. Each component advertises what it supports and the tier it has measured per category. A conservative static check walks each boundary in a chain of components and either confirms the composition is safe for that plan or names the specific boundary, operator, and observed tier that falls short. Unknown coverage counts as unsafe, never as a guess. Compliance evidence becomes a precondition that planners, dispatchers, and routing components can enforce before execution, not only a reporting artifact. The same corpus supports differential testing across engines: each plan runs on every engine that declares support, and the runner flags any disagreement. Differential testing needs no reference output, and it localizes a fault to a specific boundary. This is an active development direction.
+The leaderboard reports pass rates and groups each engine's failures by cause. The papers below take the evidence further, in directions not yet implemented. Fidelity tiers would summarize an engine's results per category by how far its passing cases go: none, basic (nominal inputs pass), edge (standard edge cases such as nulls and empty groups pass too) or verified (the full category passes, including overflow). Capability contracts would put those tiers to work before execution: a plan states the operators, functions, types and tier it needs, each component advertises what it has measured, and a conservative check either confirms that a chain of components is safe for the plan or names the boundary that falls short, treating unknown coverage as unsafe. The same corpus would also support differential testing, running each plan on every engine that declares support and flagging any disagreement; that needs no reference output and localizes a fault to a specific boundary.
 
 ## 5. Getting started
 
-Clone the repository and build the Java SDK, then run the compliance demos. The complete sequence takes about 10–15 minutes on first run.
+Start with the [leaderboard](https://ibm.github.io/substrait-compliance/): each engine's page shows its scores and what fails, grouped by cause. The README covers the rest: [running the suites locally](../README.md#try-it-locally), [adding an engine to the leaderboard](../README.md#add-your-engine-to-the-leaderboard) through the Python runners and a pull request, and [which route to use](../README.md#which-route-do-i-use) if you would rather test inside your engine's own test suite with a [language SDK](../sdk/README.md). Reference integrations for DuckDB, DataFusion and Velox are in [examples/](../examples/README.md).
 
-```bash
-# Clone and build
-git clone https://github.com/IBM/substrait-compliance.git
-cd substrait-compliance
-sdk/java/gradlew shadowJar -p sdk/java
-
-# Run TPC-H tests (from demo/ directory)
-cd demo
-./runner/run-simple-demo.sh          # Quick: 22 TPC-H queries
-# ./runner/run-demo.sh               # Enhanced: more detailed output
-
-# Run function-level tests (5,000+ tests across 15 categories - most comprehensive)
-cd runner
-./run-function-tests-python.sh       # Python version: 5,000+ tests, 15 categories (recommended)
-# ./run-function-tests.sh            # Java version: 4,000+ tests, 14 categories
-
-# View results
-cd ..
-python3 -m http.server 8080          # Open http://localhost:8080/dashboard/
-```
-
-Results are saved as JSON in `demo/runner/output/`. The dashboard displays pass rates by category and engine, with per-category fidelity tiers (verified, edge, basic, none) and evidence for plan-routing decisions.
-
-To integrate an engine, pick the SDK matching your language under sdk/, implement ComplianceEngine, load a suite through the provided loader, and run it with ComplianceRunner. Working reference integrations live in examples/: a DuckDB integration in Java and C++ that executes plans through DuckDB's native Substrait extension, and a DataFusion integration in Rust and Python built on from_substrait_plan. A status table in that directory documents what each example demonstrates. The Java SDK builds as a self-contained fat jar via ./gradlew shadowJar, and installation instructions for every language are in the main README.
-
-CI integration is a single file. Copy .github/workflows/engine-compliance-template.yml into your engine's repository and set four variables: engine name, version, minimum pass-rate threshold, and the framework version to pin. From then on every commit runs the suite, and the build fails if compliance drops below your threshold. The template checks the framework out at a pinned release tag, so your compliance target stays stable across framework releases.
+For CI there is a template workflow, .github/workflows/engine-compliance-template.yml. Set four variables (engine name, version, minimum pass-rate threshold, and the framework version to pin) and fill in the steps marked CUSTOMIZE THIS that build your engine and run the suites. It then runs weekly and on demand (add a push trigger to run it on every commit), fails if compliance drops below your threshold, and checks the framework out at a pinned release tag, so your compliance target stays stable across framework releases.
 
 ## 6. What the framework provides
 
-For an engine team, the immediate return is a regression gate for semantic correctness, a class of defect that passes unit tests and shows up later in aggregate results. The per-category report localizes the failure: a datetime edge case, a decimal scale error, a null-propagation path. This feedback loop has already taken one failing TPC-H integration to full compliance, one commit at a time.
+For an engine team, the immediate return is a regression gate for semantic correctness. Function reports give results by category and TPC-H reports by query, and each engine's page groups its failures by cause, down to the individual case. It is a feedback loop that takes an integration toward full compliance one commit at a time.
 
-Plan producers and platform builders gain a principled basis for a decision that previously had none: whether a given composition of components is semantically safe for a given plan. With category-level evidence and tiers, a dispatcher can route around documented weaknesses instead of discovering them in production.
+For plan producers and platform builders, the published results show which function categories and queries each engine handles correctly: the evidence a router needs to decide where a plan can safely run.
 
-The Substrait project benefits too. When independent engines disagree on a case and the specification does not define the behavior, regex dialect semantics being a recurring example, nobody has a bug. The failing case is direct evidence for an upstream specification issue, and surfacing those ambiguities strengthens the standard itself, not only its implementations.
+The Substrait project benefits too. A case on which engines disagree with the specification, or with each other, points either to an engine bug or to a gap in the specification. For example, the comparison definitions say only that equal(x, y) is x == y; DuckDB 1.5.6 and DataFusion 55.0.0 both treat NaN as equal to itself, which IEEE 754 does not, so the specification leaves that case open. Checking the upstream function cases against the function definitions has already produced 55 documented fixes, where an upstream case contradicts the definitions, for reporting upstream.
 
 ## 7. Contributing
 
 The framework's value comes from the engines that run it and the corpus they run against. Contributions expand both.
 
-Running the suite against a production engine is the most valuable contribution. Implement the interface, run the suites, and report how it went. A published compliance report is ideal; an issue describing integration friction or a discussion post is also useful. Real-engine reports are the primary measure of the project's success.
+Running the suite against a production engine is the most valuable contribution. Implement the interface, run the suites, and report how it went. A published compliance report is ideal; an issue describing integration friction or a discussion post is also useful.
 
-Test cases are welcome at any scale. The expected-output format is a documented, typed CSV (headers like revenue:double; see test-suites/tpch/README.md), and function tests are self-contained fixtures. Edge cases pulled from production bug trackers are especially valuable, because a defect observed in one engine tends to reproduce in others.
+Test cases are welcome at any scale. Function cases use the Substrait project's own test format, so a good case can go upstream as well as here; query expected outputs are a documented, typed CSV (headers like revenue:double; see [test-suites/tpch/README.md](../test-suites/tpch/README.md)). Edge cases pulled from production bug trackers are especially valuable, because a defect observed in one engine tends to reproduce in others.
 
 Specification ambiguities deserve reports of their own. If a test's expected value looks wrong because the Substrait specification admits more than one reading, open an issue with the case. A disputed semantic is not noise; it is one of the project's intended products.
 
-SDK and example work is open in all eight languages: idiomatic improvements, additional suite loaders and report formats through the existing plugin interfaces (no core changes required), and deeper reference integrations.
+SDK and example work is open in all eight languages: idiomatic improvements, additional suite loaders, and deeper reference integrations.
 
-Questions and proposals go to [GitHub Discussions](https://github.com/IBM/substrait-compliance/discussions). Issues are triaged, and contribution guidelines are in CONTRIBUTING.md.
+Questions and proposals go to [GitHub Discussions](https://github.com/IBM/substrait-compliance/discussions). Issues are triaged, and contribution guidelines are in [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 ## 8. Further reading
 
-Two workshop papers develop the design. "Trust at the Seams: Differential, Decentralized Compliance for Composable Query Engines" (CDMS Workshop at VLDB 2026) covers the composability argument, capability contracts, and differential testing. "Parsing Is Not Executing: Decentralized Compliance for Agentic Query Plan Routing" (SAO Workshop at ACM CAIS 2026) covers evidence-based plan routing. Repository documentation lives under [docs/](../docs), test-suite formats under [test-suites/](../test-suites), and the architecture guide in [SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md](SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md).
+Two workshop papers develop the design. "Trust at the Seams: Differential, Decentralized Compliance for Composable Query Engines" (CDMS Workshop at VLDB 2026) covers the composability argument, capability contracts, and differential testing. "Parsing Is Not Executing: Decentralized Compliance for Agentic Query Plan Routing" (SAO Workshop at ACM CAIS 2026) covers evidence-based plan routing. In the repository: the [README](../README.md) for an overview and quick start, [how engines are scored](COMPLIANCE_LEADERBOARD.md), the [test suites](../test-suites/README.md), [submitting results](../submissions/README.md), and the [language SDKs](../sdk/README.md).
 
 Substrait standardizes the syntax of the plan boundary. Whether two implementations mean the same thing by the same plan is a separate question, and only measurement can answer it. This framework answers it from inside each engine's own CI.

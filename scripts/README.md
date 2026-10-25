@@ -23,8 +23,10 @@ This directory contains automation scripts for quality checking, test enhancemen
 # Python 3.8+
 python3 --version
 
-# Install dependencies
-pip install -r requirements-report.txt
+# Install dependencies (from the repository root)
+pip install -e sdk/python
+# For the LLM-assisted quality tools, also:
+pip install -r scripts/requirements-report.txt
 ```
 
 ---
@@ -194,100 +196,14 @@ The public leaderboard and how results reach it are described in
 | `suite_hash.py` | Prints the hash of each accepted suite's files |
 | `submissions.py` | Shared code for the submission scripts |
 
-## Report Generation
+## Leaderboard preview
 
-### Technical Report Generator (`generate_technical_report.py`)
-
-Creates comprehensive technical reports from test results.
-
-#### Features
-- Leaderboard generation
-- Coverage analysis
-- Performance metrics
-- Trend analysis
-- Export formats (Markdown, HTML, PDF)
-
-#### Usage
-
-**Generate Full Report:**
-```bash
-python scripts/generate_technical_report.py \
-  --input quality_reports/ \
-  --output docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md
-```
-
-**Generate Leaderboard** (from engine entries written by `combine_engine_reports.py`;
-see [docs/COMPLIANCE_LEADERBOARD.md](../docs/COMPLIANCE_LEADERBOARD.md)):
+Build the leaderboard from engine entries written by `combine_engine_reports.py`
+(see [docs/COMPLIANCE_LEADERBOARD.md](../docs/COMPLIANCE_LEADERBOARD.md)):
 ```bash
 python scripts/generate_leaderboard.py \
   --input entries/ \
   --output preview/leaderboard.md --format all
-```
-
-**Custom Report:**
-```bash
-python scripts/generate_technical_report.py \
-  --config report_config.yaml \
-  --format html \
-  --output report.html
-```
-
-#### Report Configuration (`report_config.yaml`)
-
-```yaml
-report:
-  title: "Substrait Compliance Report"
-  date_format: "%Y-%m-%d"
-  
-sections:
-  - leaderboard
-  - coverage_analysis
-  - performance_metrics
-  - recommendations
-
-leaderboard:
-  top_n: 10
-  sort_by: "pass_rate"
-  
-coverage:
-  categories:
-    - arithmetic
-    - string
-    - comparison
-    - datetime
-  
-  thresholds:
-    excellent: 95
-    good: 85
-    needs_improvement: 70
-```
-
-#### Example Report Output
-
-```markdown
-# Substrait Compliance Report
-Generated: 2026-05-30
-
-## Leaderboard
-
-| Rank | Engine | Pass Rate | Tests Passed | Total Tests |
-|------|--------|-----------|--------------|-------------|
-| 1 | DuckDB | 98.5% | 837 | 850 |
-| 2 | DataFusion | 95.2% | 809 | 850 |
-| 3 | PostgreSQL | 92.8% | 789 | 850 |
-
-## Coverage Analysis
-
-### By Category
-- Arithmetic: 95% (810/850)
-- String: 92% (782/850)
-- Comparison: 98% (833/850)
-- Datetime: 88% (748/850)
-
-### Recommendations
-1. Improve datetime function coverage
-2. Add more edge cases for string functions
-3. Enhance error handling tests
 ```
 
 ---
@@ -372,13 +288,8 @@ python scripts/test_enhancer.py test-suites/functions/string/concat.test
 bash scripts/enhance_all_categories.sh string
 ```
 
-### 3. Generate Reports
+### 3. Preview the leaderboard
 ```bash
-# Generate technical report
-python scripts/generate_technical_report.py \
-  --input quality_reports/ \
-  --output docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md
-
 # Generate a leaderboard preview from engine entries (docs/COMPLIANCE_LEADERBOARD.md)
 python scripts/generate_leaderboard.py \
   --input entries/ \
@@ -419,14 +330,6 @@ checker.add_check('custom_check', my_custom_function)
 result = checker.check_file('test.test')
 ```
 
-### Automated Reporting
-
-**Cron Job for Daily Reports:**
-```bash
-# Add to crontab
-0 2 * * * cd /path/to/repo && python scripts/generate_technical_report.py
-```
-
 ---
 
 ## Troubleshooting
@@ -435,8 +338,9 @@ result = checker.check_file('test.test')
 
 **1. Import Errors**
 ```bash
-# Solution: Install dependencies
-pip install -r scripts/requirements-report.txt
+# Solution: install the dependencies, from the repository root
+pip install -e sdk/python
+pip install -r scripts/requirements-report.txt   # LLM-assisted quality tools only
 ```
 
 **2. Permission Denied**

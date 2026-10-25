@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Changed — the introduction matches the repository; the framework guide is removed
+- `docs/INTRODUCTION.md` keeps its argument and now describes the current suites (the Substrait
+  project's 1,315 function cases, 2,278 verified extended cases, TPC-H), the leaderboard and
+  its engine pages, and getting started through the leaderboard, a submission or an SDK
+  instead of the demo. It states the scoring rule as the runners apply it: a plan an engine
+  declares unsupported counts against it, and skipped means the case does not apply.
+  Fidelity tiers and capability contracts are described as design directions, not yet
+  computed.
+- `docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md` is removed, with
+  `scripts/generate_technical_report.py` and `scripts/example_generate_report.sh`, which
+  generated it. Its content is covered by the README, the introduction, `sdk/README.md` and
+  the scoring and suite docs.
+
 ### Changed — a shorter README
 - `README.md` is rewritten as a short front page: what is measured, the suites, a quick start
   that reproduces DataFusion's leaderboard entry, how to add an engine, and where to read more.
