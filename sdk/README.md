@@ -66,14 +66,14 @@ Build from source:
 ```bash
 cd sdk/java
 ./gradlew build        # compile + run tests
-./gradlew shadowJar    # produces build/libs/substrait-compliance-0.1.1-all.jar
+./gradlew shadowJar    # produces build/libs/substrait-compliance-0.1.2-all.jar
 ```
 
 **Verify build:**
 ```bash
 ls -la sdk/java/build/libs/
-# substrait-compliance-0.1.1-all.jar   (fat jar with all dependencies)
-# substrait-compliance-0.1.1.jar       (library jar, no deps bundled)
+# substrait-compliance-0.1.2-all.jar   (fat jar with all dependencies)
+# substrait-compliance-0.1.2.jar       (library jar, no deps bundled)
 ```
 </details>
 
@@ -186,7 +186,7 @@ sbt test
 **Verify Installation:**
 ```bash
 ls -la target/scala-2.13/
-# Should see: substrait-compliance_2.13-0.1.1.jar
+# Should see: substrait-compliance_2.13-0.1.2.jar
 ```
 </details>
 
@@ -370,7 +370,7 @@ public class MyEngine : IComplianceEngine
 ```bash
 cd examples/duckdb-java
 ./compile.sh
-java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.1-all.jar" \
+java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.2-all.jar" \
     io.substrait.example.DuckDBComplianceExample
 
 ```

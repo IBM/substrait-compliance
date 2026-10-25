@@ -12,7 +12,7 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 SDK_DIR="$SCRIPT_DIR/../../sdk/java"
-FAT_JAR="$SDK_DIR/build/libs/substrait-compliance-0.1.1-all.jar"
+FAT_JAR="$SDK_DIR/build/libs/substrait-compliance-0.1.2-all.jar"
 if [ ! -f "$FAT_JAR" ]; then
     if [ -f "$SCRIPT_DIR/../../compliance-assets/libs/substrait-compliance-all.jar" ]; then
         FAT_JAR="$SCRIPT_DIR/../../compliance-assets/libs/substrait-compliance-all.jar"

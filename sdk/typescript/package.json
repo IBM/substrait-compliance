@@ -1,6 +1,6 @@
 {
   "name": "@substrait/compliance",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "TypeScript/JavaScript SDK for Substrait compliance testing",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

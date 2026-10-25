@@ -144,7 +144,6 @@ This security policy applies to:
 - Substrait Compliance Framework core
 - Leaderboard submission checks and GitHub Actions workflows
 - Java, Python, and Rust SDKs
-- Demo applications
 - Documentation and examples
 
 ### Out of Scope

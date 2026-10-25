@@ -22,7 +22,7 @@ cd ../../sdk/java && ./gradlew shadowJar && cd -
 ./compile.sh
 
 # 4. Run the example
-FAT_JAR=../../sdk/java/build/libs/substrait-compliance-0.1.1-all.jar
+FAT_JAR=../../sdk/java/build/libs/substrait-compliance-0.1.2-all.jar
 DUCKDB_JAR=lib/duckdb_jdbc-1.5.6.0.jar
 java -cp "build:$FAT_JAR:$DUCKDB_JAR" io.substrait.example.DuckDBComplianceExample
 
@@ -124,7 +124,7 @@ construction time.
 
 | Artifact | Version | Notes |
 |----------|---------|-------|
-| `substrait-compliance SDK | 0.1.1 | Fat jar from `sdk/java` |
+| `substrait-compliance SDK | 0.1.2 | Fat jar from `sdk/java` |
 | `org.duckdb:duckdb_jdbc` | 1.5.6.0 | Fetched by `download-deps.sh` |
 
 The JDBC jar is downloaded from Maven Central. No Maven or Gradle installation

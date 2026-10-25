@@ -151,8 +151,8 @@ print(result.summary())
 **Location**: `sdk/rust/src/benchmark/mod.rs`
 
 **Files**:
-- `mod.rs` - Core benchmarking engine with async support (318 lines)
-- `examples/benchmark_example.rs` - Comprehensive example with 5 scenarios (181 lines)
+- `mod.rs` - Core benchmarking engine with async support
+- `examples/benchmark_example.rs` - Comprehensive example with 5 scenarios
 
 **Usage**:
 ```rust
@@ -190,13 +190,13 @@ println!("{}", result.to_csv());
 **Location**: `sdk/java/src/main/java/io/substrait/compliance/benchmark/`
 
 **Files**:
-- `BenchmarkRunner.java` - Core benchmarking engine (227 lines)
-- `BenchmarkConfig.java` - Configuration builder (81 lines)
-- `BenchmarkStats.java` - Statistical results (125 lines)
-- `BenchmarkResult.java` - Complete benchmark results (104 lines)
-- `BenchmarkOperation.java` - Operation wrapper (33 lines)
-- `OperationMetrics.java` - Individual metrics (37 lines)
-- `BenchmarkExample.java` - Example with 6 scenarios (213 lines)
+- `BenchmarkRunner.java` - Core benchmarking engine
+- `BenchmarkConfig.java` - Configuration builder
+- `BenchmarkStats.java` - Statistical results
+- `BenchmarkResult.java` - Complete benchmark results
+- `BenchmarkOperation.java` - Operation wrapper
+- `OperationMetrics.java` - Individual metrics
+- `BenchmarkExample.java` - Example with 6 scenarios
 
 **Usage**:
 ```java
@@ -285,28 +285,9 @@ Engine,Benchmark,Operation,TotalRuns,MinMs,MaxMs,AvgMs,MedianMs,P95Ms,P99Ms,StdD
 MyEngine,PlanExecution,executePlan_1k,100,45,123,54,52,67,89,12.3,18.5
 ```
 
-### 3. JSON Export
-```json
-{
-  "engine_name": "MyEngine",
-  "benchmark_name": "Plan Execution",
-  "timestamp": "2024-01-15T10:30:00Z",
-  "stats": [
-    {
-      "operation_name": "executePlan_1k_rows",
-      "total_runs": 100,
-      "min_time_ms": 45,
-      "max_time_ms": 123,
-      "avg_time_ms": 54,
-      "median_time_ms": 52,
-      "p95_time_ms": 67,
-      "p99_time_ms": 89,
-      "std_dev_ms": 12.3,
-      "throughput": 18.5
-    }
-  ]
-}
-```
+### 3. JSON
+
+No SDK exports benchmark results as JSON yet.
 
 ## Best Practices
 
@@ -337,35 +318,8 @@ MyEngine,PlanExecution,executePlan_1k,100,45,123,54,52,67,89,12.3,18.5
 
 ## Integration with CI/CD
 
-Benchmarks should be integrated into CI/CD pipelines:
-
-```yaml
-# .github/workflows/benchmark.yml
-name: Performance Benchmarks
-
-on:
-  pull_request:
-    branches: [ main ]
-  schedule:
-    - cron: '0 0 * * 0'  # Weekly
-
-jobs:
-  benchmark:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      - name: Run Benchmarks
-        run: |
-          # Run benchmarks for each SDK
-          cd sdk/scala && sbt "runMain benchmark.BenchmarkExample"
-          cd sdk/cpp && ./build/benchmark_example
-          # ... other SDKs
-      - name: Upload Results
-        uses: actions/upload-artifact@v2
-        with:
-          name: benchmark-results
-          path: benchmark_results.csv
-```
+No workflow in this repository runs the benchmarks yet; run an SDK's benchmark example locally.
+Automating it is listed under Future Enhancements below.
 
 ## Future Enhancements
 

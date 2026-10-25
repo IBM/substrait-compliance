@@ -12,8 +12,7 @@ Two file formats are supported and detected per file:
   * the older format of test-suites/functions (quoted include paths), handled by the
     regex-based SubstraitExpressionMapper as before.
 
-Unlike demo/runner/function_test_demo.py, which simulates several engines for the
-demo dashboard, this runner only reports results it actually measured:
+This runner only reports results it actually measured:
 
   * Scalar tests: the function call and the expected value are both evaluated by
     DuckDB and compared in Python (with float tolerance and NaN/inf handling).

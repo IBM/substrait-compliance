@@ -126,7 +126,7 @@ The leaderboard reports pass rates and groups each engine's failures by cause. T
 
 Start with the [leaderboard](https://ibm.github.io/substrait-compliance/): each engine's page shows its scores and what fails, grouped by cause. The README covers the rest: [running the suites locally](../README.md#try-it-locally), [adding an engine to the leaderboard](../README.md#add-your-engine-to-the-leaderboard) through the Python runners and a pull request, and [which route to use](../README.md#which-route-do-i-use) if you would rather test inside your engine's own test suite with a [language SDK](../sdk/README.md). Reference integrations for DuckDB, DataFusion and Velox are in [examples/](../examples/README.md).
 
-For CI there is a template workflow, .github/workflows/engine-compliance-template.yml. Set four variables (engine name, version, minimum pass-rate threshold, and the framework version to pin) and fill in the steps marked CUSTOMIZE THIS that build your engine and run the suites. It then runs weekly and on demand (add a push trigger to run it on every commit), fails if compliance drops below your threshold, and checks the framework out at a pinned release tag, so your compliance target stays stable across framework releases.
+For CI, the [engine CI guide](CI_COMPLIANCE_WORKFLOW_GUIDE.md#github-actions-ci-setup) has a workflow that runs the suites weekly and on demand (add a push trigger to run it on every commit), submits the results, and fails on a drop from your published scores. A skeleton, .github/workflows/engine-compliance-template.yml, is also provided: set its four variables and fill in the steps marked CUSTOMIZE THIS that build your engine and run the suites.
 
 ## 6. What the framework provides
 

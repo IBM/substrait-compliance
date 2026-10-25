@@ -7,7 +7,7 @@ plugins {
 }
 
 group = 'io.substrait'
-version = '0.1.1'
+version = '0.1.2'
 
 java {
     toolchain {
@@ -53,8 +53,8 @@ test {
     systemProperty 'substrait.compliance.rootDir', repoRoot.absolutePath
 }
 
-// Fat jar containing all runtime dependencies — used by the demo script
-// so it needs no knowledge of the Gradle cache layout.
+// Fat jar containing all runtime dependencies — used by the DuckDB Java example and the
+// DuckDB compliance workflow, so they need no knowledge of the Gradle cache layout.
 shadowJar {
     archiveClassifier = 'all'
     mergeServiceFiles()

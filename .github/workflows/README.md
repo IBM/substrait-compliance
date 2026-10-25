@@ -56,7 +56,7 @@ Substrait compliance testing. Customize:
 - `ENGINE_NAME` / `ENGINE_VERSION` — your engine's identity
 - build commands — whatever produces the JAR/binary your engine needs
 - `COMPLIANCE_THRESHOLD` — minimum pass rate before the job fails (default 80 %)
-- `COMPLIANCE_SDK_VERSION` — framework version to pull (currently `0.1.1`)
+- `COMPLIANCE_SDK_VERSION` — framework version to pull (currently `0.1.2`)
 
 ### `release-publish.yml` — Versioned release and publishing
 

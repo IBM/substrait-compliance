@@ -119,13 +119,16 @@ git remote set-url origin https://github.com/IBM/substrait-compliance.git
 
 Direct pushes to `main` are protected. All changes must go through a pull request.
 
-For maintainers cutting a release:
+For maintainers cutting a release, [`release-publish.yml`](../.github/workflows/release-publish.yml)
+builds every SDK, packages the test suites and creates the GitHub release. It runs in one of two ways:
 
-```bash
-# Tag an SDK release (release-publish.yml)
-git tag -a v1.0.0 -m "Release v1.0.0"
-git push origin v1.0.0
-```
+- **By hand** (Actions → Release & Publish → Run workflow, with the version, e.g. `0.1.2`): builds
+  and creates the release and its `v<version>` tag, without publishing to package registries.
+- **By pushing a tag** (`git tag -a v0.1.2 -m "Release v0.1.2" && git push origin v0.1.2`): does
+  the same and also publishes the SDKs to Maven Central, PyPI, crates.io, npm and NuGet, using the
+  secrets below.
+
+Before either, bump the SDK versions on `main` and date the release's CHANGELOG section.
 
 ---
 
@@ -149,9 +152,9 @@ by an IBM org admin at [https://github.com/IBM/substrait-compliance/settings](ht
 2. Select **Allow all actions and reusable workflows**
 3. Click **Save**
 
-### Repository Secrets (for CI/CD release workflows)
+### Repository Secrets (for publishing a release)
 
-Settings → Secrets and variables → Actions → New repository secret
+Settings → Secrets and variables → Actions → New repository secret. Only a tag-push release uses them.
 
 | Secret | Purpose |
 |--------|---------|
@@ -161,6 +164,8 @@ Settings → Secrets and variables → Actions → New repository secret
 | `SIGNING_PASSWORD` | GPG signing password |
 | `PYPI_API_TOKEN` | PyPI API token |
 | `CARGO_REGISTRY_TOKEN` | crates.io API token |
+| `NPM_TOKEN` | npm access token |
+| `NUGET_API_KEY` | NuGet API key |
 
 ### GitHub Discussions
 
@@ -195,15 +200,12 @@ or that your SSH public key is registered at
 
 ### Large Files
 
-```bash
-# Find files over 50 MB
-find . -type f -size +50M
+The repository does not use Git LFS: the runners read plans and data files straight from a
+checkout. Keep new data files small (the TPC-H data is scale factor 0.01), and check before
+committing:
 
-# Track large files with Git LFS if needed
-git lfs install
-git lfs track "*.bin" "*.csv"
-git add .gitattributes
-git commit -m "chore: add Git LFS tracking"
+```bash
+find . -type f -size +10M -not -path './.git/*'
 ```
 
 ### Permission Denied (SSH)
@@ -225,14 +227,13 @@ substrait-compliance/
 ├── .github/
 │   ├── workflows/         # CI/CD pipelines
 │   └── ISSUE_TEMPLATE/    # Bug, feature, and doc templates
-├── demo/                  # Interactive demo system and dashboard
 ├── docs/                  # Documentation
 ├── examples/              # Engine implementation examples
-├── scripts/               # Utility scripts
+├── schemas/               # JSON schemas for suite reports and submissions
+├── scripts/               # Runners, scoring and utility scripts
 ├── submissions/           # Leaderboard results submitted by engine teams
 ├── sdk/                   # Multi-language SDKs (Java, Python, Rust, Go,
 │                          #   TypeScript, C#, Scala, C++)
-├── test-implementations/  # Reference test runners
 ├── test-suites/           # Compliance test cases (TPC-H, functions)
 ├── CODE_OF_CONDUCT.md
 ├── CONTRIBUTING.md
@@ -253,6 +254,3 @@ substrait-compliance/
 - **Security**: See [SECURITY.md](../SECURITY.md)
 - **Contributing**: See [CONTRIBUTING.md](../CONTRIBUTING.md)
 
----
-
-Last Updated: June 26, 2026

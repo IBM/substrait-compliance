@@ -14,7 +14,7 @@ from .loader import TestSuiteLoader, YamlTestSuiteLoader
 from .exceptions import ComplianceException
 from .expression_mapper import SubstraitExpressionMapper
 
-__version__ = "0.1.1"
+__version__ = "0.1.2"
 
 __all__ = [
     "ComplianceEngine",

@@ -44,7 +44,6 @@ Relates to #
 - [ ] C# SDK
 - [ ] Scala SDK
 - [ ] Leaderboard / submissions
-- [ ] Demo System
 - [ ] Test Suites
 - [ ] Documentation
 - [ ] CI/CD

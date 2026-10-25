@@ -382,30 +382,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v7
       
-      - name: Create function test suite archive
+      - name: Create test suite archive
+        env:
+          VERSION: ${{ needs.validate-version.outputs.version }}
         run: |
-          cd test-suites
-          zip -r ../function-test-suite-${{ needs.validate-version.outputs.version }}.zip functions
-      
-      - name: Create enhanced test suite archive
-        run: |
-          cd test-suites-enhanced
-          zip -r ../enhanced-test-suite-${{ needs.validate-version.outputs.version }}.zip .
-      
-      - name: Generate checksums
-        run: |
-          sha256sum \
-            function-test-suite-${{ needs.validate-version.outputs.version }}.zip \
-            enhanced-test-suite-${{ needs.validate-version.outputs.version }}.zip \
-            > test-suite-checksums-${{ needs.validate-version.outputs.version }}.txt
+          # Every suite (test-suites/registry.json lists them), with data and expected outputs
+          zip -r "test-suites-${VERSION}.zip" test-suites -x '*/__pycache__/*'
+          sha256sum "test-suites-${VERSION}.zip" > "test-suite-checksums-${VERSION}.txt"
       
       - name: Upload test suites
         uses: actions/upload-artifact@v7
         with:
           name: test-suites-${{ needs.validate-version.outputs.version }}
           path: |
-            function-test-suite-*.zip
-            enhanced-test-suite-*.zip
+            test-suites-*.zip
             test-suite-checksums-*.txt
 
   create-release:
@@ -441,8 +431,7 @@ jobs:
           - **C# SDK**: source release from [`sdk/csharp`](sdk/csharp/Substrait.Compliance.csproj)
           
           ### Test Suites
-          - **Function Test Suite**: `function-test-suite-${{ needs.validate-version.outputs.version }}.zip`
-          - **Enhanced Test Suite**: `enhanced-test-suite-${{ needs.validate-version.outputs.version }}.zip`
+          - **All test suites**: `test-suites-${{ needs.validate-version.outputs.version }}.zip` (the scored `functions-substrait-0.107` and `tpch`, the reference suites, and `registry.json`)
           - **Checksums**: `test-suite-checksums-${{ needs.validate-version.outputs.version }}.txt`
           
           ## 🚀 Quick Start
@@ -468,12 +457,10 @@ jobs:
           
           ## 📊 Test Suite
           
-          Download and extract the published test suites:
+          Download and extract the test suites:
           ```bash
-          wget https://github.com/${{ github.repository }}/releases/download/v${{ needs.validate-version.outputs.version }}/function-test-suite-${{ needs.validate-version.outputs.version }}.zip
-          wget https://github.com/${{ github.repository }}/releases/download/v${{ needs.validate-version.outputs.version }}/enhanced-test-suite-${{ needs.validate-version.outputs.version }}.zip
-          unzip function-test-suite-${{ needs.validate-version.outputs.version }}.zip
-          unzip enhanced-test-suite-${{ needs.validate-version.outputs.version }}.zip
+          wget https://github.com/${{ github.repository }}/releases/download/v${{ needs.validate-version.outputs.version }}/test-suites-${{ needs.validate-version.outputs.version }}.zip
+          unzip test-suites-${{ needs.validate-version.outputs.version }}.zip
           ```
           
           ## 📖 Documentation

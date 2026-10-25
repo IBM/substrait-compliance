@@ -38,7 +38,6 @@ Which part of the project would this feature affect?
 - [ ] C# SDK
 - [ ] Scala SDK
 - [ ] Leaderboard / submissions
-- [ ] Demo System
 - [ ] Test Suites
 - [ ] Documentation
 - [ ] CI/CD

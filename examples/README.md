@@ -35,7 +35,7 @@ Real DuckDB integration via JDBC. The `executePlan` method:
 ```bash
 cd duckdb-java
 ./compile.sh
-java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.1-all.jar" \
+java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.2-all.jar" \
     io.substrait.example.DuckDBComplianceExample
 ```
 

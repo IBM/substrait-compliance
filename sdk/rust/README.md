@@ -17,7 +17,7 @@ Once published, add to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-substrait-compliance = "0.1.1"
+substrait-compliance = "0.1.2"
 ```
 
 ## Quick Start
