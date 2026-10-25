@@ -27,7 +27,8 @@ from sdk.python.substrait_compliance.function_test_parser import (
 )
 
 # LiteLLM Configuration
-LITELLM_BASE_URL = "https://ete-litellm.bx.cloud9.ibm.com"
+# Your LiteLLM proxy, if you use one; unset means LiteLLM calls the model provider directly.
+LITELLM_BASE_URL = os.getenv("LITELLM_BASE_URL") or None
 LITELLM_API_KEY = os.getenv("LITELLM_API_KEY", "")
 # Use exact model name from available models list
 MODEL = "aws/claude-sonnet-4-5"

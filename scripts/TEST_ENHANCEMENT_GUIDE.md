@@ -473,7 +473,7 @@ from pathlib import Path
 
 enhancer = TestEnhancer(
     api_key=os.environ["LITELLM_API_KEY"],
-    base_url="https://ete-litellm.bx.cloud9.ibm.com"
+    base_url=os.environ.get("LITELLM_BASE_URL")  # your LiteLLM proxy, if you use one
 )
 
 # Enhance specific file
