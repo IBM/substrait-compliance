@@ -34,7 +34,7 @@ except ImportError:
     sys.exit(1)
 
 # LiteLLM Configuration
-LITELLM_BASE_URL = "https://ete-litellm.bx.cloud9.ibm.com"
+LITELLM_BASE_URL = os.getenv("LITELLM_BASE_URL") or None
 LITELLM_API_KEY = os.getenv("LITELLM_API_KEY", "")
 DEFAULT_MODEL = "aws/claude-sonnet-4-5"
 

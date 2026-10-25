@@ -27,7 +27,7 @@ if [ -z "$LITELLM_API_KEY" ]; then
     exit 1
 fi
 
-echo "ℹ️  Using LiteLLM proxy: https://ete-litellm.bx.cloud9.ibm.com"
+echo "ℹ️  Using LiteLLM proxy: ${LITELLM_BASE_URL:-none (LiteLLM default)}"
 echo "   Model: aws/claude-sonnet-4-5"
 echo "   API key: from LITELLM_API_KEY environment variable"
 echo ""
