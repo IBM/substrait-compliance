@@ -12,24 +12,13 @@ The framework provides an engine-agnostic compliance runner, standardized interf
 
 1. [Overview & Architecture](#overview--architecture)
 2. [Workflow Pipeline Stages](#workflow-pipeline-stages)
-3. [Implementing Compliance Interfaces](#implementing-compliance-interfaces)
-   - [Java Interface](#java-interface)
-   - [Python Interface](#python-interface)
-   - [Rust Interface](#rust-interface)
-   - [C++ Interface](#c-interface)
-4. [Substrait Operator & Type Mapping](#substrait-operator--type-mapping)
+3. [Connecting Your Engine](#connecting-your-engine)
+4. [Function Test Formats](#function-test-formats)
 5. [Local CLI Commands](#local-cli-commands)
-   - [Running Python Compliance Runner](#running-python-compliance-runner)
-   - [Running Java Compliance Runner (DuckDB Example)](#running-java-compliance-runner-duckdb-example)
-   - [Previewing the Leaderboard Locally](#previewing-the-leaderboard-locally)
-5. [GitHub Actions CI Setup](#github-actions-ci-setup)
+6. [GitHub Actions CI Setup](#github-actions-ci-setup)
    - [Workflow Configuration File](#workflow-configuration-file)
    - [Submitting to the Leaderboard](#submitting-to-the-leaderboard)
    - [Regression Checks](#regression-checks)
-6. [Adapting for Other Engines](#adapting-for-other-engines)
-   - [DataFusion (Rust / Python)](#datafusion-rust--python)
-   - [Velox / Native C++ Engines](#velox--native-c-engines)
-   - [PostgreSQL / Trino (JDBC Engines)](#postgresql--trino-jdbc-engines)
 7. [Troubleshooting & Best Practices](#troubleshooting--best-practices)
 
 ---
@@ -74,111 +63,24 @@ Publishing is a separate workflow, [`compliance-leaderboard.yml`](../.github/wor
 
 ---
 
-## Implementing Compliance Interfaces
+## Connecting Your Engine
 
-To test an engine against the compliance suites, implement the standardized `ComplianceEngine` interface in your language of choice.
+The leaderboard's runners are Python scripts in [`scripts/`](../scripts/). Your engine plugs in as
+a class of your own, passed to them as `--engine package.module:ClassName`:
 
-### Java Interface
+- **Engines with Python bindings** (DataFusion, DuckDB and many Rust engines through PyO3) call the
+  bindings directly, as the built-in DuckDB and DataFusion engines do.
+- **Engines without Python bindings** provide a command that runs one plan;
+  [`examples/leaderboard-adapter`](../examples/leaderboard-adapter/README.md) calls it for TPC-H.
+- **JVM engines** can use the Java SDK runner for TPC-H.
 
-Implement [`io.substrait.compliance.ComplianceEngine`](../sdk/java/src/main/java/io/substrait/compliance/ComplianceEngine.java#L34):
-
-```java
-package io.substrait.example;
-
-import io.substrait.compliance.ComplianceEngine;
-import io.substrait.compliance.TestResult;
-import java.util.Map;
-
-public class MyDatabaseComplianceEngine implements ComplianceEngine {
-    
-    @Override
-    public String getEngineName() {
-        return "MyDatabase";
-    }
-
-    @Override
-    public String getEngineVersion() {
-        return "1.0.0";
-    }
-
-    @Override
-    public void loadTable(String tableName, String schemaSql, String csvPath) throws Exception {
-        // Load input CSV into temporary database table
-    }
-
-    @Override
-    public TestResult executePlan(byte[] planBytes, String expectedCsvPath) {
-        // Execute binary Substrait plan and compare results
-        return TestResult.passed("test_case", 100);
-    }
-
-    @Override
-    public TestResult executePlanJson(String planJson, String expectedCsvPath) {
-        // Execute JSON Substrait plan
-        return TestResult.passed("test_case", 100);
-    }
-}
-```
-
-### Python Interface
-
-Implement [`substrait_compliance.engine.ComplianceEngine`](../sdk/python/substrait_compliance/engine.py#L42):
-
-```python
-from substrait_compliance.engine import ComplianceEngine, ExecutionResult
-import duckdb
-
-class DuckDBComplianceEngine(ComplianceEngine):
-    def __init__(self):
-        self.con = duckdb.connect()
-        self.con.install_extension("substrait")
-        self.con.load_extension("substrait")
-
-    def name(self) -> str:
-        return "DuckDB"
-
-    def version(self) -> str:
-        return "1.2.0"
-
-    def register_table(self, name: str, schema: dict, data_file: str) -> None:
-        self.con.execute(f"CREATE TABLE {name} AS SELECT * FROM read_csv_auto('{data_file}')")
-
-    def execute_plan(self, plan_bytes: bytes) -> ExecutionResult:
-        df = self.con.execute("SELECT * FROM from_substrait(?)", [plan_bytes]).fetchdf()
-        return ExecutionResult(data=df.to_dict(orient="records"))
-```
-
-### Rust Interface
-
-Implement `substrait_compliance::ComplianceEngine`:
-
-```rust
-use substrait_compliance::{ComplianceEngine, ExecutionResult, TestResult};
-
-pub struct DataFusionEngine {
-    ctx: datafusion::prelude::SessionContext,
-}
-
-#[async_trait::async_trait]
-impl ComplianceEngine for DataFusionEngine {
-    fn engine_name(&self) -> &str {
-        "DataFusion"
-    }
-
-    fn engine_version(&self) -> &str {
-        "38.0.0"
-    }
-
-    async fn execute_plan(&self, plan_bytes: &[u8]) -> Result<ExecutionResult, Box<dyn std::error::Error>> {
-        // Execute plan in DataFusion session context
-        Ok(ExecutionResult::default())
-    }
-}
-```
+What the class must provide is in [submissions/README.md](../submissions/README.md#your-engine-class).
+To test inside your engine's own test suite instead, implement the `ComplianceEngine` interface of a
+language SDK; the [SDK guide](../sdk/README.md) has the interface for each language, with examples.
 
 ---
 
-## Substrait Operator & Type Mapping
+## Function Test Formats
 
 Two function-test formats are supported, detected per file:
 
@@ -233,56 +135,39 @@ expected_sql = SubstraitExpressionMapper.clean_types("30::i32")
 
 ## Local CLI Commands
 
-### Running Python Compliance Runner
+### Running the Python Runners
 
-Run compliance validation on test suites locally:
-
-```bash
-# 1. Install SDK in editable mode
-pip install -e ./sdk/python
-
-# 2. Run Python test suites
-pytest sdk/python/tests -v
-
-# 3. Run Function Test Suite Demo
-python3 demo/runner/function_test_demo.py --report-file reports/function-compliance.json
-
-# 4. Run TPC-H Suite against DuckDB
-python3 -c "
-from substrait_compliance.loader import TestSuiteLoader
-from substrait_compliance.runner import ComplianceRunner
-from demo.runner.function_test_demo import DuckDBEngine
-
-loader = TestSuiteLoader('test-suites/tpch')
-suite = loader.load_suite('test-suites/tpch/test_suite.yaml')
-print(f'Loaded suite with {len(suite.test_cases)} queries')
-"
-```
-
-### Running Java Compliance Runner (DuckDB Example)
-
-Build and run the Java reference implementation:
+Run both scored suites on a built-in engine; the [README](../README.md#try-it-locally) has the
+same commands for DataFusion. For your own engine, pass `--engine package.module:ClassName`.
 
 ```bash
-# 1. Build Java SDK Fat JAR
-cd sdk/java
-./gradlew shadowJar
-cd ../..
+pip install -e sdk/python "duckdb==1.5.6" "substrait-extensions==0.107.0" "substrait-protobuf==0.107.0"
 
-# 2. Run DuckDB Java Compliance Runner (Dry Run / Validation)
-java -cp "libs/substrait-compliance-all.jar:examples/duckdb-java/target/classes" \
-  io.substrait.example.DuckDBComplianceExample \
-  --test-suites test-suites \
-  --output-report reports/duckdb-compliance-report.json \
-  --dry-run
-
-# 3. Run Live Execution with DuckDB JDBC
-java -Dduckdb.native=true \
-  -cp "libs/substrait-compliance-all.jar:examples/duckdb-java/target/classes:~/.m2/repository/org/duckdb/duckdb_jdbc/0.10.0/duckdb_jdbc-0.10.0.jar" \
-  io.substrait.example.DuckDBComplianceExample \
-  --test-suites test-suites \
-  --output-report reports/duckdb-compliance-report.json
+python scripts/run_function_compliance.py --engine duckdb --mode plan \
+  --suites-dir test-suites/functions-substrait-0.107/upstream \
+  --suite-name functions-substrait-0.107 --output suite-reports/functions-substrait-0.107.json
 ```
+
+`--mode plan` runs each case as a Substrait plan through the engine's consumer (scored); without
+it, the case runs as the engine's own SQL (reference). DuckDB loads its Substrait extension from
+the community repository on first use.
+
+### Running the Java Runner (DuckDB Example)
+
+TPC-H through the Java SDK and DuckDB's JDBC driver, as [`duckdb-compliance.yml`](../.github/workflows/duckdb-compliance.yml) runs it:
+
+```bash
+(cd sdk/java && ./gradlew shadowJar)
+examples/duckdb-java/download-deps.sh 1.5.6.0
+examples/duckdb-java/compile.sh --no-sdk
+
+java -cp "examples/duckdb-java/build:sdk/java/build/libs/substrait-compliance-0.1.2-all.jar:examples/duckdb-java/lib/duckdb_jdbc-1.5.6.0.jar" \
+  io.substrait.example.DuckDBComplianceExample \
+  --test-suite test-suites/tpch/metadata.yaml \
+  --output-report suite-reports/tpch.json
+```
+
+Add `--dry-run` to check the setup without running the plans.
 
 ### Previewing the Leaderboard Locally
 
@@ -393,31 +278,13 @@ The check compares Overall and each category, and passes with a notice when ther
 
 ---
 
-## Adapting for Other Engines
-
-### DataFusion (Rust / Python)
-- Use `datafusion-substrait` crate or `pydatafusion` Python bindings.
-- Load TPC-H CSV files into memory tables via `ctx.register_csv(...)`.
-- Pass binary plans to `datafusion_substrait::logical_plan::consumer::from_substrait_plan`.
-
-### Velox / Native C++ Engines
-- Compile Velox with Substrait conversion support enabled.
-- Link against `substrait_compliance.a` or use the C++ Runner to process `.bin` plans.
-- Register input vectors from CSV and evaluate `exec::Task`.
-
-### PostgreSQL / Trino (JDBC Engines)
-- Implement `ComplianceEngine` using JDBC driver connections.
-- Use engine-specific Substrait extensions/functions (e.g. `pg_substrait` or Trino Substrait gateway).
-
----
-
 ## Troubleshooting & Best Practices
 
 1. **Case-Insensitive Column Matching:**
    Different SQL engines emit varying casing for result column headers (e.g., `TOTAL_REVENUE` vs `total_revenue`). The framework runner automatically performs case-insensitive header matching while preserving data column order.
 
 2. **Floating Point and Numeric Precision:**
-   Comparing double/decimal calculations across engines can produce tiny rounding differences (e.g., `12.340001` vs `12.34`). The framework runner normalizes numeric types within configurable epsilon tolerances.
+   Query results match within a relative tolerance of 1e-9 (with an absolute floor of 1e-9 near zero), and a decimal column is compared at the scale the plan declares. NaN matches only NaN, and an infinity only the same infinity. Every SDK applies the same rules, pinned by [`sdk/conformance/`](../sdk/conformance/README.md). Function cases use the same tolerance, or 1e-6 for fp32 results.
 
 3. **Substrait Version Compatibility:**
    Ensure the engine's Substrait consumer supports the extension plan version in `test-suites/`. If the engine encounters unsupported operators or expression types, the runner catches the error and marks the individual test as failed without aborting the entire suite.
