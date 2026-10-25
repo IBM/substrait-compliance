@@ -81,10 +81,10 @@ jobs:
         run: |
           cd sdk/java
           ls -lah build/libs
-          test -f build/libs/substrait-compliance-java-${{ needs.validate-version.outputs.version }}.jar
-          test -f build/libs/substrait-compliance-java-${{ needs.validate-version.outputs.version }}-sources.jar
-          test -f build/libs/substrait-compliance-java-${{ needs.validate-version.outputs.version }}-javadoc.jar
-          jar tf build/libs/substrait-compliance-java-${{ needs.validate-version.outputs.version }}.jar | grep -q "io/substrait/compliance/"
+          test -f build/libs/substrait-compliance-${{ needs.validate-version.outputs.version }}.jar
+          test -f build/libs/substrait-compliance-${{ needs.validate-version.outputs.version }}-sources.jar
+          test -f build/libs/substrait-compliance-${{ needs.validate-version.outputs.version }}-javadoc.jar
+          jar tf build/libs/substrait-compliance-${{ needs.validate-version.outputs.version }}.jar | grep -q "io/substrait/compliance/"
       
       - name: Upload Java artifacts
         uses: actions/upload-artifact@v7
@@ -209,8 +209,9 @@ jobs:
 
       - name: Smoke test Go example
         run: |
-          cd sdk/go/examples
-          go run basic_engine.go
+          # The example's engine is a stub, so only check that it builds
+          cd sdk/go
+          go build -o "$RUNNER_TEMP/basic_engine" ./examples
 
       - name: Upload Go artifacts
         uses: actions/upload-artifact@v7
@@ -246,7 +247,7 @@ jobs:
       - name: Pack npm artifact
         run: |
           cd sdk/typescript
-          npm version --no-git-tag-version ${{ needs.validate-version.outputs.version }}
+          npm version --no-git-tag-version --allow-same-version ${{ needs.validate-version.outputs.version }}
           npm pack
           tar -tf substrait-compliance-*.tgz | grep -q "package/dist/"
 
@@ -258,7 +259,7 @@ jobs:
           cd "$TMP_DIR"
           npm init -y >/dev/null 2>&1
           npm install ./package.tgz
-          node -e "require('substrait-compliance'); console.log('typescript package ok')"
+          node -e "require('@substrait/compliance'); console.log('typescript package ok')"
 
       - name: Upload TypeScript artifacts
         uses: actions/upload-artifact@v7
@@ -351,7 +352,7 @@ jobs:
         uses: actions/checkout@v7
 
       - name: Install C++ toolchain
-        run: sudo apt-get update && sudo apt-get install -y cmake g++
+        run: sudo apt-get update && sudo apt-get install -y cmake g++ libprotobuf-dev protobuf-compiler libyaml-cpp-dev pkg-config
 
       - name: Build C++ example package
         run: |
@@ -422,7 +423,7 @@ jobs:
           ## 📦 Release Artifacts
           
           ### SDKs
-          - **Java SDK**: `substrait-compliance-java-${{ needs.validate-version.outputs.version }}.jar`
+          - **Java SDK**: `substrait-compliance-${{ needs.validate-version.outputs.version }}.jar`
           - **Python SDK**: `substrait_compliance-${{ needs.validate-version.outputs.version }}-py3-none-any.whl`
           - **Rust SDK**: `substrait-compliance-${{ needs.validate-version.outputs.version }}.crate`
           - **Go SDK**: source release from [`sdk/go`](sdk/go/go.mod:1)
@@ -439,7 +440,7 @@ jobs:
           ### Java
           ```bash
           # Download and use the JAR
-          wget https://github.com/${{ github.repository }}/releases/download/v${{ needs.validate-version.outputs.version }}/substrait-compliance-java-${{ needs.validate-version.outputs.version }}.jar
+          wget https://github.com/${{ github.repository }}/releases/download/v${{ needs.validate-version.outputs.version }}/substrait-compliance-${{ needs.validate-version.outputs.version }}.jar
           ```
           
           ### Python
@@ -943,6 +944,7 @@ jobs:
 
     steps:
       - name: Download release candidate manifest
+        if: needs.release-candidate-smoke.result == 'success'
         uses: actions/download-artifact@v8
         with:
           name: release-candidate-manifest-${{ needs.validate-version.outputs.version }}

@@ -17,6 +17,8 @@
     <RepositoryUrl>https://github.com/IBM/substrait-compliance.git</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>substrait;compliance;testing;query-engine;sql</PackageTags>
+    <!-- The project also holds its tests; the test SDK would otherwise make it unpackable. -->
+    <IsPackable>true</IsPackable>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,13 +28,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
-    <PackageReference Include="xunit" Version="2.6.2" />
+    <!-- Test-only packages: not dependencies of the published package. -->
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" PrivateAssets="all" />
+    <PackageReference Include="xunit" Version="2.6.2" PrivateAssets="all" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
-    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" PrivateAssets="all" />
   </ItemGroup>
 
 </Project>
