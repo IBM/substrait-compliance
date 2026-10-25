@@ -1,1302 +1,147 @@
-# Substrait Compliance Framework
+# Substrait Compliance
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CI](https://github.com/IBM/substrait-compliance/actions/workflows/sdk-build-test.yml/badge.svg)](https://github.com/IBM/substrait-compliance/actions/workflows/sdk-build-test.yml)
 [![Release](https://img.shields.io/github/v/release/IBM/substrait-compliance?include_prereleases)](https://github.com/IBM/substrait-compliance/releases)
-[![Contributors](https://img.shields.io/github/contributors/IBM/substrait-compliance)](https://github.com/IBM/substrait-compliance/graphs/contributors)
 
-> **A decentralized compliance testing framework for Substrait implementations**
+Tests how well query engines run [Substrait](https://substrait.io) plans, and publishes the
+results.
 
-Enable database engines to self-certify their Substrait compliance through standardized interfaces, pre-packaged test suites, and automated reporting.
+**Leaderboard: <https://ibm.github.io/substrait-compliance/>**
 
-> **New to the project?** Read the [technical introduction](docs/INTRODUCTION.md) for the motivation, architecture, and how to get involved.
+Substrait is a cross-language format for query plans: one system produces a plan, another
+executes it. This repository holds shared test suites for Substrait consumers, the tooling to
+run them against an engine, and a public leaderboard with a page per engine showing what
+fails and why. New to the project? Start with the [introduction](docs/INTRODUCTION.md).
 
----
+## What is measured
 
-## 📑 Table of Contents
+Engines are scored on two things, run as Substrait plans through the engine's own Substrait
+consumer:
 
-- [Overview](#-overview)
-- [Prerequisites](#-prerequisites)
-- [5-Minute Quick Start](#-5-minute-quick-start)
-- [Which Path Do I Use?](#-which-path-do-i-use)
-- [Test Your Own Engine](#-test-your-own-engine)
-- [Test Suites](#-test-suites)
-- [Repository Structure](#-repository-structure)
-- [Architecture](#️-architecture)
-- [SDK Features](#-sdk-features)
-- [CI/CD Integration](#-cicd-integration)
-- [Troubleshooting](#-troubleshooting)
-- [Contributing](#-contributing)
-- [Key Documentation](#-key-documentation)
+- **Functions**: the Substrait project's own 1,315 function test cases (Substrait 0.107.0).
+- **TPC-H**: the 22 TPC-H queries.
 
----
+**Overall** is the average of the two. A pass rate is passed ÷ (total − skipped); see
+[how engines are scored](docs/COMPLIANCE_LEADERBOARD.md#how-engines-are-scored).
 
-## 🎯 Overview
+Each engine's page groups its failures by cause: gaps in its Substrait consumer, cases its own
+SQL also gets wrong, failing queries, and cases this repository cannot test yet. The engine's
+own SQL results are shown next to the scores, unscored, so a consumer gap can be told apart
+from a gap in the engine.
 
-The Substrait Compliance Framework transforms how query engines validate their Substrait support. Instead of centralized testing, engines **self-certify** by:
+This repository's CI runs **DuckDB** (Substrait community extension) and **Apache DataFusion**
+weekly and whenever the suites or runners change. Other engines take part by pull request
+([below](#add-your-engine-to-the-leaderboard)).
 
-1. **Implementing standard interfaces** — `ComplianceEngine` trait/interface
-2. **Running available test suites** — TPC-H (22 queries) and function test suites
-3. **Generating compliance reports** — JSON format with pass/fail results
-4. **Publishing results** — Optional leaderboard/report publication
+## Test suites
 
-### Key Features
+| Suite | What it is | Cases | On the leaderboard |
+|---|---|---:|---|
+| `functions-substrait-0.107` | The Substrait project's function test cases ([`tests/cases`](https://github.com/substrait-io/substrait/tree/v0.107.0/tests/cases) at v0.107.0), with 55 documented fixes | 1,315 | **Scored** (Functions) |
+| `tpch` | TPC-H queries as Substrait 0.107.0 plans, scale factor 0.01, with expected outputs | 22 | **Scored** (TPC-H) |
+| `functions-substrait-0.107-extended` | Cases converted from this repository's earlier function suite, validated and verified | 2,278 | Reference |
+| `tpch-substrait-0.81` | The same TPC-H queries in the older Substrait 0.81 encoding | 22 | Reference |
+| `…-sql` | The function suites run as the engine's own SQL | | Reference |
 
-- 🔄 **Decentralized Testing** — Engines test themselves; no central bottleneck
-- 🌐 **Multi-Language SDKs** — Java, Python, Rust, C++, Go, TypeScript/JavaScript, C#/.NET, and Scala at varying maturity levels
-- 📦 **Pre-packaged Test Suites** — TPC-H and function test suites included in-repo
-- ⚡ **Performance Benchmarking** — Benchmarking components included across several SDKs
-- 🤖 **Automated CI/CD** — GitHub Actions workflows for validation, release, and automation
-- 📊 **Interactive Demo** — Live dashboard with mock engines, query drill-down, and complexity filtering
-- 🏆 **Leaderboard Support** — Report aggregation and leaderboard generation
+CI checks every function case against the Substrait 0.107.0 function definitions. Details of each suite, its data and how expected results were produced:
+[test-suites/README.md](test-suites/README.md).
 
----
+## Try it locally
 
-## 🔧 Prerequisites
-
-Before you begin, ensure you have:
-
-- ✅ **Java 17+** — Check with `java -version`
-- ✅ **Python 3.8+** — Check with `python3 --version` (optional, for Python SDK/demo)
-- ✅ **Rust 1.70+** — Check with `rustc --version` (optional, for Rust SDK)
-- ✅ **Git** — For cloning the repository
-- ✅ **Web Browser** — For viewing the interactive dashboard
-
-**Quick Verification:**
-```bash
-java -version     # Should show 17 or higher
-python3 --version # Should show 3.8 or higher
-git --version     # Any recent version
-```
-
----
-
-## 🚀 5-Minute Quick Start
-
-Experience the framework before integrating your own engine:
+Run DataFusion against both scored suites, the way CI does (Python 3.11):
 
 ```bash
-# 1. Clone and build
-git clone https://github.com/IBM/substrait-compliance.git
-cd substrait-compliance
-sdk/java/gradlew shadowJar -p sdk/java
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e sdk/python "datafusion==55.0.0" "substrait-extensions==0.107.0" "substrait-protobuf==0.107.0"
 
-# 2. Run TPC-H demo (quick validation)
-cd demo
-./runner/run-simple-demo.sh                    # 22 TPC-H queries (~1-2 min)
+python scripts/run_function_compliance.py --engine datafusion --mode plan \
+  --suites-dir test-suites/functions-substrait-0.107/upstream \
+  --suite-name functions-substrait-0.107 --output out/datafusion-functions.json
+python scripts/run_plan_compliance.py --engine datafusion \
+  --test-suite test-suites/tpch/metadata.yaml --output out/datafusion-tpch.json
 
-# 3. Run comprehensive function tests (RECOMMENDED)
-cd runner
-./run-function-tests-python.sh                 # 5,000+ tests, 15 categories (~5-10 min)
-
-# 4. View the interactive dashboard
-cd ..
-python3 -m http.server 8080
-
-# 5. Open in your browser: http://localhost:8080
+python scripts/combine_engine_reports.py --engine DataFusion \
+  --functions functions-substrait-0.107=out/datafusion-functions.json \
+  --queries tpch=out/datafusion-tpch.json --output out/datafusion.json
 ```
 
-**For additional testing:**
-```bash
-# Enhanced TPC-H demo with detailed phases
-cd demo && ./runner/run-enhanced-demo.sh
-```
+The last command prints the engine's Overall, Functions and TPC-H scores, which match its
+leaderboard entry. The report files list every case with its result and the reason for any
+failure.
 
-### Cold-start validation
+## Add your engine to the leaderboard
 
-Use this sequence to verify the public repo from a fresh clone:
+No hosted service is involved: you run the suites in your own CI and open a pull request.
 
-```bash
-# From repository root
-sdk/java/gradlew shadowJar -p sdk/java
+1. Run `functions-substrait-0.107` and `tpch` from `main` through a small adapter for your
+   engine. Engines without Python bindings use a command that runs one plan
+   ([`examples/leaderboard-adapter`](examples/leaderboard-adapter/)).
+2. Submit the results with the reusable `submit-results.yml` workflow, or by hand with
+   `scripts/prepare_submission.py`.
+3. A check on the pull request validates the results against the current suites and shows
+   where the engine would rank.
+4. Once merged, the engine appears on the leaderboard as **Submitted**, linked to your CI run.
 
-# Run tests
-cd demo
-./runner/run-simple-demo.sh              # TPC-H validation (~2 min)
+Guide: [submissions/README.md](submissions/README.md).
 
-cd runner
-./run-function-tests-python.sh           # Comprehensive function tests (~10 min)
+## Which route do I use?
 
-cd ..
-```
-
-For full SDK build verification, use the ordered checklist in [`docs/SDK_VERIFICATION.md`](docs/SDK_VERIFICATION.md).
-
-**Expected output (abridged):**
-```text
-📦 Loading TPC-H test suite...
-✅ Loaded test suite: tpch
-   Total test cases: 22
-
-🔧 Testing: MockDB v1.0.0
-   ✅ Passed: 22  ❌ Failed: 0   📊 Pass Rate: 100.0%
-
-🔧 Testing: FastDB v2.5.0
-   ✅ Passed: 21  ❌ Failed: 1   📊 Pass Rate: 95.5%
-
-🔧 Testing: CloudDB v3.1.0
-   ✅ Passed: 17  ❌ Failed: 5   📊 Pass Rate: 77.3%
-
-🔧 Testing: DuckDB v0.10.0
-   ✅ Passed: 14  ❌ Failed: 8   📊 Pass Rate: 63.6%
-
-🔧 Testing: PostgreSQL v16.0
-   ✅ Passed: 14  ❌ Failed: 8   📊 Pass Rate: 63.6%
-
-🥇 MockDB       1.0.0   100.0%  🟢 VERIFIED
-🥈 FastDB       2.5.0    95.5%  🟢 VERIFIED
-🥉 CloudDB      3.1.0    77.3%  🔵 EDGE
-🥉 DuckDB       0.10.0   63.6%  🟡 BASIC
-🥉 PostgreSQL   16.0     63.6%  🟡 BASIC
-
-✅ Demo completed successfully!
-```
-
-The demo's DuckDB and PostgreSQL engines declare 8 queries unsupported; those count as failed,
-since pass rate = passed ÷ (total − skipped) and only cases that do not apply are skipped
-([how the pass rate is calculated](docs/COMPLIANCE_LEADERBOARD.md#how-the-pass-rate-is-calculated)).
-
-**What You'll See in the Dashboard:**
-- 🥇 **Leaderboard** — Rankings with medals and tier badges (VERIFIED / EDGE / BASIC)
-- 📊 **Visual Charts** — Bar chart and doughnut chart showing pass rates
-- 📈 **Detailed Statistics** — Per-engine breakdowns and test case results
-- 🔍 **Query Drill-Down** — Click any engine to see detailed query-level results
-- 🏷️ **Complexity Filtering** — Filter tests by SIMPLE, MEDIUM, COMPLEX, VERY_COMPLEX
-
-**Troubleshooting:**
-- If port 8080 is in use: `python3 -m http.server 8081`
-- If permission denied: `chmod +x demo/runner/run-simple-demo.sh`
-- Dashboard shows "Failed to load": ensure the demo ran successfully first
-
----
-
-## 🧭 Which Path Do I Use?
-
-There are two ways to run the suites, for two different goals:
-
-| Goal | Use | Language |
-|---|---|---|
-| Test your engine in its own CI or test suite | A **language SDK** (`sdk/`): interface, runner, comparator and report, all in your engine's language | Java, Python, Rust, C++, Go, TypeScript, C#, Scala |
-| Appear on the [public leaderboard](https://ibm.github.io/substrait-compliance/), with a page listing what fails and why | The **Python runners** (`scripts/run_function_compliance.py`, `scripts/run_plan_compliance.py`) through a small adapter for your engine, then a pull-request submission | any: the adapter reaches your engine through Python bindings, a command or a server |
-
-```mermaid
-flowchart LR
-  subgraph own["Engine's own CI: any of 8 languages"]
-    direction TB
-    E1["Engine"] --> SDK["Language SDK<br/>interface, runner, comparator"] --> R1["In-house report"]
-    J["Java SDK runner<br/>TPC-H reports"]
-  end
-  subgraph lb["Leaderboard route: Python tooling"]
-    direction TB
-    E2["Engine + Python adapter<br/>bindings, command or server"] --> PR["Python runners<br/>functions + TPC-H"] --> S["Pull-request submission<br/>checked with main's rules"] --> SC["Python scoring<br/>recompute, rank, publish"] --> P["Leaderboard page"]
-  end
-  J --> S
-```
-
-- The **Functions** score (half the ranking) can only be produced by the Python function
-  runner: it parses the Substrait project's function cases and builds a plan for each.
-- The **Queries** score (TPC-H) can come from the Python plan runner or from the Java SDK
-  runner, which writes accepted TPC-H reports; JVM engines, Scala included, can use it
-  directly.
-- The other SDKs' runners are for in-house testing; their results are not accepted as
-  submissions. Every SDK's comparator is checked against the leaderboard's shared comparison
-  vectors, so their in-house results mean the same as the leaderboard's
-  ([`sdk/conformance/`](sdk/conformance/README.md)), and every SDK's loader reads the
-  repository's TPC-H suite. The Go, TypeScript, C#, Rust, C++ and Scala loaders also
-  type the input tables by the plan, as the leaderboard's runner does.
-
-**Adapters by engine:**
-
-| Your engine | Adapter |
+| Goal | Use |
 |---|---|
-| Python bindings (DataFusion; many Rust engines through PyO3) | call the bindings, as the built-in DataFusion engine does |
-| No Python bindings (Rust, C++, Go, ...) | a small command that runs one plan; [`examples/leaderboard-adapter`](examples/leaderboard-adapter/) calls it for TPC-H |
-| JVM (Java, Scala) | the Java SDK runner for TPC-H; for function cases, an adapter that talks to a JVM process kept running for the whole run |
-
-Details, including what the adapter must provide: [submissions/README.md](submissions/README.md#engines-not-written-in-python).
-
----
-
-## 🔧 Test Your Own Engine
-
-This section is the in-house route: a language SDK in your engine's own tests. To appear on
-the leaderboard, see [Which Path Do I Use?](#-which-path-do-i-use) and
-[submissions/README.md](submissions/README.md).
-
-### Step 1: Choose Your SDK
-
-<details>
-<summary><b>Java SDK (Recommended — Most Complete)</b></summary>
-
-The SDK is not yet published to Maven Central or GitHub Packages.
-Build from source:
-
-```bash
-cd sdk/java
-./gradlew build        # compile + run tests
-./gradlew shadowJar    # produces build/libs/substrait-compliance-0.1.1-all.jar
-
-# Expected output:
-# BUILD SUCCESSFUL — 88 tests passed ✅
-```
-
-**Verify build:**
-```bash
-ls -la sdk/java/build/libs/
-# substrait-compliance-0.1.1-all.jar   (fat jar with all dependencies)
-# substrait-compliance-0.1.1.jar       (library jar, no deps bundled)
-```
-</details>
-
-<details>
-<summary><b>Python SDK (Pythonic Interface)</b></summary>
-
-```bash
-# Install the SDK and dev dependencies
-cd sdk/python
-python3 -m venv venv && source venv/bin/activate
-./install-dev.sh   # sets index to PyPI, seeds build tools, installs editable
-
-# Run tests to verify
-pytest
-
-# Expected output:
-# 13 passed ✅
-```
-
-**Verify Installation:**
-```bash
-python3 -c "import substrait_compliance; print('SDK installed successfully!')"
-```
-</details>
-
-<details>
-<summary><b>C++ SDK (Native Performance)</b></summary>
-
-```bash
-# Build the SDK
-cd sdk/cpp
-cmake -S . -B build -DBUILD_TESTS=ON
-cmake --build build --parallel
-
-# Run tests to verify
-ctest --test-dir build --output-on-failure
-
-# Expected output:
-# 100% tests passed ✅
-```
-
-**Verify Installation:**
-```bash
-ls -la libsubstrait_compliance.*
-# Should see: libsubstrait_compliance.so (or .dylib on macOS, .dll on Windows)
-```
-</details>
-
-<details>
-<summary><b>Go SDK (Cloud-Native & Concurrent)</b></summary>
-
-```bash
-# Get the SDK
-cd sdk/go
-go mod download
-
-# Run tests to verify
-go test ./...
-
-# Expected output:
-# PASS
-# ok      github.com/IBM/substrait-compliance/sdk/go
-```
-</details>
-
-<details>
-<summary><b>TypeScript/JavaScript SDK (Modern Web & Node.js)</b></summary>
-
-```bash
-# Install the SDK
-cd sdk/typescript
-npm install
-
-# Build the SDK
-npm run build
-
-# Run tests to verify
-npm test
-
-# Expected output:
-# PASS  tests/table-data.test.ts
-# PASS  tests/runner.test.ts
-# Test Suites: 2 passed, 2 total
-# Tests:       17 passed, 17 total
-```
-
-**Verify Installation:**
-```bash
-ls -la dist/
-# Should see: index.js, index.d.ts, and other compiled files
-```
-</details>
-
-<details>
-<summary><b>C#/.NET SDK (Enterprise & Cross-Platform)</b></summary>
-
-```bash
-# Build the SDK
-cd sdk/csharp
-dotnet restore
-dotnet build
-
-# Run tests to verify
-dotnet test
-
-# Expected output:
-# Passed!  - Failed:     0, Passed:    20, Skipped:     0, Total:    20
-```
-
-**Verify Installation:**
-```bash
-ls -la bin/Debug/net10.0/
-# Should see: Substrait.Compliance.dll and related files
-```
-</details>
-
-<details>
-<summary><b>Scala SDK (Functional & Type-Safe)</b></summary>
-
-```bash
-# Build the SDK
-cd sdk/scala
-sbt compile
-
-# Run tests to verify
-sbt test
-
-# Expected output:
-# [info] ComplianceEngineSpec:
-# [info] - should return engine information
-# [info] - should return engine capabilities
-# [info] All tests passed ✅
-```
-
-**Verify Installation:**
-```bash
-ls -la target/scala-2.13/
-# Should see: substrait-compliance_2.13-0.1.1.jar
-```
-</details>
-
-<details>
-<summary><b>Rust SDK (High Performance)</b></summary>
-
-```bash
-# Build the SDK
-cd sdk/rust
-cargo build --release
-
-# Run tests to verify
-cargo test
-
-# Expected output:
-# test result: ok. 22 passed ✅
-```
-
-**Verify Installation:**
-```bash
-ls -la target/release/
-# Should see: libsubstrait_compliance.rlib
-```
-</details>
-
-### Step 2: Implement ComplianceEngine
-
-#### Interface quick-reference
-
-Every SDK exposes the same four required operations plus optional lifecycle hooks. The table below shows the exact names and signatures by language — use it as your checklist before writing any code.
-
-| | Java | Python | TypeScript | Rust | Go | C# | C++ | Scala |
-|---|---|---|---|---|---|---|---|---|
-| **Plan arg type** | `Plan` (parsed protobuf) | `bytes` | `Uint8Array` | `&[u8]` | `[]byte` | `byte[]` | `vector<uint8_t>` | `Array[Byte]` |
-| **Execution model** | Synchronous | Synchronous | `async`/`Promise` | Synchronous | `context.Context` | `async Task` | Synchronous | `Future` |
-| **Get metadata** | `getEngineInfo()` | `get_info()` | `getInfo()` | `get_info()` | `GetInfo()` | `GetInfo()` | `get_info()` | `getInfo` |
-| **Get capabilities** | `getCapabilities()` | `get_capabilities()` | `getCapabilities()` | `get_capabilities()` | `GetCapabilities()` | `GetCapabilities()` | `get_capabilities()` | `getCapabilities` |
-| **Execute plan** | `executePlan(Plan, Map<String,TableData>)` | `execute_plan(bytes, Dict[str,TableData])` | `executePlan(Uint8Array, Map<string,TableData>)` | `execute_plan(&[u8], &HashMap<String,TableData>)` | `ExecutePlan(ctx, []byte, map[string]*TableData)` | `ExecutePlanAsync(byte[], IReadOnlyDictionary<string,TableData>)` | `execute_plan(vector<uint8_t>, TableCollection)` | `executePlan(Array[Byte], Map[String,TableData])` |
-| **Validate plan** | `validatePlan(Plan)` | `validate_plan(bytes)` | `validatePlan(Uint8Array)` | `validate_plan(&[u8])` | `ValidatePlan(ctx, []byte)` | `ValidatePlanAsync(byte[])` | `validate_plan(vector<uint8_t>)` | `validatePlan(Array[Byte])` |
-| **Lifecycle init** | `initialize()` *(default no-op)* | — | `initialize?()` *(optional)* | — | `Initialize(ctx)` | `InitializeAsync()` *(default no-op)* | `initialize()` *(default no-op)* | `initialize()` *(default no-op)* |
-| **Lifecycle cleanup** | `cleanup()` *(default no-op)* | — | `shutdown?()` *(optional)* | — | `Shutdown(ctx)` | `ShutdownAsync()` *(default no-op)* | `shutdown()` *(default no-op)* | `shutdown()` *(default no-op)* |
-
-**Key differences to be aware of:**
-
-- **Java** receives a fully-parsed `io.substrait.proto.Plan` object — the SDK deserializes the protobuf before calling your engine. All other SDKs receive raw bytes and you deserialize inside `execute_plan` / `executePlan`.
-- **TypeScript** and **Scala** use `Future`-based async execution; the TypeScript runner also supports optional parallel execution (`RunnerOptions.parallel`). All other SDK runners execute tests sequentially.
-- **Go** passes a `context.Context` through every call — use it for cancellation and deadlines.
-- **C++** uses `vector<uint8_t>` for plan bytes and a `TableCollection` typedef (`unordered_map<string, TableData>`) for input data.
-- **Lifecycle**: `initialize` is called once before the first test in a suite; `cleanup`/`shutdown` once after the last. They are not called per-test. You may keep open connections across test cases within a suite, but the engine must be stateless between test case executions (input data is passed fresh each time).
-
-<details>
-<summary><b>Java Example</b></summary>
-
-```java
-public class MyEngine implements ComplianceEngine {
-    @Override
-    public EngineInfo getEngineInfo() {
-        return new EngineInfo("MyEngine", "1.0.0", "MyCompany");
-    }
-
-    @Override
-    public ComplianceResult executePlan(Plan plan, Map<String, TableData> inputData)
-            throws ComplianceException {
-        // Load data into your engine
-        loadInputData(inputData);
-
-        // Execute the Substrait plan (Plan is a parsed protobuf object)
-        TableData output = executeSubstraitPlan(plan);
-
-        return ComplianceResult.success(output, 0);
-    }
-}
-```
-</details>
-
-<details>
-<summary><b>Python Example</b></summary>
-
-```python
-class MyEngine(ComplianceEngine):
-    def get_info(self) -> EngineInfo:
-        return EngineInfo("MyEngine", "1.0.0", "MyCompany")
-
-    def execute_plan(self, plan_bytes: bytes, input_data: Dict[str, TableData]) -> ComplianceResult:
-        # Load data into your engine
-        self._load_input_data(input_data)
-
-        # Execute Substrait plan
-        output = self._execute_substrait_plan(plan_bytes)
-
-        return ComplianceResult("test-id", TestStatus.PASSED, output_data=output)
-```
-</details>
-
-<details>
-<summary><b>Rust Example</b></summary>
-
-```rust
-impl ComplianceEngine for MyEngine {
-    fn get_info(&self) -> EngineInfo {
-        EngineInfo::new("MyEngine", "1.0.0", "MyCompany")
-    }
-
-    fn execute_plan(&self, plan_bytes: &[u8], input_data: &HashMap<String, TableData>)
-        -> Result<ComplianceResult> {
-        // Load data into your engine
-        self.load_input_data(input_data)?;
-
-        // Execute Substrait plan
-        let output = self.execute_substrait_plan(plan_bytes)?;
-
-        Ok(ComplianceResult::new("test-id", TestStatus::Passed).with_output(output))
-    }
-}
-```
-</details>
-
-<details>
-<summary><b>TypeScript Example</b></summary>
-
-```typescript
-import { ComplianceEngine, EngineInfo, EngineCapabilities, ComplianceResult, TestStatus, TableData } from '@substrait/compliance';
-
-class MyEngine implements ComplianceEngine {
-    getInfo(): EngineInfo {
-        return {
-            name: 'MyEngine',
-            version: '1.0.0',
-            vendor: 'MyCompany',
-            description: 'A high-performance query engine'
-        };
-    }
-
-    getCapabilities(): EngineCapabilities {
-        return {
-            supportedRelations: ['read', 'filter', 'project', 'aggregate'],
-            supportedFunctions: ['add', 'subtract', 'equal'],
-            supportedTypes: ['i32', 'i64', 'string', 'boolean']
-        };
-    }
-
-    async executePlan(planBytes: Uint8Array, inputData: Map<string, TableData>): Promise<ComplianceResult> {
-        await this.loadInputData(inputData);
-        const output = await this.executeSubstraitPlan(planBytes);
-        return new ComplianceResult('test-id', TestStatus.PASSED, output, undefined, undefined, executionTimeMs);
-    }
-}
-```
-</details>
-
-<details>
-<summary><b>C# Example</b></summary>
-
-```csharp
-using Substrait.Compliance;
-
-public class MyEngine : IComplianceEngine
-{
-    public EngineInfo GetInfo()
-    {
-        return new EngineInfo(
-            Name: "MyEngine",
-            Version: "1.0.0",
-            Vendor: "MyCompany",
-            Description: "A high-performance query engine"
-        );
-    }
-
-    public async Task<ComplianceResult> ExecutePlanAsync(
-        byte[] planBytes,
-        IReadOnlyDictionary<string, TableData> inputData)
-    {
-        await LoadInputDataAsync(inputData);
-        var output = await ExecuteSubstraitPlanAsync(planBytes);
-        return new ComplianceResult("test-id", TestStatus.Passed, output, null, null, executionTimeMs);
-    }
-}
-```
-</details>
-
-### Step 3: Run Against Test Suites
-
-**Java example (DuckDB):**
-```bash
-cd examples/duckdb-java
-./compile.sh
-java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.1-all.jar" \
-    io.substrait.example.DuckDBComplianceExample
-
-# Expected output (requires DuckDB JDBC with substrait extension):
-# Loaded test suite: tpch
-# Test cases: 22
-# Pass Rate: N%   ← actual result depends on which plans your DuckDB version supports
-```
-
-**Python example (DataFusion):**
-```bash
-pip install datafusion datafusion-substrait pyarrow
-cd examples/datafusion-python
-python datafusion_compliance.py
-
-# Expected output (when datafusion-substrait is installed):
-# Loaded test suite: tpch
-# Test cases: 22
-# Pass Rate: N%   ← actual result; without the packages installed, tests report FAILED
-```
-
-**Programmatic usage (Java):**
-```java
-// Load and run a test suite
-YamlTestSuiteLoader loader = new YamlTestSuiteLoader();
-TestSuite suite = loader.load("test-suites/tpch/metadata.yaml");
-
-ComplianceRunner runner = new ComplianceRunner(new MyEngine());
-ComplianceReport report = runner.runTestSuite(suite);
-
-System.out.println("Pass Rate: " + report.getPassRate() + "%");
-System.out.println("Passed: " + report.getPassedCount() + "/" + report.getTotalCount());
-```
-
-**See [examples/](examples/) for complete implementations.**
-
-### Step 4: Verify Results
-
-```bash
-# Check generated reports
-ls -la output/
-
-# View report contents (requires jq)
-cat output/your-engine-report.json | jq .
-
-# Key fields in report:
-# - engineInfo: { name, version, vendor }
-# - testResults: [ { testId, status, executionTime } ]
-# - summary: { total, passed, failed, skipped, passRate }
-# - timestamp: ISO 8601 format
-```
-
-### Step 5: Integrate with CI/CD (Optional)
-
-Copy the template workflow to your repository:
-
-```bash
-cp .github/workflows/engine-compliance-template.yml \
-   your-engine/.github/workflows/substrait-compliance.yml
-```
-
-Customize the workflow for your engine's build process (engine name, build commands, compliance threshold — default 80%).
-
-See [.github/workflows/README.md](.github/workflows/README.md) for details.
-
----
-
-## 🧪 Test Suites
-
-> **📚 Detailed Documentation:**
-> - [test-suites/functions-substrait-0.107/README.md](test-suites/functions-substrait-0.107/README.md) — Function tests in the current Substrait format (1,315 upstream + 2,278 verified cases, validated against Substrait 0.107.0)
-> - [test-suites/functions/README.md](test-suites/functions/README.md) — Legacy function tests (136 files, 5,041 test assertions, 14 categories; replaced, not scored)
-> - [test-suites/tpch/README.md](test-suites/tpch/README.md) — TPC-H benchmark (22 queries)
-
-### TPC-H Benchmark (22 Queries)
-
-Complete TPC-H benchmark at scale factor 0.01. **Result correctness is fully verifiable** — all 22 expected output files are committed and compared on every test run.
-
-| Component | Details |
-|-----------|---------|
-| **Queries** | 22 (Q1–Q22) |
-| **Data Files** | 8 CSV files |
-| **Total Rows** | 86,805 |
-| **Data Size** | ~10.6 MB |
-| **Plan Formats** | Binary (.bin) + JSON (.json) |
-| **Complexity Levels** | SIMPLE, MEDIUM, COMPLEX, VERY_COMPLEX |
-| **Expected Outputs** | ✅ All 22 present (`expected/q01.csv` – `q22.csv`) — [typed-header format](test-suites/tpch/README.md#expected-output-file-format) |
-
-**Query Complexity Breakdown:**
-- **SIMPLE** (3 queries): Q1, Q6, Q14 — Single table, basic aggregations
-- **MEDIUM** (7 queries): Q3, Q4, Q10, Q12, Q13, Q16, Q19 — Joins, grouping
-- **COMPLEX** (8 queries): Q5, Q7, Q9, Q11, Q15, Q17, Q18, Q22 — Multiple joins, subqueries
-- **VERY_COMPLEX** (4 queries): Q2, Q8, Q20, Q21 — Nested subqueries, complex joins
-
-```bash
-# Navigate to TPC-H test suite
-cd test-suites/tpch
-
-# View test suite metadata
-cat metadata.yaml
-
-# Inspect test data (8 CSV files: customer, lineitem, nation, orders,
-# part, partsupp, region, supplier)
-ls -la data/
-
-# View Substrait plans (44 files: q01.bin, q01.json … q22.bin, q22.json)
-ls -la plans/
-
-# View reference expected outputs (all 22 queries)
-ls -la expected/
-```
-
-**Running TPC-H tests (Java):**
-```java
-YamlTestSuiteLoader loader = new YamlTestSuiteLoader();
-TestSuite tpchSuite = loader.load("test-suites/tpch/metadata.yaml");
-
-ComplianceRunner runner = new ComplianceRunner(myEngine);
-ComplianceReport report = runner.runTestSuite(tpchSuite);
-
-System.out.println("TPC-H Results:");
-System.out.println("  Total Queries: " + report.getTotalCount());
-System.out.println("  Passed: " + report.getPassedCount());
-System.out.println("  Pass Rate: " + report.getPassRate() + "%");
-```
-
-### Function Tests (136 Files, 5,041 Assertions)
-
-The function test suite covers 14 semantic categories with 5,041 individual test assertions across 136 committed files:
-
-```
-aggregate/     (6 files)  — count, avg, stddev, variance, etc.
-arithmetic/    (44 files) — add, multiply, sqrt, trigonometry, etc.
-array/         (4 files)  — array operations
-cast/          (1 file)   — cast, try_cast
-comparison/    (19 files) — equal, gt, lt, between, coalesce, etc.
-conditional/   (2 files)  — case, if
-datetime/      (12 files) — date_trunc, date_diff, extract, etc.
-geospatial/    (4 files)  — st_area, st_distance, st_contains, st_intersects
-json/          (2 files)  — json_extract, json_parse
-map/           (3 files)  — map operations
-set/           (3 files)  — union, intersect, except
-string/        (27 files) — concat, substring, regexp, etc.
-struct/        (2 files)  — struct operations
-window/        (7 files)  — row_number, rank, lag, lead, etc.
-```
-
-**Running Function Tests (Python):**
-```python
-from substrait_compliance import YamlTestSuiteLoader, ComplianceRunner
-
-loader = YamlTestSuiteLoader()
-suite = loader.load("test-suites/functions/arithmetic/metadata.yaml")
-runner = ComplianceRunner(my_engine)
-report = runner.run_test_suite(suite)
-print(f"Arithmetic Functions: {report.passed_count}/{report.total_count} passed")
-```
-
-### Running Specific Tests
-
-**Single TPC-H query (Java):**
-```java
-TestSuite suite = loader.load("test-suites/tpch/metadata.yaml");
-
-TestCase q1 = suite.getTestCases().stream()
-    .filter(tc -> tc.getId().equals("q01"))
-    .findFirst()
-    .orElseThrow();
-
-ComplianceResult result = myEngine.executePlan(q1.getPlan(), q1.getInputData());
-System.out.println("Q1 Status: " + result.getStatus());
-```
-
-**Filter by complexity (Java):**
-```java
-List<TestCase> simpleTests = suite.getTestCases().stream()
-    .filter(tc -> tc.getComplexity() == Complexity.SIMPLE)
-    .collect(Collectors.toList());
-```
-
----
-
-## 📦 Repository Structure
-
-```
-substrait-compliance/
-├── 🎯 demo/                       # ⭐ START HERE — Interactive demo
-│   ├── runner/
-│   │   ├── run-simple-demo.sh     # ⭐ Run this first!
-│   │   ├── run-demo.sh            # Full demo with dashboard
-│   │   ├── run-enhanced-demo.sh   # Enhanced demo runner
-│   │   └── run-function-tests.sh  # Function test runner
-│   ├── dashboard/                 # Visual results dashboard (HTML/JS)
-│   ├── engines/                   # Example mock engines (Java)
-│   │   ├── MockDBEngine.java
-│   │   ├── FastDBEngine.java
-│   │   ├── CloudDBEngine.java
-│   │   ├── DuckDBEngine.java
-│   │   └── PostgreSQLEngine.java
-│   └── output/                    # Generated reports
-├── 📚 sdk/                        # Multi-language SDKs (8 languages)
-│   ├── java/                      # ⭐ Most complete — JDK 17+, Gradle
-│   ├── python/                    # Python 3.8+, pip/setuptools
-│   ├── rust/                      # Rust 2021 edition, Cargo
-│   ├── go/                        # Go 1.21+, modules
-│   ├── cpp/                       # C++17, CMake 3.15+
-│   ├── typescript/                # TypeScript/Node.js, npm
-│   ├── csharp/                    # C#/.NET 10+, dotnet
-│   └── scala/                     # Scala 2.13, sbt
-├── 🧪 test-suites/                # Test suites
-│   ├── functions/                 # 136 function test files, 5,041 assertions (14 categories)
-│   └── tpch/                      # TPC-H (22 queries, 8 data files, 44 plans)
-├── 💡 examples/                   # Integration examples — duckdb-java and duckdb-cpp execute plans; see examples/README.md
-│   ├── datafusion-python/         # DataFusion integration (Python)
-│   ├── datafusion-rust/           # DataFusion integration (Rust)
-│   ├── duckdb-cpp/                # DuckDB integration (C++)
-│   ├── duckdb-java/               # DuckDB integration (Java)
-│   └── velox-cpp/                 # Velox integration (C++)
-├── 📥 submissions/                # Leaderboard results submitted by engine teams
-├── 🤖 .github/workflows/          # CI/CD automation
-│   ├── engine-compliance-template.yml  # ⭐ Template for your engine
-│   ├── sdk-build-test.yml         # Tests all SDKs on every commit
-│   ├── test-suite-validation.yml  # Validates test suite integrity
-│   └── ...                        # engine compliance, submissions, leaderboard, release
-├── 🔧 scripts/                    # Automation and quality tools
-│   ├── generate_leaderboard.py    # Leaderboard and engine pages generator
-│   ├── engine_findings.py         # Groups an engine's failures by cause (its findings)
-│   ├── quality_checker.py         # Test quality checker
-│   ├── test_enhancer.py           # Test enhancement tool
-│   └── verify_sdk_builds.sh       # SDK build verification
-└── 📖 docs/                       # Documentation
-    ├── COMPLIANCE_LEADERBOARD.md
-    ├── engine-findings.yaml       # Explanations and upstream issue links of findings
-    ├── DEPLOYMENT_GUIDE.md
-    ├── PERFORMANCE_BENCHMARKING.md
-    ├── SDK_VERIFICATION.md
-    └── SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md
-```
-
-**Key Directories for Developers:**
-- 🎯 **`demo/`** — Run the interactive demo first to see the framework in action
-- 📚 **`sdk/`** — 8 SDKs: C++, C#, Go, Java, Python, Rust, Scala, TypeScript
-- 🧪 **`test-suites/`** — 136 function test files (5,041 assertions) + TPC-H benchmark
-- 💡 **`examples/`** — Real integration examples with DuckDB, DataFusion, and Velox
-
----
-
-## 🏗️ Architecture
-
-### Decentralized Compliance Model
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│         Compliance Framework (Standards Authority)           │
-│  • SDKs (8 languages)                                        │
-│  • Test Suites (TPC-H, Functions)                            │
-│  • Documentation & CI/CD Templates                           │
-└─────────────────────────────────────────────────────────────┘
-                          ↓ downloads & implements
-┌─────────────────────────────────────────────────────────────┐
-│              Query Engines (Self-Certify)                    │
-│  ┌────────────┐  ┌────────────┐  ┌────────────┐             │
-│  │  DuckDB    │  │ DataFusion │  │   Spark    │  ...        │
-│  │  Java SDK  │  │ Python SDK │  │  Java SDK  │             │
-│  └────────────┘  └────────────┘  └────────────┘             │
-└─────────────────────────────────────────────────────────────┘
-                          ↓ reports results (optional)
-┌─────────────────────────────────────────────────────────────┐
-│         Public Compliance Leaderboard (GitHub Pages)         │
-│  • Rankings by pass rate                                     │
-│  • Detailed results per engine                               │
-│  • Historical trends                                         │
-└─────────────────────────────────────────────────────────────┘
-```
-
----
-
-## 🔧 SDK Features
-
-### Java SDK
-- **JDK**: 17+  |  **Build**: Gradle  |  **Tests**: 88 (unit + TPC-H pass-through integration)
-- **Key Classes**: `ComplianceEngine`, `ComplianceRunner`, `YamlTestSuiteLoader`, `EngineCapabilities`
-- **Docs**: [sdk/java/README.md](sdk/java/README.md)
-
-### Python SDK
-- **Python**: 3.8+  |  **Build**: pyproject.toml / install-dev.sh  |  **Tests**: 13 (unit + pass-through integration)
-- **Key Modules**: `engine.py`, `runner.py`, `loader.py`, `result.py`
-- **Docs**: [sdk/python/README.md](sdk/python/README.md)
-
-### C++ SDK
-- **Standard**: C++17  |  **Build**: CMake 3.15+  |  **Tests**: 30 (Google Test)
-- **Key Headers**: `engine.h`, `runner.h`, `loader.h`, `result.h`, `comparator.h`
-- **Features**: Smart pointers, zero-copy operations, header-only option, cross-platform
-- **Docs**: [sdk/cpp/README.md](sdk/cpp/README.md)
-
-### Go SDK
-- **Go**: 1.21+  |  **Build**: Go modules  |  **Tests**: 24 (pass-through + CSV loader integration)
-- **Key Files**: `engine.go`, `runner.go`, `loader.go`, `result.go`, `table_data.go`
-
-### Rust SDK
-- **Edition**: 2021  |  **Build**: Cargo  |  **Tests**: 22 (unit + benchmark + pass-through integration)
-- **Key Modules**: `engine.rs`, `runner.rs`, `loader.rs`, `result.rs`
-
-### TypeScript SDK
-- **Runtime**: Node.js / Browser  |  **Build**: npm  |  **Tests**: 17 (table-data unit + runner pass-through integration)
-- **Docs**: [sdk/typescript/README.md](sdk/typescript/README.md)
-
-### C# SDK
-- **Runtime**: .NET 10+  |  **Build**: dotnet  |  **Tests**: 20 (TableData unit + runner pass-through integration)
-- **Docs**: [sdk/csharp/README.md](sdk/csharp/README.md)
-
-### Scala SDK
-- **Scala**: 2.13  |  **Build**: sbt  |  **JVM**: 17+  |  **Tests**: 26
-- **Key Files**: [`ComplianceEngine.scala`](sdk/scala/src/main/scala/io/substrait/compliance/ComplianceEngine.scala), [`ComplianceRunner.scala`](sdk/scala/src/main/scala/io/substrait/compliance/ComplianceRunner.scala), [`TestSuiteLoader.scala`](sdk/scala/src/main/scala/io/substrait/compliance/TestSuiteLoader.scala), [`EngineResult.scala`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala)
-- **Key Type**: [`EngineResult`](sdk/scala/src/main/scala/io/substrait/compliance/EngineResult.scala) separates engine execution from test results
-- **Docs**: [sdk/scala/README.md](sdk/scala/README.md)
-
-### SDK compliance-alignment status
-
-The table below reflects the state after all gap-closure work. Every SDK with ✅ in all four columns can produce honest compliance scores for in-house testing when given a test suite with expected output. Leaderboard results come from the Python runners, and for TPC-H also the Java SDK runner. Every SDK's comparator is checked against the shared comparison vectors in [`sdk/conformance/`](sdk/conformance/README.md) and compares decimal columns at the scale the plan declares (see [Which Path Do I Use?](#-which-path-do-i-use)).
-
-| SDK | Runner compares output | Type-aware comparator | Loader carries expected output | Pass-through integration test |
-|-----|---|---|---|---|
-| **Java** | ✅ full, epsilon 1e-9 | ✅ `normalizeType` + `valuesMatch` | ✅ typed CSV headers | ✅ TPC-H 22/22 proven |
-| **Python** | ✅ full, `isclose` 1e-9 | ✅ `_normalize_type` + `_values_match` | ✅ YAML `expected_output` field | ✅ 5 pass-through tests |
-| **TypeScript** | ✅ `ResultComparator` in runner | ✅ shared rule (`describeMismatch`) | ✅ repo suites; inputs typed by the plan | ✅ 5 pass-through tests |
-| **C#** | ✅ `ResultComparator` in runner | ✅ shared rule (`DescribeMismatch`) | ✅ repo suites; inputs typed by the plan | ✅ 5 pass-through tests |
-| **Go** | ✅ `DescribeMismatch()` in runner | ✅ shared rule | ✅ repo suites; inputs typed by the plan | ✅ 5 pass-through tests |
-| **Rust** | ✅ full value comparison | ✅ shared rule (`describe_mismatch`) | ✅ repo suites; inputs typed by the plan, read per case | ✅ 4 pass-through tests |
-| **C++** | ✅ full value comparison | ✅ shared rule (`describe_mismatch`) | ✅ repo suites; inputs typed by the plan, read per case | ✅ 5 pass-through tests |
-| **Scala** | ✅ full value comparison | ✅ shared rule (`ResultComparison`) | ✅ repo suites; inputs typed by the plan | ✅ 5 pass-through tests |
-
----
-
-## ⚡ Performance Benchmarking
-
-All SDKs include benchmarking components to measure engine performance:
-
-- **Statistical Analysis**: Min, Max, Avg, Median, P95, P99 latencies
-- **Throughput Metrics**: Operations per second
-- **Warmup Support**: Configurable warmup runs before measurement
-- **CSV Export**: Export results for external analysis
-
-**Available in all SDKs:**
-- Java — `sdk/java/src/main/java/io/substrait/compliance/benchmark/`
-- Python — `sdk/python/substrait_compliance/benchmark/benchmark_runner.py`
-- Rust — `sdk/rust/src/benchmark/mod.rs`
-- Go — `sdk/go/benchmark/benchmark_runner.go`
-- C++ — `sdk/cpp/include/substrait_compliance/benchmark_runner.hpp`
-- TypeScript — `sdk/typescript/src/benchmark/BenchmarkRunner.ts`
-- C# — `sdk/csharp/Substrait.Compliance/Benchmark/BenchmarkRunner.cs`
-- Scala — `sdk/scala/src/main/scala/io/substrait/compliance/benchmark/`
-
-See [docs/PERFORMANCE_BENCHMARKING.md](docs/PERFORMANCE_BENCHMARKING.md) for detailed usage and output format specifications.
-
----
-
-## 🤖 CI/CD Integration
-
-### Automated Workflows
-
-- **`sdk-build-test.yml`** — Tests all SDKs on every commit
-- **`test-suite-validation.yml`** — Validates test suite integrity
-- **`duckdb-compliance.yml`** / **`datafusion-compliance.yml`** — Run DuckDB and DataFusion for the leaderboard
-- **`submission-validation.yml`** — Checks leaderboard submissions
-- **`compliance-leaderboard.yml`** — Publishes the leaderboard
-- **`release-publish.yml`** — Automated versioning and publishing
-
-### For Engine Developers
-
-Copy the template workflow to enable automated compliance testing in your own repository:
-
-```bash
-cp .github/workflows/engine-compliance-template.yml \
-   .github/workflows/substrait-compliance.yml
-```
-
-Customize: engine name/version, build commands, test execution, compliance threshold (default 80%).
-
-See [.github/workflows/README.md](.github/workflows/README.md) for a description of every workflow file.
-
----
-
-## 🔍 Troubleshooting
-
-### Common Issues and Solutions
-
-#### "Permission denied" on shell scripts
-```bash
-chmod +x demo/runner/run-simple-demo.sh
-chmod +x demo/verify-setup.sh
-./demo/runner/run-simple-demo.sh
-```
-
-#### "Java version not supported"
-```bash
-java -version   # Should show 17 or higher
-
-# macOS (Homebrew)
-brew install openjdk@17
-
-# Ubuntu/Debian
-sudo apt update && sudo apt install openjdk-17-jdk
-
-# Windows — download from https://adoptium.net/
-```
-
-#### "Dashboard shows 'Failed to load data'"
-```bash
-# Run the demo first to generate data
-cd demo
-./runner/run-simple-demo.sh
-
-# Verify files exist
-ls -la demo/output/leaderboard.json
-ls -la demo/dashboard/data/leaderboard.json
-
-# Serve over HTTP (not file://)
-cd demo/dashboard
-python3 -m http.server 8080
-# Open http://localhost:8080
-```
-
-#### "Port 8080 already in use"
-```bash
-python3 -m http.server 8081   # or 9000, 3000, etc.
-
-# macOS/Linux: kill the blocking process
-lsof -ti:8080 | xargs kill -9
-```
-
-#### "SDK build fails"
-```bash
-# Java: clean rebuild
-cd sdk/java
-./gradlew clean build --refresh-dependencies
-
-# Python: reinstall
-cd sdk/python
-pip uninstall substrait-compliance -y
-./install-dev.sh   # re-seeds build tools and re-installs as editable local install
-
-# Rust: clean rebuild
-cd sdk/rust
-cargo clean && cargo build --release
-```
-
-#### "Test data not found"
-```bash
-ls -la test-suites/tpch/data/   # Should show 8 CSV files
-ls -la test-suites/tpch/plans/  # Should show 44 plan files
-
-# If files are missing
-git pull origin main
-```
-
-#### "Module not found" errors (Python)
-```bash
-cd sdk/python
-source venv/bin/activate   # activate the venv created during install
-./install-dev.sh           # re-seeds build tools and re-installs locally (editable install)
-python3 -c "import substrait_compliance; print('OK')"
-```
-
-#### "Gradle build fails with 'Could not resolve dependencies'"
-```bash
-rm -rf ~/.gradle/caches/
-cd sdk/java
-./gradlew clean build --refresh-dependencies
-```
-
-#### "Dashboard shows but no data appears"
-```bash
-# Check browser console (F12) for errors
-# Most common causes:
-# 1. Opened as file:// — use a web server instead
-cd demo/dashboard && python3 -m http.server 8080
-
-# 2. JSON file malformed
-cat demo/dashboard/data/leaderboard.json | python3 -m json.tool
-```
-
-### Getting Help
-
-1. **Check Documentation** — [demo/README.md](demo/README.md), [examples/README.md](examples/README.md)
-2. **Review Examples** — Working implementations in `examples/` and `demo/engines/`
-3. **Enable Debug Logging** (Java): `System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "debug")`
-4. **Report Issues** — [GitHub Issues](https://github.com/IBM/substrait-compliance/issues) · [GitHub Discussions](https://github.com/IBM/substrait-compliance/discussions)
-
----
-
-## ✅ Verification Checklist
-
-```bash
-# Automated verification
-cd demo && ./verify-setup.sh
-```
-
-**Manual Steps:**
-
-```bash
-# 1. Prerequisites
-java -version    # 17+
-python3 --version # 3.8+
-
-# 2. Repository structure
-ls -la demo/ sdk/ test-suites/ examples/
-ls -la test-suites/tpch/data/*.csv    # 8 files
-ls -la test-suites/tpch/plans/        # 44 files
-
-# 3. Demo execution
-cd demo && ./runner/run-simple-demo.sh
-# Expected: 5 engines tested; summary shows 100%/95.5%/77.3%/63.6%/63.6%; "Demo completed successfully!"
-
-# 4. Report generation
-ls -la demo/output/   # mockdb/fastdb/clouddb/duckdb/postgresql-report.json + leaderboard.json
-cat demo/output/leaderboard.json | python3 -m json.tool
-
-# 5. Dashboard
-cd demo/dashboard && python3 -m http.server 8080 &
-curl -s http://localhost:8080 | grep -q "Substrait Compliance" && echo "OK"
-
-# 6. SDK build (pick at least one)
-cd sdk/java && ./gradlew build test    # BUILD SUCCESSFUL, 88 tests
-cd sdk/python && python3 -m venv venv && source venv/bin/activate && ./install-dev.sh && pytest  # 13 passed
-cd sdk/rust && cargo build --release && cargo test  # 22 passed
-```
-
-**Success Criteria:**
-- ✅ All prerequisites installed (Java 17+, Python 3.8+)
-- ✅ Demo runs without errors; reports generated in `demo/output/`
-- ✅ Dashboard accessible at `http://localhost:8080`; shows 5 engines
-- ✅ At least one SDK builds and its tests pass
-
----
-
-## 📈 Compliance Leaderboard
-
-The public leaderboard is at **https://ibm.github.io/substrait-compliance/**. Engines are ranked
-by the average of two scores: **Functions** (the Substrait project's function cases, run as
-Substrait plans) and **Queries** (TPC-H plans).
-
-**Add your engine:** run the suites in your own CI and submit the results by pull request.
-Engines in any language take part, through a small Python adapter
-([Which Path Do I Use?](#-which-path-do-i-use)).
-A reusable workflow does it for you. The submission is checked and scored automatically and
-published once merged. See [submissions/README.md](submissions/README.md).
-How scores are computed and how results from this repository's CI and from submissions
-reach the board: [docs/COMPLIANCE_LEADERBOARD.md](docs/COMPLIANCE_LEADERBOARD.md).
-
-### Demo leaderboard
-
-Run the demo to generate leaderboard data from the five demo engines, then view it in the interactive dashboard. Results include fidelity tier badges (VERIFIED ≥ 90% / EDGE ≥ 70% / BASIC ≥ 50%) assigned from TPC-H pass rates.
-
-Generate and view the leaderboard:
-```bash
-cd demo && ./runner/run-simple-demo.sh
-cd dashboard && python3 -m http.server 8080
-# Open http://localhost:8080
-```
-
-To generate a standalone leaderboard JSON from existing reports:
-```bash
-python3 scripts/generate_leaderboard.py
-```
-
----
-
-## 📖 Key Documentation
-
-### 🎯 Getting Started
-- [README.md](README.md) — This file
-- [demo/README.md](demo/README.md) — Interactive demo guide
-- [demo/DASHBOARD_GUIDE.md](demo/DASHBOARD_GUIDE.md) — Dashboard features and navigation
-- [demo/TROUBLESHOOTING.md](demo/TROUBLESHOOTING.md) — Demo troubleshooting
-- [examples/README.md](examples/README.md) — Integration examples
-
-### 🧪 Test Suites
-- [test-suites/README.md](test-suites/README.md) — Test suites overview
-- [test-suites/functions-substrait-0.107/README.md](test-suites/functions-substrait-0.107/README.md) — Function tests (current Substrait format)
-- [test-suites/functions/README.md](test-suites/functions/README.md) — Legacy function tests (replaced, not scored)
-- [test-suites/tpch/README.md](test-suites/tpch/README.md) — TPC-H benchmark
-
-### 📚 SDK Documentation
-- [sdk/java/README.md](sdk/java/README.md) — Java SDK
-- [sdk/python/README.md](sdk/python/README.md) — Python SDK
-- [sdk/rust/README.md](sdk/rust/README.md) — Rust SDK
-- [sdk/go/README.md](sdk/go/README.md) — Go SDK
-- [sdk/cpp/README.md](sdk/cpp/README.md) — C++ SDK
-- [sdk/typescript/README.md](sdk/typescript/README.md) — TypeScript SDK
-- [sdk/csharp/README.md](sdk/csharp/README.md) — C# SDK
-- [sdk/scala/README.md](sdk/scala/README.md) — Scala SDK
-
-### 🔧 Development & Quality
-- [docs/PERFORMANCE_BENCHMARKING.md](docs/PERFORMANCE_BENCHMARKING.md) — Benchmarking guide
-- [docs/SDK_VERIFICATION.md](docs/SDK_VERIFICATION.md) — SDK verification guide
-- [docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md](docs/SUBSTRAIT_COMPLIANCE_FRAMEWORK_GUIDE.md) — Comprehensive technical guide
-- [scripts/README.md](scripts/README.md) — Scripts documentation
-- [scripts/TEST_ENHANCEMENT_GUIDE.md](scripts/TEST_ENHANCEMENT_GUIDE.md) — Test enhancement workflow
-- [.github/workflows/README.md](.github/workflows/README.md) — CI/CD workflow documentation
-- [CHANGELOG.md](CHANGELOG.md) — Version history
-
-### 🤝 Contributing
-- [CONTRIBUTING.md](CONTRIBUTING.md) — Contribution guidelines
-- [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) — Community code of conduct
-- [GOVERNANCE.md](GOVERNANCE.md) — Project governance
-
----
-
-## 🛠️ Development
-
-### Building from Source
-
-**Java SDK:**
-```bash
-cd sdk/java && ./gradlew build test
-```
-
-**Python SDK:**
-```bash
-cd sdk/python && python3 -m venv venv && source venv/bin/activate && ./install-dev.sh && pytest
-```
-
-**Rust SDK:**
-```bash
-cd sdk/rust && cargo build --release && cargo test
-```
-
-### Running Examples
-
-> **Note:** `duckdb-java` and `duckdb-cpp` execute plans for real (JDBC
-> `substrait()` and native `from_substrait()` respectively). `datafusion-python`
-> executes when `datafusion-substrait` is installed. `datafusion-rust` and
-> `velox-cpp` have the wiring in place but execution is not yet called. See
-> [`examples/README.md`](examples/README.md) for the full status table.
-
-**DuckDB (Java):**
-```bash
-cd examples/duckdb-java && ./compile.sh
-java -cp "build:../../sdk/java/build/libs/substrait-compliance-0.1.1-all.jar" \
-    io.substrait.example.DuckDBComplianceExample
-```
-
-**DataFusion (Python):**
-```bash
-pip install datafusion datafusion-substrait pyarrow
-cd examples/datafusion-python && python datafusion_compliance.py
-```
-
-**DuckDB (C++):**
-```bash
-cd examples/duckdb-cpp
-cmake -S . -B build
-cmake --build build --parallel
-./build/example
-```
-
-**DataFusion (Rust):**
-```bash
-cd examples/datafusion-rust && cargo run
-```
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
-
-### Areas for Contribution
-
-- Additional test suites and test cases
-- New engine integration examples
-- SDK improvements and new language SDKs
-- Documentation enhancements
-- Bug fixes and optimizations
-
----
-
-## 📊 Project Statistics
-
-| Metric | Value |
-|--------|-------|
-| **SDKs** | 8 (Java, Python, Rust, Go, C++, TypeScript, C#, Scala) |
-| **Test Suites** | 2 (TPC-H, Functions) |
-| **Function Test Files** | 136 (14 categories) |
-| **Function Test Assertions** | 5,041 individual test cases |
-| **TPC-H Queries** | 22 |
-| **TPC-H Data Rows** | 86,805 (scale factor 0.01) |
-| **CI/CD Workflows** | 10 |
-| **Example Implementations** | 5 (DuckDB Java/C++, DataFusion Python/Rust, Velox C++) |
-
----
-
-## 📜 License
-
-This project is licensed under the Apache License 2.0 — see the [LICENSE](LICENSE) file for details.
-
----
-
-## 🙏 Acknowledgments
-
-- **Substrait Community** — For the query plan specification
-- **TPC Organization** — For the TPC-H benchmark queries
-- **Engine Developers** — For implementing Substrait support
-
----
-
-## 📞 Support
-
-- **Issues**: [GitHub Issues](https://github.com/IBM/substrait-compliance/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/IBM/substrait-compliance/discussions)
-- **Documentation**: [docs/](docs/)
-
----
-
-## 🗺️ Roadmap
-
-Planned work is tracked in [GitHub Issues](https://github.com/IBM/substrait-compliance/issues).
-
-**Recently completed:**
-- [x] Leaderboard submissions by pull request
-- [x] Comprehensive CI/CD workflows
-- [x] Interactive demo system with dashboard
-
-**Up next:**
-- [ ] Performance benchmarking CI integration
-- [ ] Compliance badges
-
----
-
-**Made with ❤️ for the Substrait Community**
+| Appear on the leaderboard | The Python runners in [`scripts/`](scripts/) through an adapter for your engine, then a pull request ([submissions/README.md](submissions/README.md)) |
+| Test your engine in its own test suite, in its own language | A language SDK: Java, Python, Rust, C++, Go, TypeScript, C# or Scala ([sdk/README.md](sdk/README.md)) |
+
+- The **Functions** score comes only from the Python function runner, which builds a plan for
+  each Substrait function case.
+- The **TPC-H** score can come from the Python plan runner or from the Java SDK runner, so JVM
+  engines can use the Java SDK directly.
+- The other SDKs are for in-house testing. Their comparators are checked against the
+  leaderboard's shared comparison vectors ([sdk/conformance/](sdk/conformance/README.md)), so
+  their results mean the same as the leaderboard's.
+
+## Repository layout
+
+| Path | Contents |
+|---|---|
+| [`test-suites/`](test-suites/README.md) | The suites: function cases, TPC-H plans, data and expected outputs |
+| [`scripts/`](scripts/) | Runners, plan builder, validators, scoring and leaderboard generation |
+| [`sdk/`](sdk/README.md) | Language SDKs and their shared conformance vectors |
+| [`submissions/`](submissions/README.md) | How to submit results |
+| [`examples/`](examples/README.md) | Engine integrations: DuckDB (Java, C++), DataFusion (Python, Rust), Velox (C++, needs a Velox build), and the leaderboard adapter |
+| [`docs/`](docs/) | Guides: introduction, scoring, CI workflows, benchmarking |
+| [`.github/workflows/`](.github/workflows/README.md) | CI: SDK builds, suite validation, engine runs, submission checks, publishing |
+| `demo/`, `test-implementations/` | Early prototypes, including a dashboard with simulated engines; not used by the leaderboard |
+
+## Documentation
+
+- [Introduction](docs/INTRODUCTION.md): motivation, architecture and how to get involved
+- [Leaderboard and scoring](docs/COMPLIANCE_LEADERBOARD.md): how engines are scored and how results are published
+- [Test suites](test-suites/README.md): what each suite contains and how its results were verified
+- [Submitting results](submissions/README.md): adapters, the submission workflow and the checks
+- [Language SDKs](sdk/README.md): setting up an SDK and implementing the engine interface
+- [CI workflows](.github/workflows/README.md) and the [engine CI guide](docs/CI_COMPLIANCE_WORKFLOW_GUIDE.md)
+- [Changelog](CHANGELOG.md)
+
+## Contributing
+
+Contributions are welcome: test cases, engine adapters and submissions, SDK improvements and
+documentation. See [CONTRIBUTING.md](CONTRIBUTING.md). Questions and problems go to
+[GitHub Issues](https://github.com/IBM/substrait-compliance/issues).
+
+The project's [governance](GOVERNANCE.md), [maintainers](MAINTAINERS.md),
+[code of conduct](CODE_OF_CONDUCT.md) and [security policy](SECURITY.md) are in the
+repository root.
+
+## License
+
+Apache License 2.0; see [LICENSE](LICENSE). The function test cases in
+`test-suites/functions-substrait-0.107/upstream` are from the Substrait project, also under
+Apache 2.0.
+
+## Acknowledgments
+
+- The [Substrait](https://substrait.io) community, for the specification and its function test
+  cases
+- The [TPC](https://www.tpc.org), for the TPC-H benchmark
+- The DuckDB and Apache DataFusion projects, whose Substrait support is tested here

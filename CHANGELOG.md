@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased] — candidates for v0.1.2
 
+### Changed — a shorter README
+- `README.md` is rewritten as a short front page: what is measured, the suites, a quick start
+  that reproduces DataFusion's leaderboard entry, how to add an engine, and where to read more.
+- The per-language material it held (setting up each SDK, the engine interface by language,
+  how the SDKs line up, benchmarking) moves to the new [`sdk/README.md`](sdk/README.md).
+
 ### Removed — the TPC-DS suite
 - `test-suites/tpcds` is removed. It was not run in CI or scored on the leaderboard; the
   repository now keeps to the suites it runs (TPC-H and the function suites). A TPC-DS suite
