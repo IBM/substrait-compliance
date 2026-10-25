@@ -57,7 +57,7 @@ env:
   # suites measure one engine version.
   DUCKDB_PY_VERSION: "1.5.6"
   DUCKDB_JDBC_VERSION: "1.5.6.0"
-  COMPLIANCE_SDK_VERSION: "0.1.1"
+  COMPLIANCE_SDK_VERSION: "0.1.2"
   # Function definitions the functions-substrait-0.107 suite is validated against
   SUBSTRAIT_EXTENSIONS_VERSION: "0.107.0"
   # CI fails when the overall score or a category drops by more than this many points

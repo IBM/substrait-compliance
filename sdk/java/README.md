@@ -4,7 +4,7 @@ Java SDK for Substrait compliance testing.
 
 ## Consuming the SDK
 
-**Coordinates:** `io.substrait:substrait-compliance:0.1.1`
+**Coordinates:** `io.substrait:substrait-compliance:0.1.2`
 
 The SDK is not yet published to Maven Central or GitHub Packages.
 Build from source:
@@ -12,7 +12,7 @@ Build from source:
 ```bash
 cd sdk/java
 ./gradlew build          # compile + test
-./gradlew shadowJar      # produces build/libs/substrait-compliance-0.1.1-all.jar
+./gradlew shadowJar      # produces build/libs/substrait-compliance-0.1.2-all.jar
 ```
 
 The fat jar (`-all.jar`) bundles all runtime dependencies and can be placed
@@ -22,17 +22,17 @@ directly on any classpath.
 
 ```bash
 # Compile your engine
-javac -cp sdk/java/build/libs/substrait-compliance-0.1.1-all.jar MyEngine.java
+javac -cp sdk/java/build/libs/substrait-compliance-0.1.2-all.jar MyEngine.java
 
 # Run
-java -cp ".:sdk/java/build/libs/substrait-compliance-0.1.1-all.jar" MyMain
+java -cp ".:sdk/java/build/libs/substrait-compliance-0.1.2-all.jar" MyMain
 ```
 
 ### Using the fat jar in Gradle (local file dependency)
 
 ```gradle
 dependencies {
-    implementation files('path/to/substrait-compliance-0.1.1-all.jar')
+    implementation files('path/to/substrait-compliance-0.1.2-all.jar')
 }
 ```
 

@@ -5,7 +5,44 @@ All notable changes to the Substrait Compliance Framework will be documented in 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased] — candidates for v0.1.2
+## [Unreleased]
+
+## [0.1.2] - 2026-10-24
+
+### Highlights
+- **Public leaderboard**, scored on the Substrait project's 1,315 function cases (run as
+  Substrait plans) and TPC-H, with a page per engine listing what fails and why. DuckDB and
+  DataFusion run in this repository's CI; other engines take part by pull request.
+- **Test suites on Substrait 0.107.0**, with 2,278 verified extended function cases as reference.
+- **All eight SDKs** compare results and compute pass rates like the leaderboard, checked by
+  shared vectors, and load the repository's suites with input tables typed by the plan.
+- **Leaner repository**: the TPC-DS suite, the pre-release REST API and the demo prototypes are
+  removed, and the README, introduction and guides describe what is here.
+
+### Removed — the demo and test-implementations prototypes
+- `demo/` (a dashboard with simulated engines) and `test-implementations/` (an early DuckDB
+  runner) are removed. Neither was used by the leaderboard or CI.
+
+### Changed — the guides describe the repository as it is
+- `docs/CI_COMPLIANCE_WORKFLOW_GUIDE.md`: the engine interface examples, which used methods the
+  SDKs do not have, are replaced by how to connect an engine; the local commands run the actual
+  runners; the comparison tolerances are stated as the SDKs apply them.
+- `docs/SDK_VERIFICATION.md` is shortened to the commands CI runs for each SDK.
+- `docs/PERFORMANCE_BENCHMARKING.md` no longer shows a benchmark workflow or JSON export that do
+  not exist.
+- `docs/DEPLOYMENT_GUIDE.md` describes both ways to run a release and lists every publishing
+  secret.
+
+### Changed — dependency updates
+- The Java SDK builds on substrait-java 0.107.0 (was 0.98.0), matching the suites' Substrait
+  version, with Jackson 2.22.4, SLF4J 2.0.20, Mockito 5.24.0 and Gradle 9.8.2.
+- The workflows use the current major versions of the GitHub actions they call (for example
+  `actions/checkout` v7, `upload-artifact` v7, `download-artifact` v8).
+
+### Fixed — the release packages the current test suites
+- `release-publish.yml` zipped the legacy function suite and a folder that no longer exists, so
+  the release job could not run. It now packages `test-suites/` (every suite, with
+  `registry.json`) as `test-suites-<version>.zip`, with a checksum.
 
 ### Changed — the introduction matches the repository; the framework guide is removed
 - `docs/INTRODUCTION.md` keeps its argument and now describes the current suites (the Substrait
