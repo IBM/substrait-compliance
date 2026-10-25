@@ -1,2 +1,2 @@
-# Requirements for generate_technical_report.py
+# Requirements for the LLM-assisted test-quality tools (quality_checker.py and related scripts)
 litellm>=1.0.0

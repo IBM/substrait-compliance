@@ -1,4 +1,4 @@
-# Substrait Compliance
+# The Substrait Compliance Framework
 
 [![License](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![CI](https://github.com/IBM/substrait-compliance/actions/workflows/sdk-build-test.yml/badge.svg)](https://github.com/IBM/substrait-compliance/actions/workflows/sdk-build-test.yml)
