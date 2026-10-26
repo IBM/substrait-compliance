@@ -49,7 +49,7 @@ Each engine has two scored **categories**:
 | Category | Suite | What it measures |
 |---|---|---|
 | **Functions** | `functions-substrait-0.107` (the Substrait project's 1,315 function cases), run as Substrait plans | how many functions the engine's Substrait consumer runs correctly |
-| **Queries** | `tpch` (22 TPC-H plans, current 0.107 encoding) | whether whole query plans run and give the right rows |
+| **TPC-H** | `tpch` (22 TPC-H plans, current 0.107 encoding) | whether whole query plans run and give the right rows |
 
 - A category's pass rate is passed ÷ (total − skipped): see
   [How the pass rate is calculated](#how-the-pass-rate-is-calculated).

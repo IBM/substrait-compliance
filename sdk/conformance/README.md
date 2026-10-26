@@ -46,7 +46,7 @@ only the same infinity, and NULL only NULL. A numeric string matches the number.
 compare exactly.
 
 Each vector gives an expected and an actual table and whether they match. They are
-checked against the two comparators that score the leaderboard's Queries, and against the
+checked against the two comparators that score the leaderboard's TPC-H category, and against the
 language SDKs' own comparators, so an SDK's in-house result means the same as the
 leaderboard's:
 

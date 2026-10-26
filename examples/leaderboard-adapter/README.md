@@ -3,7 +3,7 @@
 The leaderboard's runners are Python ([submissions/README.md](../../submissions/README.md)).
 An engine reachable from Python plugs in directly; any other engine can be run through a
 command. [`command_plan_engine.py`](command_plan_engine.py) is that adapter for the
-**Queries** score (TPC-H): it calls your command once per plan and scores the result like
+**TPC-H** score: it calls your command once per plan and scores the result like
 the built-in engines.
 
 ## The command

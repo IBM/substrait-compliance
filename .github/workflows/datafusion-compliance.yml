@@ -153,7 +153,7 @@ jobs:
             echo "## DataFusion ${DATAFUSION_PY_VERSION}"
             echo ""
             if [ -f output/leaderboard/datafusion.json ]; then
-              jq -r '"**Overall \(.passRate)%**: functions \(.categories.functions.passRate)%, queries \(.categories.queries.passRate)%"' output/leaderboard/datafusion.json
+              jq -r '"**Overall \(.passRate)%**: functions \(.categories.functions.passRate)%, TPC-H \(.categories.queries.passRate)%"' output/leaderboard/datafusion.json
               echo ""
             fi
             echo "| Suite | Pass Rate | Passed | Failed | Skipped | Total |"

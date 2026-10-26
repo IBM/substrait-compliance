@@ -269,7 +269,7 @@ jobs:
             echo "queries=$(jq -r '.categories.queries.passRate' "$REPORT_FILE")"
             echo "engine-version=$(jq -r '.engineVersion' "$REPORT_FILE")"
           } >> "$GITHUB_OUTPUT"
-          jq -r '"📊 DuckDB \(.engineVersion): overall \(.passRate)% (functions \(.categories.functions.passRate)%, queries \(.categories.queries.passRate)%)"' "$REPORT_FILE"
+          jq -r '"📊 DuckDB \(.engineVersion): overall \(.passRate)% (functions \(.categories.functions.passRate)%, TPC-H \(.categories.queries.passRate)%)"' "$REPORT_FILE"
           jq -r '.suites | to_entries[] | "   \(.key)\(if .value.informational then " (not scored)" else "" end): \(.value.passRate)% (\(.value.passed) passed, \(.value.failed) failed, \(.value.skipped) skipped)"' "$REPORT_FILE"
 
       - name: Upload detailed reports
@@ -374,9 +374,9 @@ jobs:
           | **Engine** | \`DuckDB\` |
           | **Engine Version** | \`$ENGINE_VERSION\` |
           | **Framework SDK** | \`$COMPLIANCE_SDK_VERSION\` |
-          | **Overall** | **$PASS_RATE%** (average of functions and queries) |
+          | **Overall** | **$PASS_RATE%** (average of Functions and TPC-H) |
           | **Functions** (upstream cases as Substrait plans) | $FUNCTIONS% |
-          | **Queries** (TPC-H plans) | $QUERIES% |
+          | **TPC-H** (plans) | $QUERIES% |
           | **Gate** | no drop of more than $MAX_REGRESSION pts from the last published result |
 
           EOF

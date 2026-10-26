@@ -57,7 +57,7 @@ The reference workflow [`.github/workflows/duckdb-compliance.yml`](../.github/wo
 | **1** | `build-framework` | Builds the Java SDK fat JAR and packages the test suites. | `compliance-assets` |
 | **2** | `run-compliance` | Runs TPC-H in both plan encodings (Java runner), validates the function suite, and runs it as Substrait plans (scored) and as SQL (reference), plus the legacy suite. It combines the reports into DuckDB's leaderboard entry (`combine_engine_reports.py --source ci`) and runs the regression check against the last published entry. | `duckdb-compliance-reports`, `duckdb-leaderboard-report` |
 | **3** | `leaderboard-preview` | Renders the entry as the leaderboard would show it. | job summary, `leaderboard-preview` |
-| **4** | `summary` | Overall, Functions and Queries scores, and per-suite results. | job summary |
+| **4** | `summary` | Overall, Functions and TPC-H scores, and per-suite results. | job summary |
 
 Publishing is a separate workflow, [`compliance-leaderboard.yml`](../.github/workflows/compliance-leaderboard.yml), which takes the entry of the latest successful run on `main`. [`datafusion-compliance.yml`](../.github/workflows/datafusion-compliance.yml) does the same for DataFusion with the Python runners only.
 

@@ -727,7 +727,7 @@ def engine_page_html(doc: Dict[str, Any], registry: Dict[str, dict], slug_name: 
     if t.get("functions"):
         parts.append("<h3>Functions</h3>" + html_table(t["functions"]) + f"<p>{_inline(FUNCTIONS_NOTE)}</p>")
     if t.get("queries") and t["queries"]["rows"]:
-        parts.append("<h3>Queries</h3>" + html_table(t["queries"])
+        parts.append("<h3>TPC-H</h3>" + html_table(t["queries"])
                      + "<p>Only the current plan encoding is scored; other encodings show whether plans from older "
                      "producers still run.</p>")
     if t.get("extensions") and t["extensions"]["rows"]:
