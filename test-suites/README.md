@@ -20,14 +20,14 @@ are counted as the runners count them.
 | Report name | What it runs | Plans or SQL | Cases | Leaderboard |
 |---|---|---|---|---|
 | `functions-substrait-0.107` | The Substrait project's own function cases ([`functions-substrait-0.107/upstream`](functions-substrait-0.107/README.md)) | Substrait plans, through the engine's Substrait consumer | 1,315 | **Scored: Functions** |
-| `tpch` | The 22 TPC-H queries at scale 0.01, plans in the current 0.107.0 encoding ([`tpch`](tpch/README.md)) | Substrait plans | 22 | **Scored: Queries** |
+| `tpch` | The 22 TPC-H queries at scale 0.01, plans in the current 0.107.0 encoding ([`tpch`](tpch/README.md)) | Substrait plans | 22 | **Scored: TPC-H** |
 | `functions-substrait-0.107-sql` | The same 1,315 function cases | The engine's own SQL | 1,315 | Reference. The difference from the plan run is the **consumer gap**: what the engine can do but its Substrait consumer cannot. |
 | `functions-substrait-0.107-extended` | 2,278 verified cases converted from the legacy suite ([`functions-substrait-0.107/extended`](functions-substrait-0.107/README.md)) | Substrait plans | 2,278 | Reference |
 | `functions-substrait-0.107-extended-sql` | The same 2,278 cases | The engine's own SQL | 2,278 | Reference |
 | `tpch-substrait-0.81` | The same 22 TPC-H queries, plans in the legacy 0.81 encoding | Substrait plans | 22 | Reference |
 | `functions-legacy` | The legacy function suite ([`functions`](functions/README.md)), replaced by `functions-substrait-0.107` | SQL | 5,037 | Reference. DuckDB only; not in the registry, so not accepted in submissions. |
 
-- An engine's **Overall** score is the average of its Functions and Queries pass rates; reference
+- An engine's **Overall** score is the average of its Functions and TPC-H pass rates; reference
   suites never change it ([how engines are scored](../docs/COMPLIANCE_LEADERBOARD.md#how-engines-are-scored)).
 - DuckDB and DataFusion, the engines this repository's CI runs, run every suite above;
   `functions-legacy` is run for DuckDB only.

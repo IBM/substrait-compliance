@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed — the scored query category is called TPC-H everywhere
+- The docs, the engine pages and the CI job summaries call the second scored category
+  **TPC-H**, as the leaderboard and README do, instead of "Queries". Data fields are unchanged
+  (`categories.queries`).
+
 ## [0.1.2] - 2026-10-24
 
 ### Highlights

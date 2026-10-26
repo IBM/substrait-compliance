@@ -90,7 +90,7 @@ type `compliance-report-submitted`, and when a DuckDB or DataFusion compliance r
 finishes, and when a submission is merged. Collects each engine's leaderboard entry from its
 latest successful run on `main`, adds each submitted engine's latest merged submission
 (`scripts/collect_submissions.py`), and regenerates the public leaderboard (`scripts/generate_leaderboard.py --format all`: Markdown, JSON
-and the GitHub Pages page). Engines are ranked by the average of their Functions and Queries pass
+and the GitHub Pages page). Engines are ranked by the average of their Functions and TPC-H pass
 rates. See [docs/COMPLIANCE_LEADERBOARD.md](../../docs/COMPLIANCE_LEADERBOARD.md).
 
 ## Notes

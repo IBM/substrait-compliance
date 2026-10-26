@@ -22,7 +22,7 @@ The accepted suites and how they count are listed in
 | Suite | Counts as | Required |
 |---|---|---|
 | `functions-substrait-0.107` | **Functions** score: the upstream function cases, run as Substrait plans (`--mode plan`) | yes |
-| `tpch` | **Queries** score: TPC-H plans, current encoding | yes |
+| `tpch` | **TPC-H** score: TPC-H plans, current encoding | yes |
 | `functions-substrait-0.107-sql` | shown, not scored: the same cases as your engine's SQL | no |
 | `functions-substrait-0.107-extended`, `-extended-sql` | shown, not scored | no |
 | `tpch-substrait-0.81` | shown, not scored: TPC-H plans in the 0.81 encoding | no |

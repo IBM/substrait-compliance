@@ -3,7 +3,7 @@
 Function test cases in the **current upstream Substrait test-case format**, checked against the
 function definitions of Substrait **v0.107.0**. Its `upstream/` cases, run as **Substrait plans**
 through each engine's Substrait consumer, are the leaderboard's **Functions** score (the overall
-score averages it with the Queries score). The `extended/` cases and both parts run as SQL are shown
+score averages it with the TPC-H score). The `extended/` cases and both parts run as SQL are shown
 next to it, not scored. It replaces
 [`test-suites/functions`](../functions/README.md), which still runs and is shown on the leaderboard
 as `functions-legacy`, marked *not scored*.

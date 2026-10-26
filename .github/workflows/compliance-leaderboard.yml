@@ -207,12 +207,12 @@ jobs:
               data = json.load(f)
           
           summary = f"**Engines ranked**: {data['totalEngines']}\n\n"
-          summary += "### Top 3 Engines (overall = average of functions and queries)\n\n"
+          summary += "### Top 3 Engines (overall = average of Functions and TPC-H)\n\n"
           
           for i, engine in enumerate(data['engines'][:3], 1):
               emoji = '🥇' if i == 1 else '🥈' if i == 2 else '🥉'
               cats = engine.get('categories') or {}
-              detail = ", ".join(f"{c} {(cats.get(c) or {}).get('passRate')}%" for c in ('functions', 'queries'))
+              detail = ", ".join(f"{label} {(cats.get(c) or {}).get('passRate')}%" for c, label in (('functions', 'Functions'), ('queries', 'TPC-H')))
               summary += f"{emoji} **{engine['engineName']}** {engine['engineVersion']}: {engine['passRate']:.1f}% ({detail})\n"
           
           with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as f:
