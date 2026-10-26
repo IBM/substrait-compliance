@@ -127,7 +127,7 @@ def main(argv=None):
         manifest["sdk"] = {k: v for k, v in (("language", args.sdk_language), ("version", args.sdk_version)) if v}
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
-    check = sub.check_submission(root, folder, registry, data_root=data_root)
+    check = sub.check_submission(root, folder, registry, data_root=data_root, check_skips=True)
     for w in check.warnings:
         print(f"⚠️  {w}")
     if not check.ok:

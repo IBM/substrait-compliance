@@ -27,6 +27,16 @@ import validate_submission  # noqa: E402
 REGISTRY = sub.load_registry(REPO)
 _IDS = {}
 
+# Preparing a submission checks its skips, which rebuilds function plans with
+# substrait-extensions (Python 3.10+; CI installs it there). Without it those tests skip.
+import importlib.util  # noqa: E402
+HAVE_EXTENSIONS = importlib.util.find_spec("substrait_extensions") is not None
+
+
+def need_extensions():
+    if not HAVE_EXTENSIONS:
+        pytest.skip("needs substrait-extensions==0.107.0 (Python 3.10+)")
+
 
 def case_ids(name):
     if name not in _IDS:
@@ -34,11 +44,19 @@ def case_ids(name):
     return _IDS[name]
 
 
+def valid_skips(name):
+    """Cases of a suite that may be skipped (undefined result, option mode, plan not built)."""
+    need_extensions()
+    return sorted(sub.valid_skip_ids(REPO, REGISTRY[name]) or case_ids(name))
+
+
 def function_report(name, engine="ExampleDB", version="2.0", failed=10, skipped=5, mode="plan"):
     ids = case_ids(name)
+    skip = valid_skips(name)[:skipped]  # skips the submission check accepts
+    fail = [i for i in ids if i not in set(skip)][:failed]
     rows = [{"file": f"test-suites/functions-substrait-0.107/upstream/{i.rsplit(':', 1)[0]}",
-             "line": int(i.rsplit(":", 1)[1]), "status": "failed" if n < failed else "skipped",
-             "reason": "x"} for n, i in enumerate(ids[:failed + skipped])]
+             "line": int(i.rsplit(":", 1)[1]), "status": status, "reason": "x"}
+            for status, group in (("failed", fail), ("skipped", skip)) for i in group]
     return {"engineName": engine, "engineVersion": version, "mode": mode, "totalTests": len(ids),
             "passed": len(ids) - failed - skipped, "failed": failed, "skipped": skipped,
             "categories": {"arithmetic": {"total": 4, "passed": 3, "failed": 1, "skipped": 0}},
@@ -61,6 +79,7 @@ def write_reports(d, **reports):
 
 
 def prepare(tmp_path, engine="ExampleDB", version="2.0", date="2026-10-01T00:00:00Z", reports=None):
+    need_extensions()
     reports_dir = write_reports(tmp_path / f"in-{engine}-{version}", **(reports or {
         "functions-substrait-0.107": function_report("functions-substrait-0.107", engine, version),
         "tpch": plan_report("tpch", engine, version),
@@ -403,3 +422,100 @@ def test_check_output_cannot_issue_workflow_commands(tmp_path, capsys, monkeypat
     lines = out.splitlines()
     assert lines[0].startswith("::stop-commands::") and lines[-1] == f"::{lines[0].split('::')[2]}::"
     assert not any(ln.startswith("::error") for ln in lines)
+
+
+# --------------------------------------------------------------------------- valid skips
+#
+# A skipped case is left out of the pass rate, so for the scored suites the check accepts a
+# skip only for a reason that says nothing about the engine, judged from the case itself.
+# The cases below are picked from the real suite each time the tests run.
+
+FUNCTIONS = "functions-substrait-0.107"
+
+
+def _suite_cases():
+    """(case id, parsed case) for every case of the scored function suite."""
+    from substrait_compliance.function_cases import parse_case_file
+    root = REPO / REGISTRY[FUNCTIONS]["path"]
+    for f in sorted(root.rglob("*.test")):
+        for tc in parse_case_file(str(f)).testcases:
+            yield f"{f.relative_to(root).as_posix()}:{tc.line}", tc
+
+
+def _case(kind, exclude=()):
+    """A case id of one kind (option mode, plan not built, or ordinary) not in exclude. The
+    suite's undefined results are all on option-pinned cases, so they are covered by "option"."""
+    valid = sub.valid_skip_ids(REPO, REGISTRY[FUNCTIONS])
+    for cid, tc in _suite_cases():
+        if cid in exclude:
+            continue
+        undefined = getattr(tc.result, "error", None) == "undefined"
+        if kind == "option" and tc.options and not undefined:
+            return cid
+        if kind == "not built" and cid in valid and not tc.options and not undefined:
+            return cid
+        if kind == "ordinary" and cid not in valid:
+            return cid
+    raise AssertionError(f"the suite has no {kind} case")
+
+
+def _skip(tmp_path, folder, case_id, reason="not supported"):
+    """Turn one failed case of the prepared submission's function report into a skip of
+    case_id (the totals stay consistent, so only the skip rule can reject it)."""
+    def edit(r):
+        failed = next(x for x in r["nonPassingResults"] if x["status"] == "failed")
+        failed.update(file=f"{REGISTRY[FUNCTIONS]['path']}/{case_id.rsplit(':', 1)[0]}",
+                      line=int(case_id.rsplit(":", 1)[1]), status="skipped", reason=reason)
+        r["failed"] -= 1
+        r["skipped"] += 1
+    edit_json(tmp_path / folder / "reports" / f"{FUNCTIONS}.json", edit)
+
+
+def test_honest_skips_are_accepted(tmp_path):
+    folder = prepare(tmp_path)  # function_report skips only cases that may be skipped
+    assert check(tmp_path, folder, check_skips=True).ok
+
+
+@pytest.mark.parametrize("kind", ["option", "not built"])
+def test_each_valid_reason_to_skip_is_accepted(tmp_path, kind):
+    folder = prepare(tmp_path)
+    already = set(valid_skips(FUNCTIONS)[:5])  # the prepared report's own skips
+    _skip(tmp_path, folder, _case(kind, exclude=already))
+    c = check(tmp_path, folder, check_skips=True)
+    assert c.ok, c.errors
+
+
+def test_skipping_an_ordinary_case_is_rejected(tmp_path):
+    folder = prepare(tmp_path)
+    case = _case("ordinary")
+    _skip(tmp_path, folder, case)
+    c = check(tmp_path, folder, check_skips=True)
+    assert not c.ok
+    assert any("skipped without a valid reason" in e and case in e for e in c.errors), c.errors
+
+
+def test_the_reason_a_report_gives_is_not_trusted(tmp_path):
+    folder = prepare(tmp_path)
+    _skip(tmp_path, folder, _case("ordinary"), reason="plan not built: user-defined type literals")
+    assert not check(tmp_path, folder, check_skips=True).ok
+
+
+def test_skipping_a_tpch_query_is_rejected(tmp_path):
+    folder = prepare(tmp_path)
+    def edit(r):
+        q = next(x for x in r["testResults"] if x["status"] == "FAILED")
+        q["status"] = "SKIPPED"
+        r["failed"] -= 1
+        r["skipped"] += 1
+    edit_json(tmp_path / folder / "reports" / "tpch.json", edit)
+    c = check(tmp_path, folder, check_skips=True)
+    assert any("tpch.json" in e and "skipped without a valid reason" in e for e in c.errors), c.errors
+
+
+def test_publishing_does_not_rejudge_skips(tmp_path):
+    # The skip rule is applied when a submission is checked for merging, not when merged
+    # submissions are published, so a later plan builder cannot change an accepted result.
+    folder = prepare(tmp_path)
+    _skip(tmp_path, folder, _case("ordinary"))
+    assert check(tmp_path, folder).ok
+    assert not check(tmp_path, folder, check_skips=True).ok

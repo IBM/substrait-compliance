@@ -192,7 +192,8 @@ request:
   rejected;
 - each report covers exactly the suite's cases: `totalTests` equals the number of cases,
   every per-case id exists in the suite, and the per-case results add up to the totals;
-- function suites were run in the required mode (`plan`, or `sql` for the `-sql` suites).
+- function suites were run in the required mode (`plan`, or `sql` for the `-sql` suites);
+- every skipped case of a scored suite is one that may be skipped ([valid skips](#valid-skips)).
 
 It then scores the submission with the leaderboard's rules and shows, in the check's
 summary, where it would rank. Submitted pass rates and per-extension figures are never
@@ -205,6 +206,23 @@ ones. For example, with `nonPassingResults` a failure that is left out simply co
 pass, and the run mode is what the report says. The safeguards against that are review of
 the pull request, the linked CI run, and maintainers re-running an engine when results look
 wrong.
+
+### Valid skips
+
+A skipped case counts neither way in the pass rate, so for the scored suites the check
+accepts a skip only for a reason that says nothing about the engine. Whether a case may be
+skipped is worked out from the case itself, never from the reason a report gives:
+
+| Suite | A case may be skipped when |
+|---|---|
+| `functions-substrait-0.107` | its expected result is `<!UNDEFINED>` (any behaviour is allowed); it is pinned to an option mode (an engine need implement only one mode of an option, such as `overflow`); or this repository's plan builder cannot build it yet |
+| `tpch` | it has no expected output to compare with (none today, so a skipped query is rejected) |
+
+Today that allows at most 189 of the 1,315 function cases to be skipped. The runners in
+this repository only skip for these reasons; a case your engine cannot run is a failure.
+The rule applies when a submission is checked for merging; publishing does not check a
+merged submission's skips again, so a later version of the plan builder cannot change an
+accepted result.
 
 ## Review and publishing
 

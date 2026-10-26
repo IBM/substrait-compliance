@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed — a submission can no longer raise its score by skipping cases
+- Skipped cases are left out of the pass rate, but the pull-request check did not ask why a
+  case was skipped: a submission that skipped all but 5 function cases and 1 TPC-H query
+  passed the check and would have ranked first with 100%. The check now accepts a skip of a
+  scored suite's case only if its expected result is undefined, it is pinned to an option mode,
+  or this repository's plan builder cannot build it (TPC-H: only a query without expected
+  output). This is worked out from the case itself, not the report's reason; any other skip
+  rejects the submission, listing the cases. At most 189 of the 1,315 function cases may be
+  skipped. DuckDB's and DataFusion's skips are all valid, so no published score changes.
+- The rule is applied by the pull-request check and `prepare_submission.py`, not when merged
+  submissions are published. The checking workflows install `substrait-extensions` and
+  `substrait-protobuf` 0.107.0 to rebuild the plans.
+- The leaderboard shows how many of each category's cases ran, e.g. *69.5% (1,163 run)*.
+
 ### Changed — the scored query category is called TPC-H everywhere
 - The docs, the engine pages and the CI job summaries call the second scored category
   **TPC-H**, as the leaderboard and README do, instead of "Queries". Data fields are unchanged

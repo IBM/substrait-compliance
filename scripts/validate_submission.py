@@ -119,7 +119,8 @@ def main(argv=None):
         ap.error("nothing to check (give folders, --all or --changed-files)")
 
     hashes, cases = {}, {}
-    checks = [sub.check_submission(root, f, registry, hashes, cases, data_root=data_root) for f in folders]
+    checks = [sub.check_submission(root, f, registry, hashes, cases, data_root=data_root, check_skips=True)
+              for f in folders]
 
     lines = ["## Leaderboard submission check", ""]
     if args.changed_files and not folders and not errors:

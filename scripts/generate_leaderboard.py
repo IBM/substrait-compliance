@@ -265,8 +265,13 @@ def build_model(reports: List[Dict[str, Any]], registry: Optional[Dict[str, dict
     unranked = [r for r in reports if not is_scored_entry(r)]
 
     def cat_cell(e, cat):
+        """The category's rate and how many of its cases ran: skipped cases are not counted,
+        so "(1,163 run)" next to a header of 1,315 cases shows what the rate covers."""
         c = e['categories'].get(cat) or {}
-        return pct(c.get('passRate')) if c.get('suites') else ("not run", "ref")
+        if not c.get('suites'):
+            return ("not run", "ref")
+        executed = int(c.get('passed', 0)) + int(c.get('failed', 0))
+        return f"{pct(c.get('passRate'))} ({executed:,} run)"
 
     rankings = {
         "headers": ["Rank", "Engine", "Overall", category_header(entries, "functions", registry),
