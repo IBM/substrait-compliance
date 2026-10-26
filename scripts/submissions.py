@@ -170,6 +170,108 @@ def case_id_from_result(spec: dict, result: dict) -> Optional[str]:
     return f"{rel}:{line}"
 
 
+# ------------------------------------------------------------------ which skips are valid
+#
+# A skipped case is left out of the pass rate, so a skip must be one that says nothing about
+# the engine. For the scored suites, which cases may be skipped is worked out here from the
+# case itself, never from the reason a report gives:
+#
+#   function cases  the expected result is <!UNDEFINED>; the case is pinned to an option mode
+#                   (an engine need implement only one mode of an option); or this repository's
+#                   plan builder cannot build the case yet (under any engine dialect)
+#   queries (TPC-H) the case has no expected output to compare with
+
+def valid_skip_ids(root: Path, spec: dict) -> Optional[frozenset]:
+    """Ids of the cases of a scored suite that may be skipped, or None when the suite is not
+    one whose skips are checked (reference suites, or a function suite not run as plans)."""
+    if spec.get("role") not in ("functions", "queries"):
+        return None
+    path = (Path(root) / spec["path"]).resolve()
+    if spec["kind"] == "metadata":
+        return _metadata_skip_ids(str(path), hash_suite_path(path, "metadata"))
+    if spec["kind"] == "cases" and spec.get("mode") == "plan":
+        return _function_skip_ids(str(path), hash_suite_path(path, "cases"), str(Path(root).resolve()))
+    return None
+
+
+@functools.lru_cache(maxsize=8)
+def _metadata_skip_ids(path_str: str, content_hash: str) -> frozenset:
+    import yaml
+    path = Path(path_str)
+    data = yaml.safe_load(path.read_text())
+    ok = set()
+    for tc in data.get("testCases") or []:
+        expected = tc.get("expectedOutput")
+        if not expected or not (path.parent / expected).exists():
+            ok.add(str(tc["id"]))
+    return frozenset(ok)
+
+
+class _PlanReached(BaseException):
+    """Raised by the probe engine when the runner gets as far as running the plan, i.e. the
+    case can be built. A BaseException, so the runner's own error handling does not catch it."""
+
+
+class _ProbeEngine:
+    """Stands in for an engine: the runner builds the case's plan and input exactly as for a
+    real engine, and the probe stops it just before the plan would run."""
+
+    def __init__(self, dialect):
+        self.dialect, self.implemented_modes = dialect, {}
+
+    def create_table(self, *args, **kwargs):
+        pass
+
+    def run_plan(self, plan):
+        raise _PlanReached()
+
+    def plan_error_kind(self, exc):
+        return ("runtime", "")
+
+
+@functools.lru_cache(maxsize=8)
+def _function_skip_ids(path_str: str, content_hash: str, root_str: str) -> frozenset:
+    import sys
+    for folder in (Path(root_str) / "sdk" / "python", Path(root_str) / "scripts"):
+        if str(folder) not in sys.path:
+            sys.path.insert(0, str(folder))
+    import function_sql as fsql
+    import run_function_compliance as rfc
+    import validate_function_tests as vft
+    path = Path(path_str)
+    m = re.search(r"substrait-(\d+\.\d+)", path_str)
+    extensions, _ = vft.load_registry(m.group(1) if m else None)
+    ok = set()
+    files = [(f, rfc.parse_case_file(f), f.read_text(encoding="utf-8").splitlines(), rfc.file_kind(f))
+             for f in _suite_files(path, "cases")]
+    for f, test_file, source, kind in files:
+        rel = f.relative_to(path).as_posix()
+        for tc in test_file.testcases:
+            cid = f"{rel}:{tc.line}"
+            if tc.options:
+                ok.add(cid)
+                continue
+            for dialect in (fsql.DUCKDB, fsql.DATAFUSION):
+                try:
+                    status, _ = rfc._run_plan_case(_ProbeEngine(dialect), kind, tc, source, test_file, extensions)
+                except _PlanReached:
+                    continue  # buildable in this dialect
+                if status == rfc.SKIPPED:  # expected result undefined, or the plan is not built
+                    ok.add(cid)
+                    break
+    return frozenset(ok)
+
+
+def invalid_skips(root: Path, spec: dict, report: dict) -> List[str]:
+    """The skipped cases of a report that have no valid reason to be skipped (see above)."""
+    allowed = valid_skip_ids(root, spec)
+    if allowed is None:
+        return []
+    rows = report.get("testResults") or report.get("nonPassingResults") or []
+    skipped = [case_id_from_result(spec, r) for r in rows if str(r.get("status", "")).lower() == "skipped"]
+    return sorted(i for i in skipped if i and i not in allowed)
+
+
 def _extension_of(case_id: str) -> str:
     """Extension (suite folder) of a function case id, e.g. arithmetic/add.test:3 -> arithmetic."""
     path = case_id.rsplit(":", 1)[0]
@@ -254,9 +356,13 @@ def _load_json(path: Path, label: str, errors: List[str]):
 
 
 def check_report(root: Path, name: str, spec: dict, report: dict, manifest: dict,
-                 case_ids_cache: Dict[str, List[str]], check_cases: bool = True) -> List[str]:
+                 case_ids_cache: Dict[str, List[str]], check_cases: bool = True,
+                 check_skips: bool = False) -> List[str]:
     """Consistency of one suite report with the suite and the manifest. check_cases=False
-    skips the checks against the current suite's cases (for a run on an older revision)."""
+    skips the checks against the current suite's cases (for a run on an older revision).
+    check_skips also requires every skipped case of a scored suite to be one that may be
+    skipped (valid_skip_ids); the pull-request check sets it, publishing does not, so a
+    merged submission is not re-judged by a later version of the plan builder."""
     errs = []
     label = f"reports/{name}.json"
     engine = manifest["engine"]
@@ -319,6 +425,15 @@ def check_report(root: Path, name: str, spec: dict, report: dict, manifest: dict
             errs.append(f"{label}: nonPassingResults has {len(rows)} entries, expected failed + skipped = {f + s}")
     else:
         errs.append(f"{label}: per-case results are required (testResults or nonPassingResults)")
+
+    if check_skips:
+        bad = invalid_skips(root, spec, report)
+        if bad:
+            errs.append(f"{label}: {len(bad)} case(s) skipped without a valid reason, e.g. "
+                        f"{', '.join(bad[:5])}. A case may be skipped only if its expected result "
+                        f"is undefined, it is pinned to an option mode, or this repository cannot "
+                        f"build its plan (TPC-H: only if it has no expected output); report the "
+                        f"others as failed (submissions/README.md#valid-skips)")
     return errs
 
 
@@ -337,7 +452,7 @@ def check_submission(root: Path, folder: Path, registry: Optional[Dict[str, dict
                      current_hashes: Optional[Dict[str, str]] = None,
                      case_ids_cache: Optional[Dict[str, List[str]]] = None,
                      data_root: Optional[Path] = None, allow_older_suites: bool = False,
-                     now: Optional[datetime] = None) -> Check:
+                     now: Optional[datetime] = None, check_skips: bool = False) -> Check:
     """Check submissions/<engine>/<version>/ (``folder``, under ``data_root``) against the
     suites, registry and schemas in ``root``. data_root defaults to root; the PR check
     reads the submission from the pull request but everything else from main.
@@ -443,7 +558,8 @@ def check_submission(root: Path, folder: Path, registry: Optional[Dict[str, dict
         errs = _schema_errors(root, REPORT_SCHEMA, report, rel)
         check_cases = name not in c.older_suites
         if not errs:
-            errs = check_report(root, name, spec, report, manifest, case_ids_cache, check_cases=check_cases)
+            errs = check_report(root, name, spec, report, manifest, case_ids_cache, check_cases=check_cases,
+                                check_skips=check_skips)
         c.errors += errs
         if not errs:
             ids = case_ids_cache.get(spec["path"] + "|" + spec["kind"]) if check_cases else None

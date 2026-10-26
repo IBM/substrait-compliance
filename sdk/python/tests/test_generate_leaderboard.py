@@ -53,8 +53,9 @@ def test_ranks_by_overall_and_links_each_engine_page(tmp_path):
     assert "| Rank | Engine | Overall | fsuite (100 cases) | TPC-H (10 queries) | Findings | Results |" in ranking
     page = "https://ibm.github.io/substrait-compliance/engines/a.html"
     assert ranking.index(f"| 🥇 | [A 1.0]({page}) |") < ranking.index("| 🥈 | [B 1.0]")
-    assert f"| **70.0%** | 60.0% | 80.0% | [0 findings]({page}) |" in ranking
-    assert "| **50.0%** | 90.0% | 10.0% |" in ranking
+    # Each rate says how many of the category's cases ran (skipped cases are not counted).
+    assert f"| **70.0%** | 60.0% (100 run) | 80.0% (10 run) | [0 findings]({page}) |" in ranking
+    assert "| **50.0%** | 90.0% (100 run) | 10.0% (10 run) |" in ranking
     # The main page is the ranking and links; the detail moved to the engine pages.
     assert "## Functions" not in md and "## Queries" not in md and "How scoring works" in md
 

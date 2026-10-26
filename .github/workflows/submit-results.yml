@@ -129,7 +129,8 @@ jobs:
           python-version: '3.11'
 
       - name: Install the submission tools
-        run: pip install -e compliance/sdk/python "jsonschema==4.23.0"
+        # substrait-extensions and -protobuf: the check rebuilds function plans to judge skips
+        run: pip install -e compliance/sdk/python "jsonschema==4.23.0" "substrait-extensions==0.107.0" "substrait-protobuf==0.107.0"
 
       - name: Build the submission
         id: prepare
