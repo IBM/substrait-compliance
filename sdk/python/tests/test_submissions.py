@@ -27,6 +27,16 @@ import validate_submission  # noqa: E402
 REGISTRY = sub.load_registry(REPO)
 _IDS = {}
 
+# Preparing a submission checks its skips, which rebuilds function plans with
+# substrait-extensions (Python 3.10+; CI installs it there). Without it those tests skip.
+import importlib.util  # noqa: E402
+HAVE_EXTENSIONS = importlib.util.find_spec("substrait_extensions") is not None
+
+
+def need_extensions():
+    if not HAVE_EXTENSIONS:
+        pytest.skip("needs substrait-extensions==0.107.0 (Python 3.10+)")
+
 
 def case_ids(name):
     if name not in _IDS:
@@ -36,6 +46,7 @@ def case_ids(name):
 
 def valid_skips(name):
     """Cases of a suite that may be skipped (undefined result, option mode, plan not built)."""
+    need_extensions()
     return sorted(sub.valid_skip_ids(REPO, REGISTRY[name]) or case_ids(name))
 
 
@@ -68,6 +79,7 @@ def write_reports(d, **reports):
 
 
 def prepare(tmp_path, engine="ExampleDB", version="2.0", date="2026-10-01T00:00:00Z", reports=None):
+    need_extensions()
     reports_dir = write_reports(tmp_path / f"in-{engine}-{version}", **(reports or {
         "functions-substrait-0.107": function_report("functions-substrait-0.107", engine, version),
         "tpch": plan_report("tpch", engine, version),

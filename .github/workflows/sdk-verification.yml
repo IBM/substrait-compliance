@@ -55,6 +55,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -e .
           pip install pytest pytest-cov
+          # The submission check rebuilds function plans; these need Python 3.10+
+          if python -c "import sys; sys.exit(sys.version_info < (3, 10))"; then
+            pip install "substrait-extensions==0.107.0" "substrait-protobuf==0.107.0"
+          fi
       
       - name: Run tests
         working-directory: sdk/python
