@@ -5,6 +5,11 @@ on:
     # Run weekly on Sunday at 00:00 UTC
     - cron: '0 0 * * 0'
   workflow_dispatch:
+    inputs:
+      backfill:
+        description: 'Add every engine run on main whose results GitHub still keeps (90 days) to the history'
+        type: boolean
+        default: false
   repository_dispatch:
     types: [compliance-report-submitted]
   # Publish when a leaderboard submission is merged (submissions/README.md)
@@ -94,6 +99,34 @@ jobs:
           name: compliance-reports
           path: compliance-reports/
 
+      # Backfill (manual runs only): the entries of earlier successful runs on main, added
+      # to each engine's history by generate_leaderboard.py --history-seed.
+      - name: Download earlier entries for the history
+        if: inputs.backfill
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          mkdir -p history-seed
+          for spec in duckdb-compliance.yml:duckdb-leaderboard-report \
+                      datafusion-compliance.yml:datafusion-leaderboard-report; do
+            workflow=${spec%%:*}; artifact=${spec#*:}
+            for run in $(gh run list --workflow "$workflow" --branch main --status success \
+                           --limit 200 --json databaseId --jq '.[].databaseId'); do
+              gh run download "$run" --name "$artifact" --dir "history-seed/$run" 2>/dev/null \
+                && echo "✅ $artifact from run $run" || true
+            done
+          done
+          echo "Entries for the history: $(find history-seed -name '*.json' | wc -l)"
+
+      - name: Upload earlier entries
+        if: inputs.backfill
+        uses: actions/upload-artifact@v7
+        with:
+          name: history-seed
+          path: history-seed/
+          if-no-files-found: ignore
+
   generate-leaderboard:
     name: Generate Leaderboard
     runs-on: ubuntu-latest
@@ -114,21 +147,33 @@ jobs:
           name: compliance-reports
           path: compliance-reports
       
+      - name: Download earlier entries for the history
+        if: inputs.backfill
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: history-seed
+          path: history-seed
+
       # PyYAML reads docs/engine-findings.yaml (explanations and upstream links of findings)
       - name: Install PyYAML
         run: pip install "pyyaml>=6"
 
       # --previous: the published site, to show what changed since each engine's last run
+      # and to carry on each engine's history (engines/<engine>.history.json)
       - name: Generate leaderboard and engine pages
         env:
           OWNER: ${{ github.repository_owner }}
           REPO: ${{ github.event.repository.name }}
         run: |
+          SEED=()
+          if [ -d history-seed ]; then SEED=(--history-seed history-seed); fi
           python scripts/generate_leaderboard.py \
             --input compliance-reports \
             --output docs/leaderboard.md \
             --format all \
-            --previous "https://${OWNER,,}.github.io/${REPO}/"
+            --previous "https://${OWNER,,}.github.io/${REPO}/" \
+            "${SEED[@]}"
           cat docs/leaderboard.md >> "$GITHUB_STEP_SUMMARY"
       
       - name: Upload leaderboard

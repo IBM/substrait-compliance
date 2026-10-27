@@ -26,7 +26,9 @@ labels come from test-suites/registry.json ("label").
 
 --format markdown|json|html|both|all ("both" = markdown + json; engine pages are written with
 json and html). --previous is the published site (or a folder with engines/*.json) of the
-last publish, used to show what changed since an engine's previous run.
+last publish, used to show what changed since an engine's previous run and to carry on each
+engine's history: engines/<engine>.history.json, one record per published run (date, version,
+scores), shown on the engine page. --history-seed adds entries of earlier runs to it.
 """
 
 import argparse
@@ -35,6 +37,7 @@ import json
 import os
 import re
 import sys
+import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
@@ -397,8 +400,81 @@ def changes_since(entry: Dict[str, Any], groups: List[dict], previous: Optional[
             "new": as_list(set(now) - set(before), now), "fixed": as_list(set(before) - set(now), before)}
 
 
+# ---------------------------------------------------------------------------
+# History: one record per published run, kept in engines/<engine>.history.json
+# ---------------------------------------------------------------------------
+
+def history_record(entry: Dict[str, Any]) -> Optional[dict]:
+    """The scores of one run; None for an entry without a timestamp or overall score."""
+    if not entry.get('timestamp') or entry.get('passRate') is None:
+        return None
+    cats = {}
+    for name, c in (entry.get('categories') or {}).items():
+        if isinstance(c, dict) and c.get('suites'):
+            cats[name] = {k: c.get(k) for k in ("passRate", "passed", "failed", "skipped", "suites")}
+    prov = entry.get('provenance') or {"source": "ci"}
+    return {"timestamp": entry['timestamp'], "engineVersion": entry.get('engineVersion'),
+            "passRate": entry['passRate'], "categories": cats,
+            "source": prov.get('source', 'ci'), **({"runUrl": prov['runUrl']} if prov.get('runUrl') else {})}
+
+
+def load_history(source: Optional[str], name: str) -> Optional[List[dict]]:
+    """engines/<name>.history.json of the previous publish; None if it has none yet.
+
+    Any other failure stops the publish: writing a new history without the old one would
+    lose it."""
+    if not source:
+        return None
+    try:
+        if re.match(r"https?://", source):
+            url = source.rstrip("/") + f"/engines/{name}.history.json"
+            try:
+                with urllib.request.urlopen(url, timeout=20) as resp:  # noqa: S310 - the published site
+                    data = json.loads(resp.read().decode())
+            except urllib.error.HTTPError as err:
+                if err.code == 404:
+                    return None
+                raise
+        else:
+            path = Path(source) / "engines" / f"{name}.history.json"
+            if not path.exists():
+                return None
+            data = json.loads(path.read_text())
+    except Exception as err:  # noqa: BLE001 - reported and stops the publish
+        raise SystemExit(f"❌ Cannot read the published history of {name} ({err}); not publishing, "
+                         "so that it is not replaced by a shorter one") from err
+    if not isinstance(data, dict) or not isinstance(data.get('runs'), list):
+        raise SystemExit(f"❌ The published history of {name} is not in the expected format")
+    return data['runs']
+
+
+def build_history(entry: Dict[str, Any], published: Optional[List[dict]], previous: Optional[dict],
+                  seeds: List[Dict[str, Any]]) -> List[dict]:
+    """Published runs + backfilled entries + this run, one per timestamp, oldest first. Before
+    the first history is published, the previous engine page supplies the run before this one."""
+    runs = list(published or [])
+    if published is None and previous:
+        runs.append(history_record(previous))
+    runs += [history_record(s) for s in seeds]
+    runs.append(history_record(entry))
+    by_time = {r['timestamp']: r for r in runs if r}
+    return [by_time[t] for t in sorted(by_time)]
+
+
+def load_seeds(folder: Optional[Path]) -> Dict[str, List[Dict[str, Any]]]:
+    """Engine entries from earlier runs (any folder depth), by engine page name."""
+    seeds: Dict[str, List[Dict[str, Any]]] = {}
+    if folder and folder.is_dir():
+        for path in sorted(folder.rglob('*.json')):
+            entry = load_compliance_report(path)
+            if entry and is_scored_entry(entry):
+                seeds.setdefault(slug(entry), []).append(entry)
+    return seeds
+
+
 def engine_document(entry: Dict[str, Any], rules: List[dict], previous_source: Optional[str],
-                    qcols: List[Dict[str, Any]], registry: Dict[str, dict]) -> Dict[str, Any]:
+                    qcols: List[Dict[str, Any]], registry: Dict[str, dict],
+                    seeds: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     groups = curate(entry, rules)
     findings = entry.get('findings') if isinstance(entry.get('findings'), dict) else None
     doc = {
@@ -409,7 +485,10 @@ def engine_document(entry: Dict[str, Any], rules: List[dict], previous_source: O
         "suites": entry.get('suites') or {},
         "findings": {"sections": findings['sections'], "groups": groups} if findings else None,
     }
-    doc["changes"] = changes_since(entry, groups, load_previous(previous_source, slug(entry))) if findings else None
+    previous = load_previous(previous_source, slug(entry))
+    doc["changes"] = changes_since(entry, groups, previous) if findings else None
+    doc["history"] = f"{slug(entry)}.history.json"
+    doc["_history"] = build_history(entry, load_history(previous_source, slug(entry)), previous, seeds or [])
     doc["_tables"] = engine_tables(entry, qcols, registry)
     return doc
 
@@ -569,6 +648,12 @@ a { color:var(--accent); }
 .scores { display:flex; flex-wrap:wrap; gap:12px; margin:16px 0; }
 .score { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:10px 14px; min-width:140px; }
 .score b { display:block; font-size:22px; }
+.trend { width:100%; height:auto; display:block; margin:8px 0 12px; background:var(--card); border:1px solid var(--line);
+         border-radius:8px; }
+.trend .grid { stroke:var(--line); stroke-width:1; }
+.trend text { fill:var(--muted); font-size:11px; }
+.trend polyline { fill:none; stroke:var(--accent); stroke-width:2; stroke-linejoin:round; }
+.trend circle { fill:var(--accent); stroke:var(--card); stroke-width:2; }
 .score span { font-size:13px; color:var(--muted); }
 .finding { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:14px 16px; margin:10px 0; }
 .finding p { margin:6px 0; }
@@ -679,6 +764,74 @@ def changes_html(ch: Optional[dict]) -> str:
     return out
 
 
+HISTORY_ROWS = 52  # the newest runs listed on the page; the JSON file has all of them
+
+
+def history_chart(runs: List[dict]) -> str:
+    """Overall score per run as a line (0-100%), each point with its date and score on hover."""
+    w, h, left, right, top, bottom = 640, 180, 40, 12, 12, 26
+    pw, ph = w - left - right, h - top - bottom
+    try:
+        times = [datetime.fromisoformat(r['timestamp'].replace("Z", "+00:00")).timestamp() for r in runs]
+    except ValueError:
+        return ""
+    span = (times[-1] - times[0]) or 1
+    x = lambda t: left + (t - times[0]) / span * pw  # noqa: E731
+    y = lambda v: top + (100 - v) / 100 * ph  # noqa: E731
+    grid = "".join(f'<line x1="{left}" x2="{w - right}" y1="{y(v):.1f}" y2="{y(v):.1f}" class="grid"/>'
+                   f'<text x="{left - 6}" y="{y(v) + 4:.1f}" text-anchor="end">{v}%</text>' for v in (0, 50, 100))
+    pts = [(x(t), y(r['passRate'])) for t, r in zip(times, runs)]
+    line = '<polyline points="' + " ".join(f"{a:.1f},{b:.1f}" for a, b in pts) + '"/>'
+    dots = "".join(f'<circle cx="{a:.1f}" cy="{b:.1f}" r="4"><title>{_when(r["timestamp"])}: '
+                   f'{pct(r["passRate"])} overall ({html.escape(str(r.get("engineVersion") or ""))})</title></circle>'
+                   for (a, b), r in zip(pts, runs))
+    ends = (f'<text x="{left}" y="{h - 6}">{runs[0]["timestamp"][:10]}</text>'
+            f'<text x="{w - right}" y="{h - 6}" text-anchor="end">{runs[-1]["timestamp"][:10]}</text>')
+    return (f'<svg class="trend" viewBox="0 0 {w} {h}" role="img" aria-label="Overall score per run">'
+            f"{grid}{line}{dots}{ends}</svg>")
+
+
+def history_html(runs: List[dict], registry: Dict[str, dict], json_name: str) -> str:
+    if not runs:
+        return ""
+    out = ["<h2>History</h2>"]
+    if len(runs) < 2:
+        out.append("<p>The trend starts with the next run: this is the first one recorded.</p>")
+    else:
+        out.append(f"<p>Overall score of each published run ({len(runs)} runs).</p>" + history_chart(runs))
+    rows, changed = [], False
+    newest = list(reversed(runs))
+    for i, r in enumerate(newest[:HISTORY_ROWS]):
+        older = newest[i + 1] if i + 1 < len(newest) else None
+        delta = ""
+        if older and older.get('passRate') is not None:
+            d = round(r['passRate'] - older['passRate'], 1)
+            delta = f' <span class="ref">({d:+.1f})</span>' if d else ""
+        cells = [_when(r['timestamp']), html.escape(str(r.get('engineVersion') or "")), pct(r['passRate']) + delta]
+        mark = ""
+        for cat in ("functions", "queries"):
+            c = (r.get('categories') or {}).get(cat) or {}
+            cells.append(pct(c.get('passRate')) if c else "–")
+            if older and c.get('suites') != ((older.get('categories') or {}).get(cat) or {}).get('suites'):
+                mark = " †"
+        changed = changed or bool(mark)
+        cells[0] += mark
+        cells.append(f'<a href="{_href(r["runUrl"])}">run</a>' if r.get('runUrl') else "")
+        rows.append("<tr>" + "".join(f'<td{" class=num" if 2 <= j <= 4 else ""}>{c}</td>'
+                                     for j, c in enumerate(cells)) + "</tr>")
+    head = "".join(f'<th{" class=num" if 2 <= j <= 4 else ""}>{t}</th>' for j, t in
+                   enumerate(("Run", "Version", "Overall", "Functions", "TPC-H", "")))
+    out.append(f'<div class="scroll"><table><thead><tr>{head}</tr></thead><tbody>{"".join(rows)}</tbody></table></div>')
+    notes = []
+    if changed:
+        notes.append("† The scored suites changed at this run, so its scores are not directly comparable with the run before.")
+    if len(runs) > HISTORY_ROWS:
+        notes.append(f"The newest {HISTORY_ROWS} runs are listed.")
+    notes.append(f'All runs: <a href="{html.escape(json_name)}">{html.escape(json_name)}</a>.')
+    out.append("<p>" + " ".join(notes) + "</p>")
+    return "".join(out)
+
+
 def engine_page_html(doc: Dict[str, Any], registry: Dict[str, dict], slug_name: str) -> str:
     label = f"{doc.get('engineName')} {doc.get('engineVersion') or ''}".strip()
     prov = doc.get('provenance') or {}
@@ -695,6 +848,7 @@ def engine_page_html(doc: Dict[str, Any], registry: Dict[str, dict], slug_name: 
          (cats.get(c) or {}).get('passRate')) for c in ("functions", "queries")]
     parts.append('<div class="scores">' + "".join(
         f'<div class="score"><b>{pct(v)}</b><span>{html.escape(t)}</span></div>' for t, v in cards) + "</div>")
+    parts.append(history_html(doc.get('_history') or [], registry, doc.get('history') or f"{slug_name}.history.json"))
 
     findings = doc.get('findings')
     suite_labels = {n: suite_label(n, registry) for n in (doc.get('suites') or {})}
@@ -751,16 +905,19 @@ def engine_page_html(doc: Dict[str, Any], registry: Dict[str, dict], slug_name: 
 
 
 def generate_engine_pages(reports: List[Dict[str, Any]], out_dir: Path, previous: Optional[str] = None,
-                          write_html: bool = True) -> List[str]:
+                          write_html: bool = True, history_seed: Optional[Path] = None) -> List[str]:
     m = build_model(reports)
     rules = load_curated()
+    seeds = load_seeds(history_seed)
     out_dir.mkdir(parents=True, exist_ok=True)
     written = []
     for e in m["entries"]:
-        doc = engine_document(e, rules, previous, m["qcols"], m["registry"])
         name = slug(e)
+        doc = engine_document(e, rules, previous, m["qcols"], m["registry"], seeds.get(name))
         data = {k: v for k, v in doc.items() if not k.startswith("_")}
         (out_dir / f"{name}.json").write_text(json.dumps(data, indent=1))
+        (out_dir / f"{name}.history.json").write_text(json.dumps(
+            {"engineName": e.get('engineName'), "runs": doc["_history"]}, indent=1))
         if write_html:
             (out_dir / f"{name}.html").write_text(engine_page_html(doc, m["registry"], name))
         written.append(name)
@@ -815,6 +972,8 @@ def main(argv=None):
     parser.add_argument('--format', '-f', choices=['markdown', 'json', 'html', 'both', 'all'], default='markdown',
                         help='both = markdown + json; all = markdown + json + html')
     parser.add_argument('--previous', help='the previous publish (site URL or folder), for changes since the last run')
+    parser.add_argument('--history-seed', type=Path,
+                        help='a folder of engine entries from earlier runs, added to the engines\' history (backfill)')
     parser.add_argument('--include-demo', action='store_true',
                         help='Include reports marked "demo": true (excluded by default)')
     args = parser.parse_args(argv)
@@ -843,7 +1002,8 @@ def main(argv=None):
     if 'html' in fmt:
         generate_leaderboard_html(reports, args.output.with_suffix('.html'), args.output.with_suffix('.json').name)
     if fmt & {'json', 'html'}:
-        generate_engine_pages(reports, args.output.parent / "engines", args.previous, write_html='html' in fmt)
+        generate_engine_pages(reports, args.output.parent / "engines", args.previous, write_html='html' in fmt,
+                              history_seed=args.history_seed)
     print("✅ Leaderboard generation complete")
 
 

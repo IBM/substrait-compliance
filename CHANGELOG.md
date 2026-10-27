@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — engine history on the leaderboard
+- Each engine page shows the overall score of every published run as a line, and a table of
+  runs with date, version, the scores and a link to the run. A run where the scored suites
+  changed is marked †. The records are published as `engines/<engine>.history.json`.
+- Each publish carries the history forward from the published site; a publish stops rather
+  than overwrite a history it cannot read. Running the leaderboard workflow by hand with
+  **backfill** adds the runs whose results GitHub still keeps (90 days).
+
 ### Added — CI follows new DuckDB and DataFusion releases
 - `engine-release-check.yml` checks daily for a newer DuckDB or DataFusion release. When one
   is fully published (DuckDB also needs its JDBC driver and the substrait extension), it opens

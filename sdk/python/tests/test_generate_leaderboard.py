@@ -143,3 +143,86 @@ def test_html_escapes_engine_names(tmp_path):
     entry(tmp_path, "A<b>", fn=(1, 1), sql=(1, 1), q=(1, 1), q_old=(1, 1))
     page = (generate(tmp_path, "html") / "leaderboard.html").read_text()
     assert "A&lt;b&gt;" in page and "A<b>" not in page
+
+
+# History: engines/<engine>.history.json carries every published run forward from the last publish.
+
+def stamp(path, timestamp, version=None):
+    data = json.loads(path.read_text())
+    data["timestamp"] = timestamp
+    if version:
+        data["engineVersion"] = version
+    path.write_text(json.dumps(data))
+
+
+def publish(tmp_path, site, previous=None, seed=None):
+    args = ["--input", str(tmp_path / "entries"), "--output", str(site / "leaderboard.md"), "--format", "all"]
+    if previous:
+        args += ["--previous", str(previous)]
+    if seed:
+        args += ["--history-seed", str(seed)]
+    generate_leaderboard.main(args)
+    return json.loads((site / "engines" / "a.history.json").read_text())["runs"]
+
+
+def test_history_starts_with_the_first_run_and_grows_with_each_publish(tmp_path):
+    a = entry(tmp_path, "A", fn=(60, 40), sql=(95, 5), q=(8, 2), q_old=(1, 9))
+    stamp(a, "2026-10-19T02:00:00Z")
+    runs = publish(tmp_path, tmp_path / "site1")
+    assert [(r["timestamp"], r["passRate"]) for r in runs] == [("2026-10-19T02:00:00Z", 70.0)]
+    assert runs[0]["categories"]["functions"]["passRate"] == 60.0
+    assert "first one recorded" in (tmp_path / "site1" / "engines" / "a.html").read_text()
+
+    a.unlink()
+    (tmp_path / "A").rename(tmp_path / "A-old")
+    a = entry(tmp_path, "A", fn=(70, 30), sql=(95, 5), q=(8, 2), q_old=(1, 9))
+    stamp(a, "2026-10-26T02:00:00Z", version="1.1")
+    runs = publish(tmp_path, tmp_path / "site2", previous=tmp_path / "site1")
+    assert [(r["engineVersion"], r["passRate"]) for r in runs] == [("1.0", 70.0), ("1.1", 75.0)]
+    page = (tmp_path / "site2" / "engines" / "a.html").read_text()
+    assert "<h2>History</h2>" in page and '<svg class="trend"' in page and "(+5.0)" in page
+    assert page.index("2026-10-26 02:00") < page.index("2026-10-19 02:00")  # newest first
+
+    # Publishing the same run again (e.g. after a docs change) does not add a record.
+    assert len(publish(tmp_path, tmp_path / "site3", previous=tmp_path / "site2")) == 2
+
+
+def test_the_first_history_includes_the_run_on_the_previous_page(tmp_path):
+    a = entry(tmp_path, "A", fn=(60, 40), sql=(95, 5), q=(8, 2), q_old=(1, 9))
+    stamp(a, "2026-10-26T02:00:00Z")
+    prev = tmp_path / "prev" / "engines"
+    prev.mkdir(parents=True)
+    prev.joinpath("a.json").write_text(json.dumps({"timestamp": "2026-10-19T02:00:00Z", "engineVersion": "0.9",
+                                                   "passRate": 65.0, "categories": {}}))
+    runs = publish(tmp_path, tmp_path / "site", previous=tmp_path / "prev")
+    assert [(r["timestamp"], r["passRate"]) for r in runs] == [("2026-10-19T02:00:00Z", 65.0),
+                                                               ("2026-10-26T02:00:00Z", 70.0)]
+
+
+def test_an_unreadable_history_stops_the_publish(tmp_path):
+    entry(tmp_path, "A", fn=(60, 40), sql=(95, 5), q=(8, 2), q_old=(1, 9))
+    prev = tmp_path / "prev" / "engines"
+    prev.mkdir(parents=True)
+    prev.joinpath("a.history.json").write_text("{not json")
+    try:
+        publish(tmp_path, tmp_path / "site", previous=tmp_path / "prev")
+    except SystemExit as err:
+        assert "not publishing" in str(err)
+    else:
+        raise AssertionError("a publish over an unreadable history must stop")
+
+
+def test_backfill_adds_earlier_runs_and_marks_a_change_of_scored_suites(tmp_path):
+    a = entry(tmp_path, "A", fn=(60, 40), sql=(95, 5), q=(8, 2), q_old=(1, 9))
+    stamp(a, "2026-10-26T02:00:00Z")
+    seed = tmp_path / "seed" / "run-1"
+    seed.mkdir(parents=True)
+    old = json.loads(a.read_text())
+    old.update(timestamp="2026-10-12T02:00:00Z", passRate=50.0)
+    old["categories"]["functions"]["suites"] = ["an-older-suite"]
+    (seed / "a.json").write_text(json.dumps(old))
+    (seed / "raw-report.json").write_text(json.dumps({"engineName": "A", "passed": 1, "failed": 0}))  # not an entry
+    runs = publish(tmp_path, tmp_path / "site", seed=tmp_path / "seed")
+    assert [r["timestamp"] for r in runs] == ["2026-10-12T02:00:00Z", "2026-10-26T02:00:00Z"]
+    page = (tmp_path / "site" / "engines" / "a.html").read_text()
+    assert "2026-10-26 02:00 UTC †" in page and "scored suites changed" in page
