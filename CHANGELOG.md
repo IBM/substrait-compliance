@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added — CI follows new DuckDB and DataFusion releases
+- `engine-release-check.yml` checks daily for a newer DuckDB or DataFusion release. When one
+  is fully published (DuckDB also needs its JDBC driver and the substrait extension), it opens
+  a pull request moving CI to it and runs the engine's compliance workflow on it, so a change
+  in results shows in the regression check before merging. `sdk-build-test.yml` can now also
+  be started by hand.
+
 ### Fixed — a submission can no longer raise its score by skipping cases
 - Skipped cases are left out of the pass rate, but the pull-request check did not ask why a
   case was skipped: a submission that skipped all but 5 function cases and 1 TPC-H query

@@ -190,6 +190,7 @@ The public leaderboard and how results reach it are described in
 | `combine_engine_reports.py` | One engine's suite reports → its leaderboard entry (categories, overall score, source) |
 | `generate_leaderboard.py` | Engine entries → `leaderboard.md`, `.json` and `.html` |
 | `check_compliance_regression.py` | Fails when an engine's scores drop from its last published entry |
+| `check_engine_releases.py` | Finds a newer DuckDB or DataFusion release and updates CI's pins (`engine-release-check.yml`) |
 | `prepare_submission.py` | Suite reports → `submissions/<engine>/<version>/`, checked |
 | `validate_submission.py` | Checks submissions (also the pull-request check) and previews the ranking |
 | `collect_submissions.py` | Merged submissions → leaderboard entries |
