@@ -142,6 +142,22 @@ number they name form one finding, which lists every case it affects.
 Each page also shows what changed since the engine's previous run: the leaderboard workflow
 passes the published site to the generator (`--previous`), which compares the failing cases.
 
+### History
+
+Each engine page shows the engine's **history**: the overall score of every published run as
+a line, and a table of runs (newest first) with the date, version, overall, Functions and
+TPC-H scores, the change in the overall score and a link to the run. A run where the scored
+suites changed is marked **†**, since its scores are not directly comparable with the run
+before. The records are in `engines/<engine>.history.json`, one per published run.
+
+The history lives on the published site: each publish reads the previous
+`engines/<engine>.history.json` (`--previous`), adds the new run and publishes it again, so
+nothing is committed to the repository. Republishing the same run adds nothing. If the
+published history cannot be read (other than not existing yet), the publish stops rather than
+replace it with a shorter one. The first history starts with the run on the previous engine
+page and the new one; earlier runs whose results GitHub still keeps (90 days) can be added by
+running the leaderboard workflow by hand with **backfill** ticked (`--history-seed`).
+
 **Explanations and upstream issues** are kept by hand in
 [`docs/engine-findings.yaml`](engine-findings.yaml): a rule matches findings by engine,
 section and a pattern in their message, and gives a plain-English title, a note and the
@@ -235,9 +251,9 @@ It:
 2. runs `scripts/collect_submissions.py`, which turns each engine's **latest** merged
    submission (by run date) into an entry. It re-checks each submission, and leaves out one
    that no longer passes, with a warning in the log;
-3. generates `leaderboard.md`, `leaderboard.json`, `index.html` and the engine pages
-   (`generate_leaderboard.py --format all --previous <the published site>`) and deploys them
-   to GitHub Pages.
+3. generates `leaderboard.md`, `leaderboard.json`, `index.html` and the engine pages with
+   their history (`generate_leaderboard.py --format all --previous <the published site>`) and
+   deploys them to GitHub Pages.
 
 It also runs when `docs/engine-findings.yaml` or the generator changes on `main`.
 
