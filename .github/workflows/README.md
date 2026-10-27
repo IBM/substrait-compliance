@@ -48,6 +48,17 @@ It combines the reports into DataFusion's leaderboard entry (artifact
 
 How both engines' entries reach the leaderboard: [docs/COMPLIANCE_LEADERBOARD.md](../../docs/COMPLIANCE_LEADERBOARD.md).
 
+### `engine-release-check.yml` — New engine releases
+
+Runs daily (06:00 UTC). When a newer DuckDB or DataFusion release is fully published (for
+DuckDB: the Python package, the JDBC driver and the substrait extension), it opens a pull
+request moving CI's pins to it (`scripts/check_engine_releases.py`) and runs that engine's
+compliance workflow, and for DuckDB `sdk-build-test.yml`, on it. The regression check shows
+any change in results; merging publishes them. One pull request per release: an existing
+branch is not opened again. Opening the pull request needs **Settings → Actions → General →
+Allow GitHub Actions to create and approve pull requests**; without it, the branch is pushed
+and the runs start, and the pull request is opened by hand.
+
 ### `engine-compliance-template.yml` — Template for engine developers ⭐
 
 Copy this file into your own repository's `.github/workflows/` directory to enable automated

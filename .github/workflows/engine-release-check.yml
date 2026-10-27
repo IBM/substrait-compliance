@@ -1,0 +1,69 @@
+name: Engine Release Check
+
+# Daily: when a newer DuckDB or DataFusion release is fully published, open a pull
+# request that moves CI to it and run that engine's compliance workflow on it. Its
+# regression check shows any change in results; merging publishes them on the
+# leaderboard (scripts/check_engine_releases.py has the details).
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    name: Check ${{ matrix.engine }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        engine: [duckdb, datafusion]
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.11'
+
+      - name: Check for a new release and update the pins
+        id: check
+        run: python scripts/check_engine_releases.py --engine ${{ matrix.engine }} --apply --output "$GITHUB_OUTPUT" | tee -a "$GITHUB_STEP_SUMMARY"
+
+      - name: Open a pull request and run the engine on it
+        if: steps.check.outputs.branch != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          BRANCH: ${{ steps.check.outputs.branch }}
+          TITLE: ${{ steps.check.outputs.title }}
+          WORKFLOWS: ${{ steps.check.outputs.workflows }}
+        run: |
+          if git ls-remote --exit-code --heads origin "$BRANCH" > /dev/null; then
+            echo "Branch $BRANCH already exists; its pull request is open or was closed on purpose."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -c "$BRANCH"
+          git commit --all --signoff --message "$TITLE"
+          git push origin "$BRANCH"
+          cat > "$RUNNER_TEMP/body.md" <<EOF
+          Moves CI to a new release (found by \`engine-release-check.yml\`). Its runs on this branch: $WORKFLOWS.
+
+          - Results within the regression limit: merge to publish them.
+          - A drop in results fails the check: review the run's report; if the change is real, add the \`compliance-regression-ok\` label and merge.
+          EOF
+          gh pr create --base main --head "$BRANCH" --title "$TITLE" --body-file "$RUNNER_TEMP/body.md" \
+            || echo "::warning::Could not open the pull request (Settings → Actions → General → allow GitHub Actions to create pull requests); open one from $BRANCH"
+          for workflow in $WORKFLOWS; do
+            gh workflow run "$workflow" --ref "$BRANCH"
+          done
+          echo "### $TITLE: pull request opened from \`$BRANCH\`" >> "$GITHUB_STEP_SUMMARY"
