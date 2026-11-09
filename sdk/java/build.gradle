@@ -24,7 +24,7 @@ repositories {
 }
 
 ext {
-    substraitVersion = '0.107.0'
+    substraitVersion = '0.107.1'
 }
 
 dependencies {
