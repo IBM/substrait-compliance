@@ -24,7 +24,7 @@ repositories {
 }
 
 ext {
-    substraitVersion = '0.107.0'
+    substraitVersion = '0.107.1'
 }
 
 dependencies {
@@ -32,8 +32,8 @@ dependencies {
     api "io.substrait:isthmus:${substraitVersion}"
     api 'com.google.protobuf:protobuf-java:3.25.9'
     
-    implementation 'com.fasterxml.jackson.core:jackson-databind:2.22.4'
-    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.22.4'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.23.0'
+    implementation 'com.fasterxml.jackson.dataformat:jackson-dataformat-yaml:2.23.0'
     implementation 'org.slf4j:slf4j-api:2.0.20'
     
     testImplementation 'org.junit.jupiter:junit-jupiter:5.14.4'
